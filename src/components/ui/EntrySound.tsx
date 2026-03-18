@@ -1,48 +1,77 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { withBasePath } from "@/lib/basePath";
 
 export default function EntrySound() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [enabled, setEnabled] = useState(false);
+  const [ready, setReady] = useState(false);
 
-  async function toggleSound() {
-    if (!audioRef.current) return;
-
-    if (enabled) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      sessionStorage.setItem("misway-sound", "off");
-      setEnabled(false);
-      return;
-    }
+  async function startAudio() {
+    if (!audioRef.current) return false;
 
     try {
       audioRef.current.volume = 0.35;
+      audioRef.current.loop = true;
       await audioRef.current.play();
       sessionStorage.setItem("misway-sound", "on");
       setEnabled(true);
+      return true;
     } catch (error) {
-      console.error("Audio play blocked or failed:", error);
-      alert("Le son ne peut pas démarrer. Vérifie le fichier audio et clique une fois dans la page.");
+      console.warn("Autoplay audio blocked or failed:", error);
+      sessionStorage.setItem("misway-sound", "off");
+      setEnabled(false);
+      return false;
     }
   }
+
+  function stopAudio() {
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    sessionStorage.setItem("misway-sound", "off");
+    setEnabled(false);
+  }
+
+  async function toggleAudio() {
+    if (enabled) {
+      stopAudio();
+      return;
+    }
+    await startAudio();
+  }
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+
+    const saved = sessionStorage.getItem("misway-sound");
+
+    // Tentative au chargement uniquement si pas explicitement désactivé.
+    if (saved !== "off") {
+      startAudio();
+    }
+  }, [ready]);
 
   return (
     <>
       <audio
         ref={audioRef}
-        src={withBasePath("/audio/entry-ambient.mp3")}
-        loop
+        src={withBasePath("/audio/noise.mp3")}
         preload="auto"
       />
+
       <button
         type="button"
-        onClick={toggleSound}
-        className="border border-white/10 px-4 py-2 text-[10px] font-mono tracking-[0.24em] text-white/70 transition hover:border-white/30 hover:text-white"
+        onClick={toggleAudio}
+        className="font-mono text-[10px] tracking-[0.18em] text-neutral-700 transition hover:text-white"
+        aria-label={enabled ? "Disable ambient noise" : "Enable ambient noise"}
       >
-        {enabled ? "SOUND ON" : "START SOUND"}
+        {enabled ? "NOISE ACTIVE" : "NOISE INACTIVE"}
       </button>
     </>
   );

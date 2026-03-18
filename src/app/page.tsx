@@ -20,10 +20,6 @@ const item = {
 };
 
 export default function Landing() {
-  function handleEnter() {
-    sessionStorage.setItem("misway-sound", "on");
-  }
-
   return (
     <main className="relative min-h-[100svh] w-full overflow-clip px-4 sm:px-6">
       <div className="absolute inset-0 pointer-events-none">
@@ -31,7 +27,7 @@ export default function Landing() {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.02),transparent_20%,transparent_80%,rgba(255,255,255,0.02))]" />
 
         <motion.div
-          className="absolute left-1/2 top-[42%] h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/6 blur-[90px] sm:h-[420px] sm:w-[420px] md:h-[560px] md:w-[560px] md:blur-[120px]"
+          className="absolute left-1/2 top-[42%] h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/6 blur-[90px] sm:h-[520px] sm:w-[520px] md:h-[700px] md:w-[700px] md:blur-[130px]"
           animate={{
             scale: [1, 1.08, 0.98, 1],
             opacity: [0.08, 0.16, 0.1, 0.08],
@@ -40,23 +36,13 @@ export default function Landing() {
         />
 
         <motion.div
-          className="absolute left-1/2 top-[42%] hidden h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 sm:block md:h-[520px] md:w-[520px]"
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 36, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="absolute inset-0 rounded-full border border-white/6" />
-          <div className="absolute inset-[12%] rounded-full border border-white/5" />
-          <div className="absolute inset-[24%] rounded-full border border-white/4" />
-        </motion.div>
-
-        <motion.div
-          className="absolute left-1/2 top-[42%] hidden h-[180px] w-[180px] -translate-x-1/2 -translate-y-1/2 sm:block md:h-[240px] md:w-[240px]"
-          animate={{ opacity: [0.35, 0.7, 0.35] }}
+          className="absolute left-1/2 top-[42%] h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 sm:h-[340px] sm:w-[340px] md:h-[460px] md:w-[460px]"
+          animate={{ opacity: [0.35, 0.75, 0.35] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
         >
           <svg viewBox="0 0 200 200" className="h-full w-full">
             <path
-              d="M55 150 L100 48 L145 150 M38 150 H72 M128 150 H162"
+              d="M55 150 L100 34 L145 150 M32 150 H78 M122 150 H168"
               fill="none"
               stroke="rgba(255,255,255,0.9)"
               strokeWidth="6"
@@ -65,18 +51,6 @@ export default function Landing() {
             />
           </svg>
         </motion.div>
-
-        <motion.div
-          className="absolute left-[10%] top-[16%] hidden h-20 w-20 rounded-full border border-white/8 md:block"
-          animate={{ y: [0, -10, 0], opacity: [0.12, 0.24, 0.12] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        <motion.div
-          className="absolute bottom-[14%] right-[10%] hidden h-24 w-24 rounded-full border border-white/8 md:block"
-          animate={{ y: [0, 12, 0], opacity: [0.08, 0.2, 0.08] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
-        />
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.22)_55%,rgba(0,0,0,0.78)_100%)]" />
       </div>
@@ -116,7 +90,6 @@ export default function Landing() {
             >
               <Link
                 href="/explore"
-                onClick={handleEnter}
                 className="group relative flex min-h-[48px] items-center justify-center overflow-hidden border border-white/20 px-6 py-3 font-mono text-[11px] tracking-[0.24em] text-white transition sm:w-auto"
               >
                 <span className="relative z-10 group-hover:text-black">ENTER</span>
@@ -136,17 +109,13 @@ export default function Landing() {
               >
                 DRIFT
               </Link>
-
-              <div className="flex justify-center">
-                <EntrySound />
-              </div>
             </motion.div>
           </motion.div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 font-mono text-[10px] tracking-[0.18em] text-neutral-700 sm:mt-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] text-neutral-700">
           <span>ENTRY NODE / V1</span>
-          <span>NOISE ACTIVE</span>
+          <EntrySound />
         </div>
       </section>
     </main>

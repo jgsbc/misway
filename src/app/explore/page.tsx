@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { featuredTracks } from "@/lib/tracks";
+import { withBasePath } from "@/lib/basePath";
 
 export default function ExplorePage() {
   return (
@@ -54,7 +55,7 @@ export default function ExplorePage() {
               >
                 <div className="relative aspect-square overflow-hidden">
                   <Image
-                    src={track.coverImage ?? "/images/tracks/fallback.png"}
+                    src={withBasePath(track.coverImage ?? "/images/tracks/fallback.png")}
                     alt={track.title}
                     fill
                     className="object-cover opacity-80 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-100"

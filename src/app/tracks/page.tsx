@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { tracks } from "@/lib/tracks";
+import { withBasePath } from "@/lib/basePath";
 
 export default function TracksPage() {
   return (
@@ -29,7 +30,7 @@ export default function TracksPage() {
               <div className="grid md:grid-cols-[220px_1fr]">
                 <div className="relative aspect-square md:aspect-auto md:min-h-[220px]">
                   <Image
-                    src={track.coverImage ?? "/images/tracks/fallback.png"}
+                    src={withBasePath(track.coverImage ?? "/images/tracks/fallback.png")}
                     alt={track.title}
                     fill
                     className="object-cover opacity-85 transition duration-700 group-hover:scale-[1.02] group-hover:opacity-100"
