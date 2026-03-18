@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { withBasePath } from "@/lib/basePath";
 
 export default function GlobalIntroAudio() {
   const breakRef = useRef<HTMLAudioElement | null>(null);
@@ -119,21 +120,24 @@ export default function GlobalIntroAudio() {
     }
 
     loopRef.current.volume = 0.35;
-    loopRef.current.play().then(() => {
-      setSoundEnabled(true);
-    }).catch(() => {
-      setNeedsGesture(true);
-    });
+    loopRef.current
+      .play()
+      .then(() => {
+        setSoundEnabled(true);
+      })
+      .catch(() => {
+        setNeedsGesture(true);
+      });
   }
 
   return (
     <>
       <audio ref={breakRef} preload="auto">
-        <source src="/audio/entry-break.mp3" type="audio/mpeg" />
+        <source src={withBasePath("/audio/entry-break.mp3")} type="audio/mpeg" />
       </audio>
 
       <audio ref={loopRef} preload="auto" loop>
-        <source src="/audio/entry-loop.mp3" type="audio/mpeg" />
+        <source src={withBasePath("/audio/entry-loop.mp3")} type="audio/mpeg" />
       </audio>
 
       {needsGesture && !introReleased && (

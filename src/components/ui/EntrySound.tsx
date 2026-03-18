@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { withBasePath } from "@/lib/basePath";
 
 export default function EntrySound() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -30,7 +31,12 @@ export default function EntrySound() {
 
   return (
     <>
-      <audio ref={audioRef} src="/audio/entry-ambient.mp3" loop preload="auto" />
+      <audio
+        ref={audioRef}
+        src={withBasePath("/audio/entry-ambient.mp3")}
+        loop
+        preload="auto"
+      />
       <button
         type="button"
         onClick={toggleSound}
