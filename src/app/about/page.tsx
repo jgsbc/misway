@@ -14,13 +14,13 @@ const fragments = [
     title: "WORKING THEORY",
     text: "If a man carried pressure, fatherhood, unfinished ambitions, love damage, nocturnal work and a stubborn appetite for beauty, then rebuilt himself out of light, dust and pulse, it might sound like this.",
     rotate: "rotate-1",
-    shift: "md:ml-12",
+    shift: "md:ml-6",
   },
   {
     title: "KNOWN SIDE EFFECTS",
     text: "slow drift, clean insomnia, emotional static, occasional tenderness, elegant pressure, recurring lambda, and a mild tendency to build climates instead of explanations.",
-    rotate: "-rotate-2",
-    shift: "md:ml-4",
+    rotate: "-rotate-1",
+    shift: "md:ml-2",
   },
 ];
 
@@ -96,6 +96,22 @@ export default function AboutPage() {
                 It is not here to explain itself too quickly. It is here to create a
                 climate, hold a frequency, and leave a trace on the air.
               </p>
+
+              <div className="mt-8 space-y-5">
+                {fragments.map((fragment) => (
+                  <div
+                    key={fragment.title}
+                    className={`max-w-3xl border border-white/10 bg-white/[0.03] p-5 ${fragment.rotate} ${fragment.shift}`}
+                  >
+                    <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                      {fragment.title}
+                    </p>
+                    <p className="mt-4 text-sm leading-7 text-neutral-300">
+                      {fragment.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="grid gap-5">
@@ -157,22 +173,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="mb-16 space-y-5">
-          {fragments.map((fragment) => (
-            <div
-              key={fragment.title}
-              className={`max-w-3xl border border-white/10 bg-white/[0.03] p-5 ${fragment.rotate} ${fragment.shift}`}
-            >
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                {fragment.title}
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                {fragment.text}
-              </p>
-            </div>
-          ))}
-        </section>
-
         <section className="mb-16 grid gap-8 md:grid-cols-[0.95fr_1.05fr]">
           <div className="space-y-4">
             <div className="border border-white/10 bg-white/[0.03] p-6">
@@ -218,6 +218,27 @@ export default function AboutPage() {
                     {track.title}
                   </Link>
                 ))}
+              </div>
+            </div>
+
+            <div className="border border-white/10 bg-white/[0.03] p-6">
+              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                EXTERNAL LISTENING NODE
+              </p>
+              <p className="mt-4 text-sm leading-7 text-neutral-300">
+                The public stream continues beyond this archive. For sketches, releases
+                and signal traces outside the site, open the SoundCloud node.
+              </p>
+
+              <div className="mt-5">
+                <a
+                  href="https://soundcloud.com/misway"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                >
+                  OPEN SOUNDCLOUD
+                </a>
               </div>
             </div>
           </div>
