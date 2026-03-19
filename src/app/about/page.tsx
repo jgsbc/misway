@@ -6,43 +6,43 @@ import { withBasePath } from "@/lib/basePath";
 const fragments = [
   {
     title: "MISWΛY IS NOT",
-    text: "not exactly a brand, not exactly a diary, not exactly a machine. It is closer to a zone where tension, softness and residue keep changing masks.",
+    text: "not exactly a brand, not exactly a diary, not exactly a machine. It is closer to a live zone where signal, tenderness, fracture, humour and residue keep changing masks.",
     rotate: "-rotate-1",
     shift: "md:ml-0",
   },
   {
     title: "WORKING THEORY",
-    text: "If a frequency got tired, stayed awake too long, looked at the ceiling, then built itself a body out of light and dust, it might sound like this.",
+    text: "If a man carried pressure, fatherhood, unfinished ambitions, love damage, nocturnal work and a stubborn appetite for beauty, then rebuilt himself out of light, dust and pulse, it might sound like this.",
     rotate: "rotate-1",
     shift: "md:ml-12",
   },
   {
     title: "KNOWN SIDE EFFECTS",
-    text: "slow drift, clean insomnia, emotional static, mild architectural obsession, occasional tenderness, recurring lambda.",
+    text: "slow drift, clean insomnia, emotional static, occasional tenderness, elegant pressure, recurring lambda, and a mild tendency to build climates instead of explanations.",
     rotate: "-rotate-2",
     shift: "md:ml-4",
   },
 ];
 
 const oddNotes = [
-  "Some tracks arrive like blueprints. Others arrive like weather.",
-  "The lambda is not a logo. It behaves more like a recurring fault in reality.",
-  "No guarantee is made that the visitor will remain linear.",
-  "This archive prefers atmosphere over explanation.",
+  "Some tracks arrive like blueprints. Others arrive like weather. A few behave like confessions wearing better clothes.",
+  "The lambda is not a logo. It behaves more like a recurring fault in reality through which signal keeps escaping.",
+  "No guarantee is made that the visitor will remain linear, objective, or emotionally unchanged.",
+  "This archive prefers atmosphere over explanation, but the human source is no longer hidden behind the smoke.",
 ];
 
 const families = [
   {
     name: "ORIGINE",
-    desc: "organic, intimate, ritual, fogged edges",
+    desc: "organic, intimate, ritual, memory fragments, fogged edges, body heat",
   },
   {
     name: "STRUCTURE",
-    desc: "concrete, geometry, silence, pressure",
+    desc: "concrete, geometry, silence, pressure, restraint, engineered gaps",
   },
   {
     name: "SIGNAL",
-    desc: "digital, nervous light, systems, loops, charge",
+    desc: "digital, nervous light, systems, loops, charge, elegant malfunction",
   },
 ];
 
@@ -82,12 +82,19 @@ export default function AboutPage() {
               <p className="mt-6 max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
                 MISWΛY is an audio-visual territory built out of signal, drift,
                 nocturnal work, memory fragments, elegant pressure and the occasional
-                beautiful malfunction.
+                beautiful malfunction — but the source is human, not synthetic.
+              </p>
+
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-400">
+                Behind the climate there is a man: father, builder, drifter,
+                survivor of overload, unfinished worlds, tenderness, fracture and the
+                stubborn refusal to go numb. This project is where those forces are
+                turned into shape, pulse and atmosphere.
               </p>
 
               <p className="mt-5 max-w-xl text-sm leading-7 text-neutral-400">
                 It is not here to explain itself too quickly. It is here to create a
-                climate.
+                climate, hold a frequency, and leave a trace on the air.
               </p>
             </div>
 
@@ -109,7 +116,8 @@ export default function AboutPage() {
                   </p>
                   <p className="mt-3 text-sm leading-6 text-neutral-400">
                     Not a brand mascot. Not a neutral operator. A living source with
-                    memory, fracture, humour and work residue.
+                    memory, humour, fracture, desire, work residue and a slightly unreasonable
+                    need for beauty.
                   </p>
                 </div>
 
@@ -138,7 +146,7 @@ export default function AboutPage() {
 
                 <p className="mt-4 text-sm leading-6 text-neutral-400">
                   Λ as threshold, frequency, fault line, directional impulse, recurring
-                  apparition.
+                  apparition. Not branding. More like a disciplined glitch with spiritual manners.
                 </p>
 
                 <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
@@ -197,7 +205,7 @@ export default function AboutPage() {
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-300">
                 {tracks.length} visible nodes. Some ancient, some recent, some better
-                behaved than others.
+                behaved than others. None of them were made to sound like a résumé.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -267,7 +275,8 @@ export default function AboutPage() {
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-400">
                 No promise is made that this project will stay still, symmetrical, or
-                emotionally reasonable.
+                professionally reasonable. It remains under drift, under pressure and, on good days,
+                slightly luminous.
               </p>
 
               <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">

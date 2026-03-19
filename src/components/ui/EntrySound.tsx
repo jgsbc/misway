@@ -6,9 +6,10 @@ import { withBasePath } from "@/lib/basePath";
 export default function EntrySound() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [enabled, setEnabled] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   async function startAudio() {
-    if (!audioRef.current) return;
+    if (!audioRef.current) return false;
 
     try {
       audioRef.current.volume = 0.35;
@@ -16,10 +17,11 @@ export default function EntrySound() {
       await audioRef.current.play();
       setEnabled(true);
       sessionStorage.setItem("misway-sound", "on");
+      return true;
     } catch (error) {
-      console.warn("Audio blocked or missing file:", error);
       setEnabled(false);
       sessionStorage.setItem("misway-sound", "off");
+      return false;
     }
   }
 
@@ -40,21 +42,26 @@ export default function EntrySound() {
   }
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("misway-sound");
-    if (saved === "on") {
-      startAudio();
+    async function init() {
+      await startAudio();
+      setChecked(true);
     }
+    init();
   }, []);
 
   return (
     <>
-      <audio ref={audioRef} src={withBasePath("/audio/noise.mp3")} preload="auto" />
+      <audio
+        ref={audioRef}
+        src={withBasePath("/audio/entry-ambient.mp3")}
+        preload="auto"
+      />
       <button
         type="button"
         onClick={toggleAudio}
         className="font-mono text-[10px] tracking-[0.18em] text-neutral-700 transition hover:text-white"
       >
-        {enabled ? "NOISE ACTIVE" : "NOISE INACTIVE"}
+        {!checked ? "NOISE LOADING" : enabled ? "NOISE ACTIVE" : "NOISE INACTIVE"}
       </button>
     </>
   );
