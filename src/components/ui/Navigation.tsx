@@ -17,6 +17,7 @@ const links = [
 export default function Navigation() {
   const pathname = usePathname();
 
+  if (pathname === "/") return null;
   return (
     <motion.nav
       initial={{ opacity: 0, y: 16 }}
