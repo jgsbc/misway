@@ -21,11 +21,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="noise-bg" />
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}>
         <Navigation />
         <GlobalIntroAudio />
         {children}
