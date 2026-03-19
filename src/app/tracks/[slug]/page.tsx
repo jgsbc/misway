@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { tracks, getTrackBySlug } from "@/lib/tracks";
+import { withBasePath } from "@/lib/basePath";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -63,7 +64,7 @@ export default async function TrackDetailPage({ params }: Props) {
           <section className="space-y-6">
             <div className="relative aspect-square overflow-hidden border border-white/10 bg-white/[0.03]">
               <Image
-                src={track.coverImage ?? "/images/tracks/fallback.png"}
+                src={withBasePath(track.coverImage ?? "/images/tracks/fallback.png")}
                 alt={track.title}
                 fill
                 className="object-cover"
