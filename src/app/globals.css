@@ -36,13 +36,21 @@ body {
 .hero-home {
   position: relative;
   min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  background: #05070b url("/images/tracks-hero-1920x1080-v3.webp") center center / cover no-repeat;
+  background-color: #05070b;
+  background-image: var(--hero-desktop);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #f3f5f7;
 }
 
 @media (max-width: 768px) {
   .hero-home {
-    background-image: url("/images/tracks-hero-mobile-1080x1920.webp");
+    background-image: var(--hero-mobile);
   }
 }
 

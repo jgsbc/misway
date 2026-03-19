@@ -52,8 +52,7 @@ export default function ContactPage() {
                 DISCLAIMER
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-400">
-                Messages creux, demandes floues et énergie tiède peuvent être ralentis
-                par la gravité ambiante.
+                Empty messages, vague requests, and lukewarm energy can be slowed down by ambient gravity.
               </p>
 
               <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
