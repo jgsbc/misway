@@ -260,12 +260,12 @@ export default function AboutPage() {
                 >
                   OPEN TIMELINE
                 </Link>
-                <Link
-                  href="/contact"
+                <a
+                  href="#contact"
                   className="border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
                 >
                   REACH THE SOURCE
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -284,6 +284,141 @@ export default function AboutPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section id="contact" className="mb-16 grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-4">
+            <div className="border border-white/10 bg-white/[0.03] p-6">
+              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                CONTACT / CHANNEL
+              </p>
+              <p className="mt-4 text-sm leading-7 text-neutral-300">
+                For music, visuals, collaborations, strange signals or lucid messages.
+              </p>
+            </div>
+
+            <div className="border border-white/10 bg-white/[0.03] p-6">
+              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                GOOD REASONS TO WRITE
+              </p>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-neutral-400">
+                <li>— musical collaboration</li>
+                <li>— synchro / visuals / creations</li>
+                <li>— project proposal</li>
+                <li>— sincere message, even a bit strange</li>
+              </ul>
+            </div>
+
+            <div className="relative border border-white/10 bg-white/[0.03] p-6">
+              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                DISCLAIMER
+              </p>
+              <p className="mt-4 text-sm leading-7 text-neutral-400">
+                Empty messages, vague requests, and lukewarm energy can be slowed down by ambient gravity.
+              </p>
+
+              <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
+                PROBABLY READ
+              </div>
+            </div>
+          </div>
+
+          <section className="border border-white/10 bg-white/[0.03] p-6 md:p-8">
+            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+              MESSAGE FORM
+            </p>
+
+            <form
+              action="https://formspree.io/f/xqeywvda"
+              method="POST"
+              className="mt-6 space-y-6"
+            >
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                >
+                  NAME
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                >
+                  EMAIL
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="subject"
+                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                >
+                  SUBJECT
+                </label>
+                <input
+                  id="subject"
+                  name="subject"
+                  type="text"
+                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  placeholder="Collab, licensing, message..."
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="message"
+                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                >
+                  MESSAGE
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={7}
+                  required
+                  className="w-full resize-none border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  placeholder="Write your message..."
+                />
+              </div>
+
+              <input type="text" name="_gotcha" className="hidden" tabIndex={-1} autoComplete="off" />
+
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  className="border border-white/20 px-6 py-3 font-mono text-[11px] tracking-[0.28em] text-white transition hover:bg-white hover:text-black"
+                >
+                  SEND
+                </button>
+
+                <Link
+                  href="/explore"
+                  className="border border-white/10 px-6 py-3 font-mono text-[11px] tracking-[0.28em] text-white/70 transition hover:border-white/30 hover:text-white"
+                >
+                  BACK TO EXPLORE
+                </Link>
+              </div>
+            </form>
+          </section>
         </section>
       </div>
     </main>
