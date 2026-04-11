@@ -1,0 +1,8 @@
+# robots.txt for MISWΛY (https://jgsbc.github.io/misway)
+# This file allows search engines to crawl the site normally.
+
+User-agent: *
+Allow: /
+
+# Google Search Console
+Sitemap: https://jgsbc.github.io/misway/sitemap.xml
