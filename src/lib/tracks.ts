@@ -293,6 +293,23 @@ export const tracks: Track[] = [
     coverHint: "midnight console",
     featured: true,
   },
+  {
+    id: "17",
+    slug: "telatelaba",
+    title: "TELATELABA",
+    soundcloudUrl: "https://soundcloud.com/misway/telatelaba",
+    embedUrl:
+      "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/telatelaba&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
+    yearLabel: "2026",
+    publishedLabel: "New era",
+    duration: "2:47",
+    shortText: "in between",
+    longText:
+      "Somewhere here somewhere there, for sure somewhere.",
+    tags: ["recent", "in progress", "keep on"],
+    coverImage: "/images/tracks/telatelaba.png",
+    coverHint: "liminal passage",
+  },
 ];
 
 export function getTrackBySlug(slug: string) {
