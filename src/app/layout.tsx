@@ -16,10 +16,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   verification: {
-    google: "https://www.googletagmanager.com/gtag/js?id=G-KV5TMXL902",
+    google: "google72fb7680ca7d68ce",
   },
   title: "MISWΛY",
   description: "Audio-visual exploration.",
+  metadataBase: new URL("https://jgsbc.github.io/misway/"),
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    title: "MISWΛY — Audio-visual exploration",
+    description: "Sound, image and fragments of inner weather. A dark, sensitive and synthetic territory.",
+    url: "https://jgsbc.github.io/misway/",
+    siteName: "MISWΛY",
+    type: "website",
+    locale: "en_US",
+  },
 };
 
 export default function RootLayout({
@@ -27,6 +39,29 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          id="json-ld"
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "MISWΛY",
+              "description": "Audio-visual exploration. Sound, image and fragments of inner weather.",
+              "url": "https://jgsbc.github.io/misway",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://jgsbc.github.io/misway/tracks"
+                }
+              }
+            })
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
         <Navigation />
         {children}

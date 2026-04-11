@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,6 +11,43 @@ type Props = {
 
 export async function generateStaticParams() {
   return tracks.map((track) => ({ slug: track.slug }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const track = getTrackBySlug(slug);
+
+  if (!track) {
+    return {
+      title: "Track Not Found",
+    };
+  }
+
+  const trackUrl = `https://jgsbc.github.io/misway/tracks/${track.slug}/`;
+
+  return {
+    title: `${track.title} — MISWΛY Track`,
+    description: `${track.shortText} | ${track.duration ?? track.yearLabel} | ${track.publishedLabel}`,
+    alternates: {
+      canonical: `/tracks/${track.slug}/`,
+    },
+    openGraph: {
+      title: `${track.title} — MISWΛY`,
+      description: track.shortText,
+      url: trackUrl,
+      type: "music.song",
+      images: track.coverImage
+        ? [
+            {
+              url: `https://jgsbc.github.io/misway${track.coverImage}`,
+              width: 400,
+              height: 400,
+              alt: track.title,
+            },
+          ]
+        : [],
+    },
+  };
 }
 
 export default async function TrackDetailPage({ params }: Props) {

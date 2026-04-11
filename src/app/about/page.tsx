@@ -1,7 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { featuredTracks, tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
+
+export const metadata: Metadata = {
+  title: "About MISWΛY — Creative Archive & Audio Exploration",
+  description: "Discover the story of MISWΛY. Learn about the creative vision, working theory, and sonic territories of this audio-visual project. Contact & collaboration inquiries.",
+  alternates: {
+    canonical: "/about/",
+  },
+  openGraph: {
+    title: "About MISWΛY",
+    description: "Learn about MISWΛY's creative vision and sonic territories.",
+    url: "https://jgsbc.github.io/misway/about/",
+    type: "website",
+  },
+};
 
 const fragments = [
   {

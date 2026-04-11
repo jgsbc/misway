@@ -1,7 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
+
+export const metadata: Metadata = {
+  title: "Tracks — MISWΛY Complete Catalogue",
+  description: "Browse the full chronology of MISWΛY tracks from 2016 to 2026. Discover audio explorations organized by era, including RISE, BLOSSOMING, and newer releases.",
+  alternates: {
+    canonical: "/tracks/",
+  },
+  openGraph: {
+    title: "MISWΛY Tracks — Full Catalogue",
+    description: "Explore the complete MISWΛY audio catalogue spanning from 2016 to present.",
+    url: "https://jgsbc.github.io/misway/tracks/",
+    type: "website",
+  },
+};
 
 export default function TracksPage() {
   return (
