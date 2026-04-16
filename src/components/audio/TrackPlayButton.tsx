@@ -1,37 +1,35 @@
 "use client";
 
 import { Pause, Play } from "lucide-react";
-import { type Track } from "@/lib/tracks";
-import { useAudioPlayer } from "./AudioPlayerProvider";
+import type { Track } from "@/lib/tracks";
+import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
 
-type TrackPlayButtonProps = {
+type Props = {
   track: Track;
   className?: string;
-  label?: string;
 };
 
-export default function TrackPlayButton({
-  track,
-  className = "",
-  label,
-}: TrackPlayButtonProps) {
+export default function TrackPlayButton({ track, className = "" }: Props) {
   const { isCurrentTrack, isPlaying, toggleTrack } = useAudioPlayer();
-
-  const active = isCurrentTrack(track.slug);
-  const playing = active && isPlaying;
-  const Icon = playing ? Pause : Play;
+  const active = isCurrentTrack(track);
 
   return (
     <button
       type="button"
-      onClick={() => void toggleTrack(track)}
-      disabled={!track.audioSrc}
-      className={`inline-flex min-h-[44px] items-center justify-center gap-2 border border-white/14 bg-white/[0.04] px-4 py-2 text-xs font-mono tracking-[0.18em] text-white transition hover:border-white/28 hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
-      aria-label={label ?? `Play ${track.title}`}
-      title={label ?? `Play ${track.title}`}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleTrack(track);
+      }}
+      className={`inline-flex h-10 min-w-[84px] items-center justify-center gap-2 border border-white/12 bg-black/45 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/85 shadow-[0_0_20px_rgba(0,0,0,0.25)] backdrop-blur-md transition hover:border-white/24 hover:bg-black/65 hover:text-white ${className}`}
+      aria-label={active && isPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
     >
-      <Icon className="h-4 w-4" strokeWidth={1.8} />
-      <span>{label ?? (playing ? "PAUSE" : active ? "RESUME" : "PLAY")}</span>
+      {active && isPlaying ? (
+        <Pause className="h-3.5 w-3.5" />
+      ) : (
+        <Play className="h-3.5 w-3.5 translate-x-[1px]" />
+      )}
+      <span>{active && isPlaying ? "Pause" : "Play"}</span>
     </button>
   );
 }

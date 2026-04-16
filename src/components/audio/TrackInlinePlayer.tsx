@@ -1,92 +1,79 @@
 "use client";
 
-import { SkipBack, SkipForward } from "lucide-react";
-import { type Track } from "@/lib/tracks";
-import { useAudioPlayer } from "./AudioPlayerProvider";
-import TrackPlayButton from "./TrackPlayButton";
+import { Pause, Play } from "lucide-react";
+import type { Track } from "@/lib/tracks";
+import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
 
-function formatTime(seconds: number) {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-
-  const minutes = Math.floor(seconds / 60);
-  const remainder = Math.floor(seconds % 60);
-
-  return `${minutes}:${String(remainder).padStart(2, "0")}`;
+function formatTime(value: number) {
+  if (!Number.isFinite(value) || value < 0) return "0:00";
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.floor(value % 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 export default function TrackInlinePlayer({ track }: { track: Track }) {
   const {
-    currentTrack,
+    current,
+    isPlaying,
     currentTime,
     duration,
-    isPlaying,
-    isCurrentTrack,
-    playNext,
-    playPrevious,
-    seekTo,
+    progress,
+    toggleTrack,
+    seekToRatio,
   } = useAudioPlayer();
 
-  const active = isCurrentTrack(track.slug);
-  const sliderMax = active && duration > 0 ? duration : 100;
-  const sliderValue = active ? currentTime : 0;
+  const active = current.kind !== "ambient" && current.slug === track.slug;
 
   return (
     <div className="border border-white/10 bg-white/[0.03] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <TrackPlayButton track={track} />
-          <div>
-            <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-              LOCAL PLAYER
-            </p>
-            <p className="mt-1 text-sm text-neutral-300">
-              {active
-                ? isPlaying
-                  ? "Now playing in the global player."
-                  : "Loaded in the global player."
-                : "Load this track into the global player."}
-            </p>
-          </div>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
+            AUDIO_PORT
+          </p>
+          <p className="mt-2 text-sm text-neutral-300">
+            Native playback routed through the persistent site player.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={playPrevious}
-            disabled={!currentTrack}
-            className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-neutral-300 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Previous track"
-          >
-            <SkipBack className="h-4 w-4" strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            onClick={playNext}
-            disabled={!currentTrack}
-            className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-neutral-300 transition hover:border-white/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Next track"
-          >
-            <SkipForward className="h-4 w-4" strokeWidth={1.8} />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => toggleTrack(track)}
+          className="inline-flex h-10 min-w-[92px] items-center justify-center gap-2 border border-white/12 bg-black/45 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/85 transition hover:border-white/24 hover:bg-black/65 hover:text-white"
+        >
+          {active && isPlaying ? (
+            <Pause className="h-3.5 w-3.5" />
+          ) : (
+            <Play className="h-3.5 w-3.5 translate-x-[1px]" />
+          )}
+          <span>{active && isPlaying ? "Pause" : "Play"}</span>
+        </button>
       </div>
 
-      <div className="mt-5">
-        <input
-          type="range"
-          min={0}
-          max={sliderMax}
-          step={0.1}
-          value={sliderValue}
-          onChange={(event) => seekTo(Number(event.target.value))}
-          disabled={!active}
-          className="h-2 w-full cursor-pointer accent-white disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`Seek in ${track.title}`}
-        />
-        <div className="mt-2 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] text-neutral-500">
-          <span>{active ? formatTime(currentTime) : "READY"}</span>
-          <span>{active ? formatTime(duration) : track.duration ?? track.yearLabel}</span>
+      <div className="mt-4">
+        <div className="flex items-center justify-between gap-3 font-mono text-[10px] tracking-[0.18em] text-neutral-500">
+          <span className="truncate">{track.title}</span>
+          <span>
+            {active ? formatTime(currentTime) : "0:00"} /{" "}
+            {active ? formatTime(duration) : track.duration ?? track.yearLabel}
+          </span>
         </div>
+
+        <button
+          type="button"
+          onClick={(event) => {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const ratio = (event.clientX - rect.left) / rect.width;
+            seekToRatio(ratio);
+          }}
+          className="mt-3 block h-[3px] w-full overflow-hidden rounded-full bg-white/10"
+          aria-label={`Seek ${track.title}`}
+        >
+          <span
+            className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(86,184,255,0.95),rgba(255,255,255,0.95)_45%,rgba(255,170,78,0.95))]"
+            style={{ width: `${active ? Math.max(progress * 100, 2) : 2}%` }}
+          />
+        </button>
       </div>
     </div>
   );

@@ -1,162 +1,77 @@
 "use client";
 
-import Link from "next/link";
+import { useMemo } from "react";
 import { usePathname } from "next/navigation";
-import {
-  ExternalLink,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Volume2,
-} from "lucide-react";
-import { withBasePath } from "@/lib/basePath";
-import { useAudioPlayer } from "./AudioPlayerProvider";
+import { Pause, Play } from "lucide-react";
+import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
 
-function formatTime(seconds: number) {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-
-  const minutes = Math.floor(seconds / 60);
-  const remainder = Math.floor(seconds % 60);
-
-  return `${minutes}:${String(remainder).padStart(2, "0")}`;
+function formatTime(value: number) {
+  if (!Number.isFinite(value) || value < 0) return "0:00";
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.floor(value % 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 export default function GlobalAudioPlayer() {
   const pathname = usePathname();
   const {
-    currentTrack,
+    current,
+    isPlaying,
     currentTime,
     duration,
-    isPlaying,
-    playNext,
-    playPrevious,
-    seekTo,
-    togglePlayPause,
-    volume,
-    setVolume,
+    progress,
+    togglePlayback,
+    seekToRatio,
   } = useAudioPlayer();
 
-  if (!currentTrack) {
+  const label = useMemo(() => {
+    if (current.kind === "ambient") {
+      return "ENTRY AMBIENT / BACKGROUND LOOP";
+    }
+    return `${current.title} / ${current.publishedLabel}`;
+  }, [current]);
+
+  if (pathname === "/") {
     return null;
   }
 
-  const bottomClass =
-    pathname === "/"
-      ? "bottom-4 sm:bottom-6"
-      : "bottom-[76px] sm:bottom-[102px]";
-
   return (
-    <div
-      className={`fixed left-1/2 z-40 w-[min(calc(100%-24px),980px)] -translate-x-1/2 ${bottomClass}`}
-      aria-label="Global audio player"
-    >
-      <div className="overflow-hidden border border-white/12 bg-black/75 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-        <div className="h-px w-full bg-[linear-gradient(90deg,rgba(86,184,255,0.5),rgba(255,255,255,0.8),rgba(255,138,29,0.5))]" />
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/8 bg-black/72 backdrop-blur-xl">
+      <div className="mx-auto flex h-[42px] max-w-6xl items-center gap-3 px-3 sm:h-[46px] sm:px-4">
+        <button
+          type="button"
+          onClick={togglePlayback}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/85 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+          aria-label={isPlaying ? "Pause audio" : "Play audio"}
+        >
+          {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 translate-x-[1px]" />}
+        </button>
 
-        <div className="grid gap-4 px-4 py-4 md:grid-cols-[auto_1fr_auto] md:items-center">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 overflow-hidden border border-white/10 bg-white/[0.03]">
-              <img
-                src={withBasePath(
-                  currentTrack.coverImage ?? "/images/tracks/fallback.png"
-                )}
-                alt={currentTrack.title}
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            <div className="min-w-0">
-              <p className="font-mono text-[10px] tracking-[0.22em] text-neutral-500">
-                NOW PLAYING
-              </p>
-              <Link
-                href={`/tracks/${currentTrack.slug}`}
-                className="mt-1 block truncate text-sm font-medium tracking-[0.04em] text-white transition hover:text-neutral-200 sm:text-base"
-              >
-                {currentTrack.title}
-              </Link>
-              <div className="mt-1 flex items-center gap-3">
-                <span className="font-mono text-[10px] tracking-[0.18em] text-neutral-500">
-                  {currentTrack.publishedLabel}
-                </span>
-                <a
-                  href={currentTrack.soundcloudUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.18em] text-neutral-400 transition hover:text-white"
-                >
-                  SC
-                  <ExternalLink className="h-3 w-3" strokeWidth={1.8} />
-                </a>
-              </div>
-            </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-3">
+            <p className="truncate font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-400 sm:text-[10px]">
+              {label}
+            </p>
+            <span className="shrink-0 font-mono text-[9px] tracking-[0.16em] text-neutral-500 sm:text-[10px]">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-center gap-2 sm:gap-3">
-              <button
-                type="button"
-                onClick={playPrevious}
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-neutral-300 transition hover:border-white/30 hover:text-white"
-                aria-label="Previous track"
-              >
-                <SkipBack className="h-4 w-4" strokeWidth={1.8} />
-              </button>
-              <button
-                type="button"
-                onClick={() => void togglePlayPause()}
-                className="inline-flex h-11 min-w-[112px] items-center justify-center gap-2 border border-white/14 bg-white/[0.06] px-5 font-mono text-[11px] tracking-[0.18em] text-white transition hover:border-white/30 hover:bg-white/[0.1]"
-                aria-label={isPlaying ? "Pause current track" : "Play current track"}
-              >
-                {isPlaying ? (
-                  <Pause className="h-4 w-4" strokeWidth={1.8} />
-                ) : (
-                  <Play className="h-4 w-4" strokeWidth={1.8} />
-                )}
-                <span>{isPlaying ? "PAUSE" : "PLAY"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={playNext}
-                className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-neutral-300 transition hover:border-white/30 hover:text-white"
-                aria-label="Next track"
-              >
-                <SkipForward className="h-4 w-4" strokeWidth={1.8} />
-              </button>
-            </div>
-
-            <div>
-              <input
-                type="range"
-                min={0}
-                max={duration > 0 ? duration : 100}
-                step={0.1}
-                value={duration > 0 ? currentTime : 0}
-                onChange={(event) => seekTo(Number(event.target.value))}
-                className="h-2 w-full cursor-pointer accent-white"
-                aria-label="Seek within current track"
-              />
-              <div className="mt-1 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] text-neutral-500">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <Volume2 className="h-4 w-4 text-neutral-400" strokeWidth={1.8} />
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={(event) => setVolume(Number(event.target.value))}
-              className="w-28 cursor-pointer accent-white"
-              aria-label="Volume"
+          <button
+            type="button"
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              const ratio = (event.clientX - rect.left) / rect.width;
+              seekToRatio(ratio);
+            }}
+            className="mt-1 block h-[2px] w-full overflow-hidden rounded-full bg-white/10"
+            aria-label="Seek audio"
+          >
+            <span
+              className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(86,184,255,0.95),rgba(255,255,255,0.95)_45%,rgba(255,170,78,0.95))]"
+              style={{ width: `${Math.max(progress * 100, 2)}%` }}
             />
-          </div>
+          </button>
         </div>
       </div>
     </div>

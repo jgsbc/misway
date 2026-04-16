@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
+import Script from "next/script";
 import Navigation from "@/components/ui/Navigation";
-import AudioPlayerProvider from "@/components/audio/AudioPlayerProvider";
+import { AudioPlayerProvider } from "@/components/audio/AudioPlayerProvider";
 import GlobalAudioPlayer from "@/components/audio/GlobalAudioPlayer";
 
 const geistSans = Geist({

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import EntrySound from "@/components/ui/EntrySound";
 import { withBasePath } from "@/lib/basePath";
 
 const container = {
@@ -109,7 +108,7 @@ export default function Landing() {
 
         <div className="mt-8 flex items-center justify-between border-t border-white/8 pt-4 font-mono text-[10px] tracking-[0.18em] text-neutral-700">
           <span>ENTRY NODE / V1</span>
-          <EntrySound />
+          <span>ARCHIVE SIGNAL</span>
         </div>
       </section>
     </main>

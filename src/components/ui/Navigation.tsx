@@ -18,15 +18,16 @@ export default function Navigation() {
   const pathname = usePathname();
 
   if (pathname === "/") return null;
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="fixed bottom-3 left-1/2 z-40 -translate-x-1/2 sm:bottom-6"
+      className="fixed bottom-[52px] left-1/2 z-40 -translate-x-1/2 sm:bottom-[58px]"
       aria-label="Primary navigation"
     >
-      <div className="rounded-full border border-white/10 bg-black/60 px-2 py-2 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.35)]">
+      <div className="rounded-full border border-white/10 bg-black/55 px-2 py-2 shadow-[0_0_30px_rgba(0,0,0,0.35)] backdrop-blur-md">
         <div className="flex items-center gap-1 sm:gap-2">
           {links.map((link) => {
             const isActive =
@@ -43,8 +44,7 @@ export default function Navigation() {
                 aria-label={link.label}
                 title={link.label}
                 className={cn(
-                  "relative flex h-11 w-11 items-center justify-center rounded-full border transition-colors",
-                  "sm:h-12 sm:w-12",
+                  "relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors sm:h-11 sm:w-11",
                   isActive
                     ? "border-white/20 text-white"
                     : "border-transparent text-neutral-400 hover:text-white"
@@ -57,7 +57,7 @@ export default function Navigation() {
                     transition={{ type: "spring", stiffness: 280, damping: 28 }}
                   />
                 )}
-                <Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.8} />
+                <Icon className="h-[17px] w-[17px] sm:h-[18px] sm:w-[18px]" strokeWidth={1.8} />
               </Link>
             );
           })}

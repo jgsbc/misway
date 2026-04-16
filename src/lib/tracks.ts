@@ -4,7 +4,7 @@ export type Track = {
   title: string;
   soundcloudUrl: string;
   embedUrl: string;
-  audioSrc?: string;
+  audioSrc: string;
   yearLabel: string;
   publishedLabel: string;
   duration?: string;
@@ -16,9 +16,11 @@ export type Track = {
   featured?: boolean;
 };
 
-const audio = (filename: string) => `/audio/${filename}.mp3`;
+type TrackSeed = Omit<Track, "audioSrc"> & {
+  audioFile?: string;
+};
 
-export const tracks: Track[] = [
+const seedTracks: TrackSeed[] = [
   {
     id: "01",
     slug: "rise",
@@ -26,7 +28,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/rise",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/rise&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("rise"),
     yearLabel: "2016",
     publishedLabel: "Older era",
     duration: "3:58",
@@ -44,7 +45,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/blossoming",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/blossoming&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("blossoming"),
     yearLabel: "2016",
     publishedLabel: "Older era",
     duration: "7:02",
@@ -62,7 +62,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/ethnic-stick",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/ethnic-stick&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("ethnic-stick"),
     yearLabel: "2016",
     publishedLabel: "Older era",
     duration: "4:39",
@@ -80,7 +79,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/minuit-moins-cinq",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/minuit-moins-cinq&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("minuit-moins-cinq"),
     yearLabel: "2016",
     publishedLabel: "Older era",
     duration: "5:10",
@@ -94,12 +92,11 @@ export const tracks: Track[] = [
   },
   {
     id: "05",
-    slug: "misway-perdue",
+    slug: "perdue",
     title: "PERDUE",
     soundcloudUrl: "https://soundcloud.com/misway/misway-2021-moins-cinq",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/misway-2021-moins-cinq&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("perdue"),
     yearLabel: "2021",
     publishedLabel: "Older era",
     duration: "6:33",
@@ -109,15 +106,15 @@ export const tracks: Track[] = [
     tags: ["transition", "archive", "to-confirm"],
     coverImage: "/images/tracks/perdue.png",
     coverHint: "archival node",
+    audioFile: "misway-perdue.mp3",
   },
   {
     id: "06",
-    slug: "morne-et-1",
+    slug: "morne-et",
     title: "MORNE, ET ?",
     soundcloudUrl: "https://soundcloud.com/misway/morne-et-1",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/morne-et-1&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("morne-et"),
     yearLabel: "2023",
     publishedLabel: "Vegetative era",
     duration: "3:29",
@@ -135,7 +132,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/daymason",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/daymason&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("daymason"),
     yearLabel: "2023",
     publishedLabel: "Vegetative era",
     duration: "2:41",
@@ -154,7 +150,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/chailk",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/chailk&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("chailk"),
     yearLabel: "2023",
     publishedLabel: "Vegetative era",
     duration: "2:20",
@@ -172,7 +167,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/time",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/time&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("time"),
     yearLabel: "2023",
     publishedLabel: "Vegetative era",
     duration: "3:30",
@@ -190,7 +184,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/tantitom",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/tantitom&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("tantitom"),
     yearLabel: "2023",
     publishedLabel: "Vegetative era",
     duration: "2:59",
@@ -203,12 +196,11 @@ export const tracks: Track[] = [
   },
   {
     id: "11",
-    slug: "neektareum-1",
+    slug: "neektareum",
     title: "NEEKTAREUM",
     soundcloudUrl: "https://soundcloud.com/misway/neektareum-1",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/neektareum-1&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("neektareum"),
     yearLabel: "2025",
     publishedLabel: "New era",
     duration: "2:32",
@@ -227,7 +219,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/asitis",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/asitis&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("asitis"),
     yearLabel: "2025",
     publishedLabel: "New era",
     duration: "2:44",
@@ -245,7 +236,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/relative",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/relative&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("relative"),
     yearLabel: "2026",
     publishedLabel: "New era",
     duration: "3:04",
@@ -263,7 +253,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/overthink",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/overthink&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("overthink"),
     yearLabel: "2026",
     publishedLabel: "New era",
     duration: "2:08",
@@ -281,7 +270,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/hold-the-light",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/hold-the-light&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("hold-the-light"),
     yearLabel: "2026",
     publishedLabel: "New era",
     duration: "2:42",
@@ -300,7 +288,6 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/midnight-work",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/midnight-work&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("midnight-work"),
     yearLabel: "2026",
     publishedLabel: "New era",
     duration: "5:27",
@@ -319,24 +306,26 @@ export const tracks: Track[] = [
     soundcloudUrl: "https://soundcloud.com/misway/telatelaba",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/telatelaba&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    audioSrc: audio("telatelaba"),
     yearLabel: "2026",
     publishedLabel: "New era",
     duration: "2:47",
-    shortText: "In between, somewhere here somewhere there.",
+    shortText: "Somewhere here, somewhere there, for sure somewhere.",
     longText:
-      "Somewhere here somewhere there, for sure somewhere.",
-    tags: ["recent", "liminal", "keep on"],
+      "A liminal recent node, moving between directions rather than settling into one.",
+    tags: ["recent", "in-between", "movement"],
     coverImage: "/images/tracks/telatelaba.png",
     coverHint: "liminal passage",
     featured: true,
   },
 ];
 
+export const tracks: Track[] = seedTracks.map((track) => ({
+  ...track,
+  audioSrc: `/audio/${track.audioFile ?? `${track.slug}.mp3`}`,
+}));
+
 export function getTrackBySlug(slug: string) {
   return tracks.find((track) => track.slug === slug);
 }
-
-export const playableTracks = tracks.filter((track) => Boolean(track.audioSrc));
 
 export const featuredTracks = tracks.filter((track) => track.featured);

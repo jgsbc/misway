@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import TrackInlinePlayer from "@/components/audio/TrackInlinePlayer";
 import { tracks, getTrackBySlug } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
+import TrackInlinePlayer from "@/components/audio/TrackInlinePlayer";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -60,7 +60,7 @@ export default async function TrackDetailPage({ params }: Props) {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-6 pb-44 pt-24 md:px-10">
+    <main className="relative min-h-screen overflow-hidden px-6 pb-40 pt-24 md:px-10">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-24 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-white/5 blur-[120px]" />
         <div className="absolute left-[14%] top-[20%] h-24 w-24 rounded-full border border-white/6" />
@@ -83,7 +83,7 @@ export default async function TrackDetailPage({ params }: Props) {
 
           <div className="flex gap-3">
             <Link
-              href="/tracks"
+              href="/explore"
               className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
             >
               BACK
@@ -152,12 +152,7 @@ export default async function TrackDetailPage({ params }: Props) {
           </section>
 
           <aside className="space-y-4">
-            <div className="border border-white/10 bg-white/[0.03] p-4">
-              <p className="mb-4 font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                AUDIO_PORT
-              </p>
-              <TrackInlinePlayer track={track} />
-            </div>
+            <TrackInlinePlayer track={track} />
 
             <div className="border border-white/10 bg-white/[0.03] p-4">
               <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
