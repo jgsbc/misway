@@ -54,6 +54,25 @@ function toPlayerTrack(track: Track): PlayerTrack {
   return { ...track, kind: "track" };
 }
 
+function getTrackIndex(slug: string) {
+  return tracks.findIndex((track) => track.slug === slug);
+}
+
+function getNextTrack(current: CurrentAudio): Track | null {
+  if (!tracks.length) return null;
+
+  if (current.kind === "ambient") {
+    return tracks[0];
+  }
+
+  const currentIndex = getTrackIndex(current.slug);
+  if (currentIndex === -1) {
+    return tracks[0];
+  }
+
+  return tracks[(currentIndex + 1) % tracks.length];
+}
+
 export function AudioPlayerProvider({
   children,
 }: {
@@ -94,7 +113,7 @@ export function AudioPlayerProvider({
         audio.src = nextSrc;
       }
 
-      audio.loop = audioItem.kind === "ambient";
+      audio.loop = false;
       audio.volume = audioItem.kind === "ambient" ? 0.34 : 0.92;
       audio.preload = "metadata";
       audio.load();
@@ -131,8 +150,18 @@ export function AudioPlayerProvider({
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(audio.duration || 0);
+      const nextTrack = getNextTrack(current);
+
+      if (!nextTrack) {
+        setIsPlaying(false);
+        setCurrentTime(audio.duration || 0);
+        return;
+      }
+
+      shouldResumeRef.current = true;
+      setCurrentTime(0);
+      setDuration(0);
+      setCurrent(toPlayerTrack(nextTrack));
     };
 
     audio.addEventListener("timeupdate", onTimeUpdate);
@@ -150,7 +179,7 @@ export function AudioPlayerProvider({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, []);
+  }, [current]);
 
   useEffect(() => {
     const retry = () => {
@@ -266,9 +295,4 @@ export function useAudioPlayer() {
   }
 
   return context;
-}
-
-export function getOrderedTrackIndex(audio: CurrentAudio) {
-  if (audio.kind === "ambient") return -1;
-  return tracks.findIndex((track) => track.slug === audio.slug);
 }
