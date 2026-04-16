@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import Script from 'next/script'
 import Navigation from "@/components/ui/Navigation";
+import AudioPlayerProvider from "@/components/audio/AudioPlayerProvider";
+import GlobalAudioPlayer from "@/components/audio/GlobalAudioPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +28,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "MISWΛY — Audio-visual exploration",
-    description: "Sound, image and fragments of inner weather. A dark, sensitive and synthetic territory.",
+    description:
+      "Sound, image and fragments of inner weather. A dark, sensitive and synthetic territory.",
     url: "https://jgsbc.github.io/misway/",
     siteName: "MISWΛY",
     type: "website",
@@ -48,23 +51,29 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "MISWΛY",
-              "description": "Audio-visual exploration. Sound, image and fragments of inner weather.",
-              "url": "https://jgsbc.github.io/misway",
-              "potentialAction": {
+              name: "MISWΛY",
+              description:
+                "Audio-visual exploration. Sound, image and fragments of inner weather.",
+              url: "https://jgsbc.github.io/misway",
+              potentialAction: {
                 "@type": "SearchAction",
-                "target": {
+                target: {
                   "@type": "EntryPoint",
-                  "urlTemplate": "https://jgsbc.github.io/misway/tracks"
-                }
-              }
-            })
+                  urlTemplate: "https://jgsbc.github.io/misway/tracks",
+                },
+              },
+            }),
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}>
-        <Navigation />
-        {children}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}
+      >
+        <AudioPlayerProvider>
+          <Navigation />
+          {children}
+          <GlobalAudioPlayer />
+        </AudioPlayerProvider>
       </body>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-KV5TMXL902"
