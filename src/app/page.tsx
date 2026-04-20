@@ -100,14 +100,14 @@ export default function LandingPage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/about"
-                className="border border-white/8 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-500 transition hover:border-white/20 hover:text-neutral-300"
+                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
               >
                 ABOUT
               </Link>
 
               <Link
                 href="/tracks"
-                className="border border-white/8 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-500 transition hover:border-white/20 hover:text-neutral-300"
+                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
               >
                 FULL TIMELINE
               </Link>
