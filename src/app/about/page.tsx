@@ -1,65 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { featuredTracks, tracks } from "@/lib/tracks";
+import { featuredTracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
 
+const siteUrl = "https://jgsbc.github.io/misway";
+
 export const metadata: Metadata = {
-  title: "About MISWΛY — Creative Archive & Audio Exploration",
-  description: "Discover the story of MISWΛY. Learn about the creative vision, working theory, and sonic territories of this audio-visual project. Contact & collaboration inquiries.",
+  title: "About MISWΛY (MISWAY) — artist bio, vision & collaborations",
+  description:
+    "Learn about MISWΛY (MISWAY), an electronic music project exploring atmospheric electronica, ambient textures, trip-hop pressure and cinematic sound design.",
   alternates: {
-    canonical: "/about/",
+    canonical: `${siteUrl}/about/`,
   },
   openGraph: {
-    title: "About MISWΛY",
-    description: "Learn about MISWΛY's creative vision and sonic territories.",
-    url: "https://jgsbc.github.io/misway/about/",
-    type: "website",
+    title: "About MISWΛY (MISWAY)",
+    description:
+      "Artist bio, sonic direction, selected tracks and collaboration entry points.",
+    url: `${siteUrl}/about/`,
+    type: "profile",
+    images: [
+      {
+        url: `${siteUrl}/images/about/misway-portrait.jpg`,
+        width: 1200,
+        height: 1600,
+        alt: "Portrait of MISWΛY",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About MISWΛY (MISWAY)",
+    description:
+      "Artist bio, sonic direction, selected tracks and collaboration entry points.",
+    images: [`${siteUrl}/images/about/misway-portrait.jpg`],
   },
 };
-
-const fragments = [
-  {
-    title: "MISWΛY IS NOT",
-    text: "not exactly a brand, not exactly a diary, not exactly a machine. It is closer to a live zone where signal, tenderness, fracture, humour and residue keep changing masks.",
-    rotate: "-rotate-1",
-    shift: "md:ml-0",
-  },
-  {
-    title: "WORKING THEORY",
-    text: "If a man carried pressure, fatherhood, unfinished ambitions, love damage, nocturnal work and a stubborn appetite for beauty, then rebuilt himself out of light, dust and pulse, it might sound like this.",
-    rotate: "rotate-1",
-    shift: "md:ml-6",
-  },
-  {
-    title: "KNOWN SIDE EFFECTS",
-    text: "slow drift, clean insomnia, emotional static, occasional tenderness, elegant pressure, recurring lambda, and a mild tendency to build climates instead of explanations.",
-    rotate: "-rotate-1",
-    shift: "md:ml-2",
-  },
-];
-
-const oddNotes = [
-  "Some tracks arrive like blueprints. Others arrive like weather. A few behave like confessions wearing better clothes.",
-  "The lambda is not a logo. It behaves more like a recurring fault in reality through which signal keeps escaping.",
-  "No guarantee is made that the visitor will remain linear, objective, or emotionally unchanged.",
-  "This archive prefers atmosphere over explanation, but the human source is no longer hidden behind the smoke.",
-];
-
-const families = [
-  {
-    name: "ORIGINE",
-    desc: "organic, intimate, ritual, memory fragments, fogged edges, body heat",
-  },
-  {
-    name: "STRUCTURE",
-    desc: "concrete, geometry, silence, pressure, restraint, engineered gaps",
-  },
-  {
-    name: "SIGNAL",
-    desc: "digital, nervous light, systems, loops, charge, elegant malfunction",
-  },
-];
 
 export default function AboutPage() {
   return (
@@ -83,166 +59,92 @@ export default function AboutPage() {
       </div>
 
       <div className="relative mx-auto max-w-6xl">
-        <section className="mb-16">
-          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
-            / INFO / PROBABLY
-          </p>
+        <section className="mb-16 grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-start">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+              / ABOUT / ARTIST PROFILE
+            </p>
 
-          <div className="mt-6 grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-start">
-            <div>
-              <h1 className="text-4xl font-semibold tracking-tight text-white md:text-6xl">
-                MISWΛY
-              </h1>
+            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white md:text-6xl">
+              MISWΛY
+            </h1>
 
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
-                MISWΛY is an audio-visual territory built out of signal, drift,
-                nocturnal work, memory fragments, elegant pressure and the occasional
-                beautiful malfunction — but the source is human, not synthetic.
-              </p>
+            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.32em] text-neutral-500">
+              MISWAY / electronic music project
+            </p>
 
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-400">
-                Behind the climate there is a man: father, builder, drifter,
-                survivor of overload, unfinished worlds, tenderness, fracture and the
-                stubborn refusal to go numb. This project is where those forces are
-                turned into shape, pulse and atmosphere.
-              </p>
+            <p className="mt-6 max-w-3xl text-sm leading-7 text-neutral-300 md:text-base">
+              MISWΛY, also written MISWAY, is an electronic music project shaped by
+              atmospheric tension, nocturnal textures, ambient electronics, trip-hop
+              weight and cinematic contrast. The work moves between pressure and
+              softness, synthetic edges and intimate melodic fragments.
+            </p>
 
-              <p className="mt-5 max-w-xl text-sm leading-7 text-neutral-400">
-                It is not here to explain itself too quickly. It is here to create a
-                climate, hold a frequency, and leave a trace on the air.
-              </p>
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
+              This site is the central archive of the project: artist context, selected
+              tracks, catalogue access, contact entry points and a visual language built
+              around drift, signal, memory and controlled fracture.
+            </p>
 
-              <div className="mt-8 space-y-5">
-                {fragments.map((fragment) => (
-                  <div
-                    key={fragment.title}
-                    className={`max-w-3xl border border-white/10 bg-white/[0.03] p-5 ${fragment.rotate} ${fragment.shift}`}
-                  >
-                    <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                      {fragment.title}
-                    </p>
-                    <p className="mt-4 text-sm leading-7 text-neutral-300">
-                      {fragment.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
+              Behind the project is a human source, not a content machine. MISWΛY is
+              where personal intensity, visual taste, unfinished inner movement and
+              electronic composition are turned into form, pulse and atmosphere.
+            </p>
 
-            <div className="grid gap-5">
-              <div className="relative overflow-hidden border border-white/10 bg-white/[0.03]">
-                <div className="relative aspect-[4/3]">
-                  <Image
-                    src={withBasePath("/images/about/misway-portrait.jpg")}
-                    alt="Portrait of JG"
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                </div>
-
-                <div className="p-5">
-                  <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                    SOURCE BODY
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-neutral-400">
-                    Not a brand mascot. Not a neutral operator. A living source with
-                    memory, humour, fracture, desire, work residue and a slightly unreasonable
-                    need for beauty.
-                  </p>
-                </div>
-
-                <div className="absolute -right-3 -top-3 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 rotate-2">
-                  PROBABLY HUMAN
-                </div>
-              </div>
-
-              <div className="relative border border-white/10 bg-white/[0.03] p-6">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <div className="border border-white/10 bg-white/[0.03] p-5">
                 <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                  FIELD MARK
+                  GENRES / TERRITORIES
                 </p>
-
-                <div className="mt-6 flex items-center justify-center border border-white/10 bg-black/20 p-8">
-                  <svg viewBox="0 0 200 200" className="h-32 w-32">
-                    <path
-                      d="M55 150 L100 48 L145 150 M38 150 H72 M128 150 H162"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.92)"
-                      strokeWidth="6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-
-                <p className="mt-4 text-sm leading-6 text-neutral-400">
-                  Λ as threshold, frequency, fault line, directional impulse, recurring
-                  apparition. Not branding. More like a disciplined glitch with spiritual manners.
+                <p className="mt-4 text-sm leading-7 text-neutral-300">
+                  Atmospheric electronica, ambient electronic music, trip-hop pressure,
+                  cinematic electronics, dark synthetic textures.
                 </p>
+              </div>
 
-                <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
-                  NOT A SAFE SYMBOL
-                </div>
+              <div className="border border-white/10 bg-white/[0.03] p-5">
+                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                  FOR COLLABORATIONS
+                </p>
+                <p className="mt-4 text-sm leading-7 text-neutral-300">
+                  Sync references, visuals, artist discovery, music-related projects,
+                  direct contact and selected creative collaborations.
+                </p>
               </div>
             </div>
           </div>
-        </section>
 
-        <section className="mb-16 grid gap-8 md:grid-cols-[0.95fr_1.05fr]">
-          <div className="space-y-4">
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                VISUAL FAMILIES
-              </p>
+          <div className="grid gap-5">
+            <div className="relative overflow-hidden border border-white/10 bg-white/[0.03]">
+              <div className="relative aspect-[4/3]">
+                <Image
+                  src={withBasePath("/images/about/misway-portrait.jpg")}
+                  alt="Portrait of MISWΛY"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              </div>
 
-              <div className="mt-5 space-y-3">
-                {families.map((family, index) => (
-                  <div
-                    key={family.name}
-                    className={`border border-white/10 p-4 ${
-                      index === 1 ? "md:ml-8" : index === 2 ? "md:ml-3" : ""
-                    }`}
-                  >
-                    <p className="font-mono text-[10px] tracking-[0.22em] text-neutral-500">
-                      {family.name}
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-neutral-400">
-                      {family.desc}
-                    </p>
-                  </div>
-                ))}
+              <div className="p-5">
+                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                  SOURCE
+                </p>
+                <p className="mt-3 text-sm leading-6 text-neutral-400">
+                  A living source with memory, humour, fracture, tenderness, work
+                  residue and an unreasonable loyalty to beauty under pressure.
+                </p>
               </div>
             </div>
 
             <div className="border border-white/10 bg-white/[0.03] p-6">
               <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                TIMELINE CONDITION
+                OFFICIAL LISTENING NODE
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-300">
-                {tracks.length} visible nodes. Some ancient, some recent, some better
-                behaved than others. None of them were made to sound like a résumé.
-              </p>
-
-              <div className="mt-5 flex flex-wrap gap-2">
-                {featuredTracks.map((track) => (
-                  <Link
-                    key={track.slug}
-                    href={`/tracks/${track.slug}`}
-                    className="border border-white/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-400 transition hover:border-white/30 hover:text-white"
-                  >
-                    {track.title}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                EXTERNAL LISTENING NODE
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                The public stream continues beyond this archive. For sketches, releases
-                and signal traces outside the site, open the SoundCloud node.
+                For public listening outside this archive, the main external profile is
+                the SoundCloud node.
               </p>
 
               <div className="mt-5">
@@ -252,84 +154,69 @@ export default function AboutPage() {
                   rel="noreferrer"
                   className="inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
                 >
-                  OPEN SOUNDCLOUD
+                  OPEN SOUNDCLOUD ↗
                 </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                UNRELIABLE NOTES
-              </p>
-
-              <div className="mt-5 space-y-3">
-                {oddNotes.map((note, index) => (
-                  <div
-                    key={note}
-                    className={`border border-white/10 p-4 text-sm leading-6 text-neutral-300 ${
-                      index % 2 === 1 ? "md:ml-8" : ""
-                    }`}
-                  >
-                    {note}
-                  </div>
-                ))}
               </div>
             </div>
 
             <div className="border border-white/10 bg-white/[0.03] p-6">
               <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                NAVIGATION
+                WHAT THIS PAGE IS FOR
               </p>
-
-              <div className="mt-5 flex flex-col gap-3">
-                <Link
-                  href="/explore"
-                  className="border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-                >
-                  ENTER EXPLORE
-                </Link>
-                <Link
-                  href="/tracks"
-                  className="border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-                >
-                  OPEN TIMELINE
-                </Link>
-                <a
-                  href="#contact"
-                  className="border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-                >
-                  REACH THE SOURCE
-                </a>
-              </div>
-            </div>
-
-            <div className="relative border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                OFFICIAL DISCLAIMER
+              <p className="mt-4 text-sm leading-7 text-neutral-300">
+                A clear artist page for people, search engines, collaborators and
+                listeners who want to understand the project quickly without losing the
+                atmosphere that defines it.
               </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-400">
-                No promise is made that this project will stay still, symmetrical, or
-                professionally reasonable. It remains under drift, under pressure and, on good days,
-                slightly luminous.
-              </p>
-
-              <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
-                STILL UNDER DRIFT
-              </div>
             </div>
           </div>
         </section>
 
-        <section id="contact" className="mb-16 grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
+        <section className="mb-16">
+          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+            / SELECTED TRACKS
+          </p>
+
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
+            Entry points into the catalogue
+          </h2>
+
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400 md:text-base">
+            A few visible anchors to understand the sonic direction before entering the
+            wider timeline.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            {featuredTracks.map((track) => (
+              <Link
+                key={track.slug}
+                href={`/tracks/${track.slug}`}
+                className="border border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+              >
+                {track.title}
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8">
+            <Link
+              href="/tracks"
+              className="inline-flex border border-white/10 px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
+            >
+              OPEN FULL TIMELINE
+            </Link>
+          </div>
+        </section>
+
+        <section id="contact" className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-4">
             <div className="border border-white/10 bg-white/[0.03] p-6">
               <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
                 CONTACT / CHANNEL
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-300">
-                For music, visuals, collaborations, strange signals or lucid messages.
+                For music, visuals, collaborations, sync references or direct contact
+                around the MISWΛY project.
               </p>
             </div>
 
@@ -339,23 +226,10 @@ export default function AboutPage() {
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-neutral-400">
                 <li>— musical collaboration</li>
-                <li>— synchro / visuals / creations</li>
+                <li>— soundtrack / sync / visuals</li>
+                <li>— artist inquiry</li>
                 <li>— project proposal</li>
-                <li>— sincere message, even a bit strange</li>
               </ul>
-            </div>
-
-            <div className="relative border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                DISCLAIMER
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-400">
-                Empty messages, vague requests, and lukewarm energy can be slowed down by ambient gravity.
-              </p>
-
-              <div className="absolute -bottom-3 right-4 border border-white/10 bg-black px-3 py-2 font-mono text-[10px] tracking-[0.18em] text-neutral-500 -rotate-2">
-                PROBABLY READ
-              </div>
             </div>
           </div>
 
@@ -415,7 +289,7 @@ export default function AboutPage() {
                   name="subject"
                   type="text"
                   className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
-                  placeholder="Collab, licensing, message..."
+                  placeholder="Collab, sync, project..."
                 />
               </div>
 
@@ -436,7 +310,13 @@ export default function AboutPage() {
                 />
               </div>
 
-              <input type="text" name="_gotcha" className="hidden" tabIndex={-1} autoComplete="off" />
+              <input
+                type="text"
+                name="_gotcha"
+                className="hidden"
+                tabIndex={-1}
+                autoComplete="off"
+              />
 
               <div className="flex flex-wrap items-center gap-3">
                 <button
@@ -447,10 +327,10 @@ export default function AboutPage() {
                 </button>
 
                 <Link
-                  href="/explore"
+                  href="/tracks"
                   className="border border-white/10 px-6 py-3 font-mono text-[11px] tracking-[0.28em] text-white/70 transition hover:border-white/30 hover:text-white"
                 >
-                  BACK TO EXPLORE
+                  BACK TO TRACKS
                 </Link>
               </div>
             </form>

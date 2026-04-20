@@ -51,12 +51,12 @@
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://jgsbc.github.io/misway/tracks/misway-perdue/</loc>
+    <loc>https://jgsbc.github.io/misway/tracks/perdue/</loc>
     <priority>0.7</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://jgsbc.github.io/misway/tracks/morne-et-1/</loc>
+    <loc>https://jgsbc.github.io/misway/tracks/morne-et/</loc>
     <priority>0.7</priority>
     <changefreq>yearly</changefreq>
   </url>
@@ -81,7 +81,7 @@
     <changefreq>yearly</changefreq>
   </url>
   <url>
-    <loc>https://jgsbc.github.io/misway/tracks/neektareum-1/</loc>
+    <loc>https://jgsbc.github.io/misway/tracks/neektareum/</loc>
     <priority>0.7</priority>
     <changefreq>yearly</changefreq>
   </url>
