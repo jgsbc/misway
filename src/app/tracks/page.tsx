@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
 import TrackPlayButton from "@/components/audio/TrackPlayButton";
@@ -8,7 +9,7 @@ import TrackPlayButton from "@/components/audio/TrackPlayButton";
 export const metadata: Metadata = {
   title: "Tracks — MISWΛY Complete Catalogue",
   description:
-    "Browse the full chronology of MISWΛY tracks from 2016 to 2026. Discover audio explorations organized by era, including RISE, BLOSSOMING, and newer releases.",
+    "Browse the full MISWΛY tracks catalogue from 2016 to 2026. Discover atmospheric electronic music organized chronologically: RISE, BLOSSOMING, MINUIT MOINS CINQ, and 15+ additional compositions spanning ambient, trip-hop, and cinematic electronic genres.",
   alternates: {
     canonical: "/tracks/",
   },
@@ -20,9 +21,72 @@ export const metadata: Metadata = {
   },
 };
 
+const siteUrl = "https://jgsbc.github.io/misway";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: `${siteUrl}/`,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Tracks",
+      item: `${siteUrl}/tracks/`,
+    },
+  ],
+};
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "MISWΛY Tracks — Complete Catalogue",
+  description:
+    "Browse the full MISWΛY tracks catalogue from 2016 to 2026. Discover atmospheric electronic music organized chronologically.",
+  url: `${siteUrl}/tracks/`,
+  mainEntity: {
+    "@type": "MusicAlbum",
+    name: "MISWΛY Catalogue",
+    byArtist: {
+      "@type": "MusicGroup",
+      name: "MISWΛY",
+      alternateName: "MISWAY",
+      url: `${siteUrl}/`,
+    },
+    track: tracks.map((track) => ({
+      "@type": "MusicRecording",
+      name: track.title,
+      url: `${siteUrl}/tracks/${track.slug}/`,
+      genre: track.tags,
+    })),
+  },
+};
+
 export default function TracksPage() {
   return (
     <main className="min-h-screen px-6 pb-40 pt-24 md:px-10">
+      <Script
+        id="json-ld-breadcrumb-tracks"
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+
+      <Script
+        id="json-ld-tracks-collection"
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionSchema),
+        }}
+      />
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
           <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">

@@ -1,114 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://jgsbc.github.io/misway/</loc>
-    <priority>1.0</priority>
-    <changefreq>monthly</changefreq>
-    <lastmod>2026-04-11</lastmod>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/about/</loc>
-    <priority>0.9</priority>
-    <changefreq>monthly</changefreq>
-    <lastmod>2026-04-11</lastmod>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/</loc>
-    <priority>0.9</priority>
-    <changefreq>weekly</changefreq>
-    <lastmod>2026-04-11</lastmod>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/explore/</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-    <lastmod>2026-04-11</lastmod>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/drift/</loc>
-    <priority>0.7</priority>
-    <changefreq>monthly</changefreq>
-    <lastmod>2026-04-11</lastmod>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/rise/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/blossoming/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/ethnic-stick/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/minuit-moins-cinq/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/perdue/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/morne-et/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/daymason/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/chailk/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/time/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/tantitom/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/neektareum/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/asitis/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/relative/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/overthink/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/hold-the-light/</loc>
-    <priority>0.7</priority>
-    <changefreq>yearly</changefreq>
-  </url>
-  
-  <url>
-    <loc>https://jgsbc.github.io/misway/tracks/midnight-work/</loc>
-    <priority>0.8</priority>
-    <changefreq>yearly</changefreq>
-  </url>
+<url>
+<loc>https://jgsbc.github.io/misway/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/about/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/explore/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/drift/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/rise/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/blossoming/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/ethnic-stick/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/minuit-moins-cinq/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/perdue/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/morne-et/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/daymason/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/chailk/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/time/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/tantitom/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/neektareum/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/asitis/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/relative/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/overthink/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/hold-the-light/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/midnight-work/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://jgsbc.github.io/misway/tracks/telatelaba/</loc>
+<lastmod>2026-04-20T00:00:00.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
 </urlset>

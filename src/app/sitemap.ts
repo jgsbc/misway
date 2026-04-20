@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.9,
         },
         {
+            url: `${siteUrl}/artist/`,
+            lastModified,
+            changeFrequency: "monthly",
+            priority: 0.95,
+        },
+        {
             url: `${siteUrl}/explore/`,
             lastModified,
             changeFrequency: "monthly",

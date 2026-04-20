@@ -80,7 +80,28 @@ export default async function TrackDetailPage({ params }: Props) {
   }
 
   const trackUrl = `${siteUrl}/tracks/${track.slug}/`;
-  const relatedTracks = tracks.filter((item) => item.slug !== track.slug).slice(0, 3);
+
+  // Smart related tracks selection: prioritize same era, then by shared tags, then any other tracks
+  const sameEraOtherTracks = tracks.filter(
+    (item) => item.slug !== track.slug && item.publishedLabel === track.publishedLabel
+  );
+
+  const sharedTagTracks = tracks.filter(
+    (item) =>
+      item.slug !== track.slug &&
+      item.publishedLabel !== track.publishedLabel &&
+      item.tags.some((tag) => track.tags.includes(tag))
+  );
+
+  const otherTracks = tracks.filter(
+    (item) =>
+      item.slug !== track.slug &&
+      !sameEraOtherTracks.includes(item) &&
+      !sharedTagTracks.includes(item)
+  );
+
+  // Combine and take first 3: prioritize same era, then shared tags, then others
+  const relatedTracks = [...sameEraOtherTracks, ...sharedTagTracks, ...otherTracks].slice(0, 3);
 
   const trackSchema = {
     "@context": "https://schema.org",
@@ -104,6 +125,31 @@ export default async function TrackDetailPage({ params }: Props) {
     },
   };
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${siteUrl}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Tracks",
+        item: `${siteUrl}/tracks/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: track.title,
+        item: trackUrl,
+      },
+    ],
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden px-6 pb-40 pt-24 md:px-10">
       <Script
@@ -112,6 +158,15 @@ export default async function TrackDetailPage({ params }: Props) {
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(trackSchema),
+        }}
+      />
+
+      <Script
+        id={`json-ld-breadcrumb-${track.slug}`}
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
         }}
       />
 
@@ -250,6 +305,24 @@ export default async function TrackDetailPage({ params }: Props) {
           </aside>
         </div>
 
+        <section className="mt-14 border border-white/10 bg-white/[0.02] p-8">
+          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+            / COLLABORATION & SYNC
+          </p>
+          <h2 className="mt-4 text-xl font-semibold tracking-tight text-white md:text-2xl">
+            Interested in sync, licensing, or collaboration?
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400">
+            If you're exploring this track for a project, remix, synchronization, or creative collaboration, get in touch directly.
+          </p>
+          <Link
+            href="/about#contact"
+            className="mt-6 inline-flex border border-white/10 px-5 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+          >
+            START A CONVERSATION →
+          </Link>
+        </section>
+
         <section className="mt-14 border-t border-white/10 pt-10">
           <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
             / MORE FROM MISWΛY
@@ -257,6 +330,14 @@ export default async function TrackDetailPage({ params }: Props) {
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white md:text-4xl">
             Continue through the catalogue
           </h2>
+
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-neutral-400">
+            {sameEraOtherTracks.length > 0
+              ? `More tracks from the ${track.publishedLabel}. Explore the full catalogue for additional works.`
+              : sharedTagTracks.length > 0
+              ? `Tracks with similar sonic qualities. Browse the catalogue for more.`
+              : `Discover other works in the MISWΛY archive.`}
+          </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {relatedTracks.map((item) => (

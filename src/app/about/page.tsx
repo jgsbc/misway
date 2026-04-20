@@ -164,10 +164,14 @@ export default function AboutPage() {
                 WHAT THIS PAGE IS FOR
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-300">
-                A clear artist page for people, search engines, collaborators and
-                listeners who want to understand the project quickly without losing the
-                atmosphere that defines it.
+                The full artist biography and vision behind MISWΛY. For a more direct commercial/collaboration focus, visit the dedicated artist profile.
               </p>
+              <Link
+                href="/artist"
+                className="mt-4 inline-flex border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+              >
+                ARTIST PROFILE →
+              </Link>
             </div>
           </div>
         </section>

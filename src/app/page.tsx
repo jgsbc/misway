@@ -53,6 +53,13 @@ export default function LandingPage() {
                 </Link>
 
                 <Link
+                  href="/artist"
+                  className="flex min-h-[50px] items-center justify-center border border-white/10 px-7 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
+                >
+                  ARTIST
+                </Link>
+
+                <Link
                   href="/tracks"
                   className="flex min-h-[50px] items-center justify-center border border-white/10 px-7 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
                 >

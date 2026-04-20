@@ -59,7 +59,7 @@ const structuredData = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteTitle} — Electronic music artist`,
+    default: `${siteTitle} — Atmospheric electronic music`,
     template: `%s | ${siteTitle}`,
   },
   description: siteDescription,
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/`,
   },
   openGraph: {
-    title: `${siteTitle} — Electronic music artist`,
+    title: `${siteTitle} — Atmospheric electronic music`,
     description: siteDescription,
     url: `${siteUrl}/`,
     siteName: "MISWΛY",
@@ -104,7 +104,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteTitle} — Electronic music artist`,
+    title: `${siteTitle} — Atmospheric electronic music`,
     description: siteDescription,
     images: [`${siteUrl}/images/tracks-hero-1920x1080-v3.webp`],
   },
