@@ -106,7 +106,6 @@ const seedTracks: TrackSeed[] = [
     tags: ["transition", "archive", "to-confirm"],
     coverImage: "/images/tracks/perdue.png",
     coverHint: "archival node",
-    audioFile: "misway-perdue.mp3",
   },
   {
     id: "06",
