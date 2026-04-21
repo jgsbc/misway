@@ -120,6 +120,47 @@ export default function ExplorePageClient() {
                         OPEN FULL TIMELINE
                     </Link>
                 </div>
+
+                <section className="mt-16 border-t border-white/10 pt-10">
+                    <div className="grid gap-8 md:grid-cols-2">
+                        <div>
+                            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-600">
+                                NEXT STEPS
+                            </p>
+                            <p className="mt-4 text-sm leading-7 text-neutral-400">
+                                Finished exploring? Dive deeper into the full catalogue or learn more about the artist behind MISWΛY.
+                            </p>
+                            <div className="mt-6 flex flex-wrap gap-3">
+                                <Link
+                                    href="/tracks"
+                                    className="border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                                >
+                                    FULL CATALOGUE →
+                                </Link>
+                                <Link
+                                    href="/about"
+                                    className="border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                                >
+                                    ARTIST BIO →
+                                </Link>
+                            </div>
+                        </div>
+                        <div>
+                            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-600">
+                                INTERESTED IN COLLABORATION?
+                            </p>
+                            <p className="mt-4 text-sm leading-7 text-neutral-400">
+                                If you're exploring MISWΛY for sync, licensing, or creative work, get in touch directly.
+                            </p>
+                            <Link
+                                href="/about#contact"
+                                className="mt-6 inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                            >
+                                START A CONVERSATION →
+                            </Link>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
     );

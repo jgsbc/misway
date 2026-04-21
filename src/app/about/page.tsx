@@ -230,10 +230,26 @@ export default function AboutPage() {
               </p>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-neutral-400">
                 <li>— musical collaboration</li>
-                <li>— soundtrack / sync / visuals</li>
-                <li>— artist inquiry</li>
-                <li>— project proposal</li>
+                <li>— film/TV sync and licensing</li>
+                <li>— remix or reinterpretation work</li>
+                <li>— artist inquiry and press</li>
+                <li>— project proposal or partnership</li>
               </ul>
+            </div>
+
+            <div className="border border-white/10 bg-white/[0.02] p-6">
+              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                FOR COMMERCIAL INQUIRIES
+              </p>
+              <p className="mt-4 text-sm leading-7 text-neutral-300">
+                Dedicated artist profile with licensing information and commercial details available.
+              </p>
+              <Link
+                href="/artist"
+                className="mt-4 inline-flex border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+              >
+                ARTIST PROFILE →
+              </Link>
             </div>
           </div>
 

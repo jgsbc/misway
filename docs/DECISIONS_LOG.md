@@ -150,3 +150,118 @@ Keep entries:
   - src/app/tracks/page.tsx (description, CollectionPage schema)
   - src/app/tracks/[slug]/page.tsx (smart related tracks logic, contextual descriptions)
 - Follow-up needed: Execute LOT 4 (Homepage under-the-fold reinforcement) for semantic enhancement
+
+### [2026-04-20] LOT 4 COMPLETE: Homepage under-the-fold semantic reinforcement
+- Context: Add discreet below-the-fold content to strengthen homepage relevance while preserving splashscreen identity.
+- Decision: LOT 4 PASS. Elegant semantic section added, splashscreen identity preserved. Build successful. Proceed to LOT 5.
+- Changes made:
+  1. **Homepage below-the-fold section enhanced** (page.tsx):
+     - Added two-column semantic grid: DISCOVER (18+ tracks info) and COLLABORATE (sync/licensing info)
+     - Discreet borders and subtle background enhance readability without breaking elegance
+     - Added "ARTIST PROFILE" to CTA navigation (strengthens navigation hierarchy)
+     - All new content is visible, UX-legitimate, and supports search intent
+  2. **Preserved splashscreen identity**:
+     - First viewport remains unchanged and iconic
+     - New content sits cleanly below fold
+     - No SEO abuse, no hidden text, no off-screen content stuffing
+- Why: Below-the-fold content improves homepage semantic richness for commercial queries without brand damage
+- Impact:
+  - Homepage now reinforces DISCOVER intent (tracks, catalogue) and COLLABORATE intent (sync, licensing)
+  - Commercial users understand site value proposition at entry point
+  - Search engines better understand homepage is about discovery AND collaboration
+  - Zero brand impact; splashscreen remains premium artistic entry gate
+- Build results: ✓ Compiled successfully in 3.0s, ✓ All 28 routes generated, ✓ No errors
+- Files affected:
+  - src/app/page.tsx (added below-the-fold semantic section and ARTIST CTA)
+- Follow-up needed: Execute LOT 5 (Commercial conversion layer) for CTA strengthening
+
+### [2026-04-20] LOT 5 COMPLETE: Commercial conversion layer strengthened
+- Context: Execute LOT 5 (Commercial conversion layer) to strengthen collaboration framing and CTA hierarchy.
+- Decision: LOT 5 PASS. Enhanced contact framing, improved CTA hierarchy, build successful. Proceed to LOT 6.
+- Changes made:
+  1. **About page contact section enhanced**:
+     - Added "FOR COMMERCIAL INQUIRIES" box with artist profile link
+     - Expanded "GOOD REASONS TO WRITE" list: added film/TV sync, remix work, press
+     - Contact section now clearly signals commercial legitimacy and sync availability
+  2. **Explore page footer added**:
+     - New "NEXT STEPS" section with clear navigation to catalogue and artist bio
+     - New "INTERESTED IN COLLABORATION?" section with direct contact CTA
+     - Guides users from exploration toward conversion (tracks → artist → contact)
+     - Creates natural flow from discovery to commercial inquiry
+- Why: Better CTA hierarchy reduces friction; explicit collaboration framing increases conversion likelihood; multi-channel approach meets different user intentions
+- Impact:
+  - Users arriving at Explore page can easily navigate to full catalogue, artist profile, or contact
+  - Contact form is now repositioned as conversion point, not just information request
+  - Collaboration opportunities are foregrounded without being pushy
+  - Premium tone maintained throughout; no startup language or aggressive marketing
+- Build results: ✓ Compiled successfully in 2.8s, ✓ All 28 routes generated, ✓ No errors
+- Files affected:
+  - src/app/about/page.tsx (enhanced contact section with commercial framing)
+  - src/components/pages/ExplorePageClient.tsx (added footer CTA section)
+- Follow-up needed: Execute LOT 6 (Off-site alignment recommendations) for external strategy
+
+### [2026-04-20] LOT 6 COMPLETE: Off-site alignment recommendations documented
+- Context: Execute LOT 6 (Off-site alignment recommendations) to align external profiles and Search Console setup with site optimization.
+- Decision: LOT 6 PASS. Comprehensive off-site alignment strategy delivered. No code changes needed; all deliverables in LOT6_OFF_SITE_ALIGNMENT.md.
+- Deliverables:
+  1. **SoundCloud profile alignment recommendations**:
+     - Bio update template with site link
+     - Track description guidance
+     - Profile link recommendations (direct to artist page)
+     - Playlist curation suggestions for era-based organization
+  2. **Brand query capture strategy**:
+     - High-priority targets: MISWΛY/MISWAY brand queries, sync/collaboration queries
+     - Medium-priority targets: atmospheric electronic, trip-hop queries
+     - Monitoring approach via Search Console
+  3. **Backlink strategy**:
+     - Priority 1: Artist directories (MusicBrainz, Discogs, Last.fm)
+     - Priority 2: Genre communities (Reddit, forums, Discord)
+     - Priority 3: Press/podcast mentions (future/long-term)
+  4. **Google Search Console setup**:
+     - Verification checklist (site already has verification file)
+     - Sitemap submission (already generated)
+     - robots.txt validation (already clean)
+     - Ongoing monitoring metrics (impressions, CTR, coverage)
+  5. **Bio consistency template**:
+     - 100-150 word standard bio for all platforms
+     - Includes sync/collaboration positioning
+     - Consistent across SoundCloud, press kit, email signatures
+  6. **Contact form optimization**:
+     - Monitor response rate monthly
+     - Track inquiry types for content refinement
+     - Current status: No changes needed; monitor after 2-4 weeks
+  7. **Monitoring & maintenance checklist**:
+     - Weekly: Build errors, spam
+     - Monthly: GSC trends, SoundCloud analytics
+     - Quarterly: Performance benchmarking, keyword rankings
+     - Annual: Comprehensive audit
+  8. **Success metrics (3-6 months)**:
+     - Brand queries rank #1-3
+     - 100+ monthly organic searches
+     - Contact form: 2-5 submissions/month
+     - 1-2 collaborations per quarter
+- Why: Off-site work ensures external signals (SoundCloud, directories, Search Console) reinforce on-site optimization; coordinated strategy multiplies organic visibility
+- Impact:
+  - SoundCloud users see commercial positioning and are guided to artist page
+  - Search engines index site faster with proper Search Console setup
+  - Artist directories provide authority backlinks and discovery
+  - Consistent messaging across platforms strengthens brand recognition
+  - Monitoring framework enables data-driven refinement
+- Files created:
+  - docs/LOT6_OFF_SITE_ALIGNMENT.md (comprehensive strategy document)
+- No code changes or build validation needed (off-site strategy only)
+- Follow-up needed: Site optimization now complete; remaining work is off-site implementation and monitoring
+
+---
+
+## All Lots Complete ✓
+
+**LOT 0:** Audit & diagnosis ✓  
+**LOT 1:** Foundations (metadata, crawlability, schema) ✓  
+**LOT 2:** Artist credibility surfaces (/artist page) ✓  
+**LOT 3:** Catalogue & track pages ✓  
+**LOT 4:** Homepage semantic reinforcement ✓  
+**LOT 5:** Commercial conversion layer ✓  
+**LOT 6:** Off-site alignment recommendations ✓  
+
+**Status: TRANSFORMATION COMPLETE. All deliverables passed validation. Site is now search-friendly, commercially credible, and premium.**

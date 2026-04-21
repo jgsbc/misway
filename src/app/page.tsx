@@ -104,12 +104,43 @@ export default function LandingPage() {
               listening paths, artist context and contact entry points.
             </p>
 
+            <div className="mx-auto mt-6 max-w-2xl">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="border border-white/8 bg-white/[0.01] p-4 text-left">
+                  <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-700">
+                    DISCOVER
+                  </p>
+                  <p className="mt-3 text-xs leading-6 text-neutral-500">
+                    18+ tracks spanning atmospheric electronica, trip-hop and cinematic
+                    electronic music. Organized chronologically from 2016 to 2026.
+                  </p>
+                </div>
+
+                <div className="border border-white/8 bg-white/[0.01] p-4 text-left">
+                  <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-700">
+                    COLLABORATE
+                  </p>
+                  <p className="mt-3 text-xs leading-6 text-neutral-500">
+                    Available for sync licensing, film/TV work, remix and creative
+                    partnerships. Direct contact for serious inquiries.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/about"
                 className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
               >
                 ABOUT
+              </Link>
+
+              <Link
+                href="/artist"
+                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
+              >
+                ARTIST PROFILE
               </Link>
 
               <Link
