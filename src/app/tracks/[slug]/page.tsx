@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const trackUrl = `${siteUrl}/tracks/${track.slug}/`;
-  const description = `${track.title} by MISWΛY (MISWAY). ${track.shortText} Explore the track page, artwork, context and listening links.`;
+  const description = `${track.title} by MISWΛY (MISWAY). ${track.shortText} Explore the track page, artwork, context and listening routes.`;
 
   return {
     title: `${track.title} — MISWΛY track`,
@@ -81,7 +81,6 @@ export default async function TrackDetailPage({ params }: Props) {
 
   const trackUrl = `${siteUrl}/tracks/${track.slug}/`;
 
-  // Smart related tracks selection: prioritize same era, then by shared tags, then any other tracks
   const sameEraOtherTracks = tracks.filter(
     (item) => item.slug !== track.slug && item.publishedLabel === track.publishedLabel
   );
@@ -100,7 +99,6 @@ export default async function TrackDetailPage({ params }: Props) {
       !sharedTagTracks.includes(item)
   );
 
-  // Combine and take first 3: prioritize same era, then shared tags, then others
   const relatedTracks = [...sameEraOtherTracks, ...sharedTagTracks, ...otherTracks].slice(0, 3);
 
   const trackSchema = {
@@ -112,7 +110,8 @@ export default async function TrackDetailPage({ params }: Props) {
     duration: toIsoDuration(track.duration),
     genre: track.tags,
     image: track.coverImage ? `${siteUrl}${track.coverImage}` : undefined,
-    sameAs: [track.soundcloudUrl],
+    audio: `${siteUrl}${track.audioSrc}`,
+    sameAs: track.soundcloudUrl ? [track.soundcloudUrl] : undefined,
     byArtist: {
       "@type": "MusicGroup",
       name: "MISWΛY",
@@ -190,21 +189,28 @@ export default async function TrackDetailPage({ params }: Props) {
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Link
               href="/tracks"
               className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
             >
               BACK TO TRACKS
             </Link>
-            <a
-              href={track.soundcloudUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-            >
-              SOUNDCLOUD ↗
-            </a>
+
+            {track.soundcloudUrl ? (
+              <a
+                href={track.soundcloudUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+              >
+                SOUNDCLOUD ↗
+              </a>
+            ) : (
+              <span className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-500">
+                LOCAL ARCHIVE
+              </span>
+            )}
           </div>
         </div>
 
@@ -285,23 +291,35 @@ export default async function TrackDetailPage({ params }: Props) {
               </p>
             </div>
 
-            <div className="border border-white/10 bg-white/[0.03] p-5">
-              <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                LISTEN EXTERNALLY
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-400">
-                This track also points to the public SoundCloud node for external
-                listening and discovery.
-              </p>
-              <a
-                href={track.soundcloudUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-              >
-                OPEN ON SOUNDCLOUD ↗
-              </a>
-            </div>
+            {track.soundcloudUrl ? (
+              <div className="border border-white/10 bg-white/[0.03] p-5">
+                <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
+                  LISTEN EXTERNALLY
+                </p>
+                <p className="mt-4 text-sm leading-7 text-neutral-400">
+                  This track also points to the public SoundCloud node for external
+                  listening and discovery.
+                </p>
+                <a
+                  href={track.soundcloudUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                >
+                  OPEN ON SOUNDCLOUD ↗
+                </a>
+              </div>
+            ) : (
+              <div className="border border-white/10 bg-white/[0.03] p-5">
+                <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
+                  LOCAL ARCHIVE NOTE
+                </p>
+                <p className="mt-4 text-sm leading-7 text-neutral-400">
+                  This track currently lives on the site player and local MISWΛY archive.
+                  No public external listening node is attached yet.
+                </p>
+              </div>
+            )}
           </aside>
         </div>
 
@@ -335,8 +353,8 @@ export default async function TrackDetailPage({ params }: Props) {
             {sameEraOtherTracks.length > 0
               ? `More tracks from the ${track.publishedLabel}. Explore the full catalogue for additional works.`
               : sharedTagTracks.length > 0
-              ? `Tracks with similar sonic qualities. Browse the catalogue for more.`
-              : `Discover other works in the MISWΛY archive.`}
+                ? `Tracks with similar sonic qualities. Browse the catalogue for more.`
+                : `Discover other works in the MISWΛY archive.`}
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">

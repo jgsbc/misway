@@ -6,22 +6,25 @@ import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
 import TrackPlayButton from "@/components/audio/TrackPlayButton";
 
+const siteUrl = "https://jgsbc.github.io/misway";
+const trackCount = tracks.length;
+const birthEraCount = tracks.filter((track) => track.publishedLabel === "Birth era").length;
+const latestCount = tracks.filter((track) => track.publishedLabel === "New era").length;
+
 export const metadata: Metadata = {
-  title: "Tracks — MISWΛY Complete Catalogue",
-  description:
-    "Browse the full MISWΛY tracks catalogue from 2016 to 2026. Discover atmospheric electronic music organized chronologically: RISE, BLOSSOMING, MINUIT MOINS CINQ, and 15+ additional compositions spanning ambient, trip-hop, and cinematic electronic genres.",
+  title: "Tracks — MISWΛY complete catalogue",
+  description: `Browse ${trackCount} MISWΛY tracks from Birth era sketches to recent releases. Explore the full electronic music catalogue chronologically, including early experiments, archive nodes and current pieces.`,
   alternates: {
     canonical: "/tracks/",
   },
   openGraph: {
-    title: "MISWΛY Tracks — Full Catalogue",
-    description: "Explore the complete MISWΛY audio catalogue spanning from 2016 to present.",
-    url: "https://jgsbc.github.io/misway/tracks/",
+    title: "MISWΛY Tracks — full catalogue",
+    description:
+      "Explore the complete MISWΛY audio catalogue, from Birth era first steps to the newest releases.",
+    url: `${siteUrl}/tracks/`,
     type: "website",
   },
 };
-
-const siteUrl = "https://jgsbc.github.io/misway";
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -45,9 +48,8 @@ const breadcrumbSchema = {
 const collectionSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "MISWΛY Tracks — Complete Catalogue",
-  description:
-    "Browse the full MISWΛY tracks catalogue from 2016 to 2026. Discover atmospheric electronic music organized chronologically.",
+  name: "MISWΛY Tracks — complete catalogue",
+  description: `Browse ${trackCount} MISWΛY tracks from Birth era sketches to the current catalogue.`,
   url: `${siteUrl}/tracks/`,
   mainEntity: {
     "@type": "MusicAlbum",
@@ -87,6 +89,7 @@ export default function TracksPage() {
           __html: JSON.stringify(collectionSchema),
         }}
       />
+
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
           <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
@@ -95,11 +98,44 @@ export default function TracksPage() {
           <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl">
             Tracks
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400 md:text-base">
-            Public chronology of the MISWΛY catalog, from older visible nodes to the
-            most recent releases.
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
+            Public chronology of the MISWΛY catalogue, from the Birth era — the
+            very first steps in music production on computer — to the most recent
+            releases now living on the site.
           </p>
         </div>
+
+        <section className="mb-10 grid gap-4 md:grid-cols-3">
+          <div className="border border-white/10 bg-white/[0.03] p-5">
+            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+              CATALOGUE SIZE
+            </p>
+            <p className="mt-4 text-2xl font-semibold text-white">{trackCount}</p>
+            <p className="mt-2 text-sm leading-7 text-neutral-400">
+              Local tracks currently available on the MISWΛY site player.
+            </p>
+          </div>
+
+          <div className="border border-white/10 bg-white/[0.03] p-5">
+            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+              BIRTH ERA
+            </p>
+            <p className="mt-4 text-2xl font-semibold text-white">{birthEraCount}</p>
+            <p className="mt-2 text-sm leading-7 text-neutral-400">
+              First steps in MAO: rough, instinctive, formative sketches.
+            </p>
+          </div>
+
+          <div className="border border-white/10 bg-white/[0.03] p-5">
+            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+              NEW ERA
+            </p>
+            <p className="mt-4 text-2xl font-semibold text-white">{latestCount}</p>
+            <p className="mt-2 text-sm leading-7 text-neutral-400">
+              Recent nodes, current releases and the living front edge of the project.
+            </p>
+          </div>
+        </section>
 
         <div className="space-y-4">
           {tracks.map((track) => (

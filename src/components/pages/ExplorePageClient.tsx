@@ -3,9 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { featuredTracks } from "@/lib/tracks";
+import { featuredTracks, tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
 import TrackPlayButton from "@/components/audio/TrackPlayButton";
+
+const birthEraCount = tracks.filter((track) => track.publishedLabel === "Birth era").length;
+const latestCount = tracks.filter((track) => track.publishedLabel === "New era").length;
 
 export default function ExplorePageClient() {
     return (
@@ -36,11 +39,44 @@ export default function ExplorePageClient() {
                     <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl">
                         Explore MISWΛY
                     </h1>
-                    <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400 md:text-base">
+                    <p className="mt-4 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
                         A curated entry point into the MISWΛY catalogue. Start with selected
-                        electronic music nodes, then move toward the full timeline.
+                        listening nodes, including the first Birth era sketches and newer
+                        releases, then move toward the full timeline.
                     </p>
                 </div>
+
+                <section className="mb-10 grid gap-4 md:grid-cols-3">
+                    <div className="border border-white/10 bg-white/[0.03] p-5">
+                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                            ENTRY LOGIC
+                        </p>
+                        <p className="mt-4 text-sm leading-7 text-neutral-300">
+                            Start from feeling, not from chronology. Use featured chambers first,
+                            then widen out.
+                        </p>
+                    </div>
+
+                    <div className="border border-white/10 bg-white/[0.03] p-5">
+                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                            BIRTH ERA
+                        </p>
+                        <p className="mt-4 text-2xl font-semibold text-white">{birthEraCount}</p>
+                        <p className="mt-2 text-sm leading-7 text-neutral-400">
+                            First MAO steps: rough beginnings, useful because they still show the making.
+                        </p>
+                    </div>
+
+                    <div className="border border-white/10 bg-white/[0.03] p-5">
+                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                            NEW ERA
+                        </p>
+                        <p className="mt-4 text-2xl font-semibold text-white">{latestCount}</p>
+                        <p className="mt-2 text-sm leading-7 text-neutral-400">
+                            The active edge of the project: recent releases and the current sound.
+                        </p>
+                    </div>
+                </section>
 
                 <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                     {featuredTracks.map((track, index) => (

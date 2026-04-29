@@ -2,8 +2,8 @@ export type Track = {
   id: string;
   slug: string;
   title: string;
-  soundcloudUrl: string;
-  embedUrl: string;
+  soundcloudUrl?: string;
+  embedUrl?: string;
   audioSrc: string;
   yearLabel: string;
   publishedLabel: string;
@@ -21,6 +21,59 @@ type TrackSeed = Omit<Track, "audioSrc"> & {
 };
 
 const seedTracks: TrackSeed[] = [
+  {
+    id: "B02",
+    slug: "a-walk-in-zeeland",
+    title: "A WALK IN ZEELAND",
+    yearLabel: "first steps",
+    publishedLabel: "Birth era",
+    shortText: "An early open-air chamber, more spacious, more scenic, still instinctive.",
+    longText:
+      "A Birth era piece that already hints at travel, distance and atmosphere. Less polished, more immediate, and valuable precisely because the first gestures are still visible inside it.",
+    tags: ["birth era", "horizon", "walk"],
+    coverHint: "Wind, distance and first horizon lines.",
+    coverImage: "/images/tracks/a-walk-in-zeeland.png",
+    featured: true,
+  },
+  {
+    id: "B03",
+    slug: "foolfoule",
+    title: "FOOLFOULE",
+    yearLabel: "first steps",
+    publishedLabel: "Birth era",
+    shortText: "A slightly unruly early fragment, playful in its way of testing the machine.",
+    longText:
+      "Part of the Birth era archive: a looser, more mischievous early sketch where experimentation matters more than finish, and the energy comes from trying before knowing.",
+    tags: ["birth era", "playful", "raw"],
+    coverImage: "/images/tracks/foolfoule.png",
+    coverHint: "Crooked momentum, early sparks.",
+  },
+  {
+    id: "B04",
+    slug: "jazzypling",
+    title: "JAZZYPLING",
+    yearLabel: "first steps",
+    publishedLabel: "Birth era",
+    shortText: "A light and crooked early groove, somewhere between play, rhythm and first curiosity.",
+    longText:
+      "Another Birth era node: an early attempt where instinct, bounce and sonic curiosity lead the way. Less about control, more about the joy of making sound move.",
+    tags: ["birth era", "groove", "curiosity"],
+    coverImage: "/images/tracks/jazzypling.png",
+    coverHint: "A playful ping in the early archive.",
+  },
+  {
+    id: "B05",
+    slug: "play-it",
+    title: "PLAY IT",
+    yearLabel: "first steps",
+    publishedLabel: "Birth era",
+    shortText: "A direct early gesture: simple, forward, and already wanting momentum.",
+    longText:
+      "A Birth era track that feels like a first declaration of intent: not fully formed, but already moving toward rhythm, repetition and a desire to make the sound carry.",
+    tags: ["birth era", "direct", "momentum"],
+    coverImage: "/images/tracks/play-it.png",
+    coverHint: "Early motion asking to be repeated.",
+  },
   {
     id: "01",
     slug: "rise",
@@ -315,6 +368,33 @@ const seedTracks: TrackSeed[] = [
     coverImage: "/images/tracks/telatelaba.png",
     coverHint: "liminal passage",
     featured: true,
+  },
+  {
+    id: "18",
+    slug: "le-monde-s-endort",
+    title: "LE MONDE S’ENDORT",
+    yearLabel: "2026",
+    publishedLabel: "New era",
+    shortText: "A recent nocturnal descent: hush on the surface, deeper current underneath.",
+    longText:
+      "A newer MISWΛY track entering the site catalogue from the recent phase. It carries sleep, fading light and that suspended moment where the outside world softens while the inside keeps moving.",
+    tags: ["recent", "night", "hush"],
+    coverImage: "/images/tracks/le-monde-s-endort.png",
+    coverHint: "The world dims, the inner signal stays awake.",
+    featured: true,
+  },
+  {
+    id: "19",
+    slug: "renee-sens",
+    title: "RENEE SENS",
+    yearLabel: "2026",
+    publishedLabel: "New era",
+    shortText: "A fragile origin-point sketch, already pulled toward atmosphere and inner motion.",
+    longText:
+      "One of the last tracks: remix of perdue, still raw and searching, but already drawn to mood, texture and emotional drift.",
+    tags: ["new era", "origin", "sensitive"],
+    coverImage: "/images/tracks/renee-sens.png",
+    coverHint: "First light through rough texture.",
   },
 ];
 
