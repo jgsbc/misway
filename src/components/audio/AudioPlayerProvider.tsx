@@ -31,12 +31,16 @@ type CurrentAudio = PlayerTrack | AmbientAudio;
 type AudioPlayerContextValue = {
   current: CurrentAudio;
   isPlaying: boolean;
+  isLooping: boolean;
   currentTime: number;
   duration: number;
   progress: number;
   playTrack: (track: Track) => void;
   toggleTrack: (track: Track) => void;
   togglePlayback: () => void;
+  toggleLoop: () => void;
+  playNext: () => void;
+  playPrevious: () => void;
   seekToRatio: (ratio: number) => void;
   isCurrentTrack: (track: Track) => boolean;
 };
@@ -73,6 +77,21 @@ function getNextTrack(current: CurrentAudio): Track | null {
   return tracks[(currentIndex + 1) % tracks.length];
 }
 
+function getPreviousTrack(current: CurrentAudio): Track | null {
+  if (!tracks.length) return null;
+
+  if (current.kind === "ambient") {
+    return tracks[tracks.length - 1];
+  }
+
+  const currentIndex = getTrackIndex(current.slug);
+  if (currentIndex === -1) {
+    return tracks[tracks.length - 1];
+  }
+
+  return tracks[(currentIndex - 1 + tracks.length) % tracks.length];
+}
+
 export function AudioPlayerProvider({
   children,
 }: {
@@ -84,6 +103,7 @@ export function AudioPlayerProvider({
 
   const [current, setCurrent] = useState<CurrentAudio>(AMBIENT_AUDIO);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -150,6 +170,14 @@ export function AudioPlayerProvider({
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
+      if (isLooping) {
+        shouldResumeRef.current = true;
+        audio.currentTime = 0;
+        setCurrentTime(0);
+        void playCurrent();
+        return;
+      }
+
       const nextTrack = getNextTrack(current);
 
       if (!nextTrack) {
@@ -179,7 +207,7 @@ export function AudioPlayerProvider({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [current]);
+  }, [current, isLooping, playCurrent]);
 
   useEffect(() => {
     const retry = () => {
@@ -212,6 +240,38 @@ export function AudioPlayerProvider({
       shouldResumeRef.current = false;
     }
   }, [playCurrent]);
+
+  const toggleLoop = useCallback(() => {
+    setIsLooping((value) => !value);
+  }, []);
+
+  const playNext = useCallback(() => {
+    const nextTrack = getNextTrack(current);
+    if (!nextTrack) return;
+
+    shouldResumeRef.current = true;
+    setCurrentTime(0);
+    setDuration(0);
+    setCurrent(toPlayerTrack(nextTrack));
+  }, [current]);
+
+  const playPrevious = useCallback(() => {
+    const audio = audioRef.current;
+
+    if (current.kind === "track" && audio && audio.currentTime > 5) {
+      audio.currentTime = 0;
+      setCurrentTime(0);
+      return;
+    }
+
+    const previousTrack = getPreviousTrack(current);
+    if (!previousTrack) return;
+
+    shouldResumeRef.current = true;
+    setCurrentTime(0);
+    setDuration(0);
+    setCurrent(toPlayerTrack(previousTrack));
+  }, [current]);
 
   const playTrack = useCallback(
     (track: Track) => {
@@ -266,17 +326,34 @@ export function AudioPlayerProvider({
     () => ({
       current,
       isPlaying,
+      isLooping,
       currentTime,
       duration,
       progress: duration > 0 ? currentTime / duration : 0,
       playTrack,
       toggleTrack,
       togglePlayback,
+      toggleLoop,
+      playNext,
+      playPrevious,
       seekToRatio,
       isCurrentTrack: (track) =>
         current.kind === "track" && current.slug === track.slug,
     }),
-    [current, currentTime, duration, isPlaying, playTrack, seekToRatio, togglePlayback, toggleTrack]
+    [
+      current,
+      currentTime,
+      duration,
+      isLooping,
+      isPlaying,
+      playNext,
+      playPrevious,
+      playTrack,
+      seekToRatio,
+      toggleLoop,
+      togglePlayback,
+      toggleTrack,
+    ]
   );
 
   return (
