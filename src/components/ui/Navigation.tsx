@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { House, Compass, AudioLines, Waves, Info } from "lucide-react";
+import { House, AudioLines, Waves, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/", label: "Home", icon: House },
-  { href: "/explore", label: "Explore", icon: Compass },
   { href: "/tracks", label: "Tracks", icon: AudioLines },
   { href: "/drift", label: "Drift", icon: Waves },
   { href: "/about", label: "Info", icon: Info },
@@ -27,7 +26,7 @@ export default function Navigation() {
       className="fixed bottom-[52px] left-1/2 z-40 -translate-x-1/2 sm:bottom-[58px]"
       aria-label="Primary navigation"
     >
-      <div className="rounded-full border border-white/10 bg-black/55 px-2 py-2 shadow-[0_0_30px_rgba(0,0,0,0.35)] backdrop-blur-md">
+      <div className="rounded-full border border-neutral-300 bg-white/85 px-2 py-2 shadow-[0_0_30px_rgba(0,0,0,0.1)] backdrop-blur-md">
         <div className="flex items-center gap-1 sm:gap-2">
           {links.map((link) => {
             const isActive =
@@ -46,14 +45,14 @@ export default function Navigation() {
                 className={cn(
                   "relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors sm:h-11 sm:w-11",
                   isActive
-                    ? "border-white/20 text-white"
-                    : "border-transparent text-neutral-400 hover:text-white"
+                    ? "border-neutral-400 text-neutral-900"
+                    : "border-transparent text-neutral-600 hover:text-neutral-900"
                 )}
               >
                 {isActive && (
                   <motion.span
                     layoutId="active-nav"
-                    className="absolute inset-0 -z-10 rounded-full bg-white/10"
+                    className="absolute inset-0 -z-10 rounded-full bg-neutral-200"
                     transition={{ type: "spring", stiffness: 280, damping: 28 }}
                   />
                 )}

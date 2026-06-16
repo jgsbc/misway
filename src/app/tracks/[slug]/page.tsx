@@ -150,7 +150,7 @@ export default async function TrackDetailPage({ params }: Props) {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-6 pb-40 pt-24 md:px-10">
+    <main className="light-theme light-page-bg relative min-h-screen overflow-hidden px-6 pb-40 pt-24 md:px-10">
       <Script
         id={`json-ld-track-${track.slug}`}
         type="application/ld+json"
@@ -176,15 +176,15 @@ export default async function TrackDetailPage({ params }: Props) {
       </div>
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="light-border light-text-secondary mb-10 flex flex-wrap items-center justify-between gap-4 border-b pb-6">
           <div>
-            <p className="font-mono text-xs tracking-[0.28em] text-neutral-600">
+            <p className="light-text-tertiary font-mono text-xs tracking-[0.28em]">
               / TRACK NODE {track.id}
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
+            <h1 className="light-text-primary mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
               {track.title}
             </h1>
-            <p className="mt-4 font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+            <p className="light-text-tertiary mt-4 font-mono text-[10px] tracking-[0.24em]">
               MISWΛY / MISWAY · {track.publishedLabel} · {track.duration ?? track.yearLabel}
             </p>
           </div>
@@ -192,7 +192,7 @@ export default async function TrackDetailPage({ params }: Props) {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/tracks"
-              className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+              className="light-border light-text-secondary hover:light-text-primary border px-4 py-2 text-xs font-mono tracking-[0.2em] transition"
             >
               BACK TO TRACKS
             </Link>
@@ -202,12 +202,12 @@ export default async function TrackDetailPage({ params }: Props) {
                 href={track.soundcloudUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                className="light-border light-text-secondary hover:light-text-primary border px-4 py-2 text-xs font-mono tracking-[0.2em] transition"
               >
                 SOUNDCLOUD ↗
               </a>
             ) : (
-              <span className="border border-white/10 px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-500">
+              <span className="light-border border px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-400">
                 LOCAL ARCHIVE
               </span>
             )}
@@ -216,7 +216,7 @@ export default async function TrackDetailPage({ params }: Props) {
 
         <div className="grid gap-10 md:grid-cols-[1fr_1fr]">
           <section className="space-y-6">
-            <div className="relative aspect-square overflow-hidden border border-white/10 bg-white/[0.03]">
+            <div className="light-border light-card-bg relative aspect-square overflow-hidden border">
               <Image
                 src={withBasePath(track.coverImage ?? "/images/tracks/fallback.png")}
                 alt={`${track.title} artwork`}
@@ -224,14 +224,13 @@ export default async function TrackDetailPage({ params }: Props) {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
 
             <div className="space-y-5">
-              <p className="text-base leading-7 text-neutral-300">{track.longText}</p>
+              <p className="light-text-primary text-base leading-7">{track.longText}</p>
 
-              <p className="text-sm leading-7 text-neutral-400">
-                <span className="text-neutral-200">{track.title}</span> is part of the
+              <p className="light-text-secondary text-sm leading-7">
+                <span className="light-text-primary">{track.title}</span> is part of the
                 MISWΛY catalogue, a body of electronic music shaped by atmosphere,
                 emotional density, synthetic textures and inner motion.
               </p>
@@ -241,7 +240,7 @@ export default async function TrackDetailPage({ params }: Props) {
               {track.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="border border-white/10 px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em] text-neutral-400"
+                  className="light-border light-text-secondary border px-3 py-1 text-[11px] font-mono uppercase tracking-[0.18em]"
                 >
                   {tag}
                 </span>

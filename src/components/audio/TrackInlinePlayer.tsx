@@ -25,13 +25,13 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
   const active = current.kind !== "ambient" && current.slug === track.slug;
 
   return (
-    <div className="border border-white/10 bg-white/[0.03] p-4">
+    <div className="light-card-bg light-border border p-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
+          <p className="light-text-tertiary font-mono text-[10px] tracking-[0.2em]">
             AUDIO_PORT
           </p>
-          <p className="mt-2 text-sm text-neutral-300">
+          <p className="light-text-secondary mt-2 text-sm">
             Native playback routed through the persistent site player.
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
         <button
           type="button"
           onClick={() => toggleTrack(track)}
-          className="inline-flex h-10 min-w-[92px] items-center justify-center gap-2 border border-white/12 bg-black/45 px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/85 transition hover:border-white/24 hover:bg-black/65 hover:text-white"
+          className="light-text-primary light-border hover:light-card-hover inline-flex h-10 min-w-[92px] items-center justify-center gap-2 border bg-neutral-100 px-3 font-mono text-[10px] uppercase tracking-[0.2em] transition"
         >
           {active && isPlaying ? (
             <Pause className="h-3.5 w-3.5" />
@@ -51,7 +51,7 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
       </div>
 
       <div className="mt-4">
-        <div className="flex items-center justify-between gap-3 font-mono text-[10px] tracking-[0.18em] text-neutral-500">
+        <div className="light-text-tertiary flex items-center justify-between gap-3 font-mono text-[10px] tracking-[0.18em]">
           <span className="truncate">{track.title}</span>
           <span>
             {active ? formatTime(currentTime) : "0:00"} /{" "}
@@ -66,7 +66,7 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
             const ratio = (event.clientX - rect.left) / rect.width;
             seekToRatio(ratio);
           }}
-          className="mt-3 block h-[3px] w-full overflow-hidden rounded-full bg-white/10"
+          className="mt-3 block h-[3px] w-full overflow-hidden rounded-full bg-neutral-200"
           aria-label={`Seek ${track.title}`}
         >
           <span

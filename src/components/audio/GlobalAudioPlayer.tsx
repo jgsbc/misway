@@ -40,7 +40,7 @@ export default function GlobalAudioPlayer() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/8 bg-black/72 backdrop-blur-xl">
+    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-300 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-[42px] max-w-6xl items-center gap-2 px-3 sm:h-[46px] sm:gap-3 sm:px-4">
         <div className="flex shrink-0 items-center gap-1.5">
           <button
@@ -48,8 +48,8 @@ export default function GlobalAudioPlayer() {
             onClick={toggleLoop}
             className={`flex h-7 w-7 items-center justify-center rounded-full border transition sm:h-8 sm:w-8 ${
               isLooping
-                ? "border-white/20 bg-white/[0.08] text-white"
-                : "border-white/8 bg-white/[0.02] text-white/45 hover:border-white/16 hover:bg-white/[0.06] hover:text-white/80"
+                ? "border-neutral-400 bg-neutral-200 text-neutral-900"
+                : "border-neutral-300 bg-neutral-100 text-neutral-600 hover:border-neutral-400 hover:bg-neutral-200 hover:text-neutral-900"
             }`}
             aria-label={isLooping ? "Disable track loop" : "Loop current track"}
             aria-pressed={isLooping}
@@ -61,7 +61,7 @@ export default function GlobalAudioPlayer() {
           <button
             type="button"
             onClick={playPrevious}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/8 bg-white/[0.02] text-white/50 transition hover:border-white/16 hover:bg-white/[0.06] hover:text-white/85 sm:h-8 sm:w-8"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 bg-neutral-100 text-neutral-600 transition hover:border-neutral-400 hover:bg-neutral-200 hover:text-neutral-900 sm:h-8 sm:w-8"
             aria-label="Previous track"
             title="Previous track"
           >
@@ -71,7 +71,7 @@ export default function GlobalAudioPlayer() {
           <button
             type="button"
             onClick={togglePlayback}
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/85 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white sm:h-8 sm:w-8"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-400 bg-neutral-200 text-neutral-900 transition hover:border-neutral-500 hover:bg-neutral-300 sm:h-8 sm:w-8"
             aria-label={isPlaying ? "Pause audio" : "Play audio"}
           >
             {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 translate-x-[1px]" />}
@@ -80,7 +80,7 @@ export default function GlobalAudioPlayer() {
           <button
             type="button"
             onClick={playNext}
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/8 bg-white/[0.02] text-white/50 transition hover:border-white/16 hover:bg-white/[0.06] hover:text-white/85 sm:h-8 sm:w-8"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-300 bg-neutral-100 text-neutral-600 transition hover:border-neutral-400 hover:bg-neutral-200 hover:text-neutral-900 sm:h-8 sm:w-8"
             aria-label="Next track"
             title="Next track"
           >
@@ -90,7 +90,7 @@ export default function GlobalAudioPlayer() {
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3">
-            <p className="truncate font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-400 sm:text-[10px]">
+            <p className="truncate font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-600 sm:text-[10px]">
               {label}
             </p>
             <span className="hidden shrink-0 font-mono text-[9px] tracking-[0.16em] text-neutral-500 min-[420px]:inline sm:text-[10px]">

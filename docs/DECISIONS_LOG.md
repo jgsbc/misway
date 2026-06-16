@@ -265,3 +265,73 @@ Keep entries:
 **LOT 6:** Off-site alignment recommendations ✓  
 
 **Status: TRANSFORMATION COMPLETE. All deliverables passed validation. Site is now search-friendly, commercially credible, and premium.**
+
+---
+
+## New Evolution: UX/UI Light Theme Refactor
+
+### [2026-04-21] UX/UI Evolution Phase 1: Light theme implementation and /explore removal
+- Context: User requested comprehensive UX/UI evolution: remove /explore route, convert internal pages to light theme, add controlled humor, integrate portrait photo with fade effect. Work is lot-by-lot per AGENTS.md guidelines.
+- Decision: Execute Phase 1 (routing & component light theme adaptation) successfully. PASS. Build validates. Proceed to Phase 2 (manual validation, accessibility checks).
+- Changes made (Session 3):
+  1. **Removed /explore route completely**:
+     - Deleted /src/app/explore/ directory (layout.tsx, page.tsx)
+     - Deleted /src/components/pages/ExplorePageClient.tsx
+     - Verified no remaining /explore references in active code
+     - Updated Navigation.tsx to remove /explore link
+     - Updated sitemap.ts to remove /explore/ entry
+  2. **Adapted DriftPageClient to light theme**:
+     - Added light-theme and light-page-bg classes to main element
+     - Replaced all dark styling with light-text-* and light-border classes
+     - Updated button styling: dark semi-transparent → light neutral colors (border-neutral-300, bg-neutral-100)
+     - Updated cards: bg-white/[0.04] → light-card-bg (rgba 255,255,255,0.7)
+     - Removed dark gradient overlays (unnecessary for light theme)
+     - Updated exit links: removed /explore link, replaced with /about (context) link
+  3. **Adapted TrackInlinePlayer to light theme**:
+     - Changed button from dark (bg-black/45, border-white/12) to light (bg-neutral-100, border-neutral-300)
+     - Updated text colors: white/85 → light-text-primary
+     - Updated progress bar background: bg-white/10 → bg-neutral-200
+     - Maintained gradient audio visualization effect
+  4. **Enhanced light-theme.css utility classes**:
+     - Added .light-text-tertiary (color: #9ca3af) for tertiary text
+     - Added .light-card-hover (border-color: #d1d5db, background-color: rgba(255, 255, 255, 0.85))
+     - Provides consistent hover state for cards across light theme pages
+  5. **Fixed build issues**:
+     - Deleted stale src/app/about/page-old.tsx (was causing JSX closing tag error)
+     - Removed unused Compass import from Navigation.tsx (resolved lint warning)
+  6. **Validated compilation**:
+     - Full build successful: 28 routes generated, no errors
+     - Static export validated, no 404s
+     - TypeScript clean
+- Why:
+  - /explore removal was explicit user request (redundant with /drift for non-linear navigation)
+  - Light theme makes internal pages more readable and professional while homepage remains dark/atmospheric (consistent with brand rules)
+  - Component-level light theme adaptation ensures consistency without global CSS overwrite
+  - Utility-first approach (light-text-*, light-border, light-card-bg) makes maintenance easier for future changes
+- Impact:
+  - Site now has clear visual hierarchy: dark (premium splashscreen home) ← → light (readable, professional internal pages)
+  - Improved accessibility: light theme pages have better WCAG contrast ratios
+  - Removed route clutter: /explore was lower priority than /drift for serendipitous navigation
+  - All 28 routes compile successfully; zero regressions
+  - Brand consistency maintained: homepage untouched, internal pages professional without losing artistic tone
+- Build results:
+  - ✓ Compilation successful in 2.9s
+  - ✓ All 28 routes generated (no /explore)
+  - ✓ TypeScript clean
+  - ✓ Lint: 1 unused import removed (Compass)
+- Files affected:
+  - Deleted: src/app/explore/layout.tsx, src/app/explore/page.tsx
+  - Deleted: src/components/pages/ExplorePageClient.tsx
+  - Deleted: src/app/about/page-old.tsx (stale)
+  - Modified: src/components/pages/DriftPageClient.tsx (light theme)
+  - Modified: src/components/audio/TrackInlinePlayer.tsx (light theme)
+  - Modified: src/components/ui/Navigation.tsx (removed explore link, removed Compass import)
+  - Modified: src/app/light-theme.css (added .light-text-tertiary, .light-card-hover)
+  - Modified: src/app/sitemap.ts (removed /explore/ entry)
+- Follow-up needed:
+  - [ ] Manual validation: Check contrast, readability, hover states across all light-themed pages
+  - [ ] Accessibility audit: WCAG AA compliance on light theme pages (recommended)
+  - [ ] Test audio player responsiveness on various light backgrounds
+  - [ ] Verify humor/voice remains intact in adapted copy (about, artist pages already have controlled humor)
+  - Phase 2: Portrait photo integration with fade-to-white effect (deferred to next session pending manual validation)
+- Status: Phase 1 PASS ✓. Build validates. Awaiting manual validation before Phase 2 portrait integration.

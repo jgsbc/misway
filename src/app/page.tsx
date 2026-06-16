@@ -45,7 +45,7 @@ export default function LandingPage() {
 
               <div className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
                 <Link
-                  href="/explore"
+                  href="/tracks"
                   className="group relative flex min-h-[50px] items-center justify-center overflow-hidden border border-white/20 px-7 py-3 font-mono text-[11px] tracking-[0.24em] text-white transition"
                 >
                   <span className="relative z-10 group-hover:text-black">ENTER</span>
@@ -79,77 +79,6 @@ export default function LandingPage() {
           <div className="mt-8 flex items-center justify-between border-t border-white/8 pt-4 font-mono text-[10px] tracking-[0.18em] text-neutral-700">
             <span>ENTRY NODE / V1</span>
             <span>ARCHIVE SIGNAL</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-white/6 bg-black">
-        <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-700">
-              about the project
-            </p>
-
-            <h2 className="mt-4 text-lg font-medium tracking-[0.04em] text-neutral-300 sm:text-xl">
-              MISWΛY, also written MISWAY
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-neutral-500">
-              An electronic music project moving between atmospheric tension,
-              ambient textures, trip-hop pressure and cinematic electronics.
-            </p>
-
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-neutral-600">
-              This site is the central archive of the project: selected tracks,
-              listening paths, artist context and contact entry points.
-            </p>
-
-            <div className="mx-auto mt-6 max-w-2xl">
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="border border-white/8 bg-white/[0.01] p-4 text-left">
-                  <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-700">
-                    DISCOVER
-                  </p>
-                  <p className="mt-3 text-xs leading-6 text-neutral-500">
-                    18+ tracks spanning atmospheric electronica, trip-hop and cinematic
-                    electronic music. Organized chronologically from 2016 to 2026.
-                  </p>
-                </div>
-
-                <div className="border border-white/8 bg-white/[0.01] p-4 text-left">
-                  <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-700">
-                    COLLABORATE
-                  </p>
-                  <p className="mt-3 text-xs leading-6 text-neutral-500">
-                    Available for sync licensing, film/TV work, remix and creative
-                    partnerships. Direct contact for serious inquiries.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/about"
-                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
-              >
-                ABOUT
-              </Link>
-
-              <Link
-                href="/artist"
-                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
-              >
-                ARTIST PROFILE
-              </Link>
-
-              <Link
-                href="/tracks"
-                className="border border-white/6 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-600 transition hover:border-white/20 hover:text-neutral-300"
-              >
-                FULL TIMELINE
-              </Link>
-            </div>
           </div>
         </div>
       </section>

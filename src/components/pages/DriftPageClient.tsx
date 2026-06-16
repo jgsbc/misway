@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { featuredTracks, tracks } from "@/lib/tracks";
@@ -39,12 +39,20 @@ function pickOne<T>(items: T[]): T {
 }
 
 export default function DriftPageClient() {
-    const [signal, setSignal] = useState(() => pickOne(signalStates));
-    const [vector, setVector] = useState(() => pickOne(vectors));
-    const [note, setNote] = useState(() => pickOne(notes));
+    const [signal, setSignal] = useState("cold light holding steady");
+    const [vector, setVector] = useState("follow the line that bends without breaking");
+    const [note, setNote] = useState("Drift is not confusion. It is a more porous way of navigating.");
     const [track, setTrack] = useState(() =>
         pickOne(featuredTracks.length ? featuredTracks : tracks)
     );
+    const [mounted, setMounted] = useState(false);
+
+    useLayoutEffect(() => {
+        setSignal(pickOne(signalStates));
+        setVector(pickOne(vectors));
+        setNote(pickOne(notes));
+        setMounted(true);
+    }, []);
 
     function reshuffle() {
         setSignal(pickOne(signalStates));
@@ -58,33 +66,31 @@ export default function DriftPageClient() {
     }
 
     return (
-        <main className="relative min-h-screen overflow-hidden px-6 pb-36 pt-24 md:px-10">
+        <main className="light-theme light-page-bg relative min-h-screen overflow-hidden px-6 pb-36 pt-24 md:px-10">
             <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(86,184,255,0.12),transparent_24%),radial-gradient(circle_at_82%_18%,rgba(255,138,29,0.14),transparent_24%),linear-gradient(180deg,#03050a_0%,#060913_48%,#04060c_100%)]" />
-                <div className="absolute left-1/2 top-20 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-white/5 blur-[120px]" />
-                <div className="absolute left-[12%] top-[20%] h-32 w-32 rounded-full border border-white/6" />
-                <div className="absolute bottom-[18%] right-[12%] h-40 w-40 rounded-full border border-white/6" />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.58)_55%,rgba(0,0,0,0.86)_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(86,184,255,0.04),transparent_24%),radial-gradient(circle_at_82%_18%,rgba(255,138,29,0.05),transparent_24%)]" />
+                <div className="absolute left-1/2 top-20 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-50 to-transparent blur-[120px]" />
+                <div className="absolute left-[12%] top-[20%] h-32 w-32 rounded-full border border-neutral-200" />
+                <div className="absolute bottom-[18%] right-[12%] h-40 w-40 rounded-full border border-neutral-200" />
             </div>
 
             <div className="relative mx-auto max-w-6xl">
                 <section className="mb-14 grid gap-8 md:grid-cols-[1.02fr_0.98fr] md:items-end">
                     <div>
-                        <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+                        <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
                             / DRIFT MODE / NON-LINEAR ENTRY
                         </p>
 
-                        <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white md:text-6xl">
+                        <h1 className="light-text-primary mt-5 text-4xl font-semibold tracking-tight md:text-6xl">
                             Drift through MISWΛY
                         </h1>
 
-                        <p className="mt-6 max-w-2xl text-sm leading-7 text-neutral-300 md:text-base">
-                            A softer route into the MISWΛY catalogue. Not the efficient one. The
-                            alive one. Use this page when you want to enter the music through
-                            atmosphere, tension and unstable attraction rather than pure selection.
+                        <p className="light-text-secondary mt-6 max-w-2xl text-sm leading-7 md:text-base">
+                            A softer route into the MISWΛY catalogue. Not the efficient one. The alive one. 
+                            Navigate through atmosphere, tension and resonance rather than pure selection.
                         </p>
 
-                        <p className="mt-5 max-w-xl text-sm leading-7 text-neutral-400">
+                        <p className="light-text-secondary mt-5 max-w-xl text-sm leading-7">
                             Drift does not replace the catalogue. It bends it.
                         </p>
 
@@ -92,7 +98,7 @@ export default function DriftPageClient() {
                             <button
                                 type="button"
                                 onClick={reshuffle}
-                                className="inline-flex min-h-[46px] items-center justify-center border border-white/20 px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white transition hover:bg-white hover:text-black"
+                                className="light-text-primary light-border hover:light-card-hover inline-flex min-h-[46px] items-center justify-center border px-5 py-3 font-mono text-[11px] tracking-[0.24em] transition"
                             >
                                 DRIFT AGAIN
                             </button>
@@ -100,26 +106,25 @@ export default function DriftPageClient() {
                             <button
                                 type="button"
                                 onClick={nextChamber}
-                                className="inline-flex min-h-[46px] items-center justify-center border border-white/10 px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
+                                className="light-text-secondary light-border hover:light-text-primary inline-flex min-h-[46px] items-center justify-center border px-5 py-3 font-mono text-[11px] tracking-[0.24em] transition"
                             >
                                 NEW CHAMBER
                             </button>
 
                             <Link
                                 href="/tracks"
-                                className="inline-flex min-h-[46px] items-center justify-center border border-white/10 px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
+                                className="light-text-secondary light-border hover:light-text-primary inline-flex min-h-[46px] items-center justify-center border px-5 py-3 font-mono text-[11px] tracking-[0.24em] transition"
                             >
                                 FULL TIMELINE
                             </Link>
                         </div>
                     </div>
 
-                    <div className="relative overflow-hidden border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm md:-rotate-1">
-                        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(86,184,255,0.0),rgba(86,184,255,0.95),rgba(255,255,255,0.9),rgba(255,170,78,0.95),rgba(255,170,78,0.0))]" />
-                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                    <div className="light-card-bg light-border relative overflow-hidden border p-6 backdrop-blur-sm md:-rotate-1">
+                        <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                             DRIFT PROTOCOL
                         </p>
-                        <ul className="mt-5 space-y-3 text-sm leading-6 text-neutral-300">
+                        <ul className="light-text-secondary mt-5 space-y-3 text-sm leading-6">
                             <li>— keep a little room for misdirection</li>
                             <li>— choose by resonance, not by optimization</li>
                             <li>— let the player carry the thread across pages</li>
@@ -130,29 +135,29 @@ export default function DriftPageClient() {
 
                 <section className="mb-14 grid gap-6 md:grid-cols-[0.84fr_1.16fr]">
                     <div className="space-y-4">
-                        <div className="border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm rotate-[-1deg]">
-                            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                        <div className="light-card-bg light-border border p-5 backdrop-blur-sm rotate-[-1deg]">
+                            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                                 SIGNAL STATUS
                             </p>
-                            <p className="mt-4 text-sm leading-7 text-neutral-200">{signal}</p>
+                            <p className="light-text-primary mt-4 text-sm leading-7">{signal}</p>
                         </div>
 
-                        <div className="border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm rotate-[1deg] md:ml-5">
-                            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                        <div className="light-card-bg light-border border p-5 backdrop-blur-sm rotate-[1deg] md:ml-5">
+                            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                                 SUGGESTED VECTOR
                             </p>
-                            <p className="mt-4 text-sm leading-7 text-neutral-200">{vector}</p>
+                            <p className="light-text-primary mt-4 text-sm leading-7">{vector}</p>
                         </div>
 
-                        <div className="border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm rotate-[-2deg] md:ml-2">
-                            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                        <div className="light-card-bg light-border border p-5 backdrop-blur-sm rotate-[-2deg] md:ml-2">
+                            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                                 NOTE
                             </p>
-                            <p className="mt-4 text-sm leading-7 text-neutral-300">{note}</p>
+                            <p className="light-text-secondary mt-4 text-sm leading-7">{note}</p>
                         </div>
                     </div>
 
-                    <div className="relative overflow-hidden border border-white/10 bg-white/[0.04] backdrop-blur-sm">
+                    <div className="light-card-bg light-border relative overflow-hidden border backdrop-blur-sm">
                         <div className="grid md:grid-cols-[1fr_0.96fr]">
                             <div className="relative aspect-square md:aspect-auto md:min-h-[500px]">
                                 <Image
@@ -162,23 +167,22 @@ export default function DriftPageClient() {
                                     className="object-cover opacity-90"
                                     sizes="(max-width: 768px) 100vw, 50vw"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent md:bg-gradient-to-r md:from-black/20 md:via-transparent md:to-black/55" />
                             </div>
 
                             <div className="relative p-6 md:p-8">
-                                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                                <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                                     CURRENT CHAMBER
                                 </p>
 
-                                <h2 className="mt-6 text-3xl font-semibold tracking-tight text-white md:text-4xl">
+                                <h2 className="light-text-primary mt-6 text-3xl font-semibold tracking-tight md:text-4xl">
                                     {track.title}
                                 </h2>
 
-                                <p className="mt-4 font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                                <p className="light-text-tertiary mt-4 font-mono text-[10px] tracking-[0.24em]">
                                     {track.publishedLabel} · {track.duration ?? track.yearLabel}
                                 </p>
 
-                                <p className="mt-6 text-sm leading-7 text-neutral-300">
+                                <p className="light-text-secondary mt-6 text-sm leading-7">
                                     {track.shortText}
                                 </p>
 
@@ -186,7 +190,7 @@ export default function DriftPageClient() {
                                     {track.tags.map((tag) => (
                                         <span
                                             key={tag}
-                                            className="border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500"
+                                            className="light-border light-text-tertiary border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em]"
                                         >
                                             {tag}
                                         </span>
@@ -204,7 +208,7 @@ export default function DriftPageClient() {
                                     </Link>
                                 </div>
 
-                                <p className="mt-6 max-w-sm text-xs leading-6 text-neutral-500">
+                                <p className="light-text-tertiary mt-6 max-w-sm text-xs leading-6">
                                     Playback routes through the persistent site player, so the thread
                                     keeps moving even when you change page.
                                 </p>
@@ -215,34 +219,34 @@ export default function DriftPageClient() {
 
                 <section className="grid gap-4 md:grid-cols-3">
                     <Link
-                        href="/explore"
-                        className="group border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/25 hover:bg-white/[0.06]"
+                        href="/about"
+                        className="light-card-bg light-border group border p-5 transition hover:light-card-hover"
                     >
-                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                            EXIT / CURATED
+                        <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                            EXIT / CONTEXT
                         </p>
-                        <p className="mt-4 text-sm leading-7 text-neutral-300">
-                            Go back to a more curated entry point built around selected chambers.
+                        <p className="light-text-secondary mt-4 text-sm leading-7">
+                            Learn about the artist and the philosophy behind MISWΛY.
                         </p>
                     </Link>
 
                     <Link
                         href="/tracks"
-                        className="group border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/25 hover:bg-white/[0.06] md:translate-y-4"
+                        className="light-card-bg light-border group border p-5 transition hover:light-card-hover md:translate-y-4"
                     >
-                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                        <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                             EXIT / FULL INDEX
                         </p>
-                        <p className="mt-4 text-sm leading-7 text-neutral-300">
-                            Return to the full visible timeline and choose with a more direct logic.
+                        <p className="light-text-secondary mt-4 text-sm leading-7">
+                            Return to the full visible timeline and choose with direct logic.
                         </p>
                     </Link>
 
-                    <div className="border border-white/10 bg-white/[0.04] p-5 md:-translate-y-2">
-                        <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+                    <div className="light-card-bg light-border border p-5 md:-translate-y-2">
+                        <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                             DRIFT IS
                         </p>
-                        <p className="mt-4 text-sm leading-7 text-neutral-300">
+                        <p className="light-text-secondary mt-4 text-sm leading-7">
                             not a bug and not a joke page. It is a softer, stranger and more
                             atmospheric route into the same catalogue.
                         </p>

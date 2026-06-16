@@ -39,155 +39,116 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden px-6 pb-28 pt-24 md:px-10">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0">
-          <Image
-            src={withBasePath("/images/about/about-bg.jpg")}
-            alt="MISWΛY background"
-            fill
-            className="object-cover opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.3)_45%,rgba(0,0,0,0.82)_100%)]" />
-        </div>
-
-        <div className="absolute left-1/2 top-28 h-[440px] w-[440px] -translate-x-1/2 rounded-full bg-white/5 blur-[130px]" />
-        <div className="absolute left-[10%] top-[18%] h-24 w-24 rounded-full border border-white/6" />
-        <div className="absolute bottom-[16%] right-[12%] h-36 w-36 rounded-full border border-white/6" />
-      </div>
-
+    <main className="light-theme light-page-bg relative min-h-screen overflow-hidden px-6 pb-28 pt-24 md:px-10">
       <div className="relative mx-auto max-w-6xl">
-        <section className="mb-16 grid gap-8 md:grid-cols-[1.05fr_0.95fr] md:items-start">
+        {/* Main Section */}
+        <section className="mb-20 grid gap-12 md:grid-cols-[1fr_380px] md:items-start">
           <div>
-            <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
               / ABOUT / ARTIST PROFILE
             </p>
 
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white md:text-6xl">
+            <h1 className="light-text-primary mt-6 text-4xl font-semibold tracking-tight md:text-6xl">
               MISWΛY
             </h1>
 
-            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.32em] text-neutral-500">
+            <p className="light-text-secondary mt-3 font-mono text-[10px] uppercase tracking-[0.32em]">
               MISWAY / electronic music project
             </p>
 
-            <p className="mt-6 max-w-3xl text-sm leading-7 text-neutral-300 md:text-base">
-              MISWΛY, also written MISWAY, is an electronic music project shaped by
-              atmospheric tension, nocturnal textures, ambient electronics, trip-hop
-              weight and cinematic contrast. The work moves between pressure and
-              softness, synthetic edges and intimate melodic fragments.
+            <p className="light-text-primary mt-6 max-w-3xl text-sm leading-7 md:text-base">
+              MISWΛY is an electronic music project shaped by atmospheric tension, nocturnal textures, 
+              ambient electronics, trip-hop weight and cinematic contrast. Serious sounds. Mildly suspicious 
+              inner weather.
             </p>
 
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
-              This site is the central archive of the project: artist context, selected
-              tracks, catalogue access, contact entry points and a visual language built
-              around drift, signal, memory and controlled fracture.
+            <p className="light-text-secondary mt-5 max-w-3xl text-sm leading-7 md:text-base">
+              This site is the central archive: tracks, context, entry points and a visual language built 
+              around drift, signal, memory and controlled fracture. Not a robot. Mostly a human with machines.
             </p>
 
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
-              Behind the project is a human source, not a content machine. MISWΛY is
-              where personal intensity, visual taste, unfinished inner movement and
-              electronic composition are turned into form, pulse and atmosphere.
+            <p className="light-text-secondary mt-5 max-w-3xl text-sm leading-7 md:text-base">
+              Behind the project: personal intensity, visual taste, unfinished inner movement turned into form, 
+              pulse and atmosphere. No guru. No content farm. Just work, signals and pressure.
             </p>
 
+            {/* Info Cards */}
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="border border-white/10 bg-white/[0.03] p-5">
-                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+              <div className="light-border light-card-bg border p-5">
+                <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
                   GENRES / TERRITORIES
                 </p>
-                <p className="mt-4 text-sm leading-7 text-neutral-300">
-                  Atmospheric electronica, ambient electronic music, trip-hop pressure,
-                  cinematic electronics, dark synthetic textures.
+                <p className="light-text-secondary mt-4 text-sm leading-7">
+                  Atmospheric electronica, ambient, trip-hop, cinematic electronics, dark synthetic textures.
                 </p>
               </div>
 
-              <div className="border border-white/10 bg-white/[0.03] p-5">
-                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                  FOR COLLABORATIONS
+              <div className="light-border light-card-bg border p-5">
+                <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                  AVAILABLE FOR
                 </p>
-                <p className="mt-4 text-sm leading-7 text-neutral-300">
-                  Sync references, visuals, artist discovery, music-related projects,
-                  direct contact and selected creative collaborations.
+                <p className="light-text-secondary mt-4 text-sm leading-7">
+                  Sync, licensing, visuals, remix work, artist inquiry, music projects. Direct contact for serious offers.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-5">
-            <div className="relative overflow-hidden border border-white/10 bg-white/[0.03]">
-              <div className="relative aspect-[4/3]">
+          {/* Portrait Sidebar */}
+          <div className="space-y-4 md:sticky md:top-24">
+            <div className="portrait-fade-to-light light-border relative overflow-hidden border">
+              <div className="relative aspect-[3/4]">
                 <Image
                   src={withBasePath("/images/about/misway-portrait.jpg")}
                   alt="Portrait of MISWΛY"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-              </div>
-
-              <div className="p-5">
-                <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                  SOURCE
-                </p>
-                <p className="mt-3 text-sm leading-6 text-neutral-400">
-                  A living source with memory, humour, fracture, tenderness, work
-                  residue and an unreasonable loyalty to beauty under pressure.
-                </p>
               </div>
             </div>
 
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                OFFICIAL LISTENING NODE
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                For public listening outside this archive, the main external profile is
-                the SoundCloud node.
-              </p>
-
-              <div className="mt-5">
+            <div className="light-card-bg light-border space-y-4 border p-5">
+              <div>
+                <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                  SOUNDCLOUD
+                </p>
                 <a
                   href="https://soundcloud.com/misway"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                  className="light-text-primary light-border hover:light-card-hover mt-3 inline-flex border px-4 py-2 font-mono text-[10px] tracking-[0.22em] transition"
                 >
-                  OPEN SOUNDCLOUD ↗
+                  OPEN ↗
                 </a>
               </div>
-            </div>
 
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                WHAT THIS PAGE IS FOR
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                The full artist biography and vision behind MISWΛY. For a more direct commercial/collaboration focus, visit the dedicated artist profile.
-              </p>
-              <Link
-                href="/artist"
-                className="mt-4 inline-flex border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-              >
-                ARTIST PROFILE →
-              </Link>
+              <div>
+                <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                  COMMERCIAL PROFILE
+                </p>
+                <Link
+                  href="/artist"
+                  className="light-text-primary light-border hover:light-card-hover mt-3 inline-flex border px-4 py-2 font-mono text-[10px] tracking-[0.22em] transition"
+                >
+                  VIEW →
+                </Link>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="mb-16">
-          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
-            / SELECTED TRACKS
+        {/* Selected Tracks Section */}
+        <section className="mb-20">
+          <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
+            / ENTRY POINTS
           </p>
 
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-5xl">
-            Entry points into the catalogue
+          <h2 className="light-text-primary mt-4 text-3xl font-semibold tracking-tight md:text-5xl">
+            Into the catalogue
           </h2>
 
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400 md:text-base">
-            A few visible anchors to understand the sonic direction before entering the
-            wider timeline.
+          <p className="light-text-secondary mt-4 max-w-2xl text-sm leading-7 md:text-base">
+            A few anchors to understand the sonic direction before exploring the wider timeline.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -195,7 +156,7 @@ export default function AboutPage() {
               <Link
                 key={track.slug}
                 href={`/tracks/${track.slug}`}
-                className="border border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-300 transition hover:border-white/30 hover:text-white"
+                className="light-text-primary light-border hover:light-card-hover border px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em] transition"
               >
                 {track.title}
               </Link>
@@ -205,56 +166,42 @@ export default function AboutPage() {
           <div className="mt-8">
             <Link
               href="/tracks"
-              className="inline-flex border border-white/10 px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white/75 transition hover:border-white/30 hover:text-white"
+              className="light-text-primary light-border hover:light-card-hover inline-flex border px-5 py-3 font-mono text-[11px] tracking-[0.24em] transition"
             >
-              OPEN FULL TIMELINE
+              FULL TIMELINE
             </Link>
           </div>
         </section>
 
+        {/* Contact Section */}
         <section id="contact" className="grid gap-8 md:grid-cols-[0.9fr_1.1fr]">
           <div className="space-y-4">
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                CONTACT / CHANNEL
+            <div className="light-card-bg light-border border p-6">
+              <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                CONTACT / INQUIRY
               </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                For music, visuals, collaborations, sync references or direct contact
-                around the MISWΛY project.
+              <p className="light-text-secondary mt-4 text-sm leading-7">
+                For music, collaboration, sync or direct project inquiry around MISWΛY.
               </p>
             </div>
 
-            <div className="border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                GOOD REASONS TO WRITE
+            <div className="light-card-bg light-border border p-6">
+              <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+                GOOD REASONS TO REACH OUT
               </p>
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-neutral-400">
+              <ul className="light-text-secondary mt-4 space-y-3 text-sm leading-6">
                 <li>— musical collaboration</li>
                 <li>— film/TV sync and licensing</li>
-                <li>— remix or reinterpretation work</li>
-                <li>— artist inquiry and press</li>
-                <li>— project proposal or partnership</li>
+                <li>— remix or reinterpretation</li>
+                <li>— artist inquiry or press</li>
+                <li>— project or partnership</li>
               </ul>
-            </div>
-
-            <div className="border border-white/10 bg-white/[0.02] p-6">
-              <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
-                FOR COMMERCIAL INQUIRIES
-              </p>
-              <p className="mt-4 text-sm leading-7 text-neutral-300">
-                Dedicated artist profile with licensing information and commercial details available.
-              </p>
-              <Link
-                href="/artist"
-                className="mt-4 inline-flex border border-white/10 px-4 py-2 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-              >
-                ARTIST PROFILE →
-              </Link>
             </div>
           </div>
 
-          <section className="border border-white/10 bg-white/[0.03] p-6 md:p-8">
-            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+          {/* Contact Form */}
+          <section className="light-card-bg light-border border p-6 md:p-8">
+            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
               MESSAGE FORM
             </p>
 
@@ -266,7 +213,7 @@ export default function AboutPage() {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                  className="light-text-tertiary mb-2 block font-mono text-[10px] tracking-[0.22em]"
                 >
                   NAME
                 </label>
@@ -275,7 +222,7 @@ export default function AboutPage() {
                   name="name"
                   type="text"
                   required
-                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  className="light-text-primary light-border w-full border px-4 py-3 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
                   placeholder="Your name"
                 />
               </div>
@@ -283,7 +230,7 @@ export default function AboutPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                  className="light-text-tertiary mb-2 block font-mono text-[10px] tracking-[0.22em]"
                 >
                   EMAIL
                 </label>
@@ -292,7 +239,7 @@ export default function AboutPage() {
                   name="email"
                   type="email"
                   required
-                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
+                  className="light-text-primary light-border w-full border px-4 py-3 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
                   placeholder="your@email.com"
                 />
               </div>
@@ -300,7 +247,7 @@ export default function AboutPage() {
               <div>
                 <label
                   htmlFor="subject"
-                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                  className="light-text-tertiary mb-2 block font-mono text-[10px] tracking-[0.22em]"
                 >
                   SUBJECT
                 </label>
@@ -308,15 +255,15 @@ export default function AboutPage() {
                   id="subject"
                   name="subject"
                   type="text"
-                  className="w-full border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
-                  placeholder="Collab, sync, project..."
+                  className="light-text-primary light-border w-full border px-4 py-3 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
+                  placeholder="Collab, sync, press..."
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="message"
-                  className="mb-2 block font-mono text-[10px] tracking-[0.22em] text-neutral-500"
+                  className="light-text-tertiary mb-2 block font-mono text-[10px] tracking-[0.22em]"
                 >
                   MESSAGE
                 </label>
@@ -325,8 +272,8 @@ export default function AboutPage() {
                   name="message"
                   rows={7}
                   required
-                  className="w-full resize-none border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-white/30"
-                  placeholder="Write your message..."
+                  className="light-text-primary light-border w-full resize-none border px-4 py-3 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
+                  placeholder="Tell us about your inquiry..."
                 />
               </div>
 
@@ -341,14 +288,14 @@ export default function AboutPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   type="submit"
-                  className="border border-white/20 px-6 py-3 font-mono text-[11px] tracking-[0.28em] text-white transition hover:bg-white hover:text-black"
+                  className="light-text-primary light-border hover:light-card-hover border px-6 py-3 font-mono text-[11px] tracking-[0.28em] transition"
                 >
                   SEND
                 </button>
 
                 <Link
                   href="/tracks"
-                  className="border border-white/10 px-6 py-3 font-mono text-[11px] tracking-[0.28em] text-white/70 transition hover:border-white/30 hover:text-white"
+                  className="light-text-secondary light-border hover:light-text-primary border px-6 py-3 font-mono text-[11px] tracking-[0.28em] transition"
                 >
                   BACK TO TRACKS
                 </Link>

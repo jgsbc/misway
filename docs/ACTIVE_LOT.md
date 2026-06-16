@@ -1,9 +1,37 @@
 # ACTIVE_LOT.md
 
-## Transformation complete ✓
+## Current Evolution Phase: UX/UI Refactor
 
-**ALL LOTS EXECUTED AND PASSED VALIDATION:**
+**Phase: Light Theme & Content Simplification**
 
+### Lot Status: IN PROGRESS (Session 3)
+
+#### Completed in This Session:
+1. ✓ Removed `/explore` route completely (directory + component deleted)
+2. ✓ Adapted DriftPageClient to light theme (all styling updated)
+3. ✓ Adapted TrackInlinePlayer to light theme (button + progress bar)
+4. ✓ Updated light-theme.css with `.light-text-tertiary` and `.light-card-hover` utilities
+5. ✓ Removed old about/page-old.tsx (stale file causing compilation error)
+6. ✓ Fixed Compass import warning in Navigation.tsx
+7. ✓ Full project build validation: SUCCESS (28 routes, all compiled)
+
+#### Remaining Tasks (Priority Order):
+- [ ] Manual validation of all pages for contrast, readability, visual consistency
+- [ ] Verify audio player responsiveness on light backgrounds
+- [ ] Test accessibility (WCAG contrast ratios) across all light theme pages
+- [ ] Validate that humor/voice is preserved in adapted content
+
+#### Build Status:
+- **Compilation:** ✓ PASS
+- **Routes:** 28 total (no 404s)
+- **Static Export:** ✓ PASS
+- **Lint:** ✓ PASS (1 unused import removed)
+
+---
+
+## Earlier Transformation Work
+
+**Prior SEO/Metadata LOTs (Completed):**
 - LOT 0 — Audit & strategic diagnosis: PASS ✓
 - LOT 1 — Foundations: metadata, crawlability, indexation: PASS ✓
 - LOT 2 — Artist credibility surfaces: PASS ✓
@@ -12,42 +40,16 @@
 - LOT 5 — Commercial conversion layer: PASS ✓
 - LOT 6 — Off-site alignment recommendations: PASS ✓
 
-## Final Status
+**SEO Final Status:**
+The site is now search-friendly, commercially credible, premium brand-aligned, and actionable. Off-site alignment (SoundCloud bio, Search Console, backlinks) remains as manual action items — see LOT6_OFF_SITE_ALIGNMENT.md for checklist.
 
-**MISWΛY website transformation is complete.**
+---
 
-The site is now:
-- **Search-friendly:** Proper metadata, crawlable structure, valid schema, optimized hierarchy
-- **Commercially credible:** Artist profile, sync positioning, commercial contact flow, collaboration CTAs
-- **Premium brand:** Dark/atmospheric/elegant aesthetic preserved, no generic fluff, authentic voice maintained
-- **Actionable:** Clear conversion paths (discovery → artist → contact), multiple entry points, intuitive navigation
-
-**Build validation:** ✓ All 28 routes compile successfully  
-**Brand integrity:** ✓ Maintained throughout transformation  
-**User experience:** ✓ Improved without sacrificing artistic identity
-
-**Implementation needed:** Off-site alignment (SoundCloud bio, Search Console, backlink strategy) — see LOT6_OFF_SITE_ALIGNMENT.md for actionable checklist.
-
-## Mandatory inputs to read before acting
-- /AGENTS.md
-- /docs/SEO_EXECUTION_PLAN.md
-- /docs/SEO_PAGE_MAP.md
-- /docs/DECISIONS_LOG.md
-
-## Current lot tasks
-- fix contact page flow (replace redirect with proper architecture)
-- add breadcrumb schema to track pages and catalogue
-- optimize homepage title/description for brand queries
-- add track page CTAs for collaboration/sync entry
-- implement proper canonical strategy validation
-- validate robots.txt and sitemap coherence
-- test build and verify no regressions
-- validate all structured data is visible-content-backed
-
-## Current lot deliverables
-- fixed contact page flow
-- breadcrumb schema implementation
-- enhanced track page CTAs
+## Mandatory Context Reads
+- /AGENTS.md (brand rules, strategic objectives, execution model)
+- /docs/SEO_EXECUTION_PLAN.md (overall strategy)
+- /docs/SEO_PAGE_MAP.md (page inventory)
+- /docs/DECISIONS_LOG.md (all decisions made)
 - validated homepage metadata
 - clean build with no regressions
 - updated sitemap coverage

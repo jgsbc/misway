@@ -71,7 +71,7 @@ const collectionSchema = {
 
 export default function TracksPage() {
   return (
-    <main className="min-h-screen px-6 pb-40 pt-24 md:px-10">
+    <main className="light-theme light-page-bg min-h-screen px-6 pb-40 pt-24 md:px-10">
       <Script
         id="json-ld-breadcrumb-tracks"
         type="application/ld+json"
@@ -92,46 +92,46 @@ export default function TracksPage() {
 
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
-          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
+          <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
             / FULL TIMELINE
           </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white md:text-6xl">
+          <h1 className="light-text-primary mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
             Tracks
           </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-neutral-400 md:text-base">
+          <p className="light-text-secondary mt-4 max-w-3xl text-sm leading-7 md:text-base">
             Public chronology of the MISWΛY catalogue, from the Birth era — the
             very first steps in music production on computer — to the most recent
             releases now living on the site.
           </p>
         </div>
 
-        <section className="mb-10 grid gap-4 md:grid-cols-3">
-          <div className="border border-white/10 bg-white/[0.03] p-5">
-            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+        <section className="light-border light-card-bg mb-10 grid gap-4 border p-5 md:grid-cols-3">
+          <div>
+            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
               CATALOGUE SIZE
             </p>
-            <p className="mt-4 text-2xl font-semibold text-white">{trackCount}</p>
-            <p className="mt-2 text-sm leading-7 text-neutral-400">
+            <p className="light-text-primary mt-4 text-2xl font-semibold">{trackCount}</p>
+            <p className="light-text-secondary mt-2 text-sm leading-7">
               Local tracks currently available on the MISWΛY site player.
             </p>
           </div>
 
-          <div className="border border-white/10 bg-white/[0.03] p-5">
-            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+          <div>
+            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
               BIRTH ERA
             </p>
-            <p className="mt-4 text-2xl font-semibold text-white">{birthEraCount}</p>
-            <p className="mt-2 text-sm leading-7 text-neutral-400">
+            <p className="light-text-primary mt-4 text-2xl font-semibold">{birthEraCount}</p>
+            <p className="light-text-secondary mt-2 text-sm leading-7">
               First steps in MAO: rough, instinctive, formative sketches.
             </p>
           </div>
 
-          <div className="border border-white/10 bg-white/[0.03] p-5">
-            <p className="font-mono text-[10px] tracking-[0.24em] text-neutral-500">
+          <div>
+            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
               NEW ERA
             </p>
-            <p className="mt-4 text-2xl font-semibold text-white">{latestCount}</p>
-            <p className="mt-2 text-sm leading-7 text-neutral-400">
+            <p className="light-text-primary mt-4 text-2xl font-semibold">{latestCount}</p>
+            <p className="light-text-secondary mt-2 text-sm leading-7">
               Recent nodes, current releases and the living front edge of the project.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function TracksPage() {
           {tracks.map((track) => (
             <div
               key={track.slug}
-              className="group relative overflow-hidden border border-white/10 bg-white/[0.02] transition hover:border-white/25 hover:bg-white/[0.04]"
+              className="light-border light-card-bg group relative overflow-hidden border transition hover:border-neutral-400"
             >
               <TrackPlayButton track={track} className="absolute right-4 top-4 z-10" />
 
