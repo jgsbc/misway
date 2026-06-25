@@ -116,33 +116,33 @@ export default function DriftMapClient() {
   }, []);
 
   return (
-    <main className="light-theme light-page-bg min-h-screen px-6 pb-48 pt-24 md:px-10">
+    <main className="light-theme light-page-bg min-h-screen px-6 pb-64 pt-16 md:px-10 md:pb-48 md:pt-24">
       <section className="mx-auto max-w-6xl">
-        <div className="mb-8 grid gap-6 md:grid-cols-[1fr_0.74fr] md:items-end">
+        <div className="mb-5 grid gap-4 md:mb-8 md:grid-cols-[1fr_0.74fr] md:items-end md:gap-6">
           <div>
             <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.35em]">
               Experimental / Drift Map Lab
             </p>
 
-            <h1 className="light-text-primary mt-6 max-w-3xl text-4xl font-semibold tracking-tight md:text-6xl">
+            <h1 className="light-text-primary mt-4 max-w-3xl text-3xl font-semibold tracking-tight md:mt-6 md:text-6xl">
               The map can move now.
             </h1>
 
-            <div className="light-text-secondary mt-7 max-w-2xl space-y-3 text-sm leading-7 md:text-base">
+            <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:space-y-3 md:text-base md:leading-7">
               <p>Desktop: arrows or WASD. Mobile: touch and drag the map.</p>
               <p>Zones and audio stay asleep for now.</p>
               <p>No controls today? Drift and Tracks still have doors.</p>
             </div>
           </div>
 
-          <div className="light-border light-card-bg border p-5">
+          <div className="light-border light-card-bg border p-4 md:p-5">
             <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.24em]">
               Controls
             </p>
-            <p className="light-text-primary mt-4 font-mono text-xs uppercase tracking-[0.18em]">
+            <p className="light-text-primary mt-3 font-mono text-xs uppercase tracking-[0.18em] md:mt-4">
               WASD / Arrow keys / Touch + drag
             </p>
-            <p className="light-text-secondary mt-3 text-sm leading-6">
+            <p className="light-text-secondary mt-2 text-sm leading-6 md:mt-3">
               Movement is clamped inside the map. Keys win while pressed. No
               song starts here.
             </p>
