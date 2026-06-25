@@ -15,6 +15,13 @@ export type DriftMovementInput = {
   right: boolean;
 };
 
+export type DriftPointerRect = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+};
+
 export type DriftVehicleState = {
   position: DriftPoint;
   facing: number;
@@ -45,11 +52,39 @@ export function getMovementInput(pressedKeys: ReadonlySet<string>): DriftMovemen
   };
 }
 
+export function hasActiveMovementInput(input: DriftMovementInput) {
+  return input.up || input.down || input.left || input.right;
+}
+
 export function clampPosition(position: DriftPoint, bounds: DriftBounds): DriftPoint {
   return {
     x: Math.min(Math.max(position.x, 0), bounds.width),
     y: Math.min(Math.max(position.y, 0), bounds.height),
   };
+}
+
+export function getMapPointFromClientPoint({
+  clientX,
+  clientY,
+  rect,
+  bounds,
+}: {
+  clientX: number;
+  clientY: number;
+  rect: DriftPointerRect;
+  bounds: DriftBounds;
+}): DriftPoint {
+  if (rect.width <= 0 || rect.height <= 0) {
+    return { x: 0, y: 0 };
+  }
+
+  return clampPosition(
+    {
+      x: ((clientX - rect.left) / rect.width) * bounds.width,
+      y: ((clientY - rect.top) / rect.height) * bounds.height,
+    },
+    bounds
+  );
 }
 
 export function getNextDriftVehicleState({
@@ -82,6 +117,51 @@ export function getNextDriftVehicleState({
     {
       x: state.position.x + normalizedX * speed * deltaSeconds,
       y: state.position.y + normalizedY * speed * deltaSeconds,
+    },
+    bounds
+  );
+
+  return {
+    position: nextPosition,
+    facing: Math.atan2(normalizedY, normalizedX) * (180 / Math.PI),
+    isMoving: true,
+  };
+}
+
+export function getNextDriftVehicleStateTowardTarget({
+  state,
+  target,
+  deltaSeconds,
+  speed,
+  bounds,
+  stopDistance = 8,
+}: {
+  state: DriftVehicleState;
+  target: DriftPoint;
+  deltaSeconds: number;
+  speed: number;
+  bounds: DriftBounds;
+  stopDistance?: number;
+}): DriftVehicleState {
+  const clampedTarget = clampPosition(target, bounds);
+  const horizontal = clampedTarget.x - state.position.x;
+  const vertical = clampedTarget.y - state.position.y;
+  const distance = Math.hypot(horizontal, vertical);
+
+  if (distance <= stopDistance) {
+    return {
+      ...state,
+      isMoving: false,
+    };
+  }
+
+  const travelDistance = Math.min(speed * deltaSeconds, distance);
+  const normalizedX = horizontal / distance;
+  const normalizedY = vertical / distance;
+  const nextPosition = clampPosition(
+    {
+      x: state.position.x + normalizedX * travelDistance,
+      y: state.position.y + normalizedY * travelDistance,
     },
     bounds
   );

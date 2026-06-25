@@ -1,26 +1,86 @@
 import DriftVehicle from "@/components/drift-map/DriftVehicle";
 import { driftMapConfig, driftZones } from "@/lib/driftMap";
-import type { DriftPoint } from "@/lib/driftControls";
+import {
+  getMapPointFromClientPoint,
+  type DriftPoint,
+} from "@/lib/driftControls";
+import type { PointerEvent } from "react";
 
 type DriftMapSceneProps = {
   vehiclePosition: DriftPoint;
   vehicleFacing: number;
   isVehicleMoving: boolean;
+  onPointerTargetChange?: (target: DriftPoint | null) => void;
 };
 
 function toPercent(value: number, total: number) {
   return `${(value / total) * 100}%`;
 }
 
+function safelySetPointerCapture(element: HTMLDivElement, pointerId: number) {
+  try {
+    element.setPointerCapture(pointerId);
+  } catch {
+    return;
+  }
+}
+
+function safelyReleasePointerCapture(element: HTMLDivElement, pointerId: number) {
+  try {
+    if (element.hasPointerCapture(pointerId)) {
+      element.releasePointerCapture(pointerId);
+    }
+  } catch {
+    return;
+  }
+}
+
 export default function DriftMapScene({
   vehiclePosition,
   vehicleFacing,
   isVehicleMoving,
+  onPointerTargetChange,
 }: DriftMapSceneProps) {
+  function getPointerTarget(event: PointerEvent<HTMLDivElement>) {
+    return getMapPointFromClientPoint({
+      clientX: event.clientX,
+      clientY: event.clientY,
+      rect: event.currentTarget.getBoundingClientRect(),
+      bounds: {
+        width: driftMapConfig.width,
+        height: driftMapConfig.height,
+      },
+    });
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    safelySetPointerCapture(event.currentTarget, event.pointerId);
+    onPointerTargetChange?.(getPointerTarget(event));
+  }
+
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      return;
+    }
+
+    event.preventDefault();
+    onPointerTargetChange?.(getPointerTarget(event));
+  }
+
+  function clearPointerTarget(event: PointerEvent<HTMLDivElement>) {
+    safelyReleasePointerCapture(event.currentTarget, event.pointerId);
+    onPointerTargetChange?.(null);
+  }
+
   return (
     <section
       className="light-border light-card-bg relative overflow-hidden border p-3 shadow-[0_24px_70px_rgba(50,45,38,0.08)] md:p-4"
-      aria-label="Playable desktop Drift Map prototype. Move the signal vehicle with arrow keys or W A S D."
+      aria-label="Playable Drift Map prototype. Move the signal vehicle with arrow keys, W A S D, or by touching and dragging on the map."
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.26em]">
@@ -32,7 +92,13 @@ export default function DriftMapScene({
       </div>
 
       <div
-        className="relative mx-auto w-full overflow-hidden border border-neutral-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(239,236,229,0.82))]"
+        className="relative mx-auto w-full touch-none select-none overflow-hidden border border-neutral-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(239,236,229,0.82))] cursor-crosshair"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={clearPointerTarget}
+        onPointerCancel={clearPointerTarget}
+        onPointerLeave={clearPointerTarget}
+        onLostPointerCapture={clearPointerTarget}
         style={{
           aspectRatio: `${driftMapConfig.width} / ${driftMapConfig.height}`,
         }}

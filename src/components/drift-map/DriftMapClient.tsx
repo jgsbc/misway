@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import DriftMapScene from "@/components/drift-map/DriftMapScene";
 import { driftMapConfig } from "@/lib/driftMap";
 import {
   getMovementInput,
   getNextDriftVehicleState,
+  getNextDriftVehicleStateTowardTarget,
   hasVehicleStateChanged,
+  hasActiveMovementInput,
   isDriftMovementKey,
   isEditableKeyboardTarget,
+  type DriftPoint,
   type DriftVehicleState,
 } from "@/lib/driftControls";
 
@@ -23,28 +26,45 @@ const initialVehicleState: DriftVehicleState = {
 
 export default function DriftMapClient() {
   const pressedKeysRef = useRef(new Set<string>());
+  const pointerTargetRef = useRef<DriftPoint | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number | null>(null);
   const vehicleStateRef = useRef<DriftVehicleState>(initialVehicleState);
   const [vehicleState, setVehicleState] =
     useState<DriftVehicleState>(initialVehicleState);
 
+  const handlePointerTargetChange = useCallback((target: DriftPoint | null) => {
+    pointerTargetRef.current = target;
+  }, []);
+
   useEffect(() => {
     function updateVehicleState(time: number) {
       const lastTime = lastTimeRef.current ?? time;
       const deltaSeconds = Math.min((time - lastTime) / 1000, 0.05);
       lastTimeRef.current = time;
+      const bounds = {
+        width: driftMapConfig.width,
+        height: driftMapConfig.height,
+      };
+      const keyboardInput = getMovementInput(pressedKeysRef.current);
+      const pointerTarget = pointerTargetRef.current;
 
-      const nextState = getNextDriftVehicleState({
-        state: vehicleStateRef.current,
-        input: getMovementInput(pressedKeysRef.current),
-        deltaSeconds,
-        speed: movementSpeed,
-        bounds: {
-          width: driftMapConfig.width,
-          height: driftMapConfig.height,
-        },
-      });
+      const nextState =
+        !hasActiveMovementInput(keyboardInput) && pointerTarget
+          ? getNextDriftVehicleStateTowardTarget({
+              state: vehicleStateRef.current,
+              target: pointerTarget,
+              deltaSeconds,
+              speed: movementSpeed,
+              bounds,
+            })
+          : getNextDriftVehicleState({
+              state: vehicleStateRef.current,
+              input: keyboardInput,
+              deltaSeconds,
+              speed: movementSpeed,
+              bounds,
+            });
 
       if (hasVehicleStateChanged(vehicleStateRef.current, nextState)) {
         vehicleStateRef.current = nextState;
@@ -76,6 +96,7 @@ export default function DriftMapClient() {
 
     function clearPressedKeys() {
       pressedKeysRef.current.clear();
+      pointerTargetRef.current = null;
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -108,9 +129,9 @@ export default function DriftMapClient() {
             </h1>
 
             <div className="light-text-secondary mt-7 max-w-2xl space-y-3 text-sm leading-7 md:text-base">
-              <p>Desktop prototype only: drive the small signal with the keyboard.</p>
+              <p>Desktop: arrows or WASD. Mobile: touch and drag the map.</p>
               <p>Zones and audio stay asleep for now.</p>
-              <p>Keyboard-free path: use Drift or Tracks below while this map learns manners.</p>
+              <p>No controls today? Drift and Tracks still have doors.</p>
             </div>
           </div>
 
@@ -119,10 +140,11 @@ export default function DriftMapClient() {
               Controls
             </p>
             <p className="light-text-primary mt-4 font-mono text-xs uppercase tracking-[0.18em]">
-              WASD / Arrow keys
+              WASD / Arrow keys / Touch + drag
             </p>
             <p className="light-text-secondary mt-3 text-sm leading-6">
-              Movement is clamped inside the map. Diagonals are normalized. No song starts here.
+              Movement is clamped inside the map. Keys win while pressed. No
+              song starts here.
             </p>
           </div>
         </div>
@@ -131,6 +153,7 @@ export default function DriftMapClient() {
           vehiclePosition={vehicleState.position}
           vehicleFacing={vehicleState.facing}
           isVehicleMoving={vehicleState.isMoving}
+          onPointerTargetChange={handlePointerTargetChange}
         />
 
         <div className="mt-8 flex flex-wrap gap-3">
