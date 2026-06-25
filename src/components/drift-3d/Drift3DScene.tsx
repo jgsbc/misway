@@ -1,8 +1,31 @@
 "use client";
 
+import { useEffect } from "react";
+import { useThree } from "@react-three/fiber";
+import Drift3DProp from "@/components/drift-3d/Drift3DProp";
+import Drift3DZone from "@/components/drift-3d/Drift3DZone";
+import { driftMapConfig } from "@/lib/driftMap";
+
+function StaticCameraFrame() {
+  const camera = useThree((state) => state.camera);
+  const invalidate = useThree((state) => state.invalidate);
+
+  useEffect(() => {
+    camera.position.set(7.4, 7.4, 9.4);
+    camera.lookAt(0, 0, 1.05);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [camera, invalidate]);
+
+  return null;
+}
+
 export default function Drift3DScene() {
+  const { width, height, zones } = driftMapConfig;
+
   return (
     <>
+      <StaticCameraFrame />
       <color attach="background" args={["#f7f4ed"]} />
       <hemisphereLight args={["#ffffff", "#d6cec1", 1.6]} />
       <directionalLight position={[4, 7, 3]} intensity={1.2} />
@@ -24,28 +47,6 @@ export default function Drift3DScene() {
           <meshStandardMaterial color="#e0d4bf" roughness={0.9} />
         </mesh>
 
-        <group position={[0, 0.2, 0]}>
-          <mesh position={[0, 0.1, 0]}>
-            <cylinderGeometry args={[0.46, 0.58, 0.22, 6]} />
-            <meshStandardMaterial color="#292621" roughness={0.7} />
-          </mesh>
-
-          <mesh position={[0, 0.5, 0]}>
-            <octahedronGeometry args={[0.36, 0]} />
-            <meshStandardMaterial
-              color="#fff8e6"
-              emissive="#f4c56f"
-              emissiveIntensity={0.2}
-              roughness={0.52}
-            />
-          </mesh>
-
-          <mesh position={[0, 0.84, 0]} rotation={[0, Math.PI / 4, 0]}>
-            <boxGeometry args={[0.08, 0.42, 0.08]} />
-            <meshStandardMaterial color="#7c807c" roughness={0.8} />
-          </mesh>
-        </group>
-
         <mesh position={[2.8, 0.02, -1.7]} rotation={[0, 0.28, 0]}>
           <boxGeometry args={[1.6, 0.04, 0.06]} />
           <meshStandardMaterial color="#d7cab6" roughness={0.88} />
@@ -55,6 +56,26 @@ export default function Drift3DScene() {
           <boxGeometry args={[1.9, 0.04, 0.06]} />
           <meshStandardMaterial color="#d5d9d7" roughness={0.88} />
         </mesh>
+
+        {zones.map((zone) => (
+          <Drift3DZone
+            key={zone.id}
+            zone={zone}
+            mapWidth={width}
+            mapHeight={height}
+          />
+        ))}
+
+        {zones.flatMap((zone) =>
+          (zone.props ?? []).map((prop) => (
+            <Drift3DProp
+              key={prop.id}
+              prop={prop}
+              mapWidth={width}
+              mapHeight={height}
+            />
+          ))
+        )}
       </group>
     </>
   );
