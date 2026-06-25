@@ -1,4 +1,6 @@
+import DriftProp from "@/components/drift-map/DriftProp";
 import DriftVehicle from "@/components/drift-map/DriftVehicle";
+import DriftZone from "@/components/drift-map/DriftZone";
 import { driftMapConfig, driftZones } from "@/lib/driftMap";
 import {
   getMapPointFromClientPoint,
@@ -12,10 +14,6 @@ type DriftMapSceneProps = {
   isVehicleMoving: boolean;
   onPointerTargetChange?: (target: DriftPoint | null) => void;
 };
-
-function toPercent(value: number, total: number) {
-  return `${(value / total) * 100}%`;
-}
 
 function safelySetPointerCapture(element: HTMLDivElement, pointerId: number) {
   try {
@@ -80,7 +78,7 @@ export default function DriftMapScene({
   return (
     <section
       className="light-border light-card-bg relative overflow-hidden border p-3 shadow-[0_24px_70px_rgba(50,45,38,0.08)] md:p-4"
-      aria-label="Playable Drift Map prototype. Move the signal vehicle with arrow keys, W A S D, or by touching and dragging on the map."
+      aria-label="Playable Drift Map prototype with eight visual music zones. Move the signal vehicle with arrow keys, W A S D, or by touching and dragging on the map."
     >
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.26em]">
@@ -113,22 +111,27 @@ export default function DriftMapScene({
           }}
         />
 
-        {driftZones.map((zone) => (
-          <div
-            key={zone.id}
-            className="pointer-events-none absolute rounded-full border border-neutral-300/70 bg-white/24"
-            style={{
-              left: toPercent(zone.x, driftMapConfig.width),
-              top: toPercent(zone.y, driftMapConfig.height),
-              width: toPercent(zone.radius * 2, driftMapConfig.width),
-              height: toPercent(zone.radius * 2, driftMapConfig.height),
-              transform: "translate(-50%, -50%)",
-            }}
-            aria-hidden="true"
-          >
-            <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-neutral-500/60" />
-          </div>
-        ))}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          {driftZones.map((zone) => (
+            <DriftZone
+              key={zone.id}
+              zone={zone}
+              mapWidth={driftMapConfig.width}
+              mapHeight={driftMapConfig.height}
+            />
+          ))}
+
+          {driftZones.flatMap((zone) =>
+            (zone.props ?? []).map((prop) => (
+              <DriftProp
+                key={prop.id}
+                prop={prop}
+                mapWidth={driftMapConfig.width}
+                mapHeight={driftMapConfig.height}
+              />
+            ))
+          )}
+        </div>
 
         <DriftVehicle
           position={{
