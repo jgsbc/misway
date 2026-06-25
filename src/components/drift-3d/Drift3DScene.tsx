@@ -11,8 +11,8 @@ function StaticCameraFrame() {
   const invalidate = useThree((state) => state.invalidate);
 
   useEffect(() => {
-    camera.position.set(7.4, 7.4, 9.4);
-    camera.lookAt(0, 0, 1.05);
+    camera.position.set(8.8, 8.5, 11);
+    camera.lookAt(0, 0, 0.58);
     camera.updateProjectionMatrix();
     invalidate();
   }, [camera, invalidate]);

@@ -11,18 +11,18 @@ const fallbackCopy: Record<
 > = {
   checking: {
     label: "Checking signal",
-    title: "Looking for a usable 3D surface.",
-    body: "If the room stays closed, the 2D lab is the stable path.",
+    title: "Checking the 3D room before opening it.",
+    body: "No audio or controls start here. If the room stays closed, the 2D lab is the stable path.",
   },
   "reduced-motion": {
     label: "Reduced motion",
-    title: "The 3D room stays still today.",
-    body: "No loss. The playable 2D lab remains open and calmer.",
+    title: "The 3D room stays closed today.",
+    body: "Motion is reduced, so this route keeps the quieter path open.",
   },
   "no-webgl": {
     label: "No WebGL",
     title: "This browser cannot open the 3D room.",
-    body: "The 2D lab is still the reference map.",
+    body: "The 2D lab remains the reference map. Nothing needs to play here.",
   },
 };
 

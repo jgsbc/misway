@@ -8,12 +8,12 @@ export default function Drift3DCanvas() {
     <section
       aria-describedby="drift-3d-description"
       aria-label="Experimental Drift 3D preview"
-      className="light-border light-card-bg h-[min(58vh,540px)] min-h-[320px] overflow-hidden border bg-[#f6f3ec] md:min-h-[420px]"
+      className="light-border light-card-bg h-[min(32vh,320px)] min-h-[240px] overflow-hidden border bg-[#f6f3ec] md:h-[min(42vh,390px)] md:min-h-[360px]"
     >
       <Canvas
         camera={{
-          position: [6.8, 5.8, 7.2],
-          fov: 42,
+          position: [8.8, 8.5, 11],
+          fov: 36,
           near: 0.1,
           far: 80,
         }}

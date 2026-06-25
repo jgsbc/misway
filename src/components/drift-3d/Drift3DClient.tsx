@@ -92,7 +92,7 @@ export default function Drift3DClient() {
           : "no-webgl";
 
   return (
-    <main className="light-theme light-page-bg min-h-screen px-6 pb-64 pt-16 md:px-10 md:pb-48 md:pt-24">
+    <main className="light-theme light-page-bg min-h-screen px-6 pb-72 pt-16 md:px-10 md:pb-60 md:pt-24">
       <section className="mx-auto max-w-6xl">
         <div className="grid gap-5 md:grid-cols-[1fr_0.58fr] md:items-end md:gap-8">
           <div>
@@ -104,7 +104,9 @@ export default function Drift3DClient() {
             </h1>
             <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:text-base md:leading-7">
               <p>This is an isolated 3D spike. The 2D lab stays the map.</p>
-              <p>No movement, no zones, no local audio controls. One signal only.</p>
+              <p>
+                No movement, no controls, no local audio. Eight signals only.
+              </p>
             </div>
           </div>
 
@@ -122,11 +124,11 @@ export default function Drift3DClient() {
         </div>
 
         <p id="drift-3d-description" className="sr-only">
-          Experimental static 3D preview with a pale plane and one signal
-          marker. It does not move and does not control audio.
+          Experimental static 3D preview with a pale plane and eight Drift zone
+          landmarks. It does not move and does not control audio.
         </p>
 
-        <div className="mt-7 md:mt-10">
+        <div className="mt-7 md:mt-9">
           {fallbackReason ? (
             <Drift3DFallback reason={fallbackReason} />
           ) : (
