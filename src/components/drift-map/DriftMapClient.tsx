@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
+import DriftFallback from "@/components/drift-map/DriftFallback";
 import DriftMapScene from "@/components/drift-map/DriftMapScene";
 import {
   driftMapConfig,
@@ -50,6 +51,7 @@ export default function DriftMapClient() {
     useState<DriftVehicleState>(initialVehicleState);
   const [zoneProximity, setZoneProximity] =
     useState<DriftZoneProximity>(initialZoneProximity);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const handlePointerTargetChange = useCallback((target: DriftPoint | null) => {
     pointerTargetRef.current = target;
@@ -164,6 +166,31 @@ export default function DriftMapClient() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!window.matchMedia) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let cancelled = false;
+
+    function syncReducedMotionPreference() {
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setPrefersReducedMotion(mediaQuery.matches);
+        }
+      });
+    }
+
+    syncReducedMotionPreference();
+    mediaQuery.addEventListener("change", syncReducedMotionPreference);
+
+    return () => {
+      cancelled = true;
+      mediaQuery.removeEventListener("change", syncReducedMotionPreference);
+    };
+  }, []);
+
   return (
     <main className="light-theme light-page-bg min-h-screen px-6 pb-64 pt-16 md:px-10 md:pb-48 md:pt-24">
       <section className="mx-auto max-w-6xl">
@@ -180,7 +207,7 @@ export default function DriftMapClient() {
             <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:space-y-3 md:text-base md:leading-7">
               <p>Desktop: arrows or WASD. Mobile: touch and drag the map.</p>
               <p>Proximity answers visually. Audio waits for your click.</p>
-              <p>No controls today? Drift and Tracks still have doors.</p>
+              <p>No driving today? The list path is open below.</p>
             </div>
           </div>
 
@@ -195,6 +222,11 @@ export default function DriftMapClient() {
               Movement is clamped inside the map. Keys win while pressed. No
               song starts without the zone button.
             </p>
+            {prefersReducedMotion ? (
+              <p className="light-text-tertiary mt-2 font-mono text-[10px] uppercase tracking-[0.2em]">
+                Reduced motion / list path ready
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -208,6 +240,16 @@ export default function DriftMapClient() {
           isActiveZoneTrackPlaying={isActiveZoneTrackPlaying}
           onToggleActiveZoneTrack={handleToggleActiveZoneTrack}
           onPointerTargetChange={handlePointerTargetChange}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+
+        <DriftFallback
+          zones={driftZones}
+          getTrackForZone={getTrackForDriftZone}
+          isCurrentTrack={isCurrentTrack}
+          isPlaying={isPlaying}
+          onToggleTrack={toggleTrack}
+          prefersReducedMotion={prefersReducedMotion}
         />
 
         <div className="mt-8 flex flex-wrap gap-3">

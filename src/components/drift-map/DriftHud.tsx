@@ -8,6 +8,7 @@ type DriftHudProps = {
   isActiveTrackCurrent: boolean;
   isActiveTrackPlaying: boolean;
   onToggleActiveTrack: () => void;
+  prefersReducedMotion: boolean;
 };
 
 function getHudStatus(proximity: DriftZoneProximity) {
@@ -59,6 +60,7 @@ export default function DriftHud({
   isActiveTrackCurrent,
   isActiveTrackPlaying,
   onToggleActiveTrack,
+  prefersReducedMotion,
 }: DriftHudProps) {
   const zone = proximity.activeZone ?? proximity.nearestZone;
   const microcopy = zone?.microcopy[0] ?? "MOVE UNTIL THE MAP ANSWERS.";
@@ -102,6 +104,12 @@ export default function DriftHud({
         <span>{distanceLabel}</span>
         <span>{trackAvailability}</span>
       </div>
+
+      {prefersReducedMotion ? (
+        <p className="mt-2 font-mono text-[8px] uppercase leading-3 tracking-[0.16em] text-neutral-500 md:text-[9px]">
+          List path below
+        </p>
+      ) : null}
 
       {activeTrack ? (
         <>

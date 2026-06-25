@@ -21,6 +21,7 @@ type DriftMapSceneProps = {
   isActiveZoneTrackPlaying: boolean;
   onToggleActiveZoneTrack: () => void;
   onPointerTargetChange?: (target: DriftPoint | null) => void;
+  prefersReducedMotion: boolean;
 };
 
 function safelySetPointerCapture(element: HTMLDivElement, pointerId: number) {
@@ -51,6 +52,7 @@ export default function DriftMapScene({
   isActiveZoneTrackPlaying,
   onToggleActiveZoneTrack,
   onPointerTargetChange,
+  prefersReducedMotion,
 }: DriftMapSceneProps) {
   function getPointerTarget(event: PointerEvent<HTMLDivElement>) {
     return getMapPointFromClientPoint({
@@ -91,14 +93,24 @@ export default function DriftMapScene({
   return (
     <section
       className="light-border light-card-bg relative overflow-hidden border p-3 shadow-[0_24px_70px_rgba(50,45,38,0.08)] md:p-4"
-      aria-label="Playable Drift Map prototype with eight visual music zones. Move the signal vehicle with arrow keys, W A S D, or by touching and dragging on the map."
+      aria-labelledby="drift-map-heading"
+      aria-describedby="drift-map-description"
     >
+      <h2 id="drift-map-heading" className="sr-only">
+        Playable Drift Map prototype
+      </h2>
+      <p id="drift-map-description" className="sr-only">
+        Move the signal vehicle with arrow keys, W A S D, or by touching and
+        dragging on the map. The list path below offers the same playable tracks
+        without moving through the map.
+      </p>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
         <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.26em]">
           Map bounds / {driftMapConfig.width} x {driftMapConfig.height}
         </p>
         <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.2em]">
-          x {Math.round(vehiclePosition.x)} / y {Math.round(vehiclePosition.y)}
+          {prefersReducedMotion ? "reduced motion / " : ""}x{" "}
+          {Math.round(vehiclePosition.x)} / y {Math.round(vehiclePosition.y)}
         </p>
       </div>
 
@@ -168,6 +180,7 @@ export default function DriftMapScene({
           isActiveTrackCurrent={isActiveZoneTrackCurrent}
           isActiveTrackPlaying={isActiveZoneTrackPlaying}
           onToggleActiveTrack={onToggleActiveZoneTrack}
+          prefersReducedMotion={prefersReducedMotion}
         />
       </div>
     </section>
