@@ -220,6 +220,41 @@ After each lot, you must provide:
 
 ---
 
+## Drift Map governance extension
+
+For any lot related to the MISWAY Drift Map, the general rules above still apply, but the Drift-specific documentation becomes mandatory context.
+
+Before any Drift Map documentation, audit, implementation, visual, audio, accessibility, QA, or promotion lot, read:
+
+1. `AGENTS.md`
+2. `docs/ACTIVE_LOT.md`
+3. `docs/SEO_PAGE_MAP.md`
+4. `docs/DECISIONS_LOG.md`
+5. `docs/DRIFT_MAP_SPEC.md`
+6. `docs/DRIFT_GOVERNANCE.md`
+7. `docs/DRIFT_AGENTS_SKILLS.md`
+8. `docs/DRIFT_BACKLOG.md`
+
+For Drift implementation lots, also read the relevant app/code files named in `docs/DRIFT_GOVERNANCE.md`.
+
+Drift-specific hard rules:
+
+- Do not replace `/drift` before explicit approval.
+- Create and validate `/drift-lab` first.
+- V0 must not use WebGL.
+- V0 must not add dependencies.
+- The global audio player remains the only audio system.
+- Do not create a second `<audio>` element.
+- Do not overload `src/lib/tracks.ts` with spatial map data.
+- Keep Drift Map implementation lot-based and small.
+- Stop if audio continuity, mobile usability, accessibility, static export, or MISWAY identity is at risk.
+
+The next Drift operational lot after this documentation foundation is:
+
+`DRIFT-AUDIT-00 — Technical preparatory audit`
+
+---
+
 ## Rule of restraint
 
 When unsure, choose:
