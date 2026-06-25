@@ -1,3 +1,4 @@
+import DriftHud from "@/components/drift-map/DriftHud";
 import DriftProp from "@/components/drift-map/DriftProp";
 import DriftVehicle from "@/components/drift-map/DriftVehicle";
 import DriftZone from "@/components/drift-map/DriftZone";
@@ -5,6 +6,7 @@ import { driftMapConfig, driftZones } from "@/lib/driftMap";
 import {
   getMapPointFromClientPoint,
   type DriftPoint,
+  type DriftZoneProximity,
 } from "@/lib/driftControls";
 import type { PointerEvent } from "react";
 
@@ -12,6 +14,7 @@ type DriftMapSceneProps = {
   vehiclePosition: DriftPoint;
   vehicleFacing: number;
   isVehicleMoving: boolean;
+  zoneProximity: DriftZoneProximity;
   onPointerTargetChange?: (target: DriftPoint | null) => void;
 };
 
@@ -37,6 +40,7 @@ export default function DriftMapScene({
   vehiclePosition,
   vehicleFacing,
   isVehicleMoving,
+  zoneProximity,
   onPointerTargetChange,
 }: DriftMapSceneProps) {
   function getPointerTarget(event: PointerEvent<HTMLDivElement>) {
@@ -118,6 +122,13 @@ export default function DriftMapScene({
               zone={zone}
               mapWidth={driftMapConfig.width}
               mapHeight={driftMapConfig.height}
+              state={
+                zoneProximity.activeZone?.id === zone.id
+                  ? "active"
+                  : zoneProximity.nearestZone?.id === zone.id
+                    ? "nearest"
+                    : "neutral"
+              }
             />
           ))}
 
@@ -141,6 +152,8 @@ export default function DriftMapScene({
           facing={vehicleFacing}
           isMoving={isVehicleMoving}
         />
+
+        <DriftHud proximity={zoneProximity} />
       </div>
     </section>
   );

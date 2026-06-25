@@ -1,9 +1,12 @@
 import type { DriftBiome, DriftZoneConfig } from "@/types/drift";
 
+export type DriftZoneVisualState = "neutral" | "nearest" | "active";
+
 type DriftZoneProps = {
   zone: DriftZoneConfig;
   mapWidth: number;
   mapHeight: number;
+  state?: DriftZoneVisualState;
 };
 
 const biomeTone: Record<
@@ -62,6 +65,31 @@ const biomeTone: Record<
     core: "border-orange-300/45 bg-white/62",
     text: "text-stone-700",
     microcopy: "text-stone-500",
+  },
+};
+
+const zoneStateTone: Record<
+  DriftZoneVisualState,
+  {
+    ring: string;
+    core: string;
+    badge: string | null;
+  }
+> = {
+  neutral: {
+    ring: "opacity-80",
+    core: "",
+    badge: null,
+  },
+  nearest: {
+    ring: "opacity-95 border-dashed shadow-[0_0_0_1px_rgba(82,75,66,0.1)]",
+    core: "scale-105",
+    badge: "NEAR",
+  },
+  active: {
+    ring: "opacity-100 shadow-[0_0_36px_rgba(55,50,44,0.15)]",
+    core: "scale-110 ring-2 ring-neutral-700/20",
+    badge: "INSIDE",
   },
 };
 
@@ -126,14 +154,16 @@ export default function DriftZone({
   zone,
   mapWidth,
   mapHeight,
+  state = "neutral",
 }: DriftZoneProps) {
   const tone = biomeTone[zone.biome];
+  const stateTone = zoneStateTone[state];
   const microcopy = zone.microcopy[0] ?? zone.portalLabel;
   const isEntry = zone.trackSlug === null;
 
   return (
     <div
-      className={`pointer-events-none absolute z-0 rounded-full border ${tone.ring}`}
+      className={`pointer-events-none absolute z-0 rounded-full border ${tone.ring} ${stateTone.ring}`}
       style={{
         left: toPercent(zone.x, mapWidth),
         top: toPercent(zone.y, mapHeight),
@@ -148,7 +178,7 @@ export default function DriftZone({
       </div>
 
       <div
-        className={`absolute left-1/2 top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border ${tone.core}`}
+        className={`absolute left-1/2 top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border ${tone.core} ${stateTone.core}`}
       >
         <span
           className={`h-1.5 w-1.5 rounded-full ${
@@ -156,6 +186,12 @@ export default function DriftZone({
           }`}
         />
       </div>
+
+      {stateTone.badge ? (
+        <div className="absolute left-1/2 top-2 -translate-x-1/2 border border-neutral-300/70 bg-white/70 px-1.5 py-0.5 font-mono text-[5px] uppercase tracking-[0.14em] text-neutral-700 md:text-[6px]">
+          {stateTone.badge}
+        </div>
+      ) : null}
 
       <div className="absolute left-1/2 top-[calc(50%+18px)] w-28 -translate-x-1/2 text-center">
         <p

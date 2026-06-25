@@ -3,17 +3,20 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import DriftMapScene from "@/components/drift-map/DriftMapScene";
-import { driftMapConfig } from "@/lib/driftMap";
+import { driftMapConfig, driftZones } from "@/lib/driftMap";
 import {
+  getDriftZoneProximity,
   getMovementInput,
   getNextDriftVehicleState,
   getNextDriftVehicleStateTowardTarget,
-  hasVehicleStateChanged,
   hasActiveMovementInput,
+  hasDriftZoneProximityChanged,
+  hasVehicleStateChanged,
   isDriftMovementKey,
   isEditableKeyboardTarget,
   type DriftPoint,
   type DriftVehicleState,
+  type DriftZoneProximity,
 } from "@/lib/driftControls";
 
 const movementSpeed = 260;
@@ -24,14 +27,23 @@ const initialVehicleState: DriftVehicleState = {
   isMoving: false,
 };
 
+const initialZoneProximity = getDriftZoneProximity(
+  initialVehicleState.position,
+  driftZones
+);
+
 export default function DriftMapClient() {
   const pressedKeysRef = useRef(new Set<string>());
   const pointerTargetRef = useRef<DriftPoint | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number | null>(null);
   const vehicleStateRef = useRef<DriftVehicleState>(initialVehicleState);
+  const zoneProximityRef =
+    useRef<DriftZoneProximity>(initialZoneProximity);
   const [vehicleState, setVehicleState] =
     useState<DriftVehicleState>(initialVehicleState);
+  const [zoneProximity, setZoneProximity] =
+    useState<DriftZoneProximity>(initialZoneProximity);
 
   const handlePointerTargetChange = useCallback((target: DriftPoint | null) => {
     pointerTargetRef.current = target;
@@ -69,6 +81,21 @@ export default function DriftMapClient() {
       if (hasVehicleStateChanged(vehicleStateRef.current, nextState)) {
         vehicleStateRef.current = nextState;
         setVehicleState(nextState);
+      }
+
+      const nextZoneProximity = getDriftZoneProximity(
+        nextState.position,
+        driftZones
+      );
+
+      if (
+        hasDriftZoneProximityChanged(
+          zoneProximityRef.current,
+          nextZoneProximity
+        )
+      ) {
+        zoneProximityRef.current = nextZoneProximity;
+        setZoneProximity(nextZoneProximity);
       }
 
       frameRef.current = requestAnimationFrame(updateVehicleState);
@@ -130,7 +157,7 @@ export default function DriftMapClient() {
 
             <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:space-y-3 md:text-base md:leading-7">
               <p>Desktop: arrows or WASD. Mobile: touch and drag the map.</p>
-              <p>Zones and audio stay asleep for now.</p>
+              <p>Proximity answers visually. Audio stays asleep for now.</p>
               <p>No controls today? Drift and Tracks still have doors.</p>
             </div>
           </div>
@@ -153,6 +180,7 @@ export default function DriftMapClient() {
           vehiclePosition={vehicleState.position}
           vehicleFacing={vehicleState.facing}
           isVehicleMoving={vehicleState.isMoving}
+          zoneProximity={zoneProximity}
           onPointerTargetChange={handlePointerTargetChange}
         />
 

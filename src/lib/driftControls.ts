@@ -1,3 +1,5 @@
+import type { DriftZoneConfig } from "@/types/drift";
+
 export type DriftPoint = {
   x: number;
   y: number;
@@ -26,6 +28,14 @@ export type DriftVehicleState = {
   position: DriftPoint;
   facing: number;
   isMoving: boolean;
+};
+
+export type DriftZoneProximity = {
+  nearestZone: DriftZoneConfig | null;
+  activeZone: DriftZoneConfig | null;
+  distance: number | null;
+  isInside: boolean;
+  progress: number;
 };
 
 const movementKeyCodes = new Set([
@@ -61,6 +71,79 @@ export function clampPosition(position: DriftPoint, bounds: DriftBounds): DriftP
     x: Math.min(Math.max(position.x, 0), bounds.width),
     y: Math.min(Math.max(position.y, 0), bounds.height),
   };
+}
+
+export function getDistanceBetweenPoints(
+  first: DriftPoint,
+  second: DriftPoint
+) {
+  return Math.hypot(first.x - second.x, first.y - second.y);
+}
+
+export function getDriftZoneProximity(
+  position: DriftPoint,
+  zones: readonly DriftZoneConfig[]
+): DriftZoneProximity {
+  let nearestZone: DriftZoneConfig | null = null;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+  let activeZone: DriftZoneConfig | null = null;
+  let activeDistance = Number.POSITIVE_INFINITY;
+
+  for (const zone of zones) {
+    const distance = getDistanceBetweenPoints(position, {
+      x: zone.x,
+      y: zone.y,
+    });
+
+    if (distance < nearestDistance) {
+      nearestZone = zone;
+      nearestDistance = distance;
+    }
+
+    if (zone.radius > 0 && distance <= zone.radius && distance < activeDistance) {
+      activeZone = zone;
+      activeDistance = distance;
+    }
+  }
+
+  if (!nearestZone) {
+    return {
+      nearestZone: null,
+      activeZone: null,
+      distance: null,
+      isInside: false,
+      progress: 0,
+    };
+  }
+
+  const progress = activeZone
+    ? Math.max(0, Math.min(1, 1 - activeDistance / activeZone.radius))
+    : 0;
+
+  return {
+    nearestZone,
+    activeZone,
+    distance: nearestDistance,
+    isInside: activeZone !== null,
+    progress,
+  };
+}
+
+function roundedDistance(value: number | null) {
+  return value === null ? null : Math.round(value);
+}
+
+export function hasDriftZoneProximityChanged(
+  previous: DriftZoneProximity,
+  next: DriftZoneProximity
+) {
+  return (
+    previous.nearestZone?.id !== next.nearestZone?.id ||
+    previous.activeZone?.id !== next.activeZone?.id ||
+    previous.isInside !== next.isInside ||
+    roundedDistance(previous.distance) !== roundedDistance(next.distance) ||
+    Math.round(previous.progress * 100) !== Math.round(next.progress * 100)
+  );
 }
 
 export function getMapPointFromClientPoint({
