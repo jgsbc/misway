@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
 import DriftMapScene from "@/components/drift-map/DriftMapScene";
-import { driftMapConfig, driftZones } from "@/lib/driftMap";
+import {
+  driftMapConfig,
+  driftZones,
+  getTrackForDriftZone,
+} from "@/lib/driftMap";
 import {
   getDriftZoneProximity,
   getMovementInput,
@@ -33,6 +38,7 @@ const initialZoneProximity = getDriftZoneProximity(
 );
 
 export default function DriftMapClient() {
+  const { isCurrentTrack, isPlaying, toggleTrack } = useAudioPlayer();
   const pressedKeysRef = useRef(new Set<string>());
   const pointerTargetRef = useRef<DriftPoint | null>(null);
   const frameRef = useRef<number | null>(null);
@@ -48,6 +54,22 @@ export default function DriftMapClient() {
   const handlePointerTargetChange = useCallback((target: DriftPoint | null) => {
     pointerTargetRef.current = target;
   }, []);
+
+  const activeZoneTrack = zoneProximity.activeZone
+    ? getTrackForDriftZone(zoneProximity.activeZone)
+    : null;
+  const isActiveZoneTrackCurrent = activeZoneTrack
+    ? isCurrentTrack(activeZoneTrack)
+    : false;
+  const isActiveZoneTrackPlaying = isActiveZoneTrackCurrent && isPlaying;
+
+  const handleToggleActiveZoneTrack = useCallback(() => {
+    if (!activeZoneTrack) {
+      return;
+    }
+
+    toggleTrack(activeZoneTrack);
+  }, [activeZoneTrack, toggleTrack]);
 
   useEffect(() => {
     function updateVehicleState(time: number) {
@@ -157,7 +179,7 @@ export default function DriftMapClient() {
 
             <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:space-y-3 md:text-base md:leading-7">
               <p>Desktop: arrows or WASD. Mobile: touch and drag the map.</p>
-              <p>Proximity answers visually. Audio stays asleep for now.</p>
+              <p>Proximity answers visually. Audio waits for your click.</p>
               <p>No controls today? Drift and Tracks still have doors.</p>
             </div>
           </div>
@@ -171,7 +193,7 @@ export default function DriftMapClient() {
             </p>
             <p className="light-text-secondary mt-2 text-sm leading-6 md:mt-3">
               Movement is clamped inside the map. Keys win while pressed. No
-              song starts here.
+              song starts without the zone button.
             </p>
           </div>
         </div>
@@ -181,6 +203,10 @@ export default function DriftMapClient() {
           vehicleFacing={vehicleState.facing}
           isVehicleMoving={vehicleState.isMoving}
           zoneProximity={zoneProximity}
+          activeZoneTrack={activeZoneTrack}
+          isActiveZoneTrackCurrent={isActiveZoneTrackCurrent}
+          isActiveZoneTrackPlaying={isActiveZoneTrackPlaying}
+          onToggleActiveZoneTrack={handleToggleActiveZoneTrack}
           onPointerTargetChange={handlePointerTargetChange}
         />
 

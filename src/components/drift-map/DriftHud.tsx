@@ -1,7 +1,12 @@
 import type { DriftZoneProximity } from "@/lib/driftControls";
+import type { Track } from "@/lib/tracks";
 
 type DriftHudProps = {
   proximity: DriftZoneProximity;
+  activeTrack: Track | null;
+  isActiveTrackCurrent: boolean;
+  isActiveTrackPlaying: boolean;
+  onToggleActiveTrack: () => void;
 };
 
 function getHudStatus(proximity: DriftZoneProximity) {
@@ -18,12 +23,52 @@ function getHudStatus(proximity: DriftZoneProximity) {
   return zone.trackSlug === null ? "NEAREST NODE" : "APPROACHING";
 }
 
-export default function DriftHud({ proximity }: DriftHudProps) {
+function getTrackAvailabilityLabel(
+  proximity: DriftZoneProximity,
+  activeTrack: Track | null
+) {
+  if (!proximity.activeZone) {
+    return "NO TRACK TRIGGERED YET";
+  }
+
+  if (activeTrack) {
+    return "TRACK READY";
+  }
+
+  return proximity.activeZone.trackSlug ? "TRACK MISSING" : "SIGNAL ONLY";
+}
+
+function getActionLabel({
+  isActiveTrackCurrent,
+  isActiveTrackPlaying,
+}: {
+  isActiveTrackCurrent: boolean;
+  isActiveTrackPlaying: boolean;
+}) {
+  if (!isActiveTrackCurrent) {
+    return "LISTEN";
+  }
+
+  return isActiveTrackPlaying ? "PAUSE" : "RESUME";
+}
+
+export default function DriftHud({
+  proximity,
+  activeTrack,
+  isActiveTrackCurrent,
+  isActiveTrackPlaying,
+  onToggleActiveTrack,
+}: DriftHudProps) {
   const zone = proximity.activeZone ?? proximity.nearestZone;
   const microcopy = zone?.microcopy[0] ?? "MOVE UNTIL THE MAP ANSWERS.";
   const distanceLabel =
     proximity.distance === null ? "--" : `${Math.round(proximity.distance)}u`;
   const progressPercent = Math.round(proximity.progress * 100);
+  const trackAvailability = getTrackAvailabilityLabel(proximity, activeTrack);
+  const actionLabel = getActionLabel({
+    isActiveTrackCurrent,
+    isActiveTrackPlaying,
+  });
 
   return (
     <aside
@@ -44,8 +89,29 @@ export default function DriftHud({ proximity }: DriftHudProps) {
 
       <div className="mt-3 flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.16em] text-neutral-500 md:text-[9px]">
         <span>{distanceLabel}</span>
-        <span>NO TRACK TRIGGERED YET</span>
+        <span>{trackAvailability}</span>
       </div>
+
+      {activeTrack ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onToggleActiveTrack();
+          }}
+          onPointerDown={(event) => event.stopPropagation()}
+          onPointerMove={(event) => event.stopPropagation()}
+          onPointerUp={(event) => event.stopPropagation()}
+          onPointerCancel={(event) => event.stopPropagation()}
+          className="pointer-events-auto mt-3 inline-flex min-h-9 w-full items-center justify-center border border-neutral-400/70 bg-neutral-900 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
+          aria-label={`${actionLabel} ${activeTrack.title} from ${
+            proximity.activeZone?.label ?? "active zone"
+          }`}
+        >
+          {actionLabel}
+        </button>
+      ) : null}
 
       <div
         className="mt-2 h-px overflow-hidden bg-neutral-200"

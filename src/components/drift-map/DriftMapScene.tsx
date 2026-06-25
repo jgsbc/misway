@@ -8,6 +8,7 @@ import {
   type DriftPoint,
   type DriftZoneProximity,
 } from "@/lib/driftControls";
+import type { Track } from "@/lib/tracks";
 import type { PointerEvent } from "react";
 
 type DriftMapSceneProps = {
@@ -15,6 +16,10 @@ type DriftMapSceneProps = {
   vehicleFacing: number;
   isVehicleMoving: boolean;
   zoneProximity: DriftZoneProximity;
+  activeZoneTrack: Track | null;
+  isActiveZoneTrackCurrent: boolean;
+  isActiveZoneTrackPlaying: boolean;
+  onToggleActiveZoneTrack: () => void;
   onPointerTargetChange?: (target: DriftPoint | null) => void;
 };
 
@@ -41,6 +46,10 @@ export default function DriftMapScene({
   vehicleFacing,
   isVehicleMoving,
   zoneProximity,
+  activeZoneTrack,
+  isActiveZoneTrackCurrent,
+  isActiveZoneTrackPlaying,
+  onToggleActiveZoneTrack,
   onPointerTargetChange,
 }: DriftMapSceneProps) {
   function getPointerTarget(event: PointerEvent<HTMLDivElement>) {
@@ -153,7 +162,13 @@ export default function DriftMapScene({
           isMoving={isVehicleMoving}
         />
 
-        <DriftHud proximity={zoneProximity} />
+        <DriftHud
+          proximity={zoneProximity}
+          activeTrack={activeZoneTrack}
+          isActiveTrackCurrent={isActiveZoneTrackCurrent}
+          isActiveTrackPlaying={isActiveZoneTrackPlaying}
+          onToggleActiveTrack={onToggleActiveZoneTrack}
+        />
       </div>
     </section>
   );
