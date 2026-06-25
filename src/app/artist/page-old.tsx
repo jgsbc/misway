@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import { featuredTracks } from "@/lib/tracks";
-import { withBasePath } from "@/lib/basePath";
 
 const siteUrl = "https://jgsbc.github.io/misway";
 
@@ -240,7 +239,7 @@ export default function ArtistPage() {
               INTERESTED IN COLLABORATION?
             </p>
             <p className="mt-4 text-sm leading-7 text-neutral-300">
-              If you're exploring MISWΛY for sync, licensing, remix, or creative partnership, direct contact is the best approach.
+              If you&apos;re exploring MISWΛY for sync, licensing, remix, or creative partnership, direct contact is the best approach.
             </p>
             <Link
               href="/about#contact"

@@ -138,9 +138,6 @@ export function AudioPlayerProvider({
       audio.preload = "metadata";
       audio.load();
 
-      setCurrentTime(0);
-      setDuration(0);
-
       if (shouldResumeRef.current) {
         await playCurrent();
       }
@@ -149,7 +146,17 @@ export function AudioPlayerProvider({
   );
 
   useEffect(() => {
-    void syncSource(current);
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void syncSource(current);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [current, syncSource]);
 
   useEffect(() => {
@@ -285,6 +292,8 @@ export function AudioPlayerProvider({
       }
 
       shouldResumeRef.current = true;
+      setCurrentTime(0);
+      setDuration(0);
       setCurrent(toPlayerTrack(track));
     },
     [current, playCurrent]
@@ -306,6 +315,8 @@ export function AudioPlayerProvider({
       }
 
       shouldResumeRef.current = true;
+      setCurrentTime(0);
+      setDuration(0);
       setCurrent(toPlayerTrack(track));
     },
     [current, playCurrent]

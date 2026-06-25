@@ -18,7 +18,7 @@ export default function EntrySound() {
       setEnabled(true);
       sessionStorage.setItem("misway-sound", "on");
       return true;
-    } catch (error) {
+    } catch {
       setEnabled(false);
       sessionStorage.setItem("misway-sound", "off");
       return false;

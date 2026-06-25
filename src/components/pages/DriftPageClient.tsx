@@ -45,13 +45,20 @@ export default function DriftPageClient() {
     const [track, setTrack] = useState(() =>
         pickOne(featuredTracks.length ? featuredTracks : tracks)
     );
-    const [mounted, setMounted] = useState(false);
-
     useLayoutEffect(() => {
-        setSignal(pickOne(signalStates));
-        setVector(pickOne(vectors));
-        setNote(pickOne(notes));
-        setMounted(true);
+        let cancelled = false;
+
+        queueMicrotask(() => {
+            if (cancelled) return;
+
+            setSignal(pickOne(signalStates));
+            setVector(pickOne(vectors));
+            setNote(pickOne(notes));
+        });
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     function reshuffle() {
