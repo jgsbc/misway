@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 import type { Track } from "@/lib/tracks";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
@@ -97,8 +98,12 @@ export function AudioPlayerProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isDriftLabRoute =
+    pathname === "/drift-lab" || pathname.startsWith("/drift-lab/");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const interactionRetryRef = useRef(false);
+  const isDriftLabRouteRef = useRef(isDriftLabRoute);
   const shouldResumeRef = useRef(true);
 
   const [current, setCurrent] = useState<CurrentAudio>(AMBIENT_AUDIO);
@@ -106,6 +111,15 @@ export function AudioPlayerProvider({
   const [isLooping, setIsLooping] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    isDriftLabRouteRef.current = isDriftLabRoute;
+
+    if (isDriftLabRoute && current.kind === "ambient") {
+      interactionRetryRef.current = false;
+      shouldResumeRef.current = false;
+    }
+  }, [current.kind, isDriftLabRoute]);
 
   const playCurrent = useCallback(async () => {
     const audio = audioRef.current;
@@ -137,6 +151,11 @@ export function AudioPlayerProvider({
       audio.volume = audioItem.kind === "ambient" ? 0.34 : 0.92;
       audio.preload = "metadata";
       audio.load();
+
+      if (isDriftLabRouteRef.current && audioItem.kind === "ambient") {
+        interactionRetryRef.current = false;
+        shouldResumeRef.current = false;
+      }
 
       if (shouldResumeRef.current) {
         await playCurrent();
@@ -219,6 +238,12 @@ export function AudioPlayerProvider({
   useEffect(() => {
     const retry = () => {
       if (interactionRetryRef.current) {
+        if (isDriftLabRouteRef.current && current.kind === "ambient") {
+          interactionRetryRef.current = false;
+          shouldResumeRef.current = false;
+          return;
+        }
+
         shouldResumeRef.current = true;
         void playCurrent();
       }
@@ -233,7 +258,7 @@ export function AudioPlayerProvider({
       window.removeEventListener("keydown", retry);
       window.removeEventListener("touchstart", retry);
     };
-  }, [playCurrent]);
+  }, [current.kind, playCurrent]);
 
   const togglePlayback = useCallback(() => {
     const audio = audioRef.current;
