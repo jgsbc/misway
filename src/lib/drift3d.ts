@@ -156,6 +156,28 @@ export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
   };
 }
 
+function normalizeDrift3DAngle(angle: number) {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
+}
+
+export function getDrift3DYawFromVector(vector: { x: number; z: number }) {
+  if (vector.x === 0 && vector.z === 0) {
+    return 0;
+  }
+
+  return Math.atan2(vector.x, vector.z);
+}
+
+export function approachDrift3DAngle(
+  current: number,
+  target: number,
+  amount = 0.18
+) {
+  const delta = normalizeDrift3DAngle(target - current);
+
+  return current + delta * clamp(amount, 0, 1);
+}
+
 type Drift3DZoneSample = {
   zone: DriftZoneConfig;
   distance: number;

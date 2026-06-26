@@ -1,10 +1,13 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 export type Drift3DVehicleHandle = {
   position: {
     set: (x: number, y: number, z: number) => void;
+  };
+  rotation: {
+    setY: (y: number) => void;
   };
 };
 
@@ -18,6 +21,12 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
       position: {
         set: (x: number, y: number, z: number) => void;
       };
+      rotation: {
+        x: number;
+        y: number;
+        z: number;
+        set: (x: number, y: number, z: number) => void;
+      };
     } | null>(null);
 
     useImperativeHandle(ref, () => ({
@@ -26,13 +35,31 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
           vehicleGroupRef.current?.position.set(x, y, z);
         },
       },
+      rotation: {
+        setY(y: number) {
+          const vehicleGroup = vehicleGroupRef.current;
+
+          if (!vehicleGroup) {
+            return;
+          }
+
+          vehicleGroup.rotation.set(
+            vehicleGroup.rotation.x,
+            y,
+            vehicleGroup.rotation.z
+          );
+        },
+      },
     }), []);
+
+    useEffect(() => {
+      vehicleGroupRef.current?.rotation.set(0.04, 0, -0.02);
+    }, []);
 
     return (
       <group
         ref={vehicleGroupRef as never}
         position={position}
-        rotation={[0.04, -0.46, -0.02]}
         scale={1.22}
         aria-hidden="true"
       >

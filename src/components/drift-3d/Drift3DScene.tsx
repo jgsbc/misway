@@ -10,9 +10,11 @@ import Drift3DProp from "@/components/drift-3d/Drift3DProp";
 import Drift3DZone from "@/components/drift-3d/Drift3DZone";
 import { driftMapConfig } from "@/lib/driftMap";
 import {
+  approachDrift3DAngle,
   clampDrift3DPoint,
   getDrift3DKeyboardVector,
   getDrift3DSpawnTransform,
+  getDrift3DYawFromVector,
   getDrift3DZoneProximity,
   getDrift3DZoneToneState,
   type Drift3DZoneProximity,
@@ -88,16 +90,19 @@ function KeyboardVehicleMotion({
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const positionRef = useRef(startPosition);
+  const yawRef = useRef(0);
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
 
   useEffect(() => {
     positionRef.current = { ...startPosition };
+    yawRef.current = 0;
     vehicleRef.current?.position.set(
       startPosition.x,
       startPosition.y,
       startPosition.z
     );
+    vehicleRef.current?.rotation.setY(0);
 
     const initialProximity = getDrift3DZoneProximity(
       startPosition,
@@ -180,6 +185,15 @@ function KeyboardVehicleMotion({
       return;
     }
 
+    const targetYaw = getDrift3DYawFromVector(input);
+    const nextYaw = approachDrift3DAngle(yawRef.current, targetYaw, 0.2);
+    const yawChanged = Math.abs(nextYaw - yawRef.current) > 0.0005;
+
+    if (yawChanged) {
+      yawRef.current = nextYaw;
+      vehicle.rotation.setY(nextYaw);
+    }
+
     const next = clampDrift3DPoint({
       x: positionRef.current.x + input.x * 2.15 * delta,
       y: positionRef.current.y,
@@ -189,6 +203,10 @@ function KeyboardVehicleMotion({
       next.x !== positionRef.current.x || next.z !== positionRef.current.z;
 
     if (!moved) {
+      if (yawChanged) {
+        invalidate();
+      }
+
       return;
     }
 
@@ -200,6 +218,7 @@ function KeyboardVehicleMotion({
       lastProximityRef.current = nextProximity;
       onProximityChange?.(nextProximity);
     }
+
     invalidate();
   });
 
