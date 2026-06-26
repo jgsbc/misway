@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Track } from "@/lib/tracks";
 import type { Drift3DZoneProximity } from "@/lib/drift3d";
 
@@ -163,17 +164,38 @@ export default function Drift3DHud({
             </p>
           </div>
 
-          <div className="mt-3">
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <button
               type="button"
-              onClick={onToggleActiveTrack}
-              className="inline-flex min-h-9 w-full items-center justify-center border border-neutral-400/70 bg-neutral-900 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onToggleActiveTrack();
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerMove={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onPointerCancel={(event) => event.stopPropagation()}
+              className="pointer-events-auto inline-flex min-h-9 items-center justify-center border border-neutral-400/70 bg-neutral-900 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
               aria-label={`${actionLabel} ${activeTrack.title} from ${
                 proximity.activeZone?.label ?? "active zone"
               }`}
             >
               {actionLabel}
             </button>
+
+            <Link
+              href={`/tracks/${activeTrack.slug}`}
+              onClick={(event) => event.stopPropagation()}
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerMove={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onPointerCancel={(event) => event.stopPropagation()}
+              className="pointer-events-auto inline-flex min-h-9 items-center justify-center border border-neutral-300/80 bg-white/70 px-3 py-2 text-center font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-800 transition hover:bg-white hover:text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900/25"
+              aria-label={`Open ${activeTrack.title} track page`}
+            >
+              OPEN NODE
+            </Link>
           </div>
         </>
       ) : null}
