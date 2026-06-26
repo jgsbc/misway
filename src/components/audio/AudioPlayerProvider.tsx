@@ -55,8 +55,22 @@ const AMBIENT_AUDIO: AmbientAudio = {
 
 const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
 
+const DRIFT_LAB_ROUTES = ["/drift-lab", "/drift-3d-lab"] as const;
+
 function toPlayerTrack(track: Track): PlayerTrack {
   return { ...track, kind: "track" };
+}
+
+function isDriftLabPath(pathname: string | null) {
+  if (!pathname) return false;
+
+  const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
+
+  return DRIFT_LAB_ROUTES.some(
+    (route) =>
+      normalizedPathname === route ||
+      normalizedPathname.startsWith(`${route}/`)
+  );
 }
 
 function getTrackIndex(slug: string) {
@@ -99,8 +113,7 @@ export function AudioPlayerProvider({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isDriftLabRoute =
-    pathname === "/drift-lab" || pathname.startsWith("/drift-lab/");
+  const isDriftLabRoute = isDriftLabPath(pathname);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const interactionRetryRef = useRef(false);
   const isDriftLabRouteRef = useRef(isDriftLabRoute);
