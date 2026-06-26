@@ -33,6 +33,13 @@ export type Drift3DPropTransform = {
   rotationY: number;
 };
 
+export type Drift3DMovementBounds = {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+};
+
 const biomeHeights: Record<DriftBiome, number> = {
   "entry-signal": 0.08,
   "zeeland-road": 0.05,
@@ -46,6 +53,10 @@ const biomeHeights: Record<DriftBiome, number> = {
 
 function degreesToRadians(value: number) {
   return (value * Math.PI) / 180;
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function mapPointToDrift3D(
@@ -94,4 +105,43 @@ export function getDrift3DPropTransform(
 
 export function getDrift3DSpawnTransform(bounds: DriftMapBounds) {
   return mapPointToDrift3D(driftMapConfig.spawn, bounds, 0.12);
+}
+
+export function getDrift3DMovementBounds(): Drift3DMovementBounds {
+  return {
+    minX: -DRIFT_3D_PLANE_WIDTH / 2 + 1.3,
+    maxX: DRIFT_3D_PLANE_WIDTH / 2 - 1.3,
+    minZ: -DRIFT_3D_PLANE_DEPTH / 2 + 1.1,
+    maxZ: DRIFT_3D_PLANE_DEPTH / 2 - 1.1,
+  };
+}
+
+export function clampDrift3DPoint(point: Drift3DPoint): Drift3DPoint {
+  const bounds = getDrift3DMovementBounds();
+
+  return {
+    x: clamp(point.x, bounds.minX, bounds.maxX),
+    y: point.y,
+    z: clamp(point.z, bounds.minZ, bounds.maxZ),
+  };
+}
+
+export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
+  const x =
+    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
+    (activeCodes.has("ArrowLeft") || activeCodes.has("KeyA") ? 1 : 0);
+  const z =
+    (activeCodes.has("ArrowUp") || activeCodes.has("KeyW") ? 1 : 0) -
+    (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0);
+  const length = Math.hypot(x, z);
+
+  if (length === 0) {
+    return { x: 0, z: 0, active: false };
+  }
+
+  return {
+    x: x / length,
+    z: z / length,
+    active: true,
+  };
 }

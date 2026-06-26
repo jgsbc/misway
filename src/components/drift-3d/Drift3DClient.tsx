@@ -104,9 +104,7 @@ export default function Drift3DClient() {
             </h1>
             <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:text-base md:leading-7">
               <p>This is an isolated 3D spike. The 2D lab stays the map.</p>
-              <p>
-                No movement, no controls, no local audio. Eight signals only.
-              </p>
+              <p>Arrow keys or WASD move the capsule. No local audio.</p>
             </div>
           </div>
 
@@ -115,7 +113,7 @@ export default function Drift3DClient() {
               Status
             </p>
             <p className="light-text-primary mt-3 font-mono text-xs uppercase tracking-[0.18em]">
-              Client-only Canvas / noindex
+              Keyboard movement / noindex
             </p>
             <p className="light-text-secondary mt-2 text-sm leading-6">
               Reduced motion and missing WebGL use the quiet path.
@@ -124,8 +122,9 @@ export default function Drift3DClient() {
         </div>
 
         <p id="drift-3d-description" className="sr-only">
-          Experimental static 3D preview with a pale plane and eight Drift zone
-          landmarks. It does not move and does not control audio.
+          Experimental static 3D preview with a pale plane, eight Drift zone
+          landmarks, and a small capsule vehicle that moves with the keyboard.
+          It does not control audio.
         </p>
 
         <div className="mt-7 md:mt-9">
