@@ -13,6 +13,9 @@ import {
   clampDrift3DPoint,
   getDrift3DKeyboardVector,
   getDrift3DSpawnTransform,
+  getDrift3DZoneProximity,
+  getDrift3DZoneToneState,
+  type Drift3DZoneProximity,
 } from "@/lib/drift3d";
 
 function StaticCameraFrame() {
@@ -57,20 +60,53 @@ function isMovementCode(code: string) {
   return movementCodes.has(code);
 }
 
+function areDrift3DProximitySnapshotsEqual(
+  a: Drift3DZoneProximity | null,
+  b: Drift3DZoneProximity
+) {
+  return (
+    a?.nearestZone?.id === b.nearestZone?.id &&
+    a?.activeZone?.id === b.activeZone?.id &&
+    a?.isInside === b.isInside &&
+    Math.abs((a?.distance ?? -1) - b.distance) < 0.02 &&
+    Math.abs((a?.progress ?? -1) - b.progress) < 0.02
+  );
+}
+
 function KeyboardVehicleMotion({
   vehicleRef,
   startPosition,
+  bounds,
+  zones,
+  onProximityChange,
 }: {
   vehicleRef: RefObject<Drift3DVehicleHandle | null>;
   startPosition: { x: number; y: number; z: number };
+  bounds: { width: number; height: number };
+  zones: typeof driftMapConfig.zones;
+  onProximityChange?: (proximity: Drift3DZoneProximity) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const positionRef = useRef(startPosition);
   const pressedKeysRef = useRef<Set<string>>(new Set());
+  const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
 
   useEffect(() => {
     positionRef.current = { ...startPosition };
-  }, [startPosition]);
+    vehicleRef.current?.position.set(
+      startPosition.x,
+      startPosition.y,
+      startPosition.z
+    );
+
+    const initialProximity = getDrift3DZoneProximity(
+      startPosition,
+      zones,
+      bounds
+    );
+    lastProximityRef.current = initialProximity;
+    onProximityChange?.(initialProximity);
+  }, [bounds, onProximityChange, startPosition, vehicleRef, zones]);
 
   useEffect(() => {
     function releaseAllKeys() {
@@ -97,6 +133,7 @@ function KeyboardVehicleMotion({
       }
 
       event.preventDefault();
+      event.stopImmediatePropagation();
 
       const before = pressedKeysRef.current.size;
       pressedKeysRef.current.add(event.code);
@@ -119,13 +156,13 @@ function KeyboardVehicleMotion({
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("blur", releaseAllKeys);
     document.addEventListener("visibilitychange", releaseAllKeys);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", releaseAllKeys);
       document.removeEventListener("visibilitychange", releaseAllKeys);
@@ -157,14 +194,29 @@ function KeyboardVehicleMotion({
 
     positionRef.current = next;
     vehicle.position.set(next.x, next.y, next.z);
+    const nextProximity = getDrift3DZoneProximity(next, zones, bounds);
+
+    if (!areDrift3DProximitySnapshotsEqual(lastProximityRef.current, nextProximity)) {
+      lastProximityRef.current = nextProximity;
+      onProximityChange?.(nextProximity);
+    }
     invalidate();
   });
 
   return null;
 }
 
-export default function Drift3DScene() {
+type Drift3DSceneProps = {
+  proximity: Drift3DZoneProximity | null;
+  onProximityChange?: (proximity: Drift3DZoneProximity) => void;
+};
+
+export default function Drift3DScene({
+  proximity,
+  onProximityChange,
+}: Drift3DSceneProps) {
   const { width, height, zones } = driftMapConfig;
+  const worldBounds = useMemo(() => ({ width, height }), [width, height]);
   const spawnTransform = getDrift3DSpawnTransform({ width, height });
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
@@ -216,6 +268,7 @@ export default function Drift3DScene() {
             zone={zone}
             mapWidth={width}
             mapHeight={height}
+            toneState={getDrift3DZoneToneState(zone, proximity)}
           />
         ))}
 
@@ -242,6 +295,9 @@ export default function Drift3DScene() {
         <KeyboardVehicleMotion
           vehicleRef={vehicleRef}
           startPosition={vehicleStartPosition}
+          bounds={worldBounds}
+          zones={zones}
+          onProximityChange={onProximityChange}
         />
       </group>
     </>

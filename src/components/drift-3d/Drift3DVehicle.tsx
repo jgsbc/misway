@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 
 export type Drift3DVehicleHandle = {
   position: {
@@ -14,9 +14,23 @@ type Drift3DVehicleProps = {
 
 const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
   function Drift3DVehicle({ position }, ref) {
+    const vehicleGroupRef = useRef<{
+      position: {
+        set: (x: number, y: number, z: number) => void;
+      };
+    } | null>(null);
+
+    useImperativeHandle(ref, () => ({
+      position: {
+        set(x: number, y: number, z: number) {
+          vehicleGroupRef.current?.position.set(x, y, z);
+        },
+      },
+    }), []);
+
     return (
       <group
-        ref={ref}
+        ref={vehicleGroupRef as never}
         position={position}
         rotation={[0.04, -0.46, -0.02]}
         scale={1.22}

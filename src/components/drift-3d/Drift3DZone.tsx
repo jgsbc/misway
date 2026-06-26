@@ -2,11 +2,13 @@
 
 import type { DriftBiome, DriftZoneConfig } from "@/types/drift";
 import { getDrift3DZoneTransform } from "@/lib/drift3d";
+import type { Drift3DZoneToneState } from "@/lib/drift3d";
 
 type Drift3DZoneProps = {
   zone: DriftZoneConfig;
   mapWidth: number;
   mapHeight: number;
+  toneState: Drift3DZoneToneState;
 };
 
 const biomeMaterial: Record<
@@ -62,10 +64,20 @@ const biomeMaterial: Record<
   },
 };
 
-function ZoneCore({ zone, radius }: { zone: DriftZoneConfig; radius: number }) {
+function ZoneCore({
+  zone,
+  radius,
+  toneState,
+}: {
+  zone: DriftZoneConfig;
+  radius: number;
+  toneState: Drift3DZoneToneState;
+}) {
   const tone = biomeMaterial[zone.biome];
   const emissive = tone.emissive ?? "#000000";
-  const emissiveIntensity = tone.emissive ? 0.18 : 0;
+  const stateBoost =
+    toneState === "active" ? 1.28 : toneState === "nearest" ? 1.1 : 1;
+  const emissiveIntensity = tone.emissive ? 0.18 * stateBoost : 0;
 
   switch (zone.biome) {
     case "entry-signal":
@@ -191,6 +203,7 @@ export default function Drift3DZone({
   zone,
   mapWidth,
   mapHeight,
+  toneState,
 }: Drift3DZoneProps) {
   const transform = getDrift3DZoneTransform(zone, {
     width: mapWidth,
@@ -198,6 +211,7 @@ export default function Drift3DZone({
   });
   const tone = biomeMaterial[zone.biome];
   const isEntry = zone.trackSlug === null;
+  const scale = toneState === "active" ? 1.05 : toneState === "nearest" ? 1.02 : 1;
 
   return (
     <group
@@ -206,6 +220,7 @@ export default function Drift3DZone({
         transform.position.y,
         transform.position.z,
       ]}
+      scale={scale}
       aria-hidden="true"
     >
       <mesh>
@@ -235,7 +250,7 @@ export default function Drift3DZone({
         <meshStandardMaterial color={tone.ring} roughness={0.86} />
       </mesh>
 
-      <ZoneCore zone={zone} radius={transform.radius} />
+      <ZoneCore zone={zone} radius={transform.radius} toneState={toneState} />
     </group>
   );
 }

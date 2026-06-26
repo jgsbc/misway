@@ -40,6 +40,16 @@ export type Drift3DMovementBounds = {
   maxZ: number;
 };
 
+export type Drift3DZoneToneState = "neutral" | "nearest" | "active";
+
+export type Drift3DZoneProximity = {
+  nearestZone: DriftZoneConfig | null;
+  activeZone: DriftZoneConfig | null;
+  distance: number;
+  isInside: boolean;
+  progress: number;
+};
+
 const biomeHeights: Record<DriftBiome, number> = {
   "entry-signal": 0.08,
   "zeeland-road": 0.05,
@@ -144,4 +154,77 @@ export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
     z: z / length,
     active: true,
   };
+}
+
+type Drift3DZoneSample = {
+  zone: DriftZoneConfig;
+  distance: number;
+  radius: number;
+};
+
+function getDrift3DZoneSample(
+  point: Drift3DPoint,
+  zone: DriftZoneConfig,
+  bounds: DriftMapBounds
+): Drift3DZoneSample {
+  const transform = getDrift3DZoneTransform(zone, bounds);
+
+  return {
+    zone,
+    distance: Math.hypot(
+      point.x - transform.position.x,
+      point.z - transform.position.z
+    ),
+    radius: transform.radius,
+  };
+}
+
+export function getDrift3DZoneProximity(
+  point: Drift3DPoint,
+  zones: DriftZoneConfig[],
+  bounds: DriftMapBounds
+): Drift3DZoneProximity {
+  let nearest: Drift3DZoneSample | null = null;
+  let active: Drift3DZoneSample | null = null;
+
+  for (const zone of zones) {
+    const sample = getDrift3DZoneSample(point, zone, bounds);
+
+    if (!nearest || sample.distance < nearest.distance) {
+      nearest = sample;
+    }
+
+    if (sample.distance <= sample.radius && (!active || sample.distance < active.distance)) {
+      active = sample;
+    }
+  }
+
+  const selected = active ?? nearest;
+  const distance = selected?.distance ?? 0;
+  const radius = selected?.radius ?? 1;
+  const isInside = active !== null;
+  const falloff = isInside ? radius : radius * 1.45;
+
+  return {
+    nearestZone: nearest?.zone ?? null,
+    activeZone: active?.zone ?? null,
+    distance,
+    isInside,
+    progress: selected ? clamp(1 - distance / falloff, 0, 1) : 0,
+  };
+}
+
+export function getDrift3DZoneToneState(
+  zone: DriftZoneConfig,
+  proximity: Drift3DZoneProximity | null
+): Drift3DZoneToneState {
+  if (proximity?.activeZone?.id === zone.id) {
+    return "active";
+  }
+
+  if (proximity?.nearestZone?.id === zone.id) {
+    return "nearest";
+  }
+
+  return "neutral";
 }
