@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
+import Drift3DVehicle from "@/components/drift-3d/Drift3DVehicle";
 import Drift3DProp from "@/components/drift-3d/Drift3DProp";
 import Drift3DZone from "@/components/drift-3d/Drift3DZone";
 import { driftMapConfig } from "@/lib/driftMap";
+import { getDrift3DSpawnTransform } from "@/lib/drift3d";
 
 function StaticCameraFrame() {
   const camera = useThree((state) => state.camera);
@@ -22,6 +24,7 @@ function StaticCameraFrame() {
 
 export default function Drift3DScene() {
   const { width, height, zones } = driftMapConfig;
+  const spawnTransform = getDrift3DSpawnTransform({ width, height });
 
   return (
     <>
@@ -76,6 +79,14 @@ export default function Drift3DScene() {
             />
           ))
         )}
+
+        <Drift3DVehicle
+          position={[
+            spawnTransform.x + 1.08,
+            spawnTransform.y,
+            spawnTransform.z + 1.08,
+          ]}
+        />
       </group>
     </>
   );

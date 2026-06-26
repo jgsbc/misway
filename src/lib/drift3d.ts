@@ -4,6 +4,7 @@ import type {
   DriftProp,
   DriftZoneConfig,
 } from "@/types/drift";
+import { driftMapConfig } from "@/lib/driftMap";
 
 export const DRIFT_3D_PLANE_WIDTH = 16;
 export const DRIFT_3D_PLANE_DEPTH = 10;
@@ -89,4 +90,8 @@ export function getDrift3DPropTransform(
     position: mapPointToDrift3D(prop, bounds, 0.14),
     rotationY: degreesToRadians(prop.rotation ?? 0),
   };
+}
+
+export function getDrift3DSpawnTransform(bounds: DriftMapBounds) {
+  return mapPointToDrift3D(driftMapConfig.spawn, bounds, 0.12);
 }
