@@ -60,66 +60,66 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
       <group
         ref={vehicleGroupRef as never}
         position={position}
-        scale={1.22}
+        scale={1.34}
         aria-hidden="true"
       >
-        <mesh position={[0, 0.14, 0]}>
-          <capsuleGeometry args={[0.16, 0.64, 6, 10]} />
+        <mesh position={[0, 0.15, 0]}>
+          <capsuleGeometry args={[0.18, 0.74, 6, 10]} />
           <meshStandardMaterial
-            color="#cbc2b4"
-            roughness={0.8}
-            metalness={0.02}
+            color="#bdb0a1"
+            roughness={0.76}
+            metalness={0.03}
           />
         </mesh>
 
-        <mesh position={[0.08, 0.18, 0.08]} rotation={[0, -0.12, 0]}>
-          <boxGeometry args={[0.18, 0.1, 0.16]} />
-          <meshStandardMaterial color="#f5f0e8" roughness={0.8} />
+        <mesh position={[0.09, 0.2, 0.08]} rotation={[0, -0.12, 0]}>
+          <boxGeometry args={[0.21, 0.11, 0.18]} />
+          <meshStandardMaterial color="#f6f0e7" roughness={0.78} />
         </mesh>
 
-        <mesh position={[-0.03, 0.26, -0.08]}>
-          <sphereGeometry args={[0.07, 10, 8]} />
-          <meshStandardMaterial color="#d5cec0" roughness={0.68} />
+        <mesh position={[-0.03, 0.29, -0.08]}>
+          <sphereGeometry args={[0.078, 10, 8]} />
+          <meshStandardMaterial color="#d7d0c4" roughness={0.66} />
         </mesh>
 
         <mesh position={[-0.18, 0.04, 0.07]} rotation={[0, 0.14, Math.PI / 2]}>
-          <cylinderGeometry args={[0.016, 0.016, 0.26, 6]} />
-          <meshStandardMaterial color="#857a6d" roughness={0.82} />
+          <cylinderGeometry args={[0.016, 0.016, 0.3, 6]} />
+          <meshStandardMaterial color="#786e61" roughness={0.82} />
         </mesh>
 
-        <mesh position={[-0.18, 0.26, 0.07]}>
-          <sphereGeometry args={[0.036, 10, 8]} />
+        <mesh position={[-0.18, 0.3, 0.07]}>
+          <sphereGeometry args={[0.042, 10, 8]} />
           <meshStandardMaterial
-            color="#fff2c3"
-            emissive="#ddd2a7"
-            emissiveIntensity={0.18}
-            roughness={0.52}
+            color="#fff3c8"
+            emissive="#e4d5a5"
+            emissiveIntensity={0.22}
+            roughness={0.5}
           />
         </mesh>
 
-        <group position={[0, 0.32, -0.03]}>
-          <mesh position={[-0.075, 0, 0]} rotation={[0, 0, 0.38]}>
-            <boxGeometry args={[0.02, 0.2, 0.02]} />
-            <meshStandardMaterial color="#a39989" roughness={0.8} />
+        <group position={[0, 0.34, -0.03]}>
+          <mesh position={[-0.072, 0, 0]} rotation={[0, 0, 0.38]}>
+            <boxGeometry args={[0.02, 0.22, 0.02]} />
+            <meshStandardMaterial color="#9d9486" roughness={0.8} />
           </mesh>
-          <mesh position={[0.075, 0, 0]} rotation={[0, 0, -0.38]}>
-            <boxGeometry args={[0.02, 0.2, 0.02]} />
-            <meshStandardMaterial color="#a39989" roughness={0.8} />
+          <mesh position={[0.072, 0, 0]} rotation={[0, 0, -0.38]}>
+            <boxGeometry args={[0.02, 0.22, 0.02]} />
+            <meshStandardMaterial color="#9d9486" roughness={0.8} />
           </mesh>
           <mesh position={[0, 0.1, 0]}>
-            <boxGeometry args={[0.12, 0.02, 0.02]} />
-            <meshStandardMaterial color="#efe8d9" roughness={0.72} />
+            <boxGeometry args={[0.14, 0.022, 0.02]} />
+            <meshStandardMaterial color="#efe6d6" roughness={0.72} />
           </mesh>
         </group>
 
-        <mesh position={[0.01, 0.03, -0.18]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.11, 0.01, 8, 22]} />
-          <meshStandardMaterial color="#c8beae" roughness={0.86} />
+        <mesh position={[0.01, 0.03, -0.19]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.12, 0.011, 8, 22]} />
+          <meshStandardMaterial color="#c4b8a7" roughness={0.86} />
         </mesh>
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
-          <ringGeometry args={[0.16, 0.23, 24]} />
-          <meshStandardMaterial color="#c6bba8" roughness={0.9} />
+          <ringGeometry args={[0.18, 0.26, 24]} />
+          <meshStandardMaterial color="#c2b59f" roughness={0.9} />
         </mesh>
       </group>
     );

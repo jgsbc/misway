@@ -21,46 +21,46 @@ const biomeMaterial: Record<
   }
 > = {
   "entry-signal": {
-    platform: "#eef6f5",
-    ring: "#a8cfd0",
-    core: "#dfeff0",
-    emissive: "#b8e4e6",
+    platform: "#ecf5f4",
+    ring: "#93c1c4",
+    core: "#d9ecee",
+    emissive: "#b4e1e5",
   },
   "zeeland-road": {
-    platform: "#eee7da",
-    ring: "#c7bda8",
-    core: "#d6c9b1",
+    platform: "#ece4d4",
+    ring: "#beaf97",
+    core: "#d2c1a6",
   },
   "midnight-office": {
-    platform: "#e8ebec",
-    ring: "#a9b2b8",
-    core: "#c2c8cb",
+    platform: "#e7eaec",
+    ring: "#9aa3aa",
+    core: "#bcc3c8",
   },
   "here-there": {
-    platform: "#edf5f6",
-    ring: "#a9c9d0",
-    core: "#d8e8ea",
+    platform: "#edf4f5",
+    ring: "#99c0c7",
+    core: "#d4e5e7",
   },
   "plain-signal": {
-    platform: "#f4f1eb",
-    ring: "#cfc8bc",
-    core: "#ece8df",
+    platform: "#f3efe8",
+    ring: "#c8c0b2",
+    core: "#e8e2d7",
   },
   "neural-loop": {
-    platform: "#ececf3",
-    ring: "#b7b5cf",
-    core: "#d7d6e7",
+    platform: "#ececf2",
+    ring: "#adaacd",
+    core: "#d3d2e7",
   },
   "hold-light": {
-    platform: "#f3ead6",
-    ring: "#d7ba76",
+    platform: "#f3ead4",
+    ring: "#cfad62",
     core: "#fff1c7",
-    emissive: "#ffd37a",
+    emissive: "#ffd27b",
   },
   "birth-yard": {
-    platform: "#f1e6d8",
-    ring: "#caa575",
-    core: "#e2c5a2",
+    platform: "#f0e4d7",
+    ring: "#c29761",
+    core: "#dec09a",
   },
 };
 
@@ -76,19 +76,19 @@ function ZoneCore({
   const tone = biomeMaterial[zone.biome];
   const emissive = tone.emissive ?? "#000000";
   const stateBoost =
-    toneState === "active" ? 1.28 : toneState === "nearest" ? 1.1 : 1;
-  const emissiveIntensity = tone.emissive ? 0.18 * stateBoost : 0;
+    toneState === "active" ? 1.36 : toneState === "nearest" ? 1.14 : 1;
+  const emissiveIntensity = tone.emissive ? 0.2 * stateBoost : 0;
 
   switch (zone.biome) {
     case "entry-signal":
       return (
         <group>
           <mesh position={[0, 0.24, 0]}>
-            <cylinderGeometry args={[0.025, 0.035, 0.46, 8]} />
-            <meshStandardMaterial color="#6d7774" roughness={0.74} />
+            <cylinderGeometry args={[0.028, 0.038, 0.52, 8]} />
+            <meshStandardMaterial color="#6a756f" roughness={0.72} />
           </mesh>
-          <mesh position={[0, 0.52, 0]}>
-            <sphereGeometry args={[0.09, 12, 8]} />
+          <mesh position={[0, 0.57, 0]}>
+            <sphereGeometry args={[0.1, 12, 8]} />
             <meshStandardMaterial
               color={tone.core}
               emissive={emissive}
@@ -96,8 +96,8 @@ function ZoneCore({
               roughness={0.54}
             />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.53, 0]}>
-            <torusGeometry args={[radius * 0.22, 0.01, 8, 28]} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.58, 0]}>
+            <torusGeometry args={[radius * 0.24, 0.012, 8, 28]} />
             <meshStandardMaterial color={tone.ring} roughness={0.8} />
           </mesh>
         </group>
@@ -105,25 +105,25 @@ function ZoneCore({
     case "zeeland-road":
       return (
         <group rotation={[0, -0.28, 0]}>
-          <mesh position={[0, 0.08, 0]}>
-            <boxGeometry args={[radius * 1.55, 0.045, 0.12]} />
-            <meshStandardMaterial color={tone.core} roughness={0.9} />
+          <mesh position={[0, 0.1, 0]}>
+            <boxGeometry args={[radius * 1.72, 0.05, 0.12]} />
+            <meshStandardMaterial color={tone.core} roughness={0.88} />
           </mesh>
-          <mesh position={[0, 0.112, 0]}>
-            <boxGeometry args={[radius * 1.2, 0.02, 0.018]} />
-            <meshStandardMaterial color="#f9f6ee" roughness={0.82} />
+          <mesh position={[0, 0.136, 0]}>
+            <boxGeometry args={[radius * 1.34, 0.022, 0.018]} />
+            <meshStandardMaterial color="#faf7f0" roughness={0.82} />
           </mesh>
         </group>
       );
     case "midnight-office":
       return (
         <group>
-          <mesh position={[0, 0.13, 0]}>
-            <boxGeometry args={[radius * 0.54, 0.2, radius * 0.36]} />
-            <meshStandardMaterial color={tone.core} roughness={0.82} />
+          <mesh position={[0, 0.14, 0]}>
+            <boxGeometry args={[radius * 0.58, 0.22, radius * 0.38]} />
+            <meshStandardMaterial color={tone.core} roughness={0.8} />
           </mesh>
-          <mesh position={[radius * 0.16, 0.32, -radius * 0.1]}>
-            <boxGeometry args={[0.05, 0.34, 0.05]} />
+          <mesh position={[radius * 0.16, 0.35, -radius * 0.1]}>
+            <boxGeometry args={[0.05, 0.36, 0.05]} />
             <meshStandardMaterial color={tone.ring} roughness={0.76} />
           </mesh>
         </group>
@@ -131,36 +131,42 @@ function ZoneCore({
     case "here-there":
       return (
         <group>
-          <mesh position={[-radius * 0.22, 0.09, 0]}>
-            <cylinderGeometry args={[radius * 0.2, radius * 0.26, 0.09, 10]} />
-            <meshStandardMaterial color={tone.core} roughness={0.88} />
+          <mesh position={[-radius * 0.24, 0.095, 0]}>
+            <cylinderGeometry args={[radius * 0.2, radius * 0.26, 0.1, 10]} />
+            <meshStandardMaterial color={tone.core} roughness={0.86} />
           </mesh>
-          <mesh position={[radius * 0.24, 0.08, radius * 0.05]}>
-            <cylinderGeometry args={[radius * 0.18, radius * 0.24, 0.08, 10]} />
+          <mesh position={[radius * 0.25, 0.085, radius * 0.05]}>
+            <cylinderGeometry args={[radius * 0.18, radius * 0.24, 0.09, 10]} />
             <meshStandardMaterial color={tone.platform} roughness={0.88} />
           </mesh>
-          <mesh position={[0.01, 0.13, radius * 0.02]}>
-            <boxGeometry args={[radius * 0.38, 0.025, 0.035]} />
+          <mesh position={[0.01, 0.14, radius * 0.02]}>
+            <boxGeometry args={[radius * 0.42, 0.025, 0.035]} />
             <meshStandardMaterial color={tone.ring} roughness={0.82} />
           </mesh>
         </group>
       );
     case "plain-signal":
       return (
-        <mesh position={[0, 0.11, 0]}>
-          <boxGeometry args={[0.11, 0.11, 0.11]} />
-          <meshStandardMaterial color={tone.core} roughness={0.9} />
-        </mesh>
+        <group>
+          <mesh position={[0, 0.05, 0]}>
+            <boxGeometry args={[0.08, 0.08, 0.08]} />
+            <meshStandardMaterial color={tone.core} roughness={0.94} />
+          </mesh>
+          <mesh position={[0, 0.13, 0]}>
+            <cylinderGeometry args={[0.016, 0.016, 0.1, 6]} />
+            <meshStandardMaterial color={tone.ring} roughness={0.92} />
+          </mesh>
+        </group>
       );
     case "neural-loop":
       return (
         <group>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.13, 0]}>
-            <torusGeometry args={[radius * 0.34, 0.018, 8, 34]} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.14, 0]}>
+            <torusGeometry args={[radius * 0.37, 0.018, 8, 34]} />
             <meshStandardMaterial color={tone.ring} roughness={0.86} />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.16, 0]}>
-            <torusGeometry args={[radius * 0.21, 0.014, 8, 30]} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.17, 0]}>
+            <torusGeometry args={[radius * 0.23, 0.014, 8, 30]} />
             <meshStandardMaterial color={tone.core} roughness={0.86} />
           </mesh>
         </group>
@@ -168,12 +174,12 @@ function ZoneCore({
     case "hold-light":
       return (
         <group>
-          <mesh position={[0, 0.23, 0]}>
-            <cylinderGeometry args={[0.026, 0.035, 0.42, 8]} />
-            <meshStandardMaterial color="#7f7564" roughness={0.76} />
+          <mesh position={[0, 0.25, 0]}>
+            <cylinderGeometry args={[0.028, 0.038, 0.46, 8]} />
+            <meshStandardMaterial color="#7b7061" roughness={0.74} />
           </mesh>
-          <mesh position={[0, 0.49, 0]}>
-            <sphereGeometry args={[0.12, 14, 10]} />
+          <mesh position={[0, 0.55, 0]}>
+            <sphereGeometry args={[0.13, 14, 10]} />
             <meshStandardMaterial
               color={tone.core}
               emissive={emissive}
@@ -186,13 +192,17 @@ function ZoneCore({
     case "birth-yard":
       return (
         <group>
-          <mesh position={[-radius * 0.14, 0.14, 0]} rotation={[0, 0, 0.08]}>
-            <coneGeometry args={[0.11, 0.28, 5]} />
+          <mesh position={[-radius * 0.16, 0.14, 0]} rotation={[0, 0, 0.08]}>
+            <coneGeometry args={[0.12, 0.3, 5]} />
             <meshStandardMaterial color={tone.core} roughness={0.82} />
           </mesh>
-          <mesh position={[radius * 0.14, 0.1, radius * 0.1]} rotation={[0, 0, -0.12]}>
-            <boxGeometry args={[0.2, 0.16, 0.18]} />
+          <mesh position={[radius * 0.15, 0.1, radius * 0.1]} rotation={[0, 0, -0.12]}>
+            <boxGeometry args={[0.22, 0.16, 0.18]} />
             <meshStandardMaterial color={tone.ring} roughness={0.84} />
+          </mesh>
+          <mesh position={[radius * 0.03, 0.06, -radius * 0.11]}>
+            <coneGeometry args={[0.06, 0.14, 4]} />
+            <meshStandardMaterial color="#d6ba98" roughness={0.86} />
           </mesh>
         </group>
       );
@@ -211,7 +221,7 @@ export default function Drift3DZone({
   });
   const tone = biomeMaterial[zone.biome];
   const isEntry = zone.trackSlug === null;
-  const scale = toneState === "active" ? 1.05 : toneState === "nearest" ? 1.02 : 1;
+  const scale = toneState === "active" ? 1.08 : toneState === "nearest" ? 1.04 : 1;
 
   return (
     <group
@@ -226,28 +236,28 @@ export default function Drift3DZone({
       <mesh>
         <cylinderGeometry
           args={[
-            transform.radius * (isEntry ? 0.72 : 0.62),
-            transform.radius * (isEntry ? 0.78 : 0.68),
+            transform.radius * (isEntry ? 0.8 : 0.69),
+            transform.radius * (isEntry ? 0.86 : 0.74),
             transform.height,
-            isEntry ? 18 : 14,
+            isEntry ? 18 : 16,
           ]}
         />
-        <meshStandardMaterial color={tone.platform} roughness={0.92} />
+        <meshStandardMaterial color={tone.platform} roughness={0.9} />
       </mesh>
 
       <mesh
         rotation={[Math.PI / 2, 0, 0]}
-        position={[0, transform.height / 2 + 0.014, 0]}
+        position={[0, transform.height / 2 + 0.016, 0]}
       >
         <torusGeometry
           args={[
-            transform.radius * (isEntry ? 0.84 : 0.72),
-            isEntry ? 0.018 : 0.014,
+            transform.radius * (isEntry ? 0.92 : 0.8),
+            isEntry ? 0.02 : 0.016,
             8,
             42,
           ]}
         />
-        <meshStandardMaterial color={tone.ring} roughness={0.86} />
+        <meshStandardMaterial color={tone.ring} roughness={0.84} />
       </mesh>
 
       <ZoneCore zone={zone} radius={transform.radius} toneState={toneState} />
