@@ -28,6 +28,11 @@ export type Drift3DZoneTransform = {
   height: number;
 };
 
+export type Drift3DFollowCameraRig = {
+  position: Drift3DPoint;
+  target: Drift3DPoint;
+};
+
 export type Drift3DPropTransform = {
   position: Drift3DPoint;
   rotationY: number;
@@ -117,6 +122,16 @@ export function getDrift3DSpawnTransform(bounds: DriftMapBounds) {
   return mapPointToDrift3D(driftMapConfig.spawn, bounds, 0.12);
 }
 
+export function getDrift3DVehicleStartPosition(bounds: DriftMapBounds) {
+  const spawnTransform = getDrift3DSpawnTransform(bounds);
+
+  return {
+    x: spawnTransform.x + 1.08,
+    y: spawnTransform.y,
+    z: spawnTransform.z + 1.08,
+  };
+}
+
 export function getDrift3DMovementBounds(): Drift3DMovementBounds {
   return {
     minX: -DRIFT_3D_PLANE_WIDTH / 2 + 1.3,
@@ -133,6 +148,20 @@ export function clampDrift3DPoint(point: Drift3DPoint): Drift3DPoint {
     x: clamp(point.x, bounds.minX, bounds.maxX),
     y: point.y,
     z: clamp(point.z, bounds.minZ, bounds.maxZ),
+  };
+}
+
+export function approachDrift3DPoint(
+  current: Drift3DPoint,
+  target: Drift3DPoint,
+  amount = 0.18
+) {
+  const delta = clamp(amount, 0, 1);
+
+  return {
+    x: current.x + (target.x - current.x) * delta,
+    y: current.y + (target.y - current.y) * delta,
+    z: current.z + (target.z - current.z) * delta,
   };
 }
 
@@ -176,6 +205,29 @@ export function approachDrift3DAngle(
   const delta = normalizeDrift3DAngle(target - current);
 
   return current + delta * clamp(amount, 0, 1);
+}
+
+export function getDrift3DFollowCameraRig(
+  vehiclePosition: Drift3DPoint,
+  yaw: number
+): Drift3DFollowCameraRig {
+  const forwardX = Math.sin(yaw);
+  const forwardZ = Math.cos(yaw);
+  const sideX = Math.cos(yaw);
+  const sideZ = -Math.sin(yaw);
+
+  return {
+    position: {
+      x: vehiclePosition.x - forwardX * 5.6 + sideX * 0.9,
+      y: vehiclePosition.y + 5.4,
+      z: vehiclePosition.z - forwardZ * 5.6 + sideZ * 0.9,
+    },
+    target: {
+      x: vehiclePosition.x + forwardX * 0.78,
+      y: vehiclePosition.y + 0.42,
+      z: vehiclePosition.z + forwardZ * 0.78,
+    },
+  };
 }
 
 type Drift3DZoneSample = {

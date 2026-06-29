@@ -94,71 +94,56 @@ export default function Drift3DClient() {
           : "no-webgl";
 
   return (
-    <main className="light-theme light-page-bg min-h-screen px-6 pb-72 pt-16 md:px-10 md:pb-60 md:pt-24">
-      <section className="mx-auto max-w-6xl">
-        <div className="grid gap-5 md:grid-cols-[1fr_0.58fr] md:items-end md:gap-8">
-          <div>
-            <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.35em]">
-              Experimental / Drift 3D Lab
-            </p>
-            <h1 className="light-text-primary mt-4 max-w-3xl text-3xl font-semibold tracking-tight md:mt-6 md:text-6xl">
-              A pale room behind the map.
-            </h1>
-            <div className="light-text-secondary mt-4 max-w-2xl space-y-2 text-sm leading-6 md:mt-7 md:text-base md:leading-7">
-              <p>This is an isolated 3D spike. The 2D lab stays the map.</p>
-              <p>Arrow keys or WASD move the capsule. Playable zones listen explicitly.</p>
-            </div>
-          </div>
+    <main className="fixed inset-0 isolate overflow-hidden bg-[#f5f0e7] text-neutral-950">
+      <p id="drift-3d-description" className="sr-only">
+        Experimental fullscreen 3D preview with a pale plane, eight Drift zone
+        landmarks, a follow camera, a compact proximity HUD, and a small
+        capsule vehicle that moves with the keyboard. Playable zones expose an
+        explicit audio button and nothing plays on its own.
+      </p>
 
-          <div className="light-border light-card-bg border p-4 md:p-5">
-            <p className="light-text-tertiary font-mono text-[10px] uppercase tracking-[0.24em]">
-              Status
-            </p>
-            <p className="light-text-primary mt-3 font-mono text-xs uppercase tracking-[0.18em]">
-              Keyboard movement / explicit zone audio / noindex
-            </p>
-            <p className="light-text-secondary mt-2 text-sm leading-6">
-              Reduced motion and missing WebGL use the quiet path.
-            </p>
-          </div>
-        </div>
-
-        <p id="drift-3d-description" className="sr-only">
-          Experimental static 3D preview with a pale plane, eight Drift zone
-          landmarks, a compact proximity HUD, and a small capsule vehicle that
-          moves with the keyboard. Playable zones expose an explicit audio
-          button and nothing plays on its own.
-        </p>
-
-        <div className="mt-7 md:mt-9">
-          {fallbackReason ? (
+      <div className="absolute inset-0">
+        {fallbackReason ? (
+          <div className="absolute inset-0 flex items-center justify-center p-4 md:p-6">
             <Drift3DFallback reason={fallbackReason} />
-          ) : (
-            <Drift3DCanvas
-              isCurrentTrack={isCurrentTrack}
-              isPlaying={isPlaying}
-              toggleTrack={toggleTrack}
-              prefersReducedMotion={false}
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          <Drift3DCanvas
+            isCurrentTrack={isCurrentTrack}
+            isPlaying={isPlaying}
+            toggleTrack={toggleTrack}
+            prefersReducedMotion={false}
+          />
+        )}
+      </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/drift-lab"
-            className="light-text-primary light-border hover:light-card-hover inline-flex min-h-[46px] items-center justify-center border px-5 py-3 font-mono text-[11px] uppercase tracking-[0.24em] transition"
-          >
-            Open 2D Lab
-          </Link>
+      <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(92vw,18rem)] md:left-6 md:top-6">
+        <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
+          Experimental / Drift 3D Lab
+        </p>
+        <h1 className="mt-2 text-[clamp(1.35rem,2.4vw,2.5rem)] font-semibold tracking-tight text-neutral-950">
+          Vehicle-led territory.
+        </h1>
+        <p className="mt-2 max-w-[16rem] text-[13px] leading-5 text-neutral-700 md:text-sm md:leading-6">
+          Arrow keys or WASD move the capsule. Zones listen only on click.
+        </p>
+      </div>
 
-          <Link
-            href="/drift"
-            className="light-text-secondary light-border hover:light-text-primary inline-flex min-h-[46px] items-center justify-center border px-5 py-3 font-mono text-[11px] uppercase tracking-[0.24em] transition"
-          >
-            Back to Drift
-          </Link>
-        </div>
-      </section>
+      <div className="pointer-events-none absolute bottom-4 left-4 z-20 flex flex-wrap gap-3 md:bottom-6 md:left-6">
+        <Link
+          href="/drift-lab"
+          className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/72 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white"
+        >
+          Open 2D Lab
+        </Link>
+
+        <Link
+          href="/drift"
+          className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/52 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950"
+        >
+          Back to Drift
+        </Link>
+      </div>
     </main>
   );
 }

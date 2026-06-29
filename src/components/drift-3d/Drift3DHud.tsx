@@ -98,7 +98,7 @@ export default function Drift3DHud({
 
   return (
     <aside
-      className="border border-neutral-300/75 bg-white/78 p-3 shadow-[0_18px_40px_rgba(55,49,42,0.12)] backdrop-blur-md md:p-4"
+      className="pointer-events-auto border border-neutral-300/60 bg-white/72 p-3 shadow-[0_16px_34px_rgba(55,49,42,0.1)] backdrop-blur-xl md:p-4"
       aria-label="Drift 3D proximity HUD"
       onPointerDown={(event) => event.stopPropagation()}
       onTouchStart={(event) => event.stopPropagation()}
