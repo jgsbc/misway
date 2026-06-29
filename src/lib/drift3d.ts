@@ -6,8 +6,8 @@ import type {
 } from "@/types/drift";
 import { driftMapConfig } from "@/lib/driftMap";
 
-export const DRIFT_3D_PLANE_WIDTH = 16;
-export const DRIFT_3D_PLANE_DEPTH = 10;
+export const DRIFT_3D_PLANE_WIDTH = 48;
+export const DRIFT_3D_PLANE_DEPTH = 30;
 
 type DriftMapPoint = {
   x: number;
@@ -92,7 +92,7 @@ export function scaleDriftZoneRadius(
 ) {
   const worldRadius = radius * (DRIFT_3D_PLANE_WIDTH / bounds.width);
 
-  return Math.min(Math.max(worldRadius * 0.72, 0.62), 1.14);
+  return Math.min(Math.max(worldRadius * 0.68, 0.58), 1.05);
 }
 
 export function getDrift3DZoneTransform(

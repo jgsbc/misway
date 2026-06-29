@@ -10,6 +10,8 @@ import Drift3DProp from "@/components/drift-3d/Drift3DProp";
 import Drift3DZone from "@/components/drift-3d/Drift3DZone";
 import { driftMapConfig } from "@/lib/driftMap";
 import {
+  DRIFT_3D_PLANE_DEPTH,
+  DRIFT_3D_PLANE_WIDTH,
   approachDrift3DAngle,
   approachDrift3DPoint,
   clampDrift3DPoint,
@@ -324,6 +326,7 @@ export default function Drift3DScene({
   onProximityChange,
 }: Drift3DSceneProps) {
   const { width, height, zones } = driftMapConfig;
+  const worldScale = DRIFT_3D_PLANE_WIDTH / 16;
   const worldBounds = useMemo(() => ({ width, height }), [width, height]);
   const vehicleStateRef = useRef<Drift3DVehicleMotionState>({
     position: getDrift3DVehicleStartPosition({ width, height }),
@@ -337,7 +340,7 @@ export default function Drift3DScene({
 
   return (
     <>
-      <fog attach="fog" args={["#f3eee5", 9.5, 21.5]} />
+      <fog attach="fog" args={["#f4efe5", 12.5, 33.5]} />
       <color attach="background" args={["#f5f0e7"]} />
       <hemisphereLight args={["#fffdf8", "#d6cbbd", 1.35]} />
       <directionalLight position={[5, 8, 5]} intensity={1.18} />
@@ -345,27 +348,29 @@ export default function Drift3DScene({
 
       <group rotation={[0, -0.28, 0]}>
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, 0]}>
-          <planeGeometry args={[15.8, 10.1]} />
+          <planeGeometry
+            args={[DRIFT_3D_PLANE_WIDTH, DRIFT_3D_PLANE_DEPTH]}
+          />
           <meshStandardMaterial color="#ece7dc" roughness={0.98} />
         </mesh>
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.065, 0]}>
-          <ringGeometry args={[1.08, 1.12, 72]} />
+          <ringGeometry args={[1.08 * worldScale, 1.12 * worldScale, 72]} />
           <meshStandardMaterial color="#c4d3d5" roughness={0.86} />
         </mesh>
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, 0]}>
-          <ringGeometry args={[1.72, 1.75, 72]} />
+          <ringGeometry args={[1.72 * worldScale, 1.75 * worldScale, 72]} />
           <meshStandardMaterial color="#d9ccb6" roughness={0.9} />
         </mesh>
 
-        <mesh position={[2.8, 0.02, -1.7]} rotation={[0, 0.28, 0]}>
-          <boxGeometry args={[1.6, 0.04, 0.06]} />
+        <mesh position={[2.8 * worldScale, 0.02, -1.7 * worldScale]} rotation={[0, 0.28, 0]}>
+          <boxGeometry args={[1.6 * worldScale, 0.04, 0.06]} />
           <meshStandardMaterial color="#d2c5b1" roughness={0.88} />
         </mesh>
 
-        <mesh position={[-3.2, 0.02, 1.8]} rotation={[0, -0.2, 0]}>
-          <boxGeometry args={[1.9, 0.04, 0.06]} />
+        <mesh position={[-3.2 * worldScale, 0.02, 1.8 * worldScale]} rotation={[0, -0.2, 0]}>
+          <boxGeometry args={[1.9 * worldScale, 0.04, 0.06]} />
           <meshStandardMaterial color="#cfd3d1" roughness={0.88} />
         </mesh>
 
