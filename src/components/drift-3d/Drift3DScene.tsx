@@ -149,13 +149,12 @@ function KeyboardVehicleMotion({
   onProximityChange?: (proximity: Drift3DZoneProximity) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
-  const positionRef = useRef(startPosition);
   const yawRef = useRef(0);
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
+  const maxMovementDelta = 1 / 30;
 
   useEffect(() => {
-    positionRef.current = { ...startPosition };
     yawRef.current = 0;
     vehicleStateRef.current.position = { ...startPosition };
     vehicleStateRef.current.yaw = 0;
@@ -254,11 +253,12 @@ function KeyboardVehicleMotion({
       return;
     }
 
+    const frameDelta = Math.min(delta, maxMovementDelta);
     const targetYaw = getDrift3DYawFromVector(input);
     const nextYaw = approachDrift3DAngle(
       yawRef.current,
       targetYaw,
-      Math.min(1, delta * 12)
+      Math.min(1, frameDelta * 12)
     );
     const yawChanged = Math.abs(nextYaw - yawRef.current) > 0.0005;
 
@@ -270,16 +270,16 @@ function KeyboardVehicleMotion({
     }
 
     const movementSpeed = 4.2;
+    const currentPosition = vehicleStateRef.current.position;
     const next = clampDrift3DPoint({
-      x: positionRef.current.x + input.x * movementSpeed * delta,
-      y: positionRef.current.y,
-      z: positionRef.current.z + input.z * movementSpeed * delta,
+      x: currentPosition.x + input.x * movementSpeed * frameDelta,
+      y: currentPosition.y,
+      z: currentPosition.z + input.z * movementSpeed * frameDelta,
     });
     const moved =
-      next.x !== positionRef.current.x || next.z !== positionRef.current.z;
+      next.x !== currentPosition.x || next.z !== currentPosition.z;
 
     if (moved) {
-      positionRef.current = next;
       vehicleStateRef.current.position = next;
       vehicle.position.set(next.x, next.y, next.z);
       const nextProximity = getDrift3DZoneProximity(next, zones, bounds);
@@ -323,6 +323,15 @@ export default function Drift3DScene({
   const vehicleStartPosition = useMemo(
     () => getDrift3DVehicleStartPosition({ width, height }),
     [height, width]
+  );
+  const vehicleInitialPosition = useMemo(
+    () =>
+      [
+        vehicleStartPosition.x,
+        vehicleStartPosition.y,
+        vehicleStartPosition.z,
+      ] satisfies [number, number, number],
+    [vehicleStartPosition]
   );
 
   return (
@@ -381,11 +390,7 @@ export default function Drift3DScene({
 
       <Drift3DVehicle
         ref={vehicleRef}
-        position={[
-          vehicleStartPosition.x,
-          vehicleStartPosition.y,
-          vehicleStartPosition.z,
-        ]}
+        initialPosition={vehicleInitialPosition}
       />
 
       <KeyboardVehicleMotion

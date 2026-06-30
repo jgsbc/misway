@@ -234,8 +234,8 @@ export function getDrift3DFollowCameraRig(
   return {
     position: {
       x: vehiclePosition.x,
-      y: vehiclePosition.y + 3.45,
-      z: vehiclePosition.z + 4.65,
+      y: vehiclePosition.y + 4.35,
+      z: vehiclePosition.z + 7.8,
     },
     target: {
       x: vehiclePosition.x,
