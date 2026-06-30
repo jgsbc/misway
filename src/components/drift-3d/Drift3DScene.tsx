@@ -17,6 +17,8 @@ import {
   getDrift3DFollowCameraRig,
   getDrift3DZoneProximity,
   getDrift3DZoneToneState,
+  getDrift3DYawFromVector,
+  approachDrift3DAngle,
   getDrift3DVehicleStartPosition,
   type Drift3DPoint,
   type Drift3DZoneProximity,
@@ -35,7 +37,6 @@ function FollowCameraRig({
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
   const cameraPositionRef = useRef<Drift3DPoint | null>(null);
-  const cameraTargetRef = useRef<Drift3DPoint | null>(null);
 
   useEffect(() => {
     const vehicleState = vehicleStateRef.current;
@@ -43,10 +44,7 @@ function FollowCameraRig({
       return;
     }
 
-    const initialRig = getDrift3DFollowCameraRig(
-      vehicleState.position,
-      vehicleState.yaw
-    );
+    const initialRig = getDrift3DFollowCameraRig(vehicleState.position);
 
     camera.position.set(
       initialRig.position.x,
@@ -60,7 +58,6 @@ function FollowCameraRig({
     );
     camera.updateProjectionMatrix();
     cameraPositionRef.current = initialRig.position;
-    cameraTargetRef.current = initialRig.target;
     invalidate();
   }, [camera, invalidate, vehicleStateRef]);
 
@@ -70,10 +67,7 @@ function FollowCameraRig({
       return;
     }
 
-    const desiredRig = getDrift3DFollowCameraRig(
-      vehicleState.position,
-      vehicleState.yaw
-    );
+    const desiredRig = getDrift3DFollowCameraRig(vehicleState.position);
     const nextPosition = desiredRig.position;
     const nextTarget = desiredRig.target;
     const positionChanged =
@@ -81,20 +75,15 @@ function FollowCameraRig({
       Math.abs(cameraPositionRef.current.x - nextPosition.x) > 0.001 ||
       Math.abs(cameraPositionRef.current.y - nextPosition.y) > 0.001 ||
       Math.abs(cameraPositionRef.current.z - nextPosition.z) > 0.001;
-    const targetChanged =
-      !cameraTargetRef.current ||
-      Math.abs(cameraTargetRef.current.x - nextTarget.x) > 0.001 ||
-      Math.abs(cameraTargetRef.current.y - nextTarget.y) > 0.001 ||
-      Math.abs(cameraTargetRef.current.z - nextTarget.z) > 0.001;
 
-    if (!positionChanged && !targetChanged) {
+    if (!positionChanged) {
+      camera.lookAt(nextTarget.x, nextTarget.y, nextTarget.z);
       return;
     }
 
     camera.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
     camera.lookAt(nextTarget.x, nextTarget.y, nextTarget.z);
     cameraPositionRef.current = nextPosition;
-    cameraTargetRef.current = nextTarget;
     invalidate();
   });
 
@@ -162,14 +151,12 @@ function KeyboardVehicleMotion({
   const invalidate = useThree((state) => state.invalidate);
   const positionRef = useRef(startPosition);
   const yawRef = useRef(0);
-  const speedRef = useRef(0);
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
 
   useEffect(() => {
     positionRef.current = { ...startPosition };
     yawRef.current = 0;
-    speedRef.current = 0;
     vehicleStateRef.current.position = { ...startPosition };
     vehicleStateRef.current.yaw = 0;
     vehicleRef.current?.position.set(
@@ -202,7 +189,6 @@ function KeyboardVehicleMotion({
       }
 
       pressedKeysRef.current.clear();
-      speedRef.current = 0;
       invalidate();
     }
 
@@ -268,25 +254,26 @@ function KeyboardVehicleMotion({
       return;
     }
 
-    const turnRate = input.throttle !== 0 ? 2.18 : 1.82;
-    const driveSpeed =
-      input.throttle > 0 ? 3.28 : input.throttle < 0 ? -2.18 : 0;
-    const nextYaw = yawRef.current + input.steer * turnRate * delta;
+    const targetYaw = getDrift3DYawFromVector(input);
+    const nextYaw = approachDrift3DAngle(
+      yawRef.current,
+      targetYaw,
+      Math.min(1, delta * 12)
+    );
     const yawChanged = Math.abs(nextYaw - yawRef.current) > 0.0005;
 
+    yawRef.current = nextYaw;
+    vehicleStateRef.current.yaw = nextYaw;
+
     if (yawChanged) {
-      yawRef.current = nextYaw;
-      vehicleStateRef.current.yaw = nextYaw;
       vehicle.rotation.setY(nextYaw);
     }
 
-    speedRef.current = driveSpeed;
-    const headingX = Math.sin(yawRef.current);
-    const headingZ = Math.cos(yawRef.current);
+    const movementSpeed = 4.2;
     const next = clampDrift3DPoint({
-      x: positionRef.current.x + headingX * speedRef.current * delta,
+      x: positionRef.current.x + input.x * movementSpeed * delta,
       y: positionRef.current.y,
-      z: positionRef.current.z + headingZ * speedRef.current * delta,
+      z: positionRef.current.z + input.z * movementSpeed * delta,
     });
     const moved =
       next.x !== positionRef.current.x || next.z !== positionRef.current.z;
@@ -346,75 +333,71 @@ export default function Drift3DScene({
       <directionalLight position={[5, 8, 5]} intensity={1.18} />
       <ambientLight intensity={0.3} />
 
-      <group rotation={[0, -0.28, 0]}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, 0]}>
-          <planeGeometry
-            args={[DRIFT_3D_PLANE_WIDTH, DRIFT_3D_PLANE_DEPTH]}
-          />
-          <meshStandardMaterial color="#ece7dc" roughness={0.98} />
-        </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, 0]}>
+        <planeGeometry args={[DRIFT_3D_PLANE_WIDTH, DRIFT_3D_PLANE_DEPTH]} />
+        <meshStandardMaterial color="#ece7dc" roughness={0.98} />
+      </mesh>
 
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.065, 0]}>
-          <ringGeometry args={[1.08 * worldScale, 1.12 * worldScale, 72]} />
-          <meshStandardMaterial color="#c4d3d5" roughness={0.86} />
-        </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.065, 0]}>
+        <ringGeometry args={[1.08 * worldScale, 1.12 * worldScale, 72]} />
+        <meshStandardMaterial color="#c4d3d5" roughness={0.86} />
+      </mesh>
 
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, 0]}>
-          <ringGeometry args={[1.72 * worldScale, 1.75 * worldScale, 72]} />
-          <meshStandardMaterial color="#d9ccb6" roughness={0.9} />
-        </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, 0]}>
+        <ringGeometry args={[1.72 * worldScale, 1.75 * worldScale, 72]} />
+        <meshStandardMaterial color="#d9ccb6" roughness={0.9} />
+      </mesh>
 
-        <mesh position={[2.8 * worldScale, 0.02, -1.7 * worldScale]} rotation={[0, 0.28, 0]}>
-          <boxGeometry args={[1.6 * worldScale, 0.04, 0.06]} />
-          <meshStandardMaterial color="#d2c5b1" roughness={0.88} />
-        </mesh>
+      <mesh position={[2.8 * worldScale, 0.02, -1.7 * worldScale]} rotation={[0, 0.28, 0]}>
+        <boxGeometry args={[1.6 * worldScale, 0.04, 0.06]} />
+        <meshStandardMaterial color="#d2c5b1" roughness={0.88} />
+      </mesh>
 
-        <mesh position={[-3.2 * worldScale, 0.02, 1.8 * worldScale]} rotation={[0, -0.2, 0]}>
-          <boxGeometry args={[1.9 * worldScale, 0.04, 0.06]} />
-          <meshStandardMaterial color="#cfd3d1" roughness={0.88} />
-        </mesh>
+      <mesh position={[-3.2 * worldScale, 0.02, 1.8 * worldScale]} rotation={[0, -0.2, 0]}>
+        <boxGeometry args={[1.9 * worldScale, 0.04, 0.06]} />
+        <meshStandardMaterial color="#cfd3d1" roughness={0.88} />
+      </mesh>
 
-        {zones.map((zone) => (
-          <Drift3DZone
-            key={zone.id}
-            zone={zone}
+      {zones.map((zone) => (
+        <Drift3DZone
+          key={zone.id}
+          zone={zone}
+          mapWidth={width}
+          mapHeight={height}
+          toneState={getDrift3DZoneToneState(zone, proximity)}
+        />
+      ))}
+
+      {zones.flatMap((zone) =>
+        (zone.props ?? []).map((prop) => (
+          <Drift3DProp
+            key={prop.id}
+            prop={prop}
             mapWidth={width}
             mapHeight={height}
-            toneState={getDrift3DZoneToneState(zone, proximity)}
           />
-        ))}
+        ))
+      )}
 
-        {zones.flatMap((zone) =>
-          (zone.props ?? []).map((prop) => (
-            <Drift3DProp
-              key={prop.id}
-              prop={prop}
-              mapWidth={width}
-              mapHeight={height}
-            />
-          ))
-        )}
+      <Drift3DVehicle
+        ref={vehicleRef}
+        position={[
+          vehicleStartPosition.x,
+          vehicleStartPosition.y,
+          vehicleStartPosition.z,
+        ]}
+      />
 
-        <Drift3DVehicle
-          ref={vehicleRef}
-          position={[
-            vehicleStartPosition.x,
-            vehicleStartPosition.y,
-            vehicleStartPosition.z,
-          ]}
-        />
+      <KeyboardVehicleMotion
+        vehicleRef={vehicleRef}
+        vehicleStateRef={vehicleStateRef}
+        startPosition={vehicleStartPosition}
+        bounds={worldBounds}
+        zones={zones}
+        onProximityChange={onProximityChange}
+      />
 
-        <KeyboardVehicleMotion
-          vehicleRef={vehicleRef}
-          vehicleStateRef={vehicleStateRef}
-          startPosition={vehicleStartPosition}
-          bounds={worldBounds}
-          zones={zones}
-          onProximityChange={onProximityChange}
-        />
-
-        <FollowCameraRig vehicleStateRef={vehicleStateRef} />
-      </group>
+      <FollowCameraRig vehicleStateRef={vehicleStateRef} />
     </>
   );
 }

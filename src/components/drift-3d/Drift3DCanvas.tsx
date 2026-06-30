@@ -37,7 +37,7 @@ export default function Drift3DCanvas({
       height: driftMapConfig.height,
     });
 
-    return getDrift3DFollowCameraRig(startPosition, 0);
+    return getDrift3DFollowCameraRig(startPosition);
   }, []);
   const activeTrack = useMemo(
     () =>
@@ -76,7 +76,7 @@ export default function Drift3DCanvas({
               initialCameraRig.position.y,
               initialCameraRig.position.z,
             ],
-            fov: 31,
+            fov: 28,
             near: 0.1,
             far: 80,
           }}

@@ -48,8 +48,8 @@ export type Drift3DMovementBounds = {
 export type Drift3DZoneToneState = "neutral" | "nearest" | "active";
 
 export type Drift3DDriveInput = {
-  throttle: number;
-  steer: number;
+  x: number;
+  z: number;
   active: boolean;
 };
 
@@ -172,48 +172,31 @@ export function approachDrift3DPoint(
 }
 
 export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
-  const throttle =
+  const z =
+    (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0) -
     (activeCodes.has("ArrowUp") ||
     activeCodes.has("KeyW") ||
     activeCodes.has("KeyZ")
       ? 1
-      : 0) -
-    (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0);
-  const steer =
+      : 0);
+  const x =
+    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
     (activeCodes.has("ArrowLeft") ||
     activeCodes.has("KeyA") ||
     activeCodes.has("KeyQ")
       ? 1
-      : 0) -
-    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0);
+      : 0);
+  const length = Math.hypot(x, z);
 
   return {
-    throttle,
-    steer,
-    active: throttle !== 0 || steer !== 0,
+    x: length === 0 ? 0 : x / length,
+    z: length === 0 ? 0 : z / length,
+    active: length !== 0,
   } satisfies Drift3DDriveInput;
 }
 
 export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
-  const driveInput = getDrift3DDriveInput(activeCodes);
-
-  if (!driveInput.active || driveInput.throttle === 0) {
-    return { x: 0, z: 0, active: false };
-  }
-
-  const x = driveInput.steer;
-  const z = driveInput.throttle;
-  const length = Math.hypot(x, z);
-
-  if (length === 0) {
-    return { x: 0, z: 0, active: false };
-  }
-
-  return {
-    x: x / length,
-    z: z / length,
-    active: true,
-  };
+  return getDrift3DDriveInput(activeCodes);
 }
 
 function normalizeDrift3DAngle(angle: number) {
@@ -246,21 +229,18 @@ export function approachDrift3DAngle(
 }
 
 export function getDrift3DFollowCameraRig(
-  vehiclePosition: Drift3DPoint,
-  yaw: number
+  vehiclePosition: Drift3DPoint
 ): Drift3DFollowCameraRig {
-  const forward = getDrift3DHeadingVector(yaw);
-
   return {
     position: {
-      x: vehiclePosition.x - forward.x * 4.85,
-      y: vehiclePosition.y + 6.1,
-      z: vehiclePosition.z - forward.z * 4.85,
+      x: vehiclePosition.x,
+      y: vehiclePosition.y + 3.45,
+      z: vehiclePosition.z + 4.65,
     },
     target: {
-      x: vehiclePosition.x + forward.x * 1.05,
-      y: vehiclePosition.y + 0.52,
-      z: vehiclePosition.z + forward.z * 1.05,
+      x: vehiclePosition.x,
+      y: vehiclePosition.y,
+      z: vehiclePosition.z,
     },
   };
 }
