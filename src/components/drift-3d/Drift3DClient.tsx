@@ -30,11 +30,13 @@ function canUseWebGL() {
 }
 
 export default function Drift3DClient() {
-  const { isPlaying, toggleTrack, isCurrentTrack } = useAudioPlayer();
+  const { current, isPlaying, toggleTrack, togglePlayback, isCurrentTrack } =
+    useAudioPlayer();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<
     boolean | null
   >(null);
   const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
+  const currentTrack = current.kind === "track" ? current : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -111,21 +113,19 @@ export default function Drift3DClient() {
           <Drift3DCanvas
             isCurrentTrack={isCurrentTrack}
             isPlaying={isPlaying}
+            currentTrack={currentTrack}
             toggleTrack={toggleTrack}
-            prefersReducedMotion={false}
+            togglePlayback={togglePlayback}
           />
         )}
       </div>
 
-      <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(92vw,18rem)] md:left-6 md:top-6">
+      <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(88vw,15rem)] md:left-6 md:top-6">
         <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
-          Experimental / Drift 3D Lab
+          Drift 3D Lab · WASD / Arrows
         </p>
-        <h1 className="mt-2 text-[clamp(1.35rem,2.4vw,2.5rem)] font-semibold tracking-tight text-neutral-950">
-          Vehicle-led territory.
-        </h1>
-        <p className="mt-2 max-w-[16rem] text-[13px] leading-5 text-neutral-700 md:text-sm md:leading-6">
-          Arrow keys or WASD move the capsule. Zones listen only on click.
+        <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
+          Move the capsule. Zones listen only on click.
         </p>
       </div>
 

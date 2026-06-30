@@ -10,7 +10,6 @@ type Drift3DHudProps = {
   isActiveTrackCurrent: boolean;
   isActiveTrackPlaying: boolean;
   onToggleActiveTrack: () => void;
-  prefersReducedMotion: boolean;
 };
 
 function getHudCopy(proximity: Drift3DZoneProximity | null) {
@@ -70,7 +69,6 @@ export default function Drift3DHud({
   isActiveTrackCurrent,
   isActiveTrackPlaying,
   onToggleActiveTrack,
-  prefersReducedMotion,
 }: Drift3DHudProps) {
   const copy = getHudCopy(proximity);
   const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
@@ -98,60 +96,65 @@ export default function Drift3DHud({
 
   return (
     <aside
-      className="pointer-events-auto border border-neutral-300/60 bg-white/72 p-3 shadow-[0_16px_34px_rgba(55,49,42,0.1)] backdrop-blur-xl md:p-4"
+      className="pointer-events-auto rounded-[3px] bg-white/38 px-3 py-2.5 ring-1 ring-black/5 backdrop-blur-md"
       aria-label="Drift 3D proximity HUD"
       onPointerDown={(event) => event.stopPropagation()}
       onTouchStart={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >
-      <p className="font-mono text-[9px] uppercase tracking-[0.28em] text-neutral-500">
-        {copy.status}
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-neutral-500">
+            {copy.status}
+          </p>
 
-      <p className="mt-2 truncate font-mono text-xs uppercase tracking-[0.18em] text-neutral-900 md:text-sm">
-        {copy.title}
-      </p>
+          <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-900">
+            {copy.title}
+          </p>
+        </div>
 
-      <p className="mt-2 line-clamp-2 font-mono text-[9px] uppercase leading-4 tracking-[0.12em] text-neutral-600 md:text-[10px]">
+        <div className="shrink-0 text-right font-mono text-[8px] uppercase tracking-[0.16em] text-neutral-500">
+          <p>{distanceLabel}</p>
+          <p className="mt-1">{trackAvailability}</p>
+        </div>
+      </div>
+
+      <p className="mt-2 line-clamp-2 font-mono text-[8px] uppercase leading-4 tracking-[0.12em] text-neutral-600">
         {copy.detail}
       </p>
 
-      <p className="mt-1 line-clamp-2 font-mono text-[8px] uppercase leading-4 tracking-[0.12em] text-neutral-500 md:text-[9px]">
+      <p className="mt-1 line-clamp-2 font-mono text-[7px] uppercase leading-4 tracking-[0.12em] text-neutral-500">
         {copy.note}
       </p>
 
-      <div className="mt-3 flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.16em] text-neutral-500 md:text-[9px]">
-        <span>{distanceLabel}</span>
-        <span>{trackAvailability}</span>
+      <div className="mt-2 h-px overflow-hidden bg-neutral-200/80" aria-hidden="true">
+        <span
+          className="block h-full bg-neutral-700/80"
+          style={{ width: `${progressPercent}%` }}
+        />
       </div>
-
-      {prefersReducedMotion ? (
-        <p className="mt-2 font-mono text-[8px] uppercase leading-3 tracking-[0.16em] text-neutral-500 md:text-[9px]">
-          List path below
-        </p>
-      ) : null}
 
       {activeTrack && proximity?.isInside ? (
         <>
-          <div className="mt-3 border-t border-neutral-200/80 pt-3">
+          <div className="mt-3 border-t border-white/55 pt-2.5">
             <div className="flex items-start justify-between gap-3">
-              <p className="font-mono text-[10px] uppercase leading-4 tracking-[0.18em] text-neutral-900 md:text-[11px]">
+              <p className="font-mono text-[9px] uppercase leading-4 tracking-[0.18em] text-neutral-900">
                 {activeTrack.title}
               </p>
 
               {activeTrackMeta.length ? (
-                <p className="shrink-0 text-right font-mono text-[7px] uppercase leading-3 tracking-[0.14em] text-neutral-500 md:text-[8px]">
+                <p className="shrink-0 text-right font-mono text-[7px] uppercase leading-3 tracking-[0.14em] text-neutral-500">
                   {activeTrackMeta.join(" / ")}
                 </p>
               ) : null}
             </div>
 
             {activeTrackTags.length ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-1.5 flex flex-wrap gap-1">
                 {activeTrackTags.map((tag) => (
                   <span
                     key={tag}
-                    className="border border-neutral-300/70 bg-white/45 px-1.5 py-0.5 font-mono text-[6px] uppercase tracking-[0.14em] text-neutral-600 md:text-[7px]"
+                    className="border border-white/60 bg-white/35 px-1.5 py-0.5 font-mono text-[6px] uppercase tracking-[0.14em] text-neutral-600"
                   >
                     {tag}
                   </span>
@@ -159,12 +162,12 @@ export default function Drift3DHud({
               </div>
             ) : null}
 
-            <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-neutral-600 md:text-[11px]">
+            <p className="mt-1.5 line-clamp-2 text-[9px] leading-4 text-neutral-600">
               {activeTrack.shortText}
             </p>
           </div>
 
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
             <button
               type="button"
               onClick={(event) => {
@@ -176,7 +179,7 @@ export default function Drift3DHud({
               onPointerMove={(event) => event.stopPropagation()}
               onPointerUp={(event) => event.stopPropagation()}
               onPointerCancel={(event) => event.stopPropagation()}
-              className="pointer-events-auto inline-flex min-h-9 items-center justify-center border border-neutral-400/70 bg-neutral-900 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
+              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-400/50 bg-neutral-900/88 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
               aria-label={`${actionLabel} ${activeTrack.title} from ${
                 proximity.activeZone?.label ?? "active zone"
               }`}
@@ -191,7 +194,7 @@ export default function Drift3DHud({
               onPointerMove={(event) => event.stopPropagation()}
               onPointerUp={(event) => event.stopPropagation()}
               onPointerCancel={(event) => event.stopPropagation()}
-              className="pointer-events-auto inline-flex min-h-9 items-center justify-center border border-neutral-300/80 bg-white/70 px-3 py-2 text-center font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-800 transition hover:bg-white hover:text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900/25"
+              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-white/70 bg-white/65 px-3 py-1.5 text-center font-mono text-[8px] uppercase tracking-[0.18em] text-neutral-800 transition hover:bg-white hover:text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900/25"
               aria-label={`Open ${activeTrack.title} track page`}
             >
               OPEN NODE
@@ -199,16 +202,6 @@ export default function Drift3DHud({
           </div>
         </>
       ) : null}
-
-      <div
-        className="mt-2 h-px overflow-hidden bg-neutral-200"
-        aria-hidden="true"
-      >
-        <span
-          className="block h-full bg-neutral-700"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
     </aside>
   );
 }

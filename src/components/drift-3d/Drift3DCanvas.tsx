@@ -17,14 +17,16 @@ type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
   isPlaying: boolean;
   toggleTrack: (track: Track) => void;
-  prefersReducedMotion: boolean;
+  currentTrack: Track | null;
+  togglePlayback: () => void;
 };
 
 export default function Drift3DCanvas({
   isCurrentTrack,
   isPlaying,
   toggleTrack,
-  prefersReducedMotion,
+  currentTrack,
+  togglePlayback,
 }: Drift3DCanvasProps) {
   const [proximity, setProximity] = useState<Drift3DZoneProximity | null>(
     null
@@ -46,6 +48,10 @@ export default function Drift3DCanvas({
     ? isCurrentTrack(activeTrack)
     : false;
   const isActiveTrackPlaying = isActiveTrackCurrent && isPlaying;
+  const showPersistentAudioChip =
+    Boolean(currentTrack) &&
+    (!proximity?.isInside ||
+      proximity.activeZone?.trackSlug !== currentTrack?.slug);
 
   function handleToggleActiveTrack() {
     if (!activeTrack) {
@@ -97,10 +103,41 @@ export default function Drift3DCanvas({
             isActiveTrackCurrent={isActiveTrackCurrent}
             isActiveTrackPlaying={isActiveTrackPlaying}
             onToggleActiveTrack={handleToggleActiveTrack}
-            prefersReducedMotion={prefersReducedMotion}
           />
         </div>
       </div>
+
+      {showPersistentAudioChip && currentTrack ? (
+        <div className="pointer-events-none absolute inset-x-4 bottom-16 z-20 flex justify-center md:inset-x-6 md:bottom-6">
+          <div className="pointer-events-auto inline-flex max-w-[min(92vw,24rem)] items-center gap-3 rounded-full bg-white/36 px-3 py-2.5 text-neutral-950 ring-1 ring-black/5 backdrop-blur-md">
+            <div className="min-w-0">
+              <p className="font-mono text-[8px] uppercase tracking-[0.28em] text-neutral-500">
+                {isPlaying ? "NOW PLAYING" : "TRACK HELD"}
+              </p>
+              <p className="truncate font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-900">
+                {currentTrack.title}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                togglePlayback();
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerMove={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onPointerCancel={(event) => event.stopPropagation()}
+              className="pointer-events-auto inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-neutral-300/80 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+              aria-label={isPlaying ? "Pause current track" : "Resume current track"}
+            >
+              {isPlaying ? "PAUSE" : "RESUME"}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
