@@ -98,7 +98,7 @@ export function scaleDriftZoneRadius(
 ) {
   const worldRadius = radius * (DRIFT_3D_PLANE_WIDTH / bounds.width);
 
-  return Math.min(Math.max(worldRadius * 0.68, 0.58), 1.05);
+  return Math.min(Math.max(worldRadius * 0.76, 0.68), 1.3);
 }
 
 export function getDrift3DZoneTransform(

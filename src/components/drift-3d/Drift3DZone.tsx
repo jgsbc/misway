@@ -221,7 +221,7 @@ export default function Drift3DZone({
   });
   const tone = biomeMaterial[zone.biome];
   const isEntry = zone.trackSlug === null;
-  const scale = toneState === "active" ? 1.08 : toneState === "nearest" ? 1.04 : 1;
+  const scale = toneState === "active" ? 1.12 : toneState === "nearest" ? 1.06 : 1;
 
   return (
     <group
