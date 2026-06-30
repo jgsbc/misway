@@ -47,6 +47,12 @@ export type Drift3DMovementBounds = {
 
 export type Drift3DZoneToneState = "neutral" | "nearest" | "active";
 
+export type Drift3DDriveInput = {
+  throttle: number;
+  steer: number;
+  active: boolean;
+};
+
 export type Drift3DZoneProximity = {
   nearestZone: DriftZoneConfig | null;
   activeZone: DriftZoneConfig | null;
@@ -165,13 +171,30 @@ export function approachDrift3DPoint(
   };
 }
 
-export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
-  const x =
-    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
-    (activeCodes.has("ArrowLeft") || activeCodes.has("KeyA") ? 1 : 0);
-  const z =
+export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
+  const throttle =
     (activeCodes.has("ArrowUp") || activeCodes.has("KeyW") ? 1 : 0) -
     (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0);
+  const steer =
+    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
+    (activeCodes.has("ArrowLeft") || activeCodes.has("KeyA") ? 1 : 0);
+
+  return {
+    throttle,
+    steer,
+    active: throttle !== 0 || steer !== 0,
+  } satisfies Drift3DDriveInput;
+}
+
+export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
+  const driveInput = getDrift3DDriveInput(activeCodes);
+
+  if (!driveInput.active || driveInput.throttle === 0) {
+    return { x: 0, z: 0, active: false };
+  }
+
+  const x = driveInput.steer;
+  const z = driveInput.throttle;
   const length = Math.hypot(x, z);
 
   if (length === 0) {
@@ -197,6 +220,13 @@ export function getDrift3DYawFromVector(vector: { x: number; z: number }) {
   return Math.atan2(vector.x, vector.z);
 }
 
+export function getDrift3DHeadingVector(yaw: number) {
+  return {
+    x: Math.sin(yaw),
+    z: Math.cos(yaw),
+  };
+}
+
 export function approachDrift3DAngle(
   current: number,
   target: number,
@@ -211,21 +241,18 @@ export function getDrift3DFollowCameraRig(
   vehiclePosition: Drift3DPoint,
   yaw: number
 ): Drift3DFollowCameraRig {
-  const forwardX = Math.sin(yaw);
-  const forwardZ = Math.cos(yaw);
-  const sideX = Math.cos(yaw);
-  const sideZ = -Math.sin(yaw);
+  const forward = getDrift3DHeadingVector(yaw);
 
   return {
     position: {
-      x: vehiclePosition.x - forwardX * 5.6 + sideX * 0.9,
-      y: vehiclePosition.y + 5.4,
-      z: vehiclePosition.z - forwardZ * 5.6 + sideZ * 0.9,
+      x: vehiclePosition.x - forward.x * 5.4,
+      y: vehiclePosition.y + 5.85,
+      z: vehiclePosition.z - forward.z * 5.4,
     },
     target: {
-      x: vehiclePosition.x + forwardX * 0.78,
-      y: vehiclePosition.y + 0.42,
-      z: vehiclePosition.z + forwardZ * 0.78,
+      x: vehiclePosition.x + forward.x * 1.2,
+      y: vehiclePosition.y + 0.5,
+      z: vehiclePosition.z + forward.z * 1.2,
     },
   };
 }

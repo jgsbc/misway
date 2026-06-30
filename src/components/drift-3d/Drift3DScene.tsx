@@ -12,12 +12,10 @@ import { driftMapConfig } from "@/lib/driftMap";
 import {
   DRIFT_3D_PLANE_DEPTH,
   DRIFT_3D_PLANE_WIDTH,
-  approachDrift3DAngle,
   approachDrift3DPoint,
   clampDrift3DPoint,
-  getDrift3DKeyboardVector,
+  getDrift3DDriveInput,
   getDrift3DFollowCameraRig,
-  getDrift3DYawFromVector,
   getDrift3DZoneProximity,
   getDrift3DZoneToneState,
   getDrift3DVehicleStartPosition,
@@ -171,12 +169,14 @@ function KeyboardVehicleMotion({
   const invalidate = useThree((state) => state.invalidate);
   const positionRef = useRef(startPosition);
   const yawRef = useRef(0);
+  const speedRef = useRef(0);
   const pressedKeysRef = useRef<Set<string>>(new Set());
   const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
 
   useEffect(() => {
     positionRef.current = { ...startPosition };
     yawRef.current = 0;
+    speedRef.current = 0;
     vehicleStateRef.current.position = { ...startPosition };
     vehicleStateRef.current.yaw = 0;
     vehicleRef.current?.position.set(
@@ -209,6 +209,7 @@ function KeyboardVehicleMotion({
       }
 
       pressedKeysRef.current.clear();
+      speedRef.current = 0;
       invalidate();
     }
 
@@ -269,13 +270,15 @@ function KeyboardVehicleMotion({
       return;
     }
 
-    const input = getDrift3DKeyboardVector(pressedKeysRef.current);
+    const input = getDrift3DDriveInput(pressedKeysRef.current);
     if (!input.active) {
       return;
     }
 
-    const targetYaw = getDrift3DYawFromVector(input);
-    const nextYaw = approachDrift3DAngle(yawRef.current, targetYaw, 0.2);
+    const turnRate = input.throttle !== 0 ? 2.18 : 1.82;
+    const driveSpeed =
+      input.throttle > 0 ? 3.28 : input.throttle < 0 ? -2.18 : 0;
+    const nextYaw = yawRef.current + input.steer * turnRate * delta;
     const yawChanged = Math.abs(nextYaw - yawRef.current) > 0.0005;
 
     if (yawChanged) {
@@ -284,33 +287,37 @@ function KeyboardVehicleMotion({
       vehicle.rotation.setY(nextYaw);
     }
 
+    speedRef.current = driveSpeed;
+    const headingX = Math.sin(yawRef.current);
+    const headingZ = Math.cos(yawRef.current);
     const next = clampDrift3DPoint({
-      x: positionRef.current.x + input.x * 2.15 * delta,
+      x: positionRef.current.x + headingX * speedRef.current * delta,
       y: positionRef.current.y,
-      z: positionRef.current.z + input.z * 2.15 * delta,
+      z: positionRef.current.z + headingZ * speedRef.current * delta,
     });
     const moved =
       next.x !== positionRef.current.x || next.z !== positionRef.current.z;
 
-    if (!moved) {
-      if (yawChanged) {
-        invalidate();
+    if (moved) {
+      positionRef.current = next;
+      vehicleStateRef.current.position = next;
+      vehicle.position.set(next.x, next.y, next.z);
+      const nextProximity = getDrift3DZoneProximity(next, zones, bounds);
+
+      if (
+        !areDrift3DProximitySnapshotsEqual(
+          lastProximityRef.current,
+          nextProximity
+        )
+      ) {
+        lastProximityRef.current = nextProximity;
+        onProximityChange?.(nextProximity);
       }
-
-      return;
     }
 
-    positionRef.current = next;
-    vehicleStateRef.current.position = next;
-    vehicle.position.set(next.x, next.y, next.z);
-    const nextProximity = getDrift3DZoneProximity(next, zones, bounds);
-
-    if (!areDrift3DProximitySnapshotsEqual(lastProximityRef.current, nextProximity)) {
-      lastProximityRef.current = nextProximity;
-      onProximityChange?.(nextProximity);
+    if (moved || yawChanged) {
+      invalidate();
     }
-
-    invalidate();
   });
 
   return null;

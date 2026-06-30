@@ -122,10 +122,10 @@ export default function Drift3DClient() {
 
       <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(88vw,15rem)] md:left-6 md:top-6">
         <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
-          Drift 3D Lab · WASD / Arrows
+          Drift 3D Lab · Drive mode
         </p>
         <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
-          Move the capsule. Zones listen only on click.
+          W/S drive · A/D steer. Zones listen only on click.
         </p>
       </div>
 
