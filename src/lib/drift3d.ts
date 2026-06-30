@@ -173,11 +173,19 @@ export function approachDrift3DPoint(
 
 export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
   const throttle =
-    (activeCodes.has("ArrowUp") || activeCodes.has("KeyW") ? 1 : 0) -
+    (activeCodes.has("ArrowUp") ||
+    activeCodes.has("KeyW") ||
+    activeCodes.has("KeyZ")
+      ? 1
+      : 0) -
     (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0);
   const steer =
-    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
-    (activeCodes.has("ArrowLeft") || activeCodes.has("KeyA") ? 1 : 0);
+    (activeCodes.has("ArrowLeft") ||
+    activeCodes.has("KeyA") ||
+    activeCodes.has("KeyQ")
+      ? 1
+      : 0) -
+    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0);
 
   return {
     throttle,
@@ -245,14 +253,14 @@ export function getDrift3DFollowCameraRig(
 
   return {
     position: {
-      x: vehiclePosition.x - forward.x * 5.4,
-      y: vehiclePosition.y + 5.85,
-      z: vehiclePosition.z - forward.z * 5.4,
+      x: vehiclePosition.x - forward.x * 4.85,
+      y: vehiclePosition.y + 6.1,
+      z: vehiclePosition.z - forward.z * 4.85,
     },
     target: {
-      x: vehiclePosition.x + forward.x * 1.2,
-      y: vehiclePosition.y + 0.5,
-      z: vehiclePosition.z + forward.z * 1.2,
+      x: vehiclePosition.x + forward.x * 1.05,
+      y: vehiclePosition.y + 0.52,
+      z: vehiclePosition.z + forward.z * 1.05,
     },
   };
 }

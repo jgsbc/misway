@@ -125,7 +125,7 @@ export default function Drift3DClient() {
           Drift 3D Lab · Drive mode
         </p>
         <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
-          W/S drive · A/D steer. Zones listen only on click.
+          ZQSD / WASD / ARROWS. Zones listen only on click.
         </p>
       </div>
 

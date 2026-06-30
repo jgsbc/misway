@@ -12,7 +12,6 @@ import { driftMapConfig } from "@/lib/driftMap";
 import {
   DRIFT_3D_PLANE_DEPTH,
   DRIFT_3D_PLANE_WIDTH,
-  approachDrift3DPoint,
   clampDrift3DPoint,
   getDrift3DDriveInput,
   getDrift3DFollowCameraRig,
@@ -75,16 +74,8 @@ function FollowCameraRig({
       vehicleState.position,
       vehicleState.yaw
     );
-    const nextPosition = approachDrift3DPoint(
-      cameraPositionRef.current ?? desiredRig.position,
-      desiredRig.position,
-      0.12
-    );
-    const nextTarget = approachDrift3DPoint(
-      cameraTargetRef.current ?? desiredRig.target,
-      desiredRig.target,
-      0.14
-    );
+    const nextPosition = desiredRig.position;
+    const nextTarget = desiredRig.target;
     const positionChanged =
       !cameraPositionRef.current ||
       Math.abs(cameraPositionRef.current.x - nextPosition.x) > 0.001 ||
@@ -119,6 +110,8 @@ const movementCodes = new Set([
   "KeyA",
   "KeyS",
   "KeyD",
+  "KeyZ",
+  "KeyQ",
 ]);
 
 function isEditableTarget(target: EventTarget | null) {
