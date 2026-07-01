@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import "./light-theme.css";
@@ -7,14 +7,18 @@ import Navigation from "@/components/ui/Navigation";
 import { AudioPlayerProvider } from "@/components/audio/AudioPlayerProvider";
 import GlobalAudioPlayer from "@/components/audio/GlobalAudioPlayer";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "../../node_modules/next/dist/esm/next-devtools/server/font/geist-latin.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  display: "swap",
+  weight: "100 900",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "../../node_modules/next/dist/esm/next-devtools/server/font/geist-mono-latin.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  weight: "100 900",
 });
 
 const siteUrl = "https://jgsbc.github.io/misway";

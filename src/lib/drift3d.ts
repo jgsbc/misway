@@ -53,6 +53,23 @@ export type Drift3DDriveInput = {
   active: boolean;
 };
 
+export type Drift3DDragPoint = {
+  x: number;
+  y: number;
+};
+
+export type Drift3DPointerDriveState = {
+  active: boolean;
+  pointerId: number | null;
+  origin: Drift3DDragPoint | null;
+  input: Drift3DDriveInput;
+};
+
+export type Drift3DDragDriveOptions = {
+  deadZone?: number;
+  maxDistance?: number;
+};
+
 export type Drift3DZoneProximity = {
   nearestZone: DriftZoneConfig | null;
   activeZone: DriftZoneConfig | null;
@@ -197,6 +214,46 @@ export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
 
 export function getDrift3DKeyboardVector(activeCodes: ReadonlySet<string>) {
   return getDrift3DDriveInput(activeCodes);
+}
+
+export function getDrift3DDragDriveInput(
+  origin: Drift3DDragPoint,
+  current: Drift3DDragPoint,
+  options: Drift3DDragDriveOptions = {}
+) {
+  const deadZone = Math.max(0, options.deadZone ?? 14);
+  const maxDistance = Math.max(deadZone + 1, options.maxDistance ?? 120);
+  const deltaX = current.x - origin.x;
+  const deltaY = current.y - origin.y;
+  const distance = Math.hypot(deltaX, deltaY);
+
+  if (distance <= deadZone) {
+    return {
+      x: 0,
+      z: 0,
+      active: false,
+    } satisfies Drift3DDriveInput;
+  }
+
+  const magnitude = clamp(
+    (distance - deadZone) / (maxDistance - deadZone),
+    0,
+    1
+  );
+  const scale = distance === 0 ? 0 : magnitude / distance;
+
+  return {
+    x: clamp(deltaX * scale, -1, 1),
+    z: clamp(deltaY * scale, -1, 1),
+    active: magnitude > 0,
+  } satisfies Drift3DDriveInput;
+}
+
+export function resolveDrift3DDriveInput(
+  keyboardInput: Drift3DDriveInput,
+  pointerInput: Drift3DDriveInput
+) {
+  return keyboardInput.active ? keyboardInput : pointerInput;
 }
 
 function normalizeDrift3DAngle(angle: number) {

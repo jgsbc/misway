@@ -100,8 +100,9 @@ export default function Drift3DClient() {
       <p id="drift-3d-description" className="sr-only">
         Experimental fullscreen 3D preview with a pale plane, eight Drift zone
         landmarks, a follow camera, a compact proximity HUD, and a small
-        capsule vehicle that moves with the keyboard. Playable zones expose an
-        explicit audio button and nothing plays on its own.
+        capsule vehicle that moves with the keyboard, mouse drag, or touch
+        drag. Playable zones expose an explicit audio button and nothing plays
+        on its own.
       </p>
 
       <div className="absolute inset-0">
@@ -125,7 +126,7 @@ export default function Drift3DClient() {
           Drift 3D Lab · Move mode
         </p>
         <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
-          ZQSD / WASD / ARROWS to move. Zones listen only on click.
+          ZQSD / WASD / ARROWS / DRAG to move. Zones listen only on click.
         </p>
       </div>
 

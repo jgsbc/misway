@@ -14,6 +14,7 @@ import {
   DRIFT_3D_PLANE_WIDTH,
   clampDrift3DPoint,
   getDrift3DDriveInput,
+  resolveDrift3DDriveInput,
   getDrift3DFollowCameraRig,
   getDrift3DZoneProximity,
   getDrift3DZoneToneState,
@@ -21,6 +22,7 @@ import {
   approachDrift3DAngle,
   getDrift3DVehicleStartPosition,
   type Drift3DPoint,
+  type Drift3DPointerDriveState,
   type Drift3DZoneProximity,
 } from "@/lib/drift3d";
 
@@ -136,6 +138,7 @@ function areDrift3DProximitySnapshotsEqual(
 function KeyboardVehicleMotion({
   vehicleRef,
   vehicleStateRef,
+  pointerDriveStateRef,
   startPosition,
   bounds,
   zones,
@@ -143,6 +146,7 @@ function KeyboardVehicleMotion({
 }: {
   vehicleRef: RefObject<Drift3DVehicleHandle | null>;
   vehicleStateRef: MutableRefObject<Drift3DVehicleMotionState>;
+  pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
   startPosition: { x: number; y: number; z: number };
   bounds: { width: number; height: number };
   zones: typeof driftMapConfig.zones;
@@ -248,7 +252,9 @@ function KeyboardVehicleMotion({
       return;
     }
 
-    const input = getDrift3DDriveInput(pressedKeysRef.current);
+    const keyboardInput = getDrift3DDriveInput(pressedKeysRef.current);
+    const pointerInput = pointerDriveStateRef.current.input;
+    const input = resolveDrift3DDriveInput(keyboardInput, pointerInput);
     if (!input.active) {
       return;
     }
@@ -306,11 +312,13 @@ function KeyboardVehicleMotion({
 type Drift3DSceneProps = {
   proximity: Drift3DZoneProximity | null;
   onProximityChange?: (proximity: Drift3DZoneProximity) => void;
+  pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
 };
 
 export default function Drift3DScene({
   proximity,
   onProximityChange,
+  pointerDriveStateRef,
 }: Drift3DSceneProps) {
   const { width, height, zones } = driftMapConfig;
   const worldScale = DRIFT_3D_PLANE_WIDTH / 16;
@@ -396,6 +404,7 @@ export default function Drift3DScene({
       <KeyboardVehicleMotion
         vehicleRef={vehicleRef}
         vehicleStateRef={vehicleStateRef}
+        pointerDriveStateRef={pointerDriveStateRef}
         startPosition={vehicleStartPosition}
         bounds={worldBounds}
         zones={zones}

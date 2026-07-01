@@ -1,15 +1,21 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type {
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import type { Track } from "@/lib/tracks";
 import { getTrackForDriftZone } from "@/lib/driftMap";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import Drift3DScene from "@/components/drift-3d/Drift3DScene";
 import { driftMapConfig } from "@/lib/driftMap";
 import {
+  getDrift3DDragDriveInput,
   getDrift3DFollowCameraRig,
   getDrift3DVehicleStartPosition,
+  type Drift3DPointerDriveState,
   type Drift3DZoneProximity,
 } from "@/lib/drift3d";
 
@@ -31,6 +37,17 @@ export default function Drift3DCanvas({
   const [proximity, setProximity] = useState<Drift3DZoneProximity | null>(
     null
   );
+  const invalidateRef = useRef<(() => void) | null>(null);
+  const pointerDriveStateRef = useRef<Drift3DPointerDriveState>({
+    active: false,
+    pointerId: null,
+    origin: null,
+    input: {
+      x: 0,
+      z: 0,
+      active: false,
+    },
+  });
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition({
       width: driftMapConfig.width,
@@ -39,6 +56,196 @@ export default function Drift3DCanvas({
 
     return getDrift3DFollowCameraRig(startPosition);
   }, []);
+
+  useEffect(() => {
+    function releasePointerDriveState() {
+      const pointerDriveState = pointerDriveStateRef.current;
+
+      if (
+        !pointerDriveState.active &&
+        !pointerDriveState.input.active &&
+        pointerDriveState.pointerId === null &&
+        pointerDriveState.origin === null
+      ) {
+        return;
+      }
+
+      pointerDriveStateRef.current = {
+        active: false,
+        pointerId: null,
+        origin: null,
+        input: {
+          x: 0,
+          z: 0,
+          active: false,
+        },
+      };
+      invalidateRef.current?.();
+    }
+
+    window.addEventListener("blur", releasePointerDriveState);
+    document.addEventListener("visibilitychange", releasePointerDriveState);
+
+    return () => {
+      window.removeEventListener("blur", releasePointerDriveState);
+      document.removeEventListener("visibilitychange", releasePointerDriveState);
+    };
+  }, []);
+
+  function setPointerDriveInput(
+    pointerId: number,
+    clientX: number,
+    clientY: number
+  ) {
+    const pointerDriveState = pointerDriveStateRef.current;
+
+    if (pointerDriveState.pointerId !== pointerId || !pointerDriveState.origin) {
+      return;
+    }
+
+    const nextInput = getDrift3DDragDriveInput(pointerDriveState.origin, {
+      x: clientX,
+      y: clientY,
+    });
+    const nextState: Drift3DPointerDriveState = {
+      active: nextInput.active,
+      pointerId,
+      origin: pointerDriveState.origin,
+      input: nextInput.active
+        ? nextInput
+        : {
+            x: 0,
+            z: 0,
+            active: false,
+          },
+    };
+
+    const changed =
+      nextState.active !== pointerDriveState.active ||
+      nextState.input.active !== pointerDriveState.input.active ||
+      Math.abs(nextState.input.x - pointerDriveState.input.x) > 0.001 ||
+      Math.abs(nextState.input.z - pointerDriveState.input.z) > 0.001;
+
+    if (!changed) {
+      return;
+    }
+
+    pointerDriveStateRef.current = nextState;
+    invalidateRef.current?.();
+  }
+
+  function clearPointerDriveInput(pointerId?: number) {
+    const pointerDriveState = pointerDriveStateRef.current;
+
+    if (
+      pointerId !== undefined &&
+      pointerDriveState.pointerId !== null &&
+      pointerDriveState.pointerId !== pointerId
+    ) {
+      return;
+    }
+
+    if (
+      !pointerDriveState.active &&
+      !pointerDriveState.input.active &&
+      pointerDriveState.pointerId === null &&
+      pointerDriveState.origin === null
+    ) {
+      return;
+    }
+
+    pointerDriveStateRef.current = {
+      active: false,
+      pointerId: null,
+      origin: null,
+      input: {
+        x: 0,
+        z: 0,
+        active: false,
+      },
+    };
+    invalidateRef.current?.();
+  }
+
+  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (
+      event.button !== 0 ||
+      event.defaultPrevented ||
+      pointerDriveStateRef.current.pointerId !== null
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    pointerDriveStateRef.current = {
+      active: false,
+      pointerId: event.pointerId,
+      origin: { x: event.clientX, y: event.clientY },
+      input: {
+        x: 0,
+        z: 0,
+        active: false,
+      },
+    };
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Ignore pointer capture errors on unsupported or synthetic sequences.
+    }
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    setPointerDriveInput(event.pointerId, event.clientX, event.clientY);
+  }
+
+  function handlePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // Ignore pointer capture errors on unsupported or synthetic sequences.
+    }
+
+    clearPointerDriveInput(event.pointerId);
+  }
+
+  function handlePointerCancel(event: ReactPointerEvent<HTMLDivElement>) {
+    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch {
+      // Ignore pointer capture errors on unsupported or synthetic sequences.
+    }
+
+    clearPointerDriveInput(event.pointerId);
+  }
+
+  function handleClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   const activeTrack = useMemo(
     () =>
       proximity?.activeZone ? getTrackForDriftZone(proximity.activeZone) : null,
@@ -64,12 +271,15 @@ export default function Drift3DCanvas({
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#f5f0e7]">
       <section
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-auto absolute inset-0"
         aria-label="Experimental Drift 3D preview"
         aria-describedby="drift-3d-description"
       >
         <Canvas
           className="absolute inset-0"
+          onCreated={({ invalidate }) => {
+            invalidateRef.current = invalidate;
+          }}
           camera={{
             position: [
               initialCameraRig.position.x,
@@ -87,12 +297,27 @@ export default function Drift3DCanvas({
             alpha: true,
             powerPreference: "high-performance",
           }}
-        >
+          >
           <Drift3DScene
             proximity={proximity}
             onProximityChange={setProximity}
+            pointerDriveStateRef={pointerDriveStateRef}
           />
         </Canvas>
+
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-10 touch-none cursor-grab select-none"
+          onPointerDownCapture={handlePointerDown}
+          onPointerMoveCapture={handlePointerMove}
+          onPointerUpCapture={handlePointerUp}
+          onPointerCancelCapture={handlePointerCancel}
+          onClickCapture={handleClickCapture}
+          onContextMenu={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        />
       </section>
 
       <div className="pointer-events-none absolute right-4 top-4 z-20 max-w-[min(92vw,24rem)] md:right-6 md:top-6">
