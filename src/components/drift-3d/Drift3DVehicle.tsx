@@ -17,6 +17,7 @@ type Drift3DVehicleProps = {
 
 const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
   function Drift3DVehicle({ initialPosition }, ref) {
+    const vehicleLift = 0.26;
     const vehicleGroupRef = useRef<{
       position: {
         set: (x: number, y: number, z: number) => void;
@@ -71,9 +72,10 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
       <group
         ref={vehicleGroupRef as never}
         scale={1.34}
+        renderOrder={10}
         aria-hidden="true"
       >
-        <mesh position={[0, 0.15, 0]}>
+        <mesh position={[0, 0.15 + vehicleLift, 0]}>
           <capsuleGeometry args={[0.18, 0.74, 6, 10]} />
           <meshStandardMaterial
             color="#bdb0a1"
@@ -82,22 +84,22 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
           />
         </mesh>
 
-        <mesh position={[0.09, 0.2, 0.08]} rotation={[0, -0.12, 0]}>
+        <mesh position={[0.09, 0.2 + vehicleLift, 0.08]} rotation={[0, -0.12, 0]}>
           <boxGeometry args={[0.21, 0.11, 0.18]} />
           <meshStandardMaterial color="#f6f0e7" roughness={0.78} />
         </mesh>
 
-        <mesh position={[-0.03, 0.29, -0.08]}>
+        <mesh position={[-0.03, 0.29 + vehicleLift, -0.08]}>
           <sphereGeometry args={[0.078, 10, 8]} />
           <meshStandardMaterial color="#d7d0c4" roughness={0.66} />
         </mesh>
 
-        <mesh position={[-0.18, 0.04, 0.07]} rotation={[0, 0.14, Math.PI / 2]}>
+        <mesh position={[-0.18, 0.04 + vehicleLift, 0.07]} rotation={[0, 0.14, Math.PI / 2]}>
           <cylinderGeometry args={[0.016, 0.016, 0.3, 6]} />
           <meshStandardMaterial color="#786e61" roughness={0.82} />
         </mesh>
 
-        <mesh position={[-0.18, 0.3, 0.07]}>
+        <mesh position={[-0.18, 0.3 + vehicleLift, 0.07]}>
           <sphereGeometry args={[0.042, 10, 8]} />
           <meshStandardMaterial
             color="#fff3c8"
@@ -107,7 +109,7 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
           />
         </mesh>
 
-        <group position={[0, 0.34, -0.03]}>
+        <group position={[0, 0.34 + vehicleLift, -0.03]}>
           <mesh position={[-0.072, 0, 0]} rotation={[0, 0, 0.38]}>
             <boxGeometry args={[0.02, 0.22, 0.02]} />
             <meshStandardMaterial color="#9d9486" roughness={0.8} />
@@ -122,12 +124,12 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
           </mesh>
         </group>
 
-        <mesh position={[0.01, 0.03, -0.19]} rotation={[Math.PI / 2, 0, 0]}>
+        <mesh position={[0.01, 0.03 + vehicleLift, -0.19]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.12, 0.011, 8, 22]} />
           <meshStandardMaterial color="#c4b8a7" roughness={0.86} />
         </mesh>
 
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01 + vehicleLift, 0]}>
           <ringGeometry args={[0.18, 0.26, 24]} />
           <meshStandardMaterial color="#c2b59f" roughness={0.9} />
         </mesh>

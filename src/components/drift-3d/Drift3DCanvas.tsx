@@ -5,12 +5,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
+  WheelEvent as ReactWheelEvent,
 } from "react";
 import type { Track } from "@/lib/tracks";
 import { getTrackBySlug } from "@/lib/tracks";
 import Drift3DScene from "@/components/drift-3d/Drift3DScene";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import {
+  DRIFT_3D_CAMERA_MAX_SCALE,
+  DRIFT_3D_CAMERA_MIN_SCALE,
   getDrift3DDragDriveInput,
   getDrift3DFollowCameraRig,
   getDrift3DVehicleStartPosition,
@@ -36,7 +39,7 @@ export default function Drift3DCanvas({
   const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(
     null
   );
-  const invalidateRef = useRef<(() => void) | null>(null);
+  const cameraZoomTargetRef = useRef(1);
   const pointerDriveStateRef = useRef<Drift3DPointerDriveState>({
     active: false,
     pointerId: null,
@@ -50,8 +53,29 @@ export default function Drift3DCanvas({
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
 
-    return getDrift3DFollowCameraRig(startPosition);
+    return getDrift3DFollowCameraRig(startPosition, 1);
   }, []);
+
+  function setCameraZoomValue(nextZoom: number) {
+    const clamped = Math.min(
+      Math.max(nextZoom, DRIFT_3D_CAMERA_MIN_SCALE),
+      DRIFT_3D_CAMERA_MAX_SCALE
+    );
+
+    if (Math.abs(clamped - cameraZoomTargetRef.current) < 0.001) {
+      return;
+    }
+
+    cameraZoomTargetRef.current = clamped;
+  }
+
+  function handleWheelCapture(event: ReactWheelEvent<HTMLElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const nextZoom = cameraZoomTargetRef.current + event.deltaY * 0.0011;
+    setCameraZoomValue(nextZoom);
+  }
 
   useEffect(() => {
     function releasePointerDriveState() {
@@ -76,7 +100,6 @@ export default function Drift3DCanvas({
           active: false,
         },
       };
-      invalidateRef.current?.();
     }
 
     window.addEventListener("blur", releasePointerDriveState);
@@ -127,7 +150,6 @@ export default function Drift3DCanvas({
     }
 
     pointerDriveStateRef.current = nextState;
-    invalidateRef.current?.();
   }
 
   function clearPointerDriveInput(pointerId?: number) {
@@ -160,7 +182,6 @@ export default function Drift3DCanvas({
         active: false,
       },
     };
-    invalidateRef.current?.();
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
@@ -278,9 +299,6 @@ export default function Drift3DCanvas({
       >
         <Canvas
           className="absolute inset-0"
-          onCreated={({ invalidate }) => {
-            invalidateRef.current = invalidate;
-          }}
           camera={{
             position: [
               initialCameraRig.position.x,
@@ -289,10 +307,10 @@ export default function Drift3DCanvas({
             ],
             fov: 28,
             near: 0.1,
-            far: 80,
+            far: 200,
           }}
           dpr={[1, 1.5]}
-          frameloop="demand"
+          frameloop="always"
           gl={{
             antialias: true,
             alpha: true,
@@ -303,6 +321,7 @@ export default function Drift3DCanvas({
             proximity={proximity}
             onProximityChange={setProximity}
             pointerDriveStateRef={pointerDriveStateRef}
+            cameraZoomTargetRef={cameraZoomTargetRef}
           />
         </Canvas>
 
@@ -313,6 +332,7 @@ export default function Drift3DCanvas({
           onPointerMoveCapture={handlePointerMove}
           onPointerUpCapture={handlePointerUp}
           onPointerCancelCapture={handlePointerCancel}
+          onWheelCapture={handleWheelCapture}
           onClickCapture={handleClickCapture}
           onContextMenu={(event) => {
             event.preventDefault();

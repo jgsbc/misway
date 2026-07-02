@@ -5,10 +5,24 @@ import type {
   DriftZoneConfig,
 } from "@/types/drift";
 import { driftMapConfig } from "@/lib/driftMap";
-import { drift3dThresholdNode } from "@/lib/drift3dTopology";
+import {
+  DRIFT_3D_TOPOLOGY_WORLD_DEPTH,
+  DRIFT_3D_TOPOLOGY_WORLD_WIDTH,
+  drift3dThresholdNode,
+} from "@/lib/drift3dTopology";
 
-export const DRIFT_3D_PLANE_WIDTH = 160;
-export const DRIFT_3D_PLANE_DEPTH = 100;
+export const DRIFT_3D_PLANE_WIDTH = DRIFT_3D_TOPOLOGY_WORLD_WIDTH;
+export const DRIFT_3D_PLANE_DEPTH = DRIFT_3D_TOPOLOGY_WORLD_DEPTH;
+export const DRIFT_3D_FLOOR_Y = -0.08;
+export const DRIFT_3D_ZONE_MARKER_Y = -0.06;
+export const DRIFT_3D_ZONE_MARKER_HEIGHT = 0.004;
+export const DRIFT_3D_ZONE_RING_THICKNESS = 0.0035;
+export const DRIFT_3D_ZONE_CORE_HEIGHT = 0.004;
+export const DRIFT_3D_TRAVEL_Y = 0.16;
+export const DRIFT_3D_CAMERA_BASE_HEIGHT = 4.35;
+export const DRIFT_3D_CAMERA_BASE_DEPTH = 7.8;
+export const DRIFT_3D_CAMERA_MIN_SCALE = 0.82;
+export const DRIFT_3D_CAMERA_MAX_SCALE = 1.28;
 
 type DriftMapPoint = {
   x: number;
@@ -143,23 +157,27 @@ export function getDrift3DPropTransform(
 }
 
 export function getDrift3DSpawnTransform(bounds: DriftMapBounds) {
-  return mapPointToDrift3D(driftMapConfig.spawn, bounds, 0.12);
+  return mapPointToDrift3D(driftMapConfig.spawn, bounds, getDrift3DTraversalY());
+}
+
+export function getDrift3DTraversalY() {
+  return DRIFT_3D_TRAVEL_Y;
 }
 
 export function getDrift3DVehicleStartPosition() {
   return {
     x: drift3dThresholdNode.position.x + 2.15,
-    y: drift3dThresholdNode.position.y + 0.12,
+    y: getDrift3DTraversalY(),
     z: drift3dThresholdNode.position.z + 0.82,
   };
 }
 
 export function getDrift3DMovementBounds(): Drift3DMovementBounds {
   return {
-    minX: -DRIFT_3D_PLANE_WIDTH / 2 + 1.3,
-    maxX: DRIFT_3D_PLANE_WIDTH / 2 - 1.3,
-    minZ: -DRIFT_3D_PLANE_DEPTH / 2 + 1.1,
-    maxZ: DRIFT_3D_PLANE_DEPTH / 2 - 1.1,
+    minX: -DRIFT_3D_PLANE_WIDTH / 2 + 3.2,
+    maxX: DRIFT_3D_PLANE_WIDTH / 2 - 3.2,
+    minZ: -DRIFT_3D_PLANE_DEPTH / 2 + 3.2,
+    maxZ: DRIFT_3D_PLANE_DEPTH / 2 - 3.2,
   };
 }
 
@@ -168,7 +186,7 @@ export function clampDrift3DPoint(point: Drift3DPoint): Drift3DPoint {
 
   return {
     x: clamp(point.x, bounds.minX, bounds.maxX),
-    y: point.y,
+    y: getDrift3DTraversalY(),
     z: clamp(point.z, bounds.minZ, bounds.maxZ),
   };
 }
@@ -285,13 +303,16 @@ export function approachDrift3DAngle(
 }
 
 export function getDrift3DFollowCameraRig(
-  vehiclePosition: Drift3DPoint
+  vehiclePosition: Drift3DPoint,
+  cameraScale = 1
 ): Drift3DFollowCameraRig {
+  const scale = clamp(cameraScale, DRIFT_3D_CAMERA_MIN_SCALE, DRIFT_3D_CAMERA_MAX_SCALE);
+
   return {
     position: {
       x: vehiclePosition.x,
-      y: vehiclePosition.y + 4.35,
-      z: vehiclePosition.z + 7.8,
+      y: vehiclePosition.y + DRIFT_3D_CAMERA_BASE_HEIGHT * scale,
+      z: vehiclePosition.z + DRIFT_3D_CAMERA_BASE_DEPTH * scale,
     },
     target: {
       x: vehiclePosition.x,

@@ -62,6 +62,9 @@ export type Drift3DTopologyProximity = {
 
 export type Drift3DNodeToneState = "neutral" | "nearest" | "active";
 
+export const DRIFT_3D_TOPOLOGY_WORLD_WIDTH = 192;
+export const DRIFT_3D_TOPOLOGY_WORLD_DEPTH = 128;
+
 function point(x: number, y: number, z: number): Drift3DWorldPoint {
   return { x, y, z };
 }
@@ -78,13 +81,13 @@ export const drift3dEras = [
     label: "Birth Yard",
     order: 1,
     role: "macro-region",
-    center: point(-60, 0, 20),
-    radius: 28,
+    center: point(-66, 0, 18),
+    radius: 30,
     trackSlugs: ["a-walk-in-zeeland", "foolfoule", "jazzypling", "play-it"],
     topologyHints: [
-      "dense early cluster",
-      "left-origin bias",
-      "short local hops",
+      "dense urban compression",
+      "left-origin alleys",
+      "short local hops through crowd pressure",
     ],
   },
   {
@@ -92,8 +95,8 @@ export const drift3dEras = [
     label: "Older Shadows",
     order: 2,
     role: "macro-region",
-    center: point(-18, 0, -26),
-    radius: 32,
+    center: point(-26, 0, -30),
+    radius: 34,
     trackSlugs: [
       "rise",
       "blossoming",
@@ -103,8 +106,8 @@ export const drift3dEras = [
     ],
     topologyHints: [
       "open travel ridge",
-      "more negative-z depth",
-      "slower symbolic ascent",
+      "altitude and risk",
+      "scenic gaps with room to breathe",
     ],
   },
   {
@@ -112,13 +115,13 @@ export const drift3dEras = [
     label: "Vegetative Field",
     order: 3,
     role: "macro-region",
-    center: point(0, 0, 12),
-    radius: 30,
+    center: point(0, 0, 10),
+    radius: 32,
     trackSlugs: ["morne-et", "daymason", "chailk", "time", "tantitom"],
     topologyHints: [
-      "flatter horizontal spread",
-      "central routine field",
-      "low vertical clutter",
+      "flat horizontal spread",
+      "low repeated modules",
+      "long calm distances",
     ],
   },
   {
@@ -126,8 +129,8 @@ export const drift3dEras = [
     label: "New Signal",
     order: 4,
     role: "macro-region",
-    center: point(58, 0, -6),
-    radius: 40,
+    center: point(52, 0, -8),
+    radius: 46,
     trackSlugs: [
       "neektareum",
       "asitis",
@@ -141,9 +144,9 @@ export const drift3dEras = [
       "Panthere",
     ],
     topologyHints: [
-      "larger mixed region",
       "archipelago spacing",
-      "later-world contrast",
+      "night contrast and voids",
+      "sub-clusters with corridor breaks",
     ],
   },
 ] as const satisfies readonly Drift3DEraTopology[];
@@ -151,7 +154,7 @@ export const drift3dEras = [
 export const drift3dThresholdNode = {
   id: "entry-node",
   role: "threshold",
-  position: point(-76, 0, 10),
+  position: point(-88, 0, 12),
   driftZoneId: "entry-node",
   label: "Entry Node",
 } as const satisfies Drift3DThresholdNode;
@@ -206,7 +209,7 @@ export const drift3dTrackNodes = [
     trackSlug: "a-walk-in-zeeland",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-72, 0.12, 10),
+    position: point(-84, 0.12, 16),
     driftZoneId: "zeeland-road",
   },
   {
@@ -214,7 +217,7 @@ export const drift3dTrackNodes = [
     trackSlug: "foolfoule",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-79, 0.14, 22),
+    position: point(-74, 0.14, 30),
     driftZoneId: "birth-yard",
   },
   {
@@ -222,98 +225,98 @@ export const drift3dTrackNodes = [
     trackSlug: "jazzypling",
     eraId: "birth-yard",
     role: "track",
-    position: point(-68, 0.13, 32),
+    position: point(-66, 0.13, 12),
   },
   {
     id: "birth-yard-play-it",
     trackSlug: "play-it",
     eraId: "birth-yard",
     role: "track",
-    position: point(-48, 0.11, 28),
+    position: point(-58, 0.11, 24),
   },
   {
     id: "older-shadows-rise",
     trackSlug: "rise",
     eraId: "older-shadows",
     role: "track",
-    position: point(-34, 0.18, -42),
+    position: point(-52, 0.18, -54),
   },
   {
     id: "older-shadows-blossoming",
     trackSlug: "blossoming",
     eraId: "older-shadows",
     role: "track",
-    position: point(-12, 0.16, -46),
+    position: point(-34, 0.16, -48),
   },
   {
     id: "older-shadows-ethnic-stick",
     trackSlug: "ethnic-stick",
     eraId: "older-shadows",
     role: "track",
-    position: point(10, 0.14, -38),
+    position: point(-16, 0.14, -60),
   },
   {
     id: "older-shadows-minuit-moins-cinq",
     trackSlug: "minuit-moins-cinq",
     eraId: "older-shadows",
     role: "track",
-    position: point(-28, 0.15, -24),
+    position: point(-42, 0.15, -30),
   },
   {
     id: "older-shadows-perdue",
     trackSlug: "perdue",
     eraId: "older-shadows",
     role: "track",
-    position: point(2, 0.13, -18),
+    position: point(-8, 0.13, -22),
   },
   {
     id: "vegetative-field-morne-et",
     trackSlug: "morne-et",
     eraId: "vegetative-field",
     role: "track",
-    position: point(-28, 0.1, 4),
+    position: point(-30, 0.1, 2),
   },
   {
     id: "vegetative-field-daymason",
     trackSlug: "daymason",
     eraId: "vegetative-field",
     role: "track",
-    position: point(-10, 0.08, -2),
+    position: point(-8, 0.08, -6),
   },
   {
     id: "vegetative-field-chailk",
     trackSlug: "chailk",
     eraId: "vegetative-field",
     role: "track",
-    position: point(12, 0.1, 6),
+    position: point(14, 0.1, 4),
   },
   {
     id: "vegetative-field-time",
     trackSlug: "time",
     eraId: "vegetative-field",
     role: "track",
-    position: point(0, 0.12, 20),
+    position: point(2, 0.12, 20),
   },
   {
     id: "vegetative-field-tantitom",
     trackSlug: "tantitom",
     eraId: "vegetative-field",
     role: "track",
-    position: point(24, 0.1, 14),
+    position: point(30, 0.1, 12),
   },
   {
     id: "new-signal-neektareum",
     trackSlug: "neektareum",
     eraId: "new-signal",
     role: "track",
-    position: point(34, 0.16, -18),
+    position: point(28, 0.16, -22),
   },
   {
     id: "new-signal-asitis",
     trackSlug: "asitis",
     eraId: "new-signal",
     role: "anchor",
-    position: point(42, 0.12, 10),
+    position: point(42, 0.12, 8),
     driftZoneId: "plain-signal",
   },
   {
@@ -321,14 +324,14 @@ export const drift3dTrackNodes = [
     trackSlug: "relative",
     eraId: "new-signal",
     role: "track",
-    position: point(56, 0.14, -4),
+    position: point(56, 0.14, -6),
   },
   {
     id: "new-signal-overthink",
     trackSlug: "overthink",
     eraId: "new-signal",
     role: "anchor",
-    position: point(68, 0.14, 16),
+    position: point(70, 0.14, 22),
     driftZoneId: "neural-loop",
   },
   {
@@ -336,7 +339,7 @@ export const drift3dTrackNodes = [
     trackSlug: "hold-the-light",
     eraId: "new-signal",
     role: "anchor",
-    position: point(46, 0.16, -24),
+    position: point(48, 0.16, -30),
     driftZoneId: "hold-lamp",
   },
   {
@@ -344,7 +347,7 @@ export const drift3dTrackNodes = [
     trackSlug: "midnight-work",
     eraId: "new-signal",
     role: "anchor",
-    position: point(74, 0.18, -28),
+    position: point(76, 0.18, -38),
     driftZoneId: "midnight-office",
   },
   {
@@ -352,7 +355,7 @@ export const drift3dTrackNodes = [
     trackSlug: "telatelaba",
     eraId: "new-signal",
     role: "anchor",
-    position: point(78, 0.14, -2),
+    position: point(84, 0.14, -4),
     driftZoneId: "here-there-islands",
   },
   {
@@ -360,21 +363,21 @@ export const drift3dTrackNodes = [
     trackSlug: "le-monde-s-endort",
     eraId: "new-signal",
     role: "track",
-    position: point(62, 0.12, -38),
+    position: point(60, 0.12, -52),
   },
   {
     id: "new-signal-renee",
     trackSlug: "renee",
     eraId: "new-signal",
     role: "track",
-    position: point(50, 0.12, -46),
+    position: point(40, 0.12, -44),
   },
   {
     id: "new-signal-Panthere",
     trackSlug: "Panthere",
     eraId: "new-signal",
     role: "track",
-    position: point(72, 0.14, 20),
+    position: point(82, 0.14, 30),
   },
 ] as const satisfies readonly Drift3DTrackNode[];
 
@@ -486,10 +489,10 @@ export function validateDrift3DTopology(): Drift3DTopologyValidationResult {
     }
 
     if (
-      era.center.x < -80 ||
-      era.center.x > 80 ||
-      era.center.z < -50 ||
-      era.center.z > 50
+      era.center.x < -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2 ||
+      era.center.x > DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2 ||
+      era.center.z < -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2 ||
+      era.center.z > DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2
     ) {
       issues.push(`era center outside topology bounds: ${era.id}`);
     }
@@ -545,20 +548,38 @@ export function validateDrift3DTopology(): Drift3DTopologyValidationResult {
   }
 
   if (
-    drift3dThresholdNode.position.x < -80 ||
-    drift3dThresholdNode.position.x > 80 ||
-    drift3dThresholdNode.position.z < -50 ||
-    drift3dThresholdNode.position.z > 50
+    drift3dThresholdNode.position.x <
+      -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2 ||
+    drift3dThresholdNode.position.x > DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2 ||
+    drift3dThresholdNode.position.z <
+      -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2 ||
+    drift3dThresholdNode.position.z > DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2
   ) {
     issues.push("entry threshold outside topology bounds");
   }
 
-  if (!drift3dTrackNodes.every((node) => node.position.x >= -80 && node.position.x <= 80)) {
-    issues.push("one or more track nodes fall outside the 160-unit width");
+  if (
+    !drift3dTrackNodes.every(
+      (node) =>
+        node.position.x >= -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2 &&
+        node.position.x <= DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2
+    )
+  ) {
+    issues.push(
+      `one or more track nodes fall outside the ${DRIFT_3D_TOPOLOGY_WORLD_WIDTH}-unit width`
+    );
   }
 
-  if (!drift3dTrackNodes.every((node) => node.position.z >= -50 && node.position.z <= 50)) {
-    issues.push("one or more track nodes fall outside the 100-unit depth");
+  if (
+    !drift3dTrackNodes.every(
+      (node) =>
+        node.position.z >= -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2 &&
+        node.position.z <= DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2
+    )
+  ) {
+    issues.push(
+      `one or more track nodes fall outside the ${DRIFT_3D_TOPOLOGY_WORLD_DEPTH}-unit depth`
+    );
   }
 
   return {

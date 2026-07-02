@@ -6,9 +6,13 @@ import type {
   Drift3DNodeToneState,
   Drift3DRenderableNode,
 } from "@/lib/drift3dTopology";
+import { getDrift3DNodeRadius } from "@/lib/drift3dTopology";
 import {
-  getDrift3DNodeRadius,
-} from "@/lib/drift3dTopology";
+  DRIFT_3D_ZONE_CORE_HEIGHT,
+  DRIFT_3D_ZONE_MARKER_HEIGHT,
+  DRIFT_3D_ZONE_MARKER_Y,
+  DRIFT_3D_ZONE_RING_THICKNESS,
+} from "@/lib/drift3d";
 
 type Drift3DEraRegionProps = {
   era: Drift3DEraTopology;
@@ -88,70 +92,122 @@ function NodeCore({
     case "threshold":
       return (
         <group>
-          <mesh position={[0, 0.16, 0]}>
-            <cylinderGeometry args={[0.04, 0.05, 0.38, 8]} />
-            <meshStandardMaterial color="#6f756f" roughness={0.76} />
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+            <circleGeometry args={[ringRadius * 0.18, 20]} />
+            <meshStandardMaterial
+              color="#6f756f"
+              roughness={0.76}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+            />
           </mesh>
-          <mesh position={[0, 0.4, 0]}>
-            <sphereGeometry args={[0.11, 12, 8]} />
+          <mesh position={[0, 0.004, 0]}>
+            <boxGeometry args={[0.12, DRIFT_3D_ZONE_CORE_HEIGHT, 0.12]} />
             <meshStandardMaterial
               color={tone.node}
               emissive={tone.highlight}
               emissiveIntensity={0.08 * scale}
               roughness={0.58}
+              transparent
+              opacity={0.94}
+              depthWrite={false}
             />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.42, 0]}>
-            <torusGeometry args={[ringRadius * 0.18, 0.014, 8, 28]} />
-            <meshStandardMaterial color={tone.ring} roughness={0.84} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+            <torusGeometry
+              args={[ringRadius * 0.18, DRIFT_3D_ZONE_RING_THICKNESS, 8, 28]}
+            />
+            <meshStandardMaterial
+              color={tone.ring}
+              roughness={0.84}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+            />
           </mesh>
         </group>
       );
     case "anchor":
       return (
         <group>
-          <mesh position={[0, 0.12, 0]}>
-            <cylinderGeometry
-              args={[platformRadius * 0.42, platformRadius * 0.48, 0.18, 10]}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+            <circleGeometry args={[platformRadius * 0.52, 24]} />
+            <meshStandardMaterial
+              color={tone.node}
+              roughness={0.88}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
             />
-            <meshStandardMaterial color={tone.node} roughness={0.88} />
           </mesh>
-          <mesh position={[0, 0.32, 0]}>
-            <boxGeometry args={[0.22, 0.24, 0.16]} />
+          <mesh position={[0, 0.004, 0]}>
+            <boxGeometry args={[0.18, DRIFT_3D_ZONE_CORE_HEIGHT, 0.14]} />
             <meshStandardMaterial
               color={tone.core}
               emissive={tone.highlight}
               emissiveIntensity={0.05 * scale}
               roughness={0.78}
+              transparent
+              opacity={0.94}
+              depthWrite={false}
             />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.33, 0]}>
-            <torusGeometry args={[ringRadius * 0.42, 0.02, 8, 32]} />
-            <meshStandardMaterial color={tone.ring} roughness={0.82} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+            <torusGeometry
+              args={[
+                ringRadius * 0.42,
+                DRIFT_3D_ZONE_RING_THICKNESS + 0.001,
+                8,
+                32,
+              ]}
+            />
+            <meshStandardMaterial
+              color={tone.ring}
+              roughness={0.82}
+              transparent
+              opacity={0.94}
+              depthWrite={false}
+            />
           </mesh>
         </group>
       );
     default:
       return (
         <group>
-          <mesh position={[0, 0.09, 0]}>
-            <cylinderGeometry
-              args={[platformRadius * 0.3, platformRadius * 0.36, 0.1, 8]}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0015, 0]}>
+            <circleGeometry args={[platformRadius * 0.38, 20]} />
+            <meshStandardMaterial
+              color={tone.node}
+              roughness={0.9}
+              transparent
+              opacity={0.88}
+              depthWrite={false}
             />
-            <meshStandardMaterial color={tone.node} roughness={0.9} />
           </mesh>
-          <mesh position={[0, 0.22, 0]}>
-            <sphereGeometry args={[0.09, 10, 8]} />
+          <mesh position={[0, 0.004, 0]}>
+            <boxGeometry args={[0.1, DRIFT_3D_ZONE_CORE_HEIGHT, 0.1]} />
             <meshStandardMaterial
               color={tone.core}
               emissive={tone.highlight}
               emissiveIntensity={0.04 * scale}
               roughness={0.72}
+              transparent
+              opacity={0.94}
+              depthWrite={false}
             />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.23, 0]}>
-            <torusGeometry args={[ringRadius * 0.34, 0.016, 8, 28]} />
-            <meshStandardMaterial color={tone.ring} roughness={0.84} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+            <torusGeometry
+              args={[ringRadius * 0.34, DRIFT_3D_ZONE_RING_THICKNESS, 8, 28]}
+            />
+            <meshStandardMaterial
+              color={tone.ring}
+              roughness={0.84}
+              transparent
+              opacity={0.92}
+              depthWrite={false}
+            />
           </mesh>
         </group>
       );
@@ -164,34 +220,41 @@ export function Drift3DEraRegion({ era, toneState }: Drift3DEraRegionProps) {
     toneState === "active" ? 1.08 : toneState === "nearest" ? 1.04 : 1;
 
   return (
-    <group position={[era.center.x, era.center.y, era.center.z]} aria-hidden="true">
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
+    <group
+      position={[era.center.x, DRIFT_3D_ZONE_MARKER_Y - 0.004, era.center.z]}
+      renderOrder={1}
+      aria-hidden="true"
+    >
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
         <circleGeometry args={[era.radius * 0.74 * emphasis, 48]} />
         <meshStandardMaterial
           color={tone.region}
           transparent
           opacity={0.13 * emphasis}
           roughness={0.96}
+          depthWrite={false}
         />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0]}>
         <ringGeometry args={[era.radius * 0.62, era.radius * 0.82, 48]} />
         <meshStandardMaterial
           color={tone.ring}
           transparent
           opacity={0.18 * emphasis}
           roughness={0.86}
+          depthWrite={false}
         />
       </mesh>
 
-      <mesh position={[0, 0.09, 0]}>
-        <cylinderGeometry args={[0.16, 0.2, 0.18, 8]} />
+      <mesh position={[0, DRIFT_3D_ZONE_CORE_HEIGHT, 0]}>
+        <boxGeometry args={[0.18, DRIFT_3D_ZONE_CORE_HEIGHT, 0.18]} />
         <meshStandardMaterial
           color={tone.core}
           transparent
           opacity={0.8}
           roughness={0.84}
+          depthWrite={false}
         />
       </mesh>
     </group>
@@ -210,16 +273,19 @@ export default function Drift3DZone({
 
   return (
     <group
-      position={[node.position.x, node.position.y, node.position.z]}
-      scale={emphasis}
+      position={[node.position.x, DRIFT_3D_ZONE_MARKER_Y, node.position.z]}
+      scale={[emphasis, 1, emphasis]}
+      renderOrder={2}
       aria-hidden="true"
     >
-      <mesh position={[0, 0.03, 0]}>
+      <mesh position={[0, 0.003, 0]}>
         <cylinderGeometry
           args={[
             radius * (node.role === "anchor" ? 0.86 : 0.72),
             radius * (node.role === "anchor" ? 0.92 : 0.8),
-            node.role === "threshold" ? 0.2 : 0.14,
+            node.role === "threshold"
+              ? DRIFT_3D_ZONE_MARKER_HEIGHT + 0.006
+              : DRIFT_3D_ZONE_MARKER_HEIGHT,
             node.role === "threshold" ? 16 : 14,
           ]}
         />
@@ -228,14 +294,17 @@ export default function Drift3DZone({
           roughness={0.92}
           transparent
           opacity={0.9}
+          depthWrite={false}
         />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.12, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0]}>
         <torusGeometry
           args={[
             radius * (node.role === "anchor" ? 0.82 : 0.7),
-            node.role === "threshold" ? 0.016 : 0.014,
+            node.role === "threshold"
+              ? DRIFT_3D_ZONE_RING_THICKNESS + 0.002
+              : DRIFT_3D_ZONE_RING_THICKNESS,
             8,
             node.role === "threshold" ? 32 : 30,
           ]}
@@ -243,6 +312,7 @@ export default function Drift3DZone({
         <meshStandardMaterial
           color={eraMaterial[era.id].ring}
           roughness={0.84}
+          depthWrite={false}
         />
       </mesh>
 
