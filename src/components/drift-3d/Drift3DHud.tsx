@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import type { Track } from "@/lib/tracks";
-import type { Drift3DZoneProximity } from "@/lib/drift3d";
+import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 
 type Drift3DHudProps = {
-  proximity: Drift3DZoneProximity | null;
+  proximity: Drift3DTopologyProximity | null;
   activeTrack: Track | null;
   isActiveTrackCurrent: boolean;
   isActiveTrackPlaying: boolean;
   onToggleActiveTrack: () => void;
 };
 
-function getHudCopy(proximity: Drift3DZoneProximity | null) {
-  const zone = proximity?.activeZone ?? proximity?.nearestZone ?? null;
+function getHudCopy(
+  proximity: Drift3DTopologyProximity | null,
+  activeTrack: Track | null
+) {
+  const node = proximity?.activeNode ?? proximity?.nearestNode ?? null;
+  const era = proximity?.activeEra ?? proximity?.nearestEra ?? null;
 
-  if (!zone || !proximity) {
+  if (!proximity || !node) {
     return {
       status: "CHECKING SIGNAL",
       title: "No lock yet",
@@ -25,28 +29,52 @@ function getHudCopy(proximity: Drift3DZoneProximity | null) {
     };
   }
 
+  if (node.role === "threshold") {
+    return {
+      status: proximity.isInside ? "ENTRY NODE" : "APPROACHING",
+      title: "Entry Node",
+      detail: era?.label ?? "Birth side origin",
+      note: "THRESHOLD ONLY",
+      progress: Math.round(proximity.progress * 100),
+    };
+  }
+
+  if (proximity.isInside && activeTrack) {
+    return {
+      status: "INSIDE SIGNAL",
+      title: activeTrack.title,
+      detail: era?.label ?? activeTrack.publishedLabel,
+      note: activeTrack.shortText,
+      progress: Math.round(proximity.progress * 100),
+    };
+  }
+
   return {
-    status: proximity.isInside ? "INSIDE SIGNAL" : "APPROACHING",
-    title: zone.label,
-    detail: zone.portalLabel,
-    note: zone.microcopy[0] ?? "VISUAL ONLY",
+    status: "APPROACHING",
+    title: era?.label ?? "Signal region",
+    detail: node.role === "anchor" ? "ANCHOR NODE" : "TRACK NODE",
+    note: era?.topologyHints[0] ?? "VISUAL ONLY",
     progress: Math.round(proximity.progress * 100),
   };
 }
 
 function getTrackAvailabilityLabel(
-  proximity: Drift3DZoneProximity,
+  proximity: Drift3DTopologyProximity,
   activeTrack: Track | null
 ) {
-  if (!proximity.activeZone) {
+  if (!proximity.activeNode) {
     return "NO TRACK TRIGGERED YET";
+  }
+
+  if (proximity.activeNode.role === "threshold") {
+    return "ENTRY THRESHOLD";
   }
 
   if (activeTrack) {
     return "TRACK READY";
   }
 
-  return proximity.activeZone.trackSlug ? "TRACK MISSING" : "SIGNAL ONLY";
+  return "TRACK MISSING";
 }
 
 function getActionLabel({
@@ -70,7 +98,7 @@ export default function Drift3DHud({
   isActiveTrackPlaying,
   onToggleActiveTrack,
 }: Drift3DHudProps) {
-  const copy = getHudCopy(proximity);
+  const copy = getHudCopy(proximity, activeTrack);
   const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
   const progressPercent = Math.round((proximity?.progress ?? 0) * 100);
   const trackAvailability =
@@ -127,7 +155,10 @@ export default function Drift3DHud({
         {copy.note}
       </p>
 
-      <div className="mt-2 h-px overflow-hidden bg-neutral-200/80" aria-hidden="true">
+      <div
+        className="mt-2 h-px overflow-hidden bg-neutral-200/80"
+        aria-hidden="true"
+      >
         <span
           className="block h-full bg-neutral-700/80"
           style={{ width: `${progressPercent}%` }}
@@ -181,7 +212,7 @@ export default function Drift3DHud({
               onPointerCancel={(event) => event.stopPropagation()}
               className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-400/50 bg-neutral-900/88 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
               aria-label={`${actionLabel} ${activeTrack.title} from ${
-                proximity.activeZone?.label ?? "active zone"
+                proximity.activeEra?.label ?? "active signal"
               }`}
             >
               {actionLabel}

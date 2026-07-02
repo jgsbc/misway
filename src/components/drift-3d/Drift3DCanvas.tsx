@@ -7,17 +7,16 @@ import type {
   PointerEvent as ReactPointerEvent,
 } from "react";
 import type { Track } from "@/lib/tracks";
-import { getTrackForDriftZone } from "@/lib/driftMap";
-import Drift3DHud from "@/components/drift-3d/Drift3DHud";
+import { getTrackBySlug } from "@/lib/tracks";
 import Drift3DScene from "@/components/drift-3d/Drift3DScene";
-import { driftMapConfig } from "@/lib/driftMap";
+import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import {
   getDrift3DDragDriveInput,
   getDrift3DFollowCameraRig,
   getDrift3DVehicleStartPosition,
   type Drift3DPointerDriveState,
-  type Drift3DZoneProximity,
 } from "@/lib/drift3d";
+import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -34,7 +33,7 @@ export default function Drift3DCanvas({
   currentTrack,
   togglePlayback,
 }: Drift3DCanvasProps) {
-  const [proximity, setProximity] = useState<Drift3DZoneProximity | null>(
+  const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(
     null
   );
   const invalidateRef = useRef<(() => void) | null>(null);
@@ -49,10 +48,7 @@ export default function Drift3DCanvas({
     },
   });
   const initialCameraRig = useMemo(() => {
-    const startPosition = getDrift3DVehicleStartPosition({
-      width: driftMapConfig.width,
-      height: driftMapConfig.height,
-    });
+    const startPosition = getDrift3DVehicleStartPosition();
 
     return getDrift3DFollowCameraRig(startPosition);
   }, []);
@@ -246,19 +242,24 @@ export default function Drift3DCanvas({
     event.stopPropagation();
   }
 
-  const activeTrack = useMemo(
-    () =>
-      proximity?.activeZone ? getTrackForDriftZone(proximity.activeZone) : null,
-    [proximity]
-  );
+  const activeTrack = useMemo(() => {
+    if (!proximity?.activeNode || !("trackSlug" in proximity.activeNode)) {
+      return null;
+    }
+
+    return getTrackBySlug(proximity.activeNode.trackSlug) ?? null;
+  }, [proximity]);
   const isActiveTrackCurrent = activeTrack
     ? isCurrentTrack(activeTrack)
     : false;
   const isActiveTrackPlaying = isActiveTrackCurrent && isPlaying;
+  const activeNodeTrackSlug =
+    proximity?.activeNode && "trackSlug" in proximity.activeNode
+      ? proximity.activeNode.trackSlug
+      : null;
   const showPersistentAudioChip =
     Boolean(currentTrack) &&
-    (!proximity?.isInside ||
-      proximity.activeZone?.trackSlug !== currentTrack?.slug);
+    (!proximity?.isInside || activeNodeTrackSlug !== currentTrack?.slug);
 
   function handleToggleActiveTrack() {
     if (!activeTrack) {
@@ -297,7 +298,7 @@ export default function Drift3DCanvas({
             alpha: true,
             powerPreference: "high-performance",
           }}
-          >
+        >
           <Drift3DScene
             proximity={proximity}
             onProximityChange={setProximity}
@@ -356,7 +357,9 @@ export default function Drift3DCanvas({
               onPointerUp={(event) => event.stopPropagation()}
               onPointerCancel={(event) => event.stopPropagation()}
               className="pointer-events-auto inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-neutral-300/80 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
-              aria-label={isPlaying ? "Pause current track" : "Resume current track"}
+              aria-label={
+                isPlaying ? "Pause current track" : "Resume current track"
+              }
             >
               {isPlaying ? "PAUSE" : "RESUME"}
             </button>

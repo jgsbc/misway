@@ -35,6 +35,8 @@ export type Drift3DTrackNode = {
   driftZoneId?: string;
 };
 
+export type Drift3DRenderableNode = Drift3DTrackNode | Drift3DThresholdNode;
+
 export type Drift3DThresholdNode = {
   id: "entry-node";
   role: "threshold";
@@ -48,8 +50,24 @@ export type Drift3DTopologyValidationResult = {
   issues: string[];
 };
 
+export type Drift3DTopologyProximity = {
+  nearestNode: Drift3DRenderableNode | null;
+  activeNode: Drift3DRenderableNode | null;
+  nearestEra: Drift3DEraTopology | null;
+  activeEra: Drift3DEraTopology | null;
+  distance: number;
+  isInside: boolean;
+  progress: number;
+};
+
+export type Drift3DNodeToneState = "neutral" | "nearest" | "active";
+
 function point(x: number, y: number, z: number): Drift3DWorldPoint {
   return { x, y, z };
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 const drift3dTrackSlugSet = new Set(tracks.map((track) => track.slug));
@@ -138,6 +156,50 @@ export const drift3dThresholdNode = {
   label: "Entry Node",
 } as const satisfies Drift3DThresholdNode;
 
+export function getDrift3DNodeRadius(node: Drift3DRenderableNode) {
+  if (node.role === "threshold") {
+    return 6;
+  }
+
+  const era = drift3dEraById[node.eraId];
+  const eraBaseRadius = era.radius / 6.2;
+  const roleMultiplier = node.role === "anchor" ? 1.18 : 1;
+  const roleMin = node.role === "anchor" ? 4.9 : 3.8;
+  const roleMax = node.role === "anchor" ? 6.2 : 5;
+
+  return clamp(eraBaseRadius * roleMultiplier, roleMin, roleMax);
+}
+
+export function getDrift3DNodeToneState(
+  node: Drift3DRenderableNode,
+  proximity: Drift3DTopologyProximity | null
+): Drift3DNodeToneState {
+  if (proximity?.activeNode?.id === node.id) {
+    return "active";
+  }
+
+  if (proximity?.nearestNode?.id === node.id) {
+    return "nearest";
+  }
+
+  return "neutral";
+}
+
+export function getDrift3DEraToneState(
+  era: Drift3DEraTopology,
+  proximity: Drift3DTopologyProximity | null
+): Drift3DNodeToneState {
+  if (proximity?.activeEra?.id === era.id) {
+    return "active";
+  }
+
+  if (proximity?.nearestEra?.id === era.id) {
+    return "nearest";
+  }
+
+  return "neutral";
+}
+
 export const drift3dTrackNodes = [
   {
     id: "birth-yard-a-walk-in-zeeland",
@@ -152,7 +214,7 @@ export const drift3dTrackNodes = [
     trackSlug: "foolfoule",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-82, 0.14, 22),
+    position: point(-79, 0.14, 22),
     driftZoneId: "birth-yard",
   },
   {
@@ -316,6 +378,11 @@ export const drift3dTrackNodes = [
   },
 ] as const satisfies readonly Drift3DTrackNode[];
 
+export const drift3dRenderableNodes = [
+  drift3dThresholdNode,
+  ...drift3dTrackNodes,
+] as const satisfies readonly Drift3DRenderableNode[];
+
 export const drift3dEraById = drift3dEras.reduce(
   (acc, era) => {
     acc[era.id] = era;
@@ -344,6 +411,53 @@ export function getDrift3DTrackNodesByEra(eraId: Drift3DEraId) {
   return drift3dTrackNodes.filter((node) => node.eraId === eraId);
 }
 
+export function getDrift3DTopologyProximity(
+  point: Drift3DWorldPoint
+): Drift3DTopologyProximity {
+  let nearest: { node: Drift3DRenderableNode; distance: number; radius: number } | null =
+    null;
+  let active: { node: Drift3DRenderableNode; distance: number; radius: number } | null =
+    null;
+
+  for (const node of drift3dRenderableNodes) {
+    const radius = getDrift3DNodeRadius(node);
+    const distance = Math.hypot(point.x - node.position.x, point.z - node.position.z);
+    const sample = { node, distance, radius };
+
+    if (!nearest || distance < nearest.distance) {
+      nearest = sample;
+    }
+
+    if (distance <= radius && (!active || distance < active.distance)) {
+      active = sample;
+    }
+  }
+
+  const selected = active ?? nearest;
+  const selectedEra =
+    selected && selected.node.role !== "threshold"
+      ? drift3dEraById[selected.node.eraId]
+      : null;
+  const nearestEra =
+    nearest && nearest.node.role !== "threshold"
+      ? drift3dEraById[nearest.node.eraId]
+      : selectedEra;
+  const distance = selected?.distance ?? 0;
+  const radius = selected?.radius ?? 1;
+  const isInside = active !== null;
+  const falloff = isInside ? radius : radius * 1.45;
+
+  return {
+    nearestNode: nearest?.node ?? null,
+    activeNode: active?.node ?? null,
+    nearestEra,
+    activeEra: selectedEra,
+    distance,
+    isInside,
+    progress: selected ? clamp(1 - distance / falloff, 0, 1) : 0,
+  };
+}
+
 export function validateDrift3DTopology(): Drift3DTopologyValidationResult {
   const issues: string[] = [];
   const eraIds = new Set<string>();
@@ -369,6 +483,15 @@ export function validateDrift3DTopology(): Drift3DTopologyValidationResult {
         issues.push(`duplicate era track slug: ${slug}`);
       }
       trackSlugs.add(slug);
+    }
+
+    if (
+      era.center.x < -80 ||
+      era.center.x > 80 ||
+      era.center.z < -50 ||
+      era.center.z > 50
+    ) {
+      issues.push(`era center outside topology bounds: ${era.id}`);
     }
   }
 
@@ -419,6 +542,15 @@ export function validateDrift3DTopology(): Drift3DTopologyValidationResult {
     issues.push(
       `unknown threshold drift zone: ${drift3dThresholdNode.driftZoneId}`
     );
+  }
+
+  if (
+    drift3dThresholdNode.position.x < -80 ||
+    drift3dThresholdNode.position.x > 80 ||
+    drift3dThresholdNode.position.z < -50 ||
+    drift3dThresholdNode.position.z > 50
+  ) {
+    issues.push("entry threshold outside topology bounds");
   }
 
   if (!drift3dTrackNodes.every((node) => node.position.x >= -80 && node.position.x <= 80)) {

@@ -5,9 +5,10 @@ import type {
   DriftZoneConfig,
 } from "@/types/drift";
 import { driftMapConfig } from "@/lib/driftMap";
+import { drift3dThresholdNode } from "@/lib/drift3dTopology";
 
-export const DRIFT_3D_PLANE_WIDTH = 48;
-export const DRIFT_3D_PLANE_DEPTH = 30;
+export const DRIFT_3D_PLANE_WIDTH = 160;
+export const DRIFT_3D_PLANE_DEPTH = 100;
 
 type DriftMapPoint = {
   x: number;
@@ -145,13 +146,11 @@ export function getDrift3DSpawnTransform(bounds: DriftMapBounds) {
   return mapPointToDrift3D(driftMapConfig.spawn, bounds, 0.12);
 }
 
-export function getDrift3DVehicleStartPosition(bounds: DriftMapBounds) {
-  const spawnTransform = getDrift3DSpawnTransform(bounds);
-
+export function getDrift3DVehicleStartPosition() {
   return {
-    x: spawnTransform.x + 1.08,
-    y: spawnTransform.y,
-    z: spawnTransform.z + 1.08,
+    x: drift3dThresholdNode.position.x + 2.15,
+    y: drift3dThresholdNode.position.y + 0.12,
+    z: drift3dThresholdNode.position.z + 0.82,
   };
 }
 

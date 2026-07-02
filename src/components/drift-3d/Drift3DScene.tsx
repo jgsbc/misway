@@ -7,24 +7,34 @@ import Drift3DVehicle, {
   type Drift3DVehicleHandle,
 } from "@/components/drift-3d/Drift3DVehicle";
 import Drift3DProp from "@/components/drift-3d/Drift3DProp";
-import Drift3DZone from "@/components/drift-3d/Drift3DZone";
+import Drift3DZone, {
+  Drift3DEraRegion,
+} from "@/components/drift-3d/Drift3DZone";
 import { driftMapConfig } from "@/lib/driftMap";
+import { getTrackBySlug } from "@/lib/tracks";
 import {
   DRIFT_3D_PLANE_DEPTH,
   DRIFT_3D_PLANE_WIDTH,
+  approachDrift3DAngle,
   clampDrift3DPoint,
   getDrift3DDriveInput,
-  resolveDrift3DDriveInput,
   getDrift3DFollowCameraRig,
-  getDrift3DZoneProximity,
-  getDrift3DZoneToneState,
-  getDrift3DYawFromVector,
-  approachDrift3DAngle,
   getDrift3DVehicleStartPosition,
+  getDrift3DYawFromVector,
+  resolveDrift3DDriveInput,
   type Drift3DPoint,
   type Drift3DPointerDriveState,
-  type Drift3DZoneProximity,
 } from "@/lib/drift3d";
+import {
+  drift3dEras,
+  drift3dEraById,
+  drift3dThresholdNode,
+  getDrift3DEraToneState,
+  getDrift3DNodeToneState,
+  getDrift3DTrackNodesByEra,
+  getDrift3DTopologyProximity,
+  type Drift3DTopologyProximity,
+} from "@/lib/drift3dTopology";
 
 type Drift3DVehicleMotionState = {
   position: Drift3DPoint;
@@ -42,10 +52,6 @@ function FollowCameraRig({
 
   useEffect(() => {
     const vehicleState = vehicleStateRef.current;
-    if (!vehicleState) {
-      return;
-    }
-
     const initialRig = getDrift3DFollowCameraRig(vehicleState.position);
 
     camera.position.set(
@@ -65,10 +71,6 @@ function FollowCameraRig({
 
   useFrame(() => {
     const vehicleState = vehicleStateRef.current;
-    if (!vehicleState) {
-      return;
-    }
-
     const desiredRig = getDrift3DFollowCameraRig(vehicleState.position);
     const nextPosition = desiredRig.position;
     const nextTarget = desiredRig.target;
@@ -78,13 +80,13 @@ function FollowCameraRig({
       Math.abs(cameraPositionRef.current.y - nextPosition.y) > 0.001 ||
       Math.abs(cameraPositionRef.current.z - nextPosition.z) > 0.001;
 
+    camera.lookAt(nextTarget.x, nextTarget.y, nextTarget.z);
+
     if (!positionChanged) {
-      camera.lookAt(nextTarget.x, nextTarget.y, nextTarget.z);
       return;
     }
 
     camera.position.set(nextPosition.x, nextPosition.y, nextPosition.z);
-    camera.lookAt(nextTarget.x, nextTarget.y, nextTarget.z);
     cameraPositionRef.current = nextPosition;
     invalidate();
   });
@@ -123,12 +125,14 @@ function isMovementCode(code: string) {
 }
 
 function areDrift3DProximitySnapshotsEqual(
-  a: Drift3DZoneProximity | null,
-  b: Drift3DZoneProximity
+  a: Drift3DTopologyProximity | null,
+  b: Drift3DTopologyProximity
 ) {
   return (
-    a?.nearestZone?.id === b.nearestZone?.id &&
-    a?.activeZone?.id === b.activeZone?.id &&
+    a?.nearestNode?.id === b.nearestNode?.id &&
+    a?.activeNode?.id === b.activeNode?.id &&
+    a?.nearestEra?.id === b.nearestEra?.id &&
+    a?.activeEra?.id === b.activeEra?.id &&
     a?.isInside === b.isInside &&
     Math.abs((a?.distance ?? -1) - b.distance) < 0.02 &&
     Math.abs((a?.progress ?? -1) - b.progress) < 0.02
@@ -140,22 +144,18 @@ function KeyboardVehicleMotion({
   vehicleStateRef,
   pointerDriveStateRef,
   startPosition,
-  bounds,
-  zones,
   onProximityChange,
 }: {
   vehicleRef: RefObject<Drift3DVehicleHandle | null>;
   vehicleStateRef: MutableRefObject<Drift3DVehicleMotionState>;
   pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
-  startPosition: { x: number; y: number; z: number };
-  bounds: { width: number; height: number };
-  zones: typeof driftMapConfig.zones;
-  onProximityChange?: (proximity: Drift3DZoneProximity) => void;
+  startPosition: Drift3DPoint;
+  onProximityChange?: (proximity: Drift3DTopologyProximity) => void;
 }) {
   const invalidate = useThree((state) => state.invalidate);
   const yawRef = useRef(0);
   const pressedKeysRef = useRef<Set<string>>(new Set());
-  const lastProximityRef = useRef<Drift3DZoneProximity | null>(null);
+  const lastProximityRef = useRef<Drift3DTopologyProximity | null>(null);
   const maxMovementDelta = 1 / 30;
 
   useEffect(() => {
@@ -169,21 +169,10 @@ function KeyboardVehicleMotion({
     );
     vehicleRef.current?.rotation.setY(0);
 
-    const initialProximity = getDrift3DZoneProximity(
-      startPosition,
-      zones,
-      bounds
-    );
+    const initialProximity = getDrift3DTopologyProximity(startPosition);
     lastProximityRef.current = initialProximity;
     onProximityChange?.(initialProximity);
-  }, [
-    bounds,
-    onProximityChange,
-    startPosition,
-    vehicleRef,
-    vehicleStateRef,
-    zones,
-  ]);
+  }, [onProximityChange, startPosition, vehicleRef, vehicleStateRef]);
 
   useEffect(() => {
     function releaseAllKeys() {
@@ -275,7 +264,7 @@ function KeyboardVehicleMotion({
       vehicle.rotation.setY(nextYaw);
     }
 
-    const movementSpeed = 4.2;
+    const movementSpeed = 5.4;
     const currentPosition = vehicleStateRef.current.position;
     const next = clampDrift3DPoint({
       x: currentPosition.x + input.x * movementSpeed * frameDelta,
@@ -288,7 +277,7 @@ function KeyboardVehicleMotion({
     if (moved) {
       vehicleStateRef.current.position = next;
       vehicle.position.set(next.x, next.y, next.z);
-      const nextProximity = getDrift3DZoneProximity(next, zones, bounds);
+      const nextProximity = getDrift3DTopologyProximity(next);
 
       if (
         !areDrift3DProximitySnapshotsEqual(
@@ -310,8 +299,8 @@ function KeyboardVehicleMotion({
 }
 
 type Drift3DSceneProps = {
-  proximity: Drift3DZoneProximity | null;
-  onProximityChange?: (proximity: Drift3DZoneProximity) => void;
+  proximity: Drift3DTopologyProximity | null;
+  onProximityChange?: (proximity: Drift3DTopologyProximity) => void;
   pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
 };
 
@@ -320,17 +309,14 @@ export default function Drift3DScene({
   onProximityChange,
   pointerDriveStateRef,
 }: Drift3DSceneProps) {
-  const { width, height, zones } = driftMapConfig;
-  const worldScale = DRIFT_3D_PLANE_WIDTH / 16;
-  const worldBounds = useMemo(() => ({ width, height }), [width, height]);
   const vehicleStateRef = useRef<Drift3DVehicleMotionState>({
-    position: getDrift3DVehicleStartPosition({ width, height }),
+    position: getDrift3DVehicleStartPosition(),
     yaw: 0,
   });
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
-    () => getDrift3DVehicleStartPosition({ width, height }),
-    [height, width]
+    () => getDrift3DVehicleStartPosition(),
+    []
   );
   const vehicleInitialPosition = useMemo(
     () =>
@@ -355,43 +341,54 @@ export default function Drift3DScene({
         <meshStandardMaterial color="#ece7dc" roughness={0.98} />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.065, 0]}>
-        <ringGeometry args={[1.08 * worldScale, 1.12 * worldScale, 72]} />
-        <meshStandardMaterial color="#c4d3d5" roughness={0.86} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-52, -0.05, 18]}>
+        <ringGeometry args={[10, 10.9, 64]} />
+        <meshStandardMaterial color="#d8c6b0" roughness={0.9} />
       </mesh>
 
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.055, 0]}>
-        <ringGeometry args={[1.72 * worldScale, 1.75 * worldScale, 72]} />
-        <meshStandardMaterial color="#d9ccb6" roughness={0.9} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-10, -0.05, -28]}>
+        <ringGeometry args={[13, 13.9, 72]} />
+        <meshStandardMaterial color="#c8d0d2" roughness={0.9} />
       </mesh>
 
-      <mesh position={[2.8 * worldScale, 0.02, -1.7 * worldScale]} rotation={[0, 0.28, 0]}>
-        <boxGeometry args={[1.6 * worldScale, 0.04, 0.06]} />
-        <meshStandardMaterial color="#d2c5b1" roughness={0.88} />
-      </mesh>
-
-      <mesh position={[-3.2 * worldScale, 0.02, 1.8 * worldScale]} rotation={[0, -0.2, 0]}>
-        <boxGeometry args={[1.9 * worldScale, 0.04, 0.06]} />
-        <meshStandardMaterial color="#cfd3d1" roughness={0.88} />
-      </mesh>
-
-      {zones.map((zone) => (
-        <Drift3DZone
-          key={zone.id}
-          zone={zone}
-          mapWidth={width}
-          mapHeight={height}
-          toneState={getDrift3DZoneToneState(zone, proximity)}
+      {drift3dEras.map((era) => (
+        <Drift3DEraRegion
+          key={era.id}
+          era={era}
+          toneState={getDrift3DEraToneState(era, proximity)}
         />
       ))}
 
-      {zones.flatMap((zone) =>
+      <Drift3DZone
+        node={drift3dThresholdNode}
+        era={drift3dEraById["birth-yard"]}
+        track={null}
+        toneState={getDrift3DNodeToneState(drift3dThresholdNode, proximity)}
+      />
+
+      {drift3dEras.flatMap((era) =>
+        getDrift3DTrackNodesByEra(era.id).map((node) => {
+          const track = getTrackBySlug(node.trackSlug) ?? null;
+
+          return (
+            <Drift3DZone
+              key={node.id}
+              node={node}
+              era={era}
+              track={track}
+              toneState={getDrift3DNodeToneState(node, proximity)}
+            />
+          );
+        })
+      )}
+
+      {driftMapConfig.zones.flatMap((zone) =>
         (zone.props ?? []).map((prop) => (
           <Drift3DProp
             key={prop.id}
             prop={prop}
-            mapWidth={width}
-            mapHeight={height}
+            mapWidth={driftMapConfig.width}
+            mapHeight={driftMapConfig.height}
           />
         ))
       )}
@@ -406,8 +403,6 @@ export default function Drift3DScene({
         vehicleStateRef={vehicleStateRef}
         pointerDriveStateRef={pointerDriveStateRef}
         startPosition={vehicleStartPosition}
-        bounds={worldBounds}
-        zones={zones}
         onProximityChange={onProximityChange}
       />
 
