@@ -67,7 +67,7 @@ He is represented through territories.
 
 ### 3.1 General mood
 
-The global atmosphere should be:
+The global set design should be:
 
 * nocturnal;
 * sparse;
@@ -83,6 +83,8 @@ Avoid decorative excess.
 Each zone must be clear enough to be navigated, but abstract enough to remain poetic.
 
 The world should feel like a landscape of emotional evidence.
+
+Premium does not mean muted. Drift can be vivid, saturated and expressive as long as the forms stay controlled and legible.
 
 ### 3.2 Allowed visual language
 
@@ -111,6 +113,8 @@ Prefer:
 * spatial rhythm;
 * contrast between empty and dense areas.
 
+Primitive-only means building visible scenic structures from simple geometry, not making tiny, invisible or purely decorative props.
+
 ### 3.3 Forbidden visual language
 
 Do not create:
@@ -129,11 +133,31 @@ Do not create:
 * busy decorations;
 * collectible/game UI;
 * random clutter;
+* abstract fog or color variation without readable landmarks;
 * realistic terrain simulation;
 * physics gimmicks;
 * theme-park props.
 
 The map must remain premium and restrained.
+
+### 3.4 Readable set design
+
+Drift 3D must not rely only on fog, hue shifts or abstract floor marks. Those can support the scene, but they are not enough by themselves. Each era needs visible set pieces, a major landmark and a clear silhouette language. If the user only perceives atmosphere, the lot has failed.
+
+### 3.5 Drift visual rupture principle
+
+The rest of the MISWAY site can stay dark, white, restrained and minimal. Drift is the colorful rupture of the site. It is allowed to be saturated, vivid and memorable. Color is not decoration only; it is part of the musical and mental identity of the route.
+
+### 3.6 Visual pass acceptance criteria
+
+A Drift 3D visual lot passes only if:
+
+* each era is identifiable within 3 seconds from the fixed oblique camera;
+* if the user sees only color/fog variation, the lot fails;
+* each era has at least one major landmark and readable silhouette language;
+* the result shows places, not only abstract color zones;
+* vehicle, nodes and corridors remain readable;
+* production/static preview smoothness is the gate, not dev-mode behavior.
 
 ---
 
@@ -1824,18 +1848,19 @@ Do not over-engineer the next visual pass.
 
 ## 17. Suggested phased implementation
 
-### Phase A — Era atmosphere pass
+### Phase A — Era set-design pass
 
 Goal:
 
-* make the four main eras visually distinct.
+* make the four main eras visually distinct as places with landmarks.
 
 Scope:
 
 * ground color/material per era;
 * fog/light mood per era;
 * density per era;
-* landmark family per era.
+* landmark family per era;
+* visible scenic silhouettes and landmark geometry per era.
 
 No per-track detail explosion yet.
 
@@ -1860,7 +1885,7 @@ Priority:
 
 Goal:
 
-* all 19 tracks get their symbolic identity.
+* all 24 tracks get their symbolic identity.
 
 Add:
 
@@ -1884,7 +1909,7 @@ Possible:
 
 ## 18. Quality bar
 
-A successful Drift 3D atmosphere pass should make the user feel:
+A successful Drift 3D set-design pass should make the user feel:
 
 * “I know where I am emotionally.”
 * “Each era has a different climate.”
