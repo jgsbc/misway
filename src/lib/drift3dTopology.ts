@@ -62,8 +62,8 @@ export type Drift3DTopologyProximity = {
 
 export type Drift3DNodeToneState = "neutral" | "nearest" | "active";
 
-export const DRIFT_3D_TOPOLOGY_WORLD_WIDTH = 192;
-export const DRIFT_3D_TOPOLOGY_WORLD_DEPTH = 128;
+export const DRIFT_3D_TOPOLOGY_WORLD_WIDTH = 224;
+export const DRIFT_3D_TOPOLOGY_WORLD_DEPTH = 144;
 
 function point(x: number, y: number, z: number): Drift3DWorldPoint {
   return { x, y, z };
@@ -81,8 +81,8 @@ export const drift3dEras = [
     label: "Birth Yard",
     order: 1,
     role: "macro-region",
-    center: point(-66, 0, 18),
-    radius: 30,
+    center: point(-74, 0, 22),
+    radius: 36,
     trackSlugs: ["a-walk-in-zeeland", "foolfoule", "jazzypling", "play-it"],
     topologyHints: [
       "dense urban compression",
@@ -95,8 +95,8 @@ export const drift3dEras = [
     label: "Older Shadows",
     order: 2,
     role: "macro-region",
-    center: point(-26, 0, -30),
-    radius: 34,
+    center: point(-32, 0, -52),
+    radius: 40,
     trackSlugs: [
       "rise",
       "blossoming",
@@ -115,8 +115,8 @@ export const drift3dEras = [
     label: "Vegetative Field",
     order: 3,
     role: "macro-region",
-    center: point(0, 0, 10),
-    radius: 32,
+    center: point(0, 0, 8),
+    radius: 42,
     trackSlugs: ["morne-et", "daymason", "chailk", "time", "tantitom"],
     topologyHints: [
       "flat horizontal spread",
@@ -129,8 +129,8 @@ export const drift3dEras = [
     label: "New Signal",
     order: 4,
     role: "macro-region",
-    center: point(52, 0, -8),
-    radius: 46,
+    center: point(66, 0, -12),
+    radius: 56,
     trackSlugs: [
       "neektareum",
       "asitis",
@@ -209,7 +209,7 @@ export const drift3dTrackNodes = [
     trackSlug: "a-walk-in-zeeland",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-84, 0.12, 16),
+    position: point(-88, 0.12, 20),
     driftZoneId: "zeeland-road",
   },
   {
@@ -217,7 +217,7 @@ export const drift3dTrackNodes = [
     trackSlug: "foolfoule",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-74, 0.14, 30),
+    position: point(-78, 0.14, 34),
     driftZoneId: "birth-yard",
   },
   {
@@ -225,98 +225,98 @@ export const drift3dTrackNodes = [
     trackSlug: "jazzypling",
     eraId: "birth-yard",
     role: "track",
-    position: point(-66, 0.13, 12),
+    position: point(-68, 0.13, 14),
   },
   {
     id: "birth-yard-play-it",
     trackSlug: "play-it",
     eraId: "birth-yard",
     role: "track",
-    position: point(-58, 0.11, 24),
+    position: point(-54, 0.11, 26),
   },
   {
     id: "older-shadows-rise",
     trackSlug: "rise",
     eraId: "older-shadows",
     role: "track",
-    position: point(-52, 0.18, -54),
+    position: point(-56, 0.18, -68),
   },
   {
     id: "older-shadows-blossoming",
     trackSlug: "blossoming",
     eraId: "older-shadows",
     role: "track",
-    position: point(-34, 0.16, -48),
+    position: point(-38, 0.16, -56),
   },
   {
     id: "older-shadows-ethnic-stick",
     trackSlug: "ethnic-stick",
     eraId: "older-shadows",
     role: "track",
-    position: point(-16, 0.14, -60),
+    position: point(-18, 0.14, -72),
   },
   {
     id: "older-shadows-minuit-moins-cinq",
     trackSlug: "minuit-moins-cinq",
     eraId: "older-shadows",
     role: "track",
-    position: point(-42, 0.15, -30),
+    position: point(-46, 0.15, -36),
   },
   {
     id: "older-shadows-perdue",
     trackSlug: "perdue",
     eraId: "older-shadows",
     role: "track",
-    position: point(-8, 0.13, -22),
+    position: point(-2, 0.13, -28),
   },
   {
     id: "vegetative-field-morne-et",
     trackSlug: "morne-et",
     eraId: "vegetative-field",
     role: "track",
-    position: point(-30, 0.1, 2),
+    position: point(-38, 0.1, 4),
   },
   {
     id: "vegetative-field-daymason",
     trackSlug: "daymason",
     eraId: "vegetative-field",
     role: "track",
-    position: point(-8, 0.08, -6),
+    position: point(-14, 0.08, -2),
   },
   {
     id: "vegetative-field-chailk",
     trackSlug: "chailk",
     eraId: "vegetative-field",
     role: "track",
-    position: point(14, 0.1, 4),
+    position: point(12, 0.1, 8),
   },
   {
     id: "vegetative-field-time",
     trackSlug: "time",
     eraId: "vegetative-field",
     role: "track",
-    position: point(2, 0.12, 20),
+    position: point(2, 0.12, 24),
   },
   {
     id: "vegetative-field-tantitom",
     trackSlug: "tantitom",
     eraId: "vegetative-field",
     role: "track",
-    position: point(30, 0.1, 12),
+    position: point(36, 0.1, 14),
   },
   {
     id: "new-signal-neektareum",
     trackSlug: "neektareum",
     eraId: "new-signal",
     role: "track",
-    position: point(28, 0.16, -22),
+    position: point(24, 0.16, -18),
   },
   {
     id: "new-signal-asitis",
     trackSlug: "asitis",
     eraId: "new-signal",
     role: "anchor",
-    position: point(42, 0.12, 8),
+    position: point(46, 0.12, 12),
     driftZoneId: "plain-signal",
   },
   {
@@ -324,14 +324,14 @@ export const drift3dTrackNodes = [
     trackSlug: "relative",
     eraId: "new-signal",
     role: "track",
-    position: point(56, 0.14, -6),
+    position: point(60, 0.14, -4),
   },
   {
     id: "new-signal-overthink",
     trackSlug: "overthink",
     eraId: "new-signal",
     role: "anchor",
-    position: point(70, 0.14, 22),
+    position: point(78, 0.14, 18),
     driftZoneId: "neural-loop",
   },
   {
@@ -339,7 +339,7 @@ export const drift3dTrackNodes = [
     trackSlug: "hold-the-light",
     eraId: "new-signal",
     role: "anchor",
-    position: point(48, 0.16, -30),
+    position: point(52, 0.16, -28),
     driftZoneId: "hold-lamp",
   },
   {
@@ -347,7 +347,7 @@ export const drift3dTrackNodes = [
     trackSlug: "midnight-work",
     eraId: "new-signal",
     role: "anchor",
-    position: point(76, 0.18, -38),
+    position: point(84, 0.18, -42),
     driftZoneId: "midnight-office",
   },
   {
@@ -355,7 +355,7 @@ export const drift3dTrackNodes = [
     trackSlug: "telatelaba",
     eraId: "new-signal",
     role: "anchor",
-    position: point(84, 0.14, -4),
+    position: point(90, 0.14, -2),
     driftZoneId: "here-there-islands",
   },
   {
@@ -363,21 +363,21 @@ export const drift3dTrackNodes = [
     trackSlug: "le-monde-s-endort",
     eraId: "new-signal",
     role: "track",
-    position: point(60, 0.12, -52),
+    position: point(70, 0.12, -56),
   },
   {
     id: "new-signal-renee",
     trackSlug: "renee",
     eraId: "new-signal",
     role: "track",
-    position: point(40, 0.12, -44),
+    position: point(48, 0.12, -48),
   },
   {
     id: "new-signal-Panthere",
     trackSlug: "Panthere",
     eraId: "new-signal",
     role: "track",
-    position: point(82, 0.14, 30),
+    position: point(90, 0.14, 28),
   },
 ] as const satisfies readonly Drift3DTrackNode[];
 

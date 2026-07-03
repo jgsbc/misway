@@ -173,11 +173,14 @@ export function getDrift3DVehicleStartPosition() {
 }
 
 export function getDrift3DMovementBounds(): Drift3DMovementBounds {
+  const xMargin = 3.2;
+  const zMargin = 0;
+
   return {
-    minX: -DRIFT_3D_PLANE_WIDTH / 2 + 3.2,
-    maxX: DRIFT_3D_PLANE_WIDTH / 2 - 3.2,
-    minZ: -DRIFT_3D_PLANE_DEPTH / 2 + 3.2,
-    maxZ: DRIFT_3D_PLANE_DEPTH / 2 - 3.2,
+    minX: -DRIFT_3D_PLANE_WIDTH / 2 + xMargin,
+    maxX: DRIFT_3D_PLANE_WIDTH / 2 - xMargin,
+    minZ: -DRIFT_3D_PLANE_DEPTH / 2 + zMargin,
+    maxZ: DRIFT_3D_PLANE_DEPTH / 2 - zMargin,
   };
 }
 
