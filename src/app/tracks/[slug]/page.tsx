@@ -330,7 +330,7 @@ export default async function TrackDetailPage({ params }: Props) {
             Interested in sync, licensing, or collaboration?
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400">
-            If you're exploring this track for a project, remix, synchronization, or creative collaboration, get in touch directly.
+            If you&apos;re exploring this track for a project, remix, synchronization, or creative collaboration, get in touch directly.
           </p>
           <Link
             href="/about#contact"

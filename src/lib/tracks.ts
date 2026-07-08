@@ -25,7 +25,7 @@ const seedTracks: TrackSeed[] = [
     id: "B02",
     slug: "a-walk-in-zeeland",
     title: "A WALK IN ZEELAND",
-    yearLabel: "first steps",
+    yearLabel: "2005",
     publishedLabel: "Birth era",
     shortText: "An early open-air chamber, more spacious, more scenic, still instinctive.",
     longText:
@@ -39,7 +39,7 @@ const seedTracks: TrackSeed[] = [
     id: "B03",
     slug: "foolfoule",
     title: "FOOLFOULE",
-    yearLabel: "first steps",
+    yearLabel: "2006",
     publishedLabel: "Birth era",
     shortText: "A slightly unruly early fragment, playful in its way of testing the machine.",
     longText:
@@ -52,7 +52,7 @@ const seedTracks: TrackSeed[] = [
     id: "B04",
     slug: "jazzypling",
     title: "JAZZYPLING",
-    yearLabel: "first steps",
+    yearLabel: "2006",
     publishedLabel: "Birth era",
     shortText: "A light and crooked early groove, somewhere between play, rhythm and first curiosity.",
     longText:
@@ -65,7 +65,7 @@ const seedTracks: TrackSeed[] = [
     id: "B05",
     slug: "play-it",
     title: "PLAY IT",
-    yearLabel: "first steps",
+    yearLabel: "2008",
     publishedLabel: "Birth era",
     shortText: "A direct early gesture: simple, forward, and already wanting momentum.",
     longText:
@@ -81,7 +81,7 @@ const seedTracks: TrackSeed[] = [
     soundcloudUrl: "https://soundcloud.com/misway/rise",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/rise&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    yearLabel: "2016",
+    yearLabel: "2012",
     publishedLabel: "Older era",
     duration: "3:58",
     shortText: "An early ascent through shadow and momentum.",
@@ -98,7 +98,7 @@ const seedTracks: TrackSeed[] = [
     soundcloudUrl: "https://soundcloud.com/misway/blossoming",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/blossoming&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    yearLabel: "2016",
+    yearLabel: "2013",
     publishedLabel: "Older era",
     duration: "7:02",
     shortText: "Organic opening, slow emergence, internal bloom.",
@@ -115,7 +115,7 @@ const seedTracks: TrackSeed[] = [
     soundcloudUrl: "https://soundcloud.com/misway/ethnic-stick",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/ethnic-stick&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    yearLabel: "2016",
+    yearLabel: "2013",
     publishedLabel: "Older era",
     duration: "4:39",
     shortText: "Rhythmic matter, roots, texture and ritual residue.",
@@ -132,7 +132,7 @@ const seedTracks: TrackSeed[] = [
     soundcloudUrl: "https://soundcloud.com/misway/minuit-moins-cinq",
     embedUrl:
       "https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/misway/minuit-moins-cinq&color=%23050505&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false",
-    yearLabel: "2016",
+    yearLabel: "2014",
     publishedLabel: "Older era",
     duration: "5:10",
     shortText: "Threshold music: almost midnight, almost rupture.",
@@ -385,16 +385,30 @@ const seedTracks: TrackSeed[] = [
   },
   {
     id: "19",
-    slug: "renee-sens",
-    title: "RENEE SENS",
+    slug: "renee",
+    title: "RENEE",
     yearLabel: "2026",
     publishedLabel: "New era",
     shortText: "A fragile origin-point sketch, already pulled toward atmosphere and inner motion.",
     longText:
-      "One of the last tracks: remix of perdue, still raw and searching, but already drawn to mood, texture and emotional drift.",
+      "One of the last tracks: rework of perdue, still raw and searching, but already drawn to mood, texture and emotional drift.",
     tags: ["new era", "origin", "sensitive"],
     coverImage: "/images/tracks/renee-sens.png",
     coverHint: "First light through rough texture.",
+  },
+  {
+    id: "20",
+    slug: "Panthere",
+    title: "PANTHERE",
+    yearLabel: "2026",
+    publishedLabel: "New era",
+    shortText: "A Walk In Zeeland rework, more intense, more polished, ",
+    longText:
+      "When Birth Era meets New Era. The first gestures are still visible inside it, while carrying several shades of mature emotion.",
+    tags: ["new era", "horizon", "walk"],
+    coverHint: "Wind, distance and next horizon lines.",
+    coverImage: "/images/tracks/panthere.png",
+    featured: true,
   },
 ];
 

@@ -47,13 +47,21 @@ export default function GlobalIntroAudio() {
 
   useEffect(() => {
     const saved = sessionStorage.getItem("misway-sound");
+    let cancelled = false;
 
     if (saved === "off") {
-      setEnabled(false);
       return;
     }
 
-    playLoop();
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void playLoop();
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

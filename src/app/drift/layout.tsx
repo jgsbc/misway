@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Drift — Non-Linear Navigation in MISWΛY",
-  description: "Navigate MISWΛY through gentle chance and intuitive drift. Explore fragmented pathways, unstable directions, and serendipitous discoveries without optimization.",
+  title: "Drift — a drivable listening world (MISWΛY)",
+  description:
+    "Drive through MISWΛY: four eras, twenty-four track places, mountains, canals, storms and dawns. Explicit audio only — nothing plays without your click.",
   alternates: {
     canonical: "/drift/",
   },
   openGraph: {
-    title: "Drift — Chance Navigation in MISWΛY",
-    description: "Navigate MISWΛY through chance, drift, and intuitive pathways.",
+    title: "Drift — MISWΛY listening world",
+    description:
+      "A drivable 3D world where the MISWAY tracks become places.",
     url: "https://jgsbc.github.io/misway/drift/",
     type: "website",
   },

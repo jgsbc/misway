@@ -34,6 +34,8 @@ const notes = [
     "MISWΛY works best when the signal is felt before it is explained.",
 ];
 
+const driftTrackPool = featuredTracks.length ? featuredTracks : tracks;
+
 function pickOne<T>(items: T[]): T {
     return items[Math.floor(Math.random() * items.length)];
 }
@@ -42,23 +44,30 @@ export default function DriftPageClient() {
     const [signal, setSignal] = useState("cold light holding steady");
     const [vector, setVector] = useState("follow the line that bends without breaking");
     const [note, setNote] = useState("Drift is not confusion. It is a more porous way of navigating.");
-    const [track, setTrack] = useState(() =>
-        pickOne(featuredTracks.length ? featuredTracks : tracks)
-    );
-    const [mounted, setMounted] = useState(false);
+    const [track, setTrack] = useState(driftTrackPool[0]);
 
     useLayoutEffect(() => {
-        setSignal(pickOne(signalStates));
-        setVector(pickOne(vectors));
-        setNote(pickOne(notes));
-        setMounted(true);
+        let cancelled = false;
+
+        queueMicrotask(() => {
+            if (cancelled) return;
+
+            setSignal(pickOne(signalStates));
+            setVector(pickOne(vectors));
+            setNote(pickOne(notes));
+            setTrack(pickOne(driftTrackPool));
+        });
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     function reshuffle() {
         setSignal(pickOne(signalStates));
         setVector(pickOne(vectors));
         setNote(pickOne(notes));
-        setTrack(pickOne(featuredTracks.length ? featuredTracks : tracks));
+        setTrack(pickOne(driftTrackPool));
     }
 
     function nextChamber() {

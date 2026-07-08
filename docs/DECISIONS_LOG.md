@@ -23,6 +23,125 @@ Keep entries:
 
 ---
 
+## Drift 3D decisions
+
+### [2026-07-09] DRIFT-3D-33: Passage en production — /drift devient le monde 3D
+- Context: Directive propriétaire — « la page drift doit devenir la page drift-3d-lab, on passe en prod ».
+- Decision:
+  - `/drift` rend désormais `Drift3DClient` (monde 3D complet) avec métadonnées de production indexables (« a drivable listening world ») ; layout `/drift` aligné.
+  - `/drift-3d-lab` devient une redirection client vers `/drift` (export statique GitHub Pages ⇒ pas de redirect serveur), `noindex`, canonical vers `/drift/`, lien de secours visible.
+  - Intégrations basculées : `AudioPlayerProvider` (pas de reprise auto de l'ambiance du site sur `/drift`), `GlobalAudioPlayer` et `Navigation` masqués sur `/drift` comme ils l'étaient sur le lab (le monde plein écran a son propre chip audio et ses sorties).
+  - Habillage prod du client : en-tête « MISWΛY · Drift », description accessible réécrite (4x4 safari, terrain réel, audio explicite), boutons de sortie « MISWΛY » (accueil) et « Tracks » à la place de « Open 2D Lab / Back to Drift », aria-label du canvas dé-« expérimentalisé ».
+- Validation: lint PASS, build PASS (36 routes, /drift ○ statique). QA navigateur : `/drift` sert le monde (canvas + physique vivants, titre prod, nav primaire et player global absents), `/drift-3d-lab` redirige vers `/drift/`, zéro erreur console. Screenshot : Defender au spawn phares allumés sous l'en-tête MISWΛY · DRIFT.
+- Notes: le déploiement effectif (merge vers main + push GitHub Pages) reste une action à déclencher par le propriétaire ; `/drift-lab` (2D) reste accessible tel quel ; les sondes de QA (`__drift3dTeleport`, `__drift3dDebug`, `__drift3dRender`) sont gardées par `NODE_ENV !== "production"` et disparaissent du build exporté.
+
+---
+
+### [2026-07-08] DRIFT-3D-32: Densification du décor par dispersion instanciée
+- Context: Directive propriétaire — « densifier encore plus le décor » après le relief et le Defender.
+- Decision:
+  - `src/lib/drift3dScatter.ts` : dispersion déterministe de ~2400 candidats en 10 archétypes pilotés par les données — conifères sur les pentes du massif sous la ligne des neiges (altitude < 9, pente < 0.55), feuillus de plaine et de lisière urbaine, buissons (320), rochers d'éboulis liés à la pente (320), herbes hautes de la plaine céréalière (720), troncs argentés morts de New Signal, réverbères émissifs de Birth Yard, acacias du plateau d'ethnic-stick, coquelicots rouges autour de tantitom (le motif « la couleur revient » du color script), et immeubles à fenêtres (`cityBlock`) qui tissent le fond urbain de Birth Yard entre les scènes.
+  - Règles : rayon de protection de 8 autour des 25 nœuds, éligibilité par pente/altitude/poids d'éra, échelle et orientation aléatoires déterministes ; seuls les gros sujets (arbres, rochers, immeubles) à > 10 des nœuds deviennent des colliders.
+  - `Drift3DScatterField.tsx` : rendu InstancedMesh par partie d'archétype (tronc/feuillage/tête…), matrices posées une fois, textures partagées (fenêtres sur les cityBlocks), ombres portées instanciées.
+- Validation: lint PASS, build PASS, zéro erreur console. Perf en zone dense : 116 draw calls / 173k triangles (budgets ≤300 / ≤1,5M tenus). QA visuelle : versant boisé avec ombres, Defender cabré dans la pente (assiette OK), réverbère allumé en ville, arbres urbains.
+- Notes / restes: lot 29 (eau physique + éclaboussures + mare) toujours ouvert ; possibilité d'augmenter encore les densités par simple réglage des `count`/`density` ; vent sur la végétation (vertex wobble) et variation de teinte par instance (`setColorAt`) comme raffinements futurs ; le lot 31 (calibration + QA reachability complet) reste la dernière marche du plan validé.
+
+---
+
+### [2026-07-08] DRIFT-3D-27/28/30: Relief, physique verticale, Defender safari
+- Context: Directive propriétaire — monde plus riche et réaliste : vrai 4x4 type Defender safari, relief, sauts, éclaboussures, mares. Plan en 5 lots validé (véhicule procédural, relief marqué, récupération arcade). Lots 27/28/30 livrés ; 29 (eau physique + splash) et 31 (calibration finale) restent.
+- Decision:
+  - **27 — Terrain** (`src/lib/drift3dTerrain.ts`) : heightfield analytique (pics gaussiens, crêtes, cratères à rebord, rampes de saut à lèvre) dérivé des données éras/tracks — massif de 22 unités derrière rise, col de minuit, méga-rampe de blossoming, fosse de craie à chailk, gorge d'asitis, puits de relative, colline de midnight-work, belvédère du monde-s'endort, descente vers la mer de renee, canaux de Zeeland en creux (~-1.1), hautes terres de bordure remplaçant les murs artificiels (visuels supprimés, clamp physique conservé). Pads plats auto autour des 25 nœuds (centre 2.6, fondu 6+). Sol maillé 224×144 segments déplacé + normales recalculées ; zones/landmarks/props/FX posés à la hauteur du terrain ; disques d'éra abstraits supprimés ; pont de Zeeland remonté au niveau du quai.
+  - **28 — Physique verticale** : gravité 22, décollage balistique quand le sol se dérobe (> 8.5 u/s), vitesse verticale de pente conservée à la lèvre (vrais sauts de rampe), atterrissage avec impact mesuré, contrôle aérien réduit (14 %), pente qui freine la montée/accélère la descente (facteur 0.3–1.3), assiette tangage/roulis alignée sur la normale du terrain (Euler YXZ sur le véhicule), piqué léger en vol. Télémétrie validée : envol air=1 sur rupture de pente, chute y 10.8→6.1, atterrissage, descente fluide du massif jusqu'à la plaine.
+  - **30 — Defender safari procédural** (`Drift3DVehicle.tsx` réécrit) : caisse anguleuse sable, capot plat, toit blanc, vitrage, galerie chargée (malle bois, jerrycan, roue de secours), snorkel, pare-buffle, phares ronds émissifs + **spotlight diégétique** qui porte la nuit, feux arrière, 4 roues qui roulent vraiment (`setWheelRoll`, rayon exporté). Garde au sol physique 0.24→0.02 (référence = contact roues).
+- Validation: lint PASS, build PASS, zéro erreur console, 153 fps en pleine résolution terrain. QA visuelle : Defender reconnaissable de nuit devant la cave de jazz, faisceau de phares au sol.
+- Notes: un blocage GPU du navigateur de preview (session empoisonnée par accumulation de contextes WebGL en HMR) a mimé un freeze du terrain — résolu par redémarrage complet de la preview ; à connaître pour les futures QA. Restes : lot 29 (plans d'eau physiques, éclaboussures, enfoncement dans la mare + récupération arcade, poussière d'atterrissage via `landingImpact` déjà exposé), lot 31 (calibration feel + QA reachability des 24 nœuds sur relief + re-mesure perf), suspension qui pompe à l'atterrissage, roues directrices visuelles.
+
+---
+
+### [2026-07-08] DRIFT-3D-24/25/26: Photo-PBR lite, normal maps, audit perf
+- Context: Derniers chantiers techniques de la bible réalisme, enchaînés en autonomie après 21/22/23.
+- Decision:
+  - **24 — Photo-textures CC0** : cinq diffuses 1K Poly Haven téléchargées dans `public/textures/` (rock_boulder_dry, red_brick_03, concrete_wall_008, brown_planks_07, aerial_beach_01) et branchées dans `drift3dTextureFactory` pour rock/brick/concrete/wood/sand ; le procédural reste pour les grilles artificielles (fenêtres, plâtre, granit, chaume). La teinte `color` des primitives module la photo (brique nocturne de midnight-work, basalte sombre de la cave).
+  - **25 — Normal maps** : les cinq `_nor_gl_1k` associées, exposées via `getDriftMaterialMaps()` (diffuse + normale, cache partagé, colorSpace linéaire, normalScale 0.8) — le relief accroche la lumière rasante des couchants et de la lune.
+  - **26 — Audit perf** : sonde dev `window.__drift3dRender` (draw calls / triangles depuis `gl.info`). Mesures aux trois points chauds : zeeland+réflecteurs 84 calls / 29k tris / 68 fps ; foolfoule+foule 83 calls / 27,5k tris / 137 fps ; tempête+pluie 62 calls / 10,7k tris / 128 fps. Budgets bible (≤300 calls, ≤1,5M tris, 60 fps desktop) tenus avec une marge ×3 à ×50 — aucune optimisation nécessaire à ce stade.
+  - Retouche signature : flag `noFade` sur les jambes du λ de la grotte — la porte-signature ne s'estompe plus au passage (le fade d'occlusion reste actif partout ailleurs).
+- Validation: lint PASS, build PASS, zéro erreur console, textures vérifiées à l'écran (roche de la cave, planches du pont, quai béton).
+- Notes / restes: KTX2/compression et roughness maps si le poids devient un sujet (10 JPG ≈ 5,7 Mo actuellement, chargés à la demande par le navigateur) ; les 24 frames de référence du color script restent à produire pour validation humaine ; `Panthere` attend toujours une clarification ; prochaine marche de réalisme = modèles CC retravaillés (véhicule, passeur, mobilier urbain) et foule animée par vertex.
+
+---
+
+### [2026-07-07] DRIFT-3D-21/22/23: Confort caméra, eau réfléchissante, ambiances sonores par zone
+- Context: Enchaînement autonome des lots restants de la bible réalisme après la passe FX (20).
+- Decision:
+  - **21 — Confort visuel** (`Drift3DLandmark.tsx`) : fade d'occlusion — toute pièce haute qui s'interpose entre la caméra oblique nord et le véhicule fond à ~0.22 d'opacité (approximation de la ligne de visée du rig de base, lissage 6/s, depthWrite géré) ; toits propres (cap sombre) ajoutés automatiquement sur les boîtes à matériau fenêtres — les fenêtres ne se plaquent plus sur les toits.
+  - **22 — Eau des canaux** : les deux plans d'eau de Zeeland sont rendus par le `Reflector` des examples three.js (réflexion planaire réelle 512², clipBias 0.003, teinte #33586e) via un flag `water` dans les données de landmarks — zéro dépendance nouvelle ; ciel et pont se reflètent dans les canaux au couchant.
+  - **23 — Ambiances diégétiques** (`src/lib/drift3dAmbience.ts`) : moteur WebAudio 100 % synthétisé (bruit blanc/brun filtré + LFO) — rumeur urbaine grave, vent d'altitude qui respire, nappe de plaine, stridulation nocturne, pluie dense sur la lande, ressac lent sur la plage. Mix asservi à la position (mêmes poids de région que l'atmosphère), ducking sous la musique d'un track (0.13 → 0.045). Gouvernance audio respectée : **opt-in explicite** via un chip AMBIANCE ON/OFF (défaut OFF), aucun son sans geste utilisateur. `vehicleStateRef` remonté de la scène vers le canvas pour alimenter le moteur.
+- Validation: lint PASS, build PASS, zéro erreur console. QA : reflet du ciel dans les canaux au couchant, tour de foolfoule translucide quand elle masque le véhicule (foule visible à travers), chip AMBIANCE ON fonctionnel après clic, HUD correct après téléportation.
+- Notes / restes: le reflet d'eau ignore le fog (shader Reflector) — acceptable en zone locale, à revoir si des plans d'eau lointains apparaissent ; les couches d'ambiance sont synthétiques (upgrade possible vers des boucles enregistrées à la passe assets) ; photo-PBR Poly Haven/KTX2 et passe perf (draw calls, LOD, streaming) restent les deux derniers chantiers de la bible, plus les 24 frames de référence du color script à produire pour validation humaine.
+
+---
+
+### [2026-07-07] DRIFT-3D-20: FX diégétiques + post-processing sobre
+- Context: Passe FX de la méthode imposée (bible §méthode 4), après lumière (18) et scènes figuratives (19).
+- Decision:
+  - `src/components/drift-3d/Drift3DEffects.tsx` : pluie de tempête localisée sur hold-the-light (380 stries instanciées, inclinaison vent, intensité asservie à la distance, invisible au loin) ; foule de foolfoule (130 silhouettes capsules instanciées, marche synchronisée au même pas — cadence mécanique — qui s'écarte du véhicule sans le regarder) ; poussière dorée en nappe dérivante sur le village d'ethnic-stick ; lucioles clignotantes sur la colline de midnight-work. Tous les effets s'éteignent hors de portée (règle fallback mobile).
+  - Post-processing sobre en overlay CSS dans `Drift3DCanvas` (vignette douce radiale + grain SVG feTurbulence en mix-blend overlay, opacité 5 %) — choix délibéré de ne PAS installer EffectComposer pour préserver le pipeline d'exposition scriptée ACES du rig d'atmosphère ; SSAO/bloom seront réévalués à la passe perf.
+  - Sonde QA enrichie : `window.__drift3dTeleport` (dev-only) téléporte le véhicule et force le rafraîchissement de proximité (le HUD restait périmé après téléportation car la proximité ne se recalculait qu'au mouvement).
+- Validation: lint PASS, build PASS, zéro erreur console. QA : pluie + passeur à la lanterne validés en une image (phrase-test OK), foule visible en rangs à foolfoule, texture fenêtres lisible sur les tours, HUD correct après téléportation. QA rendue non déterministe par la conduite simultanée de l'utilisateur dans la preview — constaté et contourné par teleport+screenshot rapprochés.
+- Notes / restes: fenêtres plaquées aussi sur le toit des tours (prévoir cap de toit ou UV par face à la passe assets) ; fade de transparence des occludeurs quand un bâtiment s'interpose entre caméra et véhicule ; village/minuit/morne-et non revus visuellement (géométrie du même patron que les scènes validées) ; reflets d'eau, photo-PBR, audio d'ambiance par zone et passe perf (draw calls/LOD) toujours ouverts.
+
+---
+
+### [2026-07-07] DRIFT-3D-19: Scènes figuratives, matériaux, heures par track, grading caméra/vitesse
+- Context: Suite du pivot réalisme (`DRIFT-3D-18`). La lumière était en place mais les scènes restaient des primitives symboliques et l'heure était uniforme par era.
+- Decision:
+  - `src/lib/drift3dLandmarks.ts` réécrit en scènes figuratives : grotte au λ taillé dans la roche + contre-jour d'aube ; canaux de Zeeland (eau, quai, pont de bois à rambardes, bollards, maisons de brique à toits pointus) ; canyon de tours verre/granit ; ruelle de jazz (murs de brique, descente de cave, enseigne néon diégétique, pavés mouillés) ; quartier d'affaires (blocs à fenêtres, bouche de métro, horloge de rue) ; massif enneigé avec refuge et cairn ; versant d'adrénaline à fanions ; village de terre à toits de chaume et feu central ; bifurcation λ sous horloge figée ; lotissement de pavillons identiques ; bâtisse sans fenêtres sous brume ; horloge brisée au sol ; forêt de troncs argentés ; gorge de glace ; le passeur (silhouette humaine tenant sa lanterne) ; maison de minuit avec toit, cheminée et l'unique fenêtre ; labyrinthe haies+miroirs ; skyline nocturne à fenêtres éparses ; plage avec bois flotté et pierre à face polie.
+  - `src/components/drift-3d/drift3dTextureFactory.ts` : textures procédurales canvas mises en cache (brique, béton, granit, roche, plâtre, bois, fenêtres jour/nuit, sable, chaume) — plus aucune surface en couleur unie ; placeholder assumé avant la passe photo-PBR.
+  - Sous-zones d'heure scriptée dans `drift3dAtmosphere.ts` (champ `strength`) : couchant doré sur Zeeland, nuit urbaine sur jazzypling, brouillard blanc dense sur chailk, tempête écrasée sur hold-the-light.
+  - `src/lib/drift3dCinematography.ts` + param `speedScale` dans la physique : table vitesse/zoom par track (time ×0,4, blossoming ×1,3, renee ×0,6, telatelaba ×0,7…), easing à l'entrée/sortie des nœuds, zoom cinématique multiplié au zoom utilisateur dans le rig caméra.
+  - `NightSky` : champ d'étoiles qui suit le véhicule, opacité asservie à la luminance du ciel scripté (visible uniquement de nuit), fog désactivé sur le matériau.
+  - Murs de limite re-teintés pierre sombre (#57534a).
+- Validation: lint PASS, build PASS. QA navigateur : couchant ambré sur le canal (pont, bollards, ombres longues vers l'est), nuit réelle à New Signal avec fenêtre de midnight-work qui porte à distance, scène du passeur validée à la phrase-test (« quelqu'un debout sous l'orage qui tient une lanterne »), chute de vitesse mesurée 6.4→3.2 en frôlant le nœud time puis restauration à la sortie. Zéro erreur console.
+- Notes / restes: pluie et FX (poussière, foule, glace) non faits ; post-processing (SSAO/bloom/grain/LUT) non fait ; reflets planaires de l'eau non faits ; passe photo-PBR Poly Haven/KTX2 à venir ; Older Shadows toujours vérifié par coordonnées seulement ; anomalie ponctuelle de téléportation du véhicule observée une fois pendant la QA (position +165 unités — probablement throttling d'onglet en arrière-plan pendant les evals, à surveiller en usage réel).
+
+---
+
+### [2026-07-07] DRIFT-3D-18: Pivot réalisme — bible artistique + passe lumière/atmosphère
+- Context: Directive du propriétaire — abandonner les inspirations graphiques abstraites pour l'environnement. Le monde doit devenir figuratif, réaliste, cinématographique. Un document d'intention complet (zones, tracks, lumière, méthode) a été fourni et fait foi.
+- Decision:
+  - `docs/DRIFT_3D_REALISM_BIBLE.md` créé = source de vérité artistique. `docs/DRIFT_3D_COLOR_SCRIPT.md` créé = étape 1 de la méthode (palette/heure/météo/émotion/phrase-test par track, 24 + entrée). Bannières de caducité posées sur `DRIFT_3D_ART_DIRECTION.md`, `DRIFT_3D_SET_DESIGN_BLUEPRINT.md`, `DRIFT_3D_TRACK_SCENE_MATRIX.md` (leurs règles gameplay restent valides).
+  - Étape 3 de la méthode implémentée (passe lumière/atmosphère) : `src/lib/drift3dAtmosphere.ts` — color script runtime, 5 états régionaux (grotte noire d'aube, matin laiteux urbain, altitude limpide, couvert plat, nuit d'argent) mélangés continûment par position du véhicule, avec lissage temporel (adaptation d'exposition 2–3 s en sortie de grotte).
+  - Rendu : tonemapping ACES + exposition scriptée, fogExp2 teinté par zone, UNE directionnelle (soleil/lune) qui suit le véhicule avec shadow map 2048, hémisphérique + ambiante pilotées, ciel = couleur de fond dynamique.
+  - Sol : texture canvas générée (512²) — albédo mélangé par zone (asphalte sale, roche ocre, champ vert-jaune, nuit froide) + grain + carrière de craie blanche autour de `chailk`. Plus de couleur unie.
+  - Audit anti-abstrait : émissifs non diégétiques supprimés (monolithe, miroirs, marqueurs, flèches, étoiles flottantes) ; les sources restantes sont diégétiques et couplées à de vraies pointLights (cave de jazz, lanternes tantitom, lanterne hold-the-light, fenêtre midnight-work) ; disques-plateformes des nœuds réduits à des marquages au sol discrets (opacité 0.9 → 0.14–0.18).
+  - Ombres : Canvas `shadows`, landmarks cast+receive, véhicule cast (traverse onUpdate), sol receive.
+- Validation: lint PASS, build PASS. QA navigateur : grotte sombre au spawn, ombre portée réelle et grain de sol dans Birth Yard, Vegetative Field plate sans ombre marquée avec blanchiment craie, New Signal en vraie nuit avec l'unique fenêtre chaude de midnight-work qui porte — la phrase-test passe sur cette scène. Zéro erreur console.
+- Notes: sonde dev-only `window.__drift3dDebug` (position/vitesse) ajoutée pour la calibration. Restent pour les lots suivants (bible §méthode 2/4) : matériaux PBR photo-sourcés (Poly Haven/KTX2), geometry figurative par scène (la maison de midnight-work est encore une boîte), post-processing (SSAO/bloom/grain/LUT), ciel étoilé/HDRI, table caméra/vitesse par track, murs de limite à remplacer par des barrières naturelles, Older Shadows non visité en QA (valeurs posées par symétrie).
+
+---
+
+### [2026-07-06] DRIFT-3D-16D: Narrative landmarks extruded into 3D primitives
+- Context: After the driving pivot (`DRIFT-3D-17`), the world had real physics but no physical set design — eras read as flat color zones, failing the art direction acceptance criteria ("if the user sees only color/fog variation, the lot fails"). `DRIFT_3D_SET_DESIGN_BLUEPRINT.md` and `DRIFT_3D_TRACK_SCENE_MATRIX.md` defined the motif per track; `16D` was the documented next code lot.
+- Decision: All 24 track nodes plus the Entry threshold received primitive landmarks (boxes, cylinders, cones, spheres) driven by a data file, anchored to topology node positions so future topology moves carry the scenery. Large pieces are solid colliders for the driving physics. Two era-level fillers added (Vegetative crop rows). Camera rig widened (height 4.35→6, depth 7.8→10.4, max zoom 1.28→1.6) and fog pushed out (12.5/33.5→20/64) because the old close-up rig — tuned for micro-props — made the new landmarks invisible; the v2 layout doc explicitly allowed re-evaluating the camera "if the larger world becomes unreadable".
+- Key set-design rule discovered during QA: with the fixed north-looking oblique camera, any mass taller than ~1.6 units placed south of a travel lane within ~2.2 units of the camera axis hides the vehicle. Landmarks therefore flank lanes east/west or sit north of nodes; south sides stay open (fourth-wall principle). The Entry cave uses a flat dark floor pad instead of a south mass for this reason.
+- Why: Makes each era identifiable as a place (cave mouth, urban canyon, ridge cones, canal strips, ice monolith, storm lamp, mirror maze…) and gives the new driving physics real things to collide with, per the user's "make the world real" direction.
+- Files affected: `src/lib/drift3dLandmarks.ts` (new), `src/components/drift-3d/Drift3DLandmark.tsx` (new), `src/components/drift-3d/Drift3DScene.tsx` (landmark rendering, merged colliders, fog), `src/lib/drift3d.ts` (camera constants), `docs/DECISIONS_LOG.md`.
+- Validation: lint PASS, build PASS (36 routes), browser QA — cave collision stops the vehicle, Foolfoule and Zeeland nodes trigger HUD with LISTEN/OPEN NODE, single `<audio>`, no console errors, no autoplay.
+- Follow-up needed: visual pass on the remaining eras in motion (Older Shadows, Vegetative Field, New Signal were placed by rule, spot-checked only via coordinates); Panthere stays a cautious low-profile placeholder pending human clarification; drive-feel calibration (speed/grip/zoom) still open for human judgment.
+
+---
+
+### [2026-07-06] DRIFT-3D-17: Driving pivot — real car-game physics and collision
+- Context: `/drift-3d-lab` moved a small capsule "listening module" through the world with a direct input-vector-to-position mapping (constant speed, instant direction change, no collision). Prior doctrine in `docs/DRIFT_3D_ART_DIRECTION.md` and `docs/DRIFT_3D_SET_DESIGN_BLUEPRINT.md` explicitly stated "should not feel like a car simulator," "the vehicle is not a car," and "no collision logic is introduced at this stage." The user explicitly requested a pivot toward real small car-game driving to make the world feel physically present, and was asked to choose given the doctrine conflict.
+- Decision: PIVOT approved. Drift 3D now uses hand-rolled arcade car physics (acceleration, braking/friction, speed-dependent steering, a slip/grip model producing visible drift on hard turns) and solid circle-collision against existing decorative props plus the world boundary. No new dependency (no physics engine) was added, per the project's existing "no new dependency" posture. No score, no checkpoints, no lap timer, no fail state — driving feel and physical presence only, not a race/game layer.
+- Why: Requested directly by the site owner; the existing movement felt weightless and the decor had no physical presence, undermining the "make the world real" goal. A hand-rolled arcade model avoids bundle weight and keeps behavior predictable on mobile, consistent with the project's static-export/perf constraints.
+- Impact: `docs/DRIFT_3D_ART_DIRECTION.md` §14.2 amended (navigation principle) and §3.3 amended (physics gimmicks line scoped down); `docs/DRIFT_3D_SET_DESIGN_BLUEPRINT.md` §8 amended (collision note). Runtime: new `src/lib/drift3dVehiclePhysics.ts`; `src/components/drift-3d/Drift3DScene.tsx` vehicle motion rewritten to integrate physics per frame and resolve collisions; `src/components/drift-3d/Drift3DVehicle.tsx` gained a lean/tilt visual for drift feedback; a low perimeter boundary wall was added so the world edge reads as a physical wall, not an invisible clamp.
+- Files affected: `docs/DRIFT_3D_ART_DIRECTION.md`, `docs/DRIFT_3D_SET_DESIGN_BLUEPRINT.md`, `docs/DECISIONS_LOG.md`, `src/lib/drift3dVehiclePhysics.ts`, `src/lib/drift3d.ts`, `src/components/drift-3d/Drift3DScene.tsx`, `src/components/drift-3d/Drift3DVehicle.tsx`.
+- Follow-up needed: manual QA of drive feel and collision against every era (desktop + touch/drag), confirm `/drift`, `/drift-lab`, `/drift-3d-lab` isolation is unchanged, confirm single `<audio>` element and no autoplay regression, confirm build/lint pass.
+
+---
+
 ## Initial decisions
 
 ### [2026-04-20] Homepage must remain a splashscreen

@@ -13,10 +13,19 @@ const links = [
   { href: "/about", label: "Info", icon: Info },
 ];
 
+function isDrift3DLabPath(pathname: string | null) {
+  if (!pathname) return false;
+
+  const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
+
+  // le monde 3D plein écran vit désormais sur /drift (l'ancien lab redirige)
+  return /(^|\/)(drift|drift-3d-lab)(\/|$)/.test(normalizedPathname);
+}
+
 export default function Navigation() {
   const pathname = usePathname();
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || isDrift3DLabPath(pathname)) return null;
 
   return (
     <motion.nav

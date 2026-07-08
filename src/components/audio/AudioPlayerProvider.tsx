@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 import type { Track } from "@/lib/tracks";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
@@ -54,8 +55,22 @@ const AMBIENT_AUDIO: AmbientAudio = {
 
 const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
 
+const DRIFT_LAB_ROUTES = ["/drift", "/drift-lab", "/drift-3d-lab"] as const;
+
 function toPlayerTrack(track: Track): PlayerTrack {
   return { ...track, kind: "track" };
+}
+
+function isDriftLabPath(pathname: string | null) {
+  if (!pathname) return false;
+
+  const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
+
+  return DRIFT_LAB_ROUTES.some(
+    (route) =>
+      normalizedPathname === route ||
+      normalizedPathname.startsWith(`${route}/`)
+  );
 }
 
 function getTrackIndex(slug: string) {
@@ -97,8 +112,11 @@ export function AudioPlayerProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isDriftLabRoute = isDriftLabPath(pathname);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const interactionRetryRef = useRef(false);
+  const isDriftLabRouteRef = useRef(isDriftLabRoute);
   const shouldResumeRef = useRef(true);
 
   const [current, setCurrent] = useState<CurrentAudio>(AMBIENT_AUDIO);
@@ -106,6 +124,15 @@ export function AudioPlayerProvider({
   const [isLooping, setIsLooping] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    isDriftLabRouteRef.current = isDriftLabRoute;
+
+    if (isDriftLabRoute && current.kind === "ambient") {
+      interactionRetryRef.current = false;
+      shouldResumeRef.current = false;
+    }
+  }, [current.kind, isDriftLabRoute]);
 
   const playCurrent = useCallback(async () => {
     const audio = audioRef.current;
@@ -138,8 +165,10 @@ export function AudioPlayerProvider({
       audio.preload = "metadata";
       audio.load();
 
-      setCurrentTime(0);
-      setDuration(0);
+      if (isDriftLabRouteRef.current && audioItem.kind === "ambient") {
+        interactionRetryRef.current = false;
+        shouldResumeRef.current = false;
+      }
 
       if (shouldResumeRef.current) {
         await playCurrent();
@@ -149,7 +178,17 @@ export function AudioPlayerProvider({
   );
 
   useEffect(() => {
-    void syncSource(current);
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void syncSource(current);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [current, syncSource]);
 
   useEffect(() => {
@@ -212,6 +251,12 @@ export function AudioPlayerProvider({
   useEffect(() => {
     const retry = () => {
       if (interactionRetryRef.current) {
+        if (isDriftLabRouteRef.current && current.kind === "ambient") {
+          interactionRetryRef.current = false;
+          shouldResumeRef.current = false;
+          return;
+        }
+
         shouldResumeRef.current = true;
         void playCurrent();
       }
@@ -226,7 +271,7 @@ export function AudioPlayerProvider({
       window.removeEventListener("keydown", retry);
       window.removeEventListener("touchstart", retry);
     };
-  }, [playCurrent]);
+  }, [current.kind, playCurrent]);
 
   const togglePlayback = useCallback(() => {
     const audio = audioRef.current;
@@ -285,6 +330,8 @@ export function AudioPlayerProvider({
       }
 
       shouldResumeRef.current = true;
+      setCurrentTime(0);
+      setDuration(0);
       setCurrent(toPlayerTrack(track));
     },
     [current, playCurrent]
@@ -306,6 +353,8 @@ export function AudioPlayerProvider({
       }
 
       shouldResumeRef.current = true;
+      setCurrentTime(0);
+      setDuration(0);
       setCurrent(toPlayerTrack(track));
     },
     [current, playCurrent]

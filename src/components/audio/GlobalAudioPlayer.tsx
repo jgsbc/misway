@@ -12,6 +12,15 @@ function formatTime(value: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function isDrift3DLabPath(pathname: string | null) {
+  if (!pathname) return false;
+
+  const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
+
+  // le monde 3D plein écran vit désormais sur /drift (l'ancien lab redirige)
+  return /(^|\/)(drift|drift-3d-lab)(\/|$)/.test(normalizedPathname);
+}
+
 export default function GlobalAudioPlayer() {
   const pathname = usePathname();
   const {
@@ -35,7 +44,7 @@ export default function GlobalAudioPlayer() {
     return `${current.title} / ${current.publishedLabel}`;
   }, [current]);
 
-  if (pathname === "/") {
+  if (pathname === "/" || isDrift3DLabPath(pathname)) {
     return null;
   }
 

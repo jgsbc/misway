@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1500" role="img" aria-labelledby="blueprint-title blueprint-desc">
+  <title id="blueprint-title">MISWAY Drift 3D narrative set design blueprint</title>
+  <desc id="blueprint-desc">Topology-derived 2D blueprint for the Drift 3D world. World x runs left to right, world z runs bottom to top, and the map is laid out from the Entry threshold into the four eras with corridors, node protections, landmark scaffolds and track-level scene cues.</desc>
+  <style>
+    .bg { fill: #08101c; }
+    .frame { fill: #11192a; stroke: #d7e3ff; stroke-opacity: 0.42; stroke-width: 2; }
+    .grid { stroke: #2c3957; stroke-opacity: 0.45; stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .axis { stroke: #8ca3d9; stroke-opacity: 0.65; stroke-width: 1.4; stroke-dasharray: 10 10; vector-effect: non-scaling-stroke; }
+    .axis-label { fill: #d6def5; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; letter-spacing: 0.18em; }
+    .era-label { fill: #f7f9ff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 24px; font-weight: 700; letter-spacing: 0.24em; }
+    .era-note { fill: #d9e1f6; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; letter-spacing: 0.14em; }
+    .landmark-note { fill: #d9e1f6; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; letter-spacing: 0.12em; }
+    .corridor-wide { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 28; opacity: 0.16; }
+    .corridor-line { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 6; stroke-dasharray: 18 16; opacity: 0.9; }
+    .prop-safe { fill: none; stroke-width: 2; stroke-dasharray: 10 10; opacity: 0.8; }
+    .no-prop { fill: none; stroke-width: 2.2; stroke-dasharray: 8 10; opacity: 0.6; vector-effect: non-scaling-stroke; }
+    .node-label { fill: #f7f9ff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; paint-order: stroke fill; stroke: #08101c; stroke-width: 4px; stroke-linejoin: round; }
+    .legend-title { fill: #f7f9ff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.16em; }
+    .legend-text { fill: #d9e1f6; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; letter-spacing: 0.08em; }
+    .node-protect-birth { stroke: #ff6c8d; }
+    .node-protect-older { stroke: #ffbb66; }
+    .node-protect-veg { stroke: #a8ff72; }
+    .node-protect-signal { stroke: #70d8ff; }
+    .node-protect-entry { stroke: #b88cff; }
+  </style>
+
+  <defs>
+    <symbol id="motif-canal" viewBox="-18 -18 36 36">
+      <path d="M -15 2 C -10 -4 -5 8 0 2 S 10 -4 15 2" fill="none" stroke="#9fd7ff" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M -15 8 C -10 2 -5 12 0 6 S 10 2 15 8" fill="none" stroke="#ffb35a" stroke-width="1.8" stroke-linecap="round"/>
+      <rect x="-15" y="-13" width="30" height="4" rx="2" fill="#ffcf86" opacity="0.52"/>
+    </symbol>
+    <symbol id="motif-grid" viewBox="-18 -18 36 36">
+      <rect x="-14" y="-12" width="8" height="24" fill="#ff6d8b"/>
+      <rect x="-2" y="-12" width="8" height="24" fill="#ffb35a"/>
+      <rect x="10" y="-12" width="4" height="24" fill="#d7e3ff"/>
+      <path d="M -15 -6 L 15 -6 M -15 6 L 15 6" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-alley" viewBox="-18 -18 36 36">
+      <path d="M -14 12 L -6 2 L -2 6 L 4 -2 L 14 -12" fill="none" stroke="#ff7ca6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M -8 14 L -8 -2 M 2 10 L 2 0" stroke="#ffcf69" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-metro" viewBox="-18 -18 36 36">
+      <path d="M -15 0 L 15 0" stroke="#d7e3ff" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="-7" cy="0" r="3" fill="#ff6d8b"/>
+      <circle cx="0" cy="0" r="3" fill="#6ee1ff"/>
+      <circle cx="7" cy="0" r="3" fill="#f3d27a"/>
+      <path d="M -11 10 L -11 -10 M 11 10 L 11 -10" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-summit" viewBox="-18 -18 36 36">
+      <path d="M -14 12 L 0 -12 L 14 12 Z" fill="#ffbf61" opacity="0.35" stroke="#ffbf61" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M -6 8 L 0 -4 L 6 8" fill="none" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="motif-ramp" viewBox="-18 -18 36 36">
+      <path d="M -14 10 L 8 -10" stroke="#ff9e50" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M -4 10 C 1 4 4 2 10 -2" fill="none" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-staff" viewBox="-18 -18 36 36">
+      <path d="M 0 14 L 0 -14" stroke="#f8da9a" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="0" cy="-8" r="6" fill="none" stroke="#d97c2d" stroke-width="2.4"/>
+      <path d="M -10 6 L 10 6" stroke="#f8da9a" stroke-width="1.8" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-fork" viewBox="-18 -18 36 36">
+      <path d="M 0 14 L 0 0 M 0 0 L -10 -10 M 0 0 L 10 -10" stroke="#ffcf69" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="0" cy="2" r="3" fill="#ff6d8b"/>
+    </symbol>
+    <symbol id="motif-fade" viewBox="-18 -18 36 36">
+      <path d="M -14 -2 L 14 -2" stroke="#9fd7ff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M -14 8 L 6 8" stroke="#9fd7ff" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+      <circle cx="8" cy="8" r="3" fill="#6f8dbb"/>
+    </symbol>
+    <symbol id="motif-loop" viewBox="-18 -18 36 36">
+      <path d="M -10 0 C -10 -10 10 -10 10 0 C 10 10 -10 10 -10 0 Z" fill="none" stroke="#93ff72" stroke-width="2.4"/>
+      <circle cx="0" cy="0" r="3.5" fill="#d7e3ff"/>
+    </symbol>
+    <symbol id="motif-eye" viewBox="-18 -18 36 36">
+      <ellipse cx="0" cy="0" rx="12" ry="7" fill="none" stroke="#b9d8ff" stroke-width="2.3"/>
+      <circle cx="0" cy="0" r="3.2" fill="#ffcf69"/>
+      <path d="M -13 8 L 13 -8" stroke="#7fa0ce" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+    </symbol>
+    <symbol id="motif-zero" viewBox="-18 -18 36 36">
+      <circle cx="0" cy="0" r="9" fill="none" stroke="#d7e3ff" stroke-width="2.8"/>
+      <path d="M -8 -8 L 8 8" stroke="#ffcf69" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-clock" viewBox="-18 -18 36 36">
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#d7e3ff" stroke-width="2.4" stroke-dasharray="12 5"/>
+      <path d="M 0 0 L 0 -7 M 0 0 L 6 2" stroke="#f3d27a" stroke-width="2.2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-lantern" viewBox="-18 -18 36 36">
+      <rect x="-4" y="-2" width="8" height="10" rx="2" fill="#ffcf69" opacity="0.7" stroke="#d97c2d" stroke-width="2"/>
+      <path d="M -8 8 L 8 8" stroke="#d7e3ff" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M -6 -6 L 0 -12 L 6 -6" fill="none" stroke="#ffcf69" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="motif-pit" viewBox="-18 -18 36 36">
+      <path d="M -12 -8 L 0 10 L 12 -8" fill="none" stroke="#7439d9" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M 0 10 L 0 16" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 0 16 L -4 12 M 0 16 L 4 12" stroke="#d7e3ff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-ice" viewBox="-18 -18 36 36">
+      <path d="M -8 -12 L 8 -12 L 12 10 L -12 10 Z" fill="#72e9ff" opacity="0.18" stroke="#72e9ff" stroke-width="2.4"/>
+      <path d="M -8 2 L 8 2" stroke="#d7e3ff" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M -4 -4 L 4 6" stroke="#d7e3ff" stroke-width="1.8" stroke-linecap="round" opacity="0.75"/>
+    </symbol>
+    <symbol id="motif-well" viewBox="-18 -18 36 36">
+      <circle cx="0" cy="0" r="10" fill="none" stroke="#a66dff" stroke-width="2.4"/>
+      <path d="M -6 8 C -2 4 2 0 0 -6 C -2 -10 4 -12 8 -10" fill="none" stroke="#6ee1ff" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="motif-crack" viewBox="-18 -18 36 36">
+      <path d="M -14 12 L -8 4 L -2 10 L 4 0 L 10 6 L 14 -10" fill="none" stroke="#ff7ca6" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M -14 12 L 14 12" stroke="#d7e3ff" stroke-width="1.8" stroke-linecap="round" opacity="0.55"/>
+    </symbol>
+    <symbol id="motif-storm" viewBox="-18 -18 36 36">
+      <path d="M -10 -8 L 10 -8" stroke="#d7e3ff" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M -4 -8 L -4 12" stroke="#ffcf69" stroke-width="3" stroke-linecap="round"/>
+      <path d="M -12 6 L 12 6" stroke="#6ee1ff" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+    </symbol>
+    <symbol id="motif-office" viewBox="-18 -18 36 36">
+      <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#d7e3ff" stroke-width="2.2"/>
+      <path d="M -12 -4 L 12 -4 M -12 4 L 12 4 M -4 -12 L -4 12 M 4 -12 L 4 12" stroke="#ffcf69" stroke-width="1.5" opacity="0.8"/>
+    </symbol>
+    <symbol id="motif-mirror" viewBox="-18 -18 36 36">
+      <rect x="-12" y="-8" width="14" height="16" fill="none" stroke="#d7e3ff" stroke-width="2.2"/>
+      <rect x="-2" y="-12" width="14" height="20" fill="none" stroke="#b97cff" stroke-width="2.2" opacity="0.8"/>
+      <path d="M -12 10 L 12 -10" stroke="#6ee1ff" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+    </symbol>
+    <symbol id="motif-dim" viewBox="-18 -18 36 36">
+      <rect x="-14" y="0" width="6" height="8" fill="#d7e3ff" opacity="0.8"/>
+      <rect x="-5" y="-4" width="6" height="12" fill="#d7e3ff" opacity="0.55"/>
+      <rect x="4" y="-8" width="6" height="16" fill="#d7e3ff" opacity="0.32"/>
+      <rect x="13" y="-12" width="2" height="20" fill="#d7e3ff" opacity="0.18"/>
+    </symbol>
+    <symbol id="motif-stone" viewBox="-18 -18 36 36">
+      <path d="M -12 8 L -8 -8 L 6 -12 L 14 0 L 6 12 Z" fill="#d4c8ff" opacity="0.24" stroke="#d4c8ff" stroke-width="2.2"/>
+      <path d="M -10 12 L 12 12" stroke="#ffcf69" stroke-width="1.8" stroke-linecap="round" opacity="0.7"/>
+    </symbol>
+    <symbol id="motif-panther" viewBox="-18 -18 36 36">
+      <path d="M -12 6 C -8 -4 -4 -8 2 -10 C 8 -12 12 -6 10 0 C 8 6 2 10 -4 10 C -8 10 -12 8 -12 6 Z" fill="#0f1020" stroke="#79e1ff" stroke-width="1.8" opacity="0.92"/>
+      <path d="M -2 -8 L 10 4" stroke="#ffcf69" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M -10 12 L 12 -10" stroke="#b97cff" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/>
+    </symbol>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="2400" height="1500" />
+
+  <g id="world-boundary">
+    <rect class="frame" x="160" y="160" width="1536" height="1024" rx="18" />
+
+    <g>
+      <line class="grid" x1="160" y1="160" x2="160" y2="1184" />
+      <line class="grid" x1="288" y1="160" x2="288" y2="1184" />
+      <line class="grid" x1="416" y1="160" x2="416" y2="1184" />
+      <line class="grid" x1="544" y1="160" x2="544" y2="1184" />
+      <line class="grid" x1="672" y1="160" x2="672" y2="1184" />
+      <line class="grid" x1="800" y1="160" x2="800" y2="1184" />
+      <line class="grid" x1="928" y1="160" x2="928" y2="1184" />
+      <line class="grid" x1="1056" y1="160" x2="1056" y2="1184" />
+      <line class="grid" x1="1184" y1="160" x2="1184" y2="1184" />
+      <line class="grid" x1="1312" y1="160" x2="1312" y2="1184" />
+      <line class="grid" x1="1440" y1="160" x2="1440" y2="1184" />
+      <line class="grid" x1="1568" y1="160" x2="1568" y2="1184" />
+      <line class="grid" x1="1696" y1="160" x2="1696" y2="1184" />
+
+      <line class="grid" x1="160" y1="160" x2="1696" y2="160" />
+      <line class="grid" x1="160" y1="288" x2="1696" y2="288" />
+      <line class="grid" x1="160" y1="416" x2="1696" y2="416" />
+      <line class="grid" x1="160" y1="544" x2="1696" y2="544" />
+      <line class="grid" x1="160" y1="672" x2="1696" y2="672" />
+      <line class="grid" x1="160" y1="800" x2="1696" y2="800" />
+      <line class="grid" x1="160" y1="928" x2="1696" y2="928" />
+      <line class="grid" x1="160" y1="1056" x2="1696" y2="1056" />
+      <line class="grid" x1="160" y1="1184" x2="1696" y2="1184" />
+    </g>
+
+    <line class="axis" x1="928" y1="160" x2="928" y2="1184" />
+    <line class="axis" x1="160" y1="672" x2="1696" y2="672" />
+    <text class="axis-label" x="1704" y="676">x / right</text>
+    <text class="axis-label" x="934" y="152">z / up</text>
+    <text class="axis-label" x="172" y="1189">x,z world boundary = 192 x 128 units</text>
+    <text class="axis-label" x="172" y="1209">SVG mapping = x*8 + 928, y = 672 - z*8</text>
+  </g>
+
+  <g id="corridors">
+    <path class="corridor-wide" stroke="#ff8d63" d="M 224 576 L 400 528" />
+    <path class="corridor-line" stroke="#ff8d63" d="M 224 576 L 400 528" />
+
+    <path class="corridor-wide" stroke="#ff7c8c" d="M 400 528 L 720 912" />
+    <path class="corridor-line" stroke="#ff7c8c" d="M 400 528 L 720 912" />
+
+    <path class="corridor-wide" stroke="#96ff82" d="M 720 912 L 928 592" />
+    <path class="corridor-line" stroke="#96ff82" d="M 720 912 L 928 592" />
+
+    <path class="corridor-wide" stroke="#73d9ff" d="M 928 592 L 1344 736" />
+    <path class="corridor-line" stroke="#73d9ff" d="M 928 592 L 1344 736" />
+
+    <path class="corridor-wide" stroke="#ff6fae" d="M 400 528 L 256 544 L 336 432 L 400 528" />
+    <path class="corridor-line" stroke="#ff6fae" d="M 400 528 L 256 544 L 336 432 L 400 528" />
+
+    <path class="corridor-wide" stroke="#ffb35a" d="M 720 912 L 512 1104 L 656 1056 L 720 912" />
+    <path class="corridor-line" stroke="#ffb35a" d="M 720 912 L 512 1104 L 656 1056 L 720 912" />
+
+    <path class="corridor-wide" stroke="#b4ff72" d="M 928 592 L 688 656 L 864 720 L 1040 640 L 1168 576" />
+    <path class="corridor-line" stroke="#b4ff72" d="M 928 592 L 688 656 L 864 720 L 1040 640 L 1168 576" />
+
+    <path class="corridor-wide" stroke="#8fe2ff" d="M 1344 736 L 1264 608 L 1488 496 L 1408 912 L 1600 704" />
+    <path class="corridor-line" stroke="#8fe2ff" d="M 1344 736 L 1264 608 L 1488 496 L 1408 912 L 1600 704" />
+  </g>
+
+  <g id="prop-safe-zones">
+    <ellipse class="prop-safe" cx="232" cy="570" rx="118" ry="92" stroke="#7f90ff" />
+    <ellipse class="prop-safe" cx="388" cy="520" rx="150" ry="150" stroke="#ff7c9b" />
+    <polygon class="prop-safe" points="566,1002 616,944 656,862 698,788 744,742 792,800 842,854 886,922 912,982 840,1022 764,976 706,1002 632,1022" stroke="#ffbc63" />
+    <rect class="prop-safe" x="644" y="514" width="566" height="176" rx="18" stroke="#a8ff72" />
+    <ellipse class="prop-safe" cx="1264" cy="608" rx="96" ry="70" stroke="#74dfff" />
+    <ellipse class="prop-safe" cx="1488" cy="496" rx="104" ry="74" stroke="#a66dff" />
+    <ellipse class="prop-safe" cx="1408" cy="912" rx="118" ry="80" stroke="#ff7ea8" />
+  </g>
+
+  <g id="no-prop-zones">
+    <circle class="no-prop node-protect-entry" cx="224" cy="576" r="34" />
+
+    <circle class="no-prop node-protect-birth" cx="256" cy="544" r="26" />
+    <circle class="no-prop node-protect-birth" cx="336" cy="432" r="26" />
+    <circle class="no-prop node-protect-birth" cx="400" cy="576" r="24" />
+    <circle class="no-prop node-protect-birth" cx="464" cy="480" r="24" />
+
+    <circle class="no-prop node-protect-older" cx="512" cy="1104" r="24" />
+    <circle class="no-prop node-protect-older" cx="656" cy="1056" r="24" />
+    <circle class="no-prop node-protect-older" cx="800" cy="1152" r="24" />
+    <circle class="no-prop node-protect-older" cx="592" cy="912" r="24" />
+    <circle class="no-prop node-protect-older" cx="864" cy="848" r="24" />
+
+    <circle class="no-prop node-protect-veg" cx="688" cy="656" r="24" />
+    <circle class="no-prop node-protect-veg" cx="864" cy="720" r="24" />
+    <circle class="no-prop node-protect-veg" cx="1040" cy="640" r="24" />
+    <circle class="no-prop node-protect-veg" cx="944" cy="512" r="24" />
+    <circle class="no-prop node-protect-veg" cx="1168" cy="576" r="24" />
+
+    <circle class="no-prop node-protect-signal" cx="1152" cy="848" r="24" />
+    <circle class="no-prop node-protect-signal" cx="1264" cy="608" r="30" />
+    <circle class="no-prop node-protect-signal" cx="1376" cy="720" r="24" />
+    <circle class="no-prop node-protect-signal" cx="1488" cy="496" r="30" />
+    <circle class="no-prop node-protect-signal" cx="1312" cy="912" r="30" />
+    <circle class="no-prop node-protect-signal" cx="1536" cy="976" r="30" />
+    <circle class="no-prop node-protect-signal" cx="1600" cy="704" r="30" />
+    <circle class="no-prop node-protect-signal" cx="1408" cy="1088" r="24" />
+    <circle class="no-prop node-protect-signal" cx="1248" cy="1024" r="24" />
+    <circle class="no-prop node-protect-signal" cx="1584" cy="432" r="24" />
+  </g>
+
+  <g id="landmarks">
+    <g id="entry-threshold">
+      <ellipse cx="224" cy="576" rx="116" ry="88" fill="#09070f" opacity="0.86" />
+      <polygon points="126,492 170,452 206,474 202,638 150,648 118,598" fill="#05050b" opacity="0.96" />
+      <polygon points="284,456 334,482 340,630 296,662 252,638 258,482" fill="#0d0c15" opacity="0.96" />
+      <rect x="236" y="522" width="70" height="106" rx="10" fill="#69dfff" opacity="0.28" />
+      <rect x="244" y="532" width="52" height="86" rx="8" fill="#9b67ff" opacity="0.18" />
+      <polyline points="206,620 246,520 286,620" fill="none" stroke="#78f2ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+      <polyline points="210,620 246,532 282,620" fill="none" stroke="#ad6fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+      <text class="era-label" x="98" y="474">ENTRY / THRESHOLD</text>
+      <text class="era-note" x="98" y="497">3D: dark cave, lambda gate, bright backplate, open throat</text>
+    </g>
+
+    <g id="era-birth-yard">
+      <ellipse cx="400" cy="528" rx="214" ry="166" fill="#40111c" opacity="0.32" />
+      <rect x="280" y="598" width="260" height="46" rx="8" fill="#221218" opacity="0.88" />
+      <rect x="300" y="452" width="38" height="198" fill="#8b2b3e" />
+      <rect x="336" y="414" width="30" height="236" fill="#da4f81" />
+      <rect x="372" y="474" width="46" height="176" fill="#99603d" />
+      <rect x="424" y="392" width="30" height="258" fill="#6d1d2b" />
+      <rect x="462" y="430" width="28" height="220" fill="#c56a3a" />
+      <rect x="494" y="456" width="36" height="194" fill="#8e1433" />
+      <rect x="354" y="522" width="18" height="126" transform="rotate(-9 363 585)" fill="#bb4a6b" />
+      <rect x="412" y="520" width="20" height="120" transform="rotate(8 422 580)" fill="#f0a23e" />
+      <rect x="530" y="486" width="22" height="164" transform="rotate(-6 541 568)" fill="#ff6b86" />
+      <rect x="270" y="520" width="24" height="118" transform="rotate(12 282 579)" fill="#30111a" />
+      <rect x="548" y="500" width="16" height="148" fill="#2b0f17" />
+      <rect x="320" y="646" width="60" height="22" fill="#a8ff72" opacity="0.55" />
+      <rect x="430" y="640" width="76" height="20" fill="#ffb25c" opacity="0.52" />
+      <text class="era-label" x="286" y="382">BIRTH YARD</text>
+      <text class="era-note" x="286" y="405">3D: canals, robot crowd, jazz alley, metro / office pressure</text>
+    </g>
+
+    <g id="era-older-shadows">
+      <ellipse cx="720" cy="912" rx="244" ry="164" fill="#412b16" opacity="0.28" />
+      <polygon points="544,1008 602,954 646,862 690,784 736,736 788,794 836,850 884,920 912,984 838,1022 760,976 704,1000 632,1022" fill="#7a461d" opacity="0.96" />
+      <polygon points="588,1002 624,946 662,878 702,920 690,1006" fill="#c97a2d" opacity="0.92" />
+      <polygon points="806,1006 836,944 870,896 904,964 876,1014" fill="#e9a54b" opacity="0.84" />
+      <line x1="616" y1="1020" x2="616" y2="894" stroke="#f6c16f" stroke-width="6" />
+      <line x1="700" y1="1004" x2="700" y2="882" stroke="#d78d2b" stroke-width="6" />
+      <line x1="790" y1="992" x2="790" y2="870" stroke="#f8da9a" stroke-width="6" />
+      <line x1="860" y1="1002" x2="860" y2="916" stroke="#2a4073" stroke-width="6" />
+      <rect x="604" y="882" width="14" height="16" fill="#f8f0cb" />
+      <rect x="688" y="870" width="14" height="16" fill="#f8f0cb" />
+      <rect x="778" y="858" width="14" height="16" fill="#f8f0cb" />
+      <rect x="848" y="904" width="14" height="16" fill="#f8f0cb" />
+      <text class="era-label" x="544" y="720">OLDER SHADOWS</text>
+      <text class="era-note" x="544" y="743">3D: summit, jump, travel, choice, fading line, open breath</text>
+    </g>
+
+    <g id="era-vegetative-field">
+      <rect x="650" y="522" width="558" height="156" rx="18" fill="#213c29" opacity="0.82" />
+      <rect x="658" y="538" width="542" height="14" fill="#496a38" opacity="0.98" />
+      <rect x="658" y="568" width="542" height="14" fill="#9ed05a" opacity="0.58" />
+      <rect x="658" y="598" width="542" height="14" fill="#5c8d36" opacity="0.98" />
+      <rect x="658" y="628" width="542" height="14" fill="#a6e86a" opacity="0.44" />
+      <rect x="658" y="658" width="542" height="14" fill="#69b7d1" opacity="0.42" />
+      <rect x="706" y="500" width="18" height="196" fill="#94ff73" opacity="0.82" />
+      <rect x="764" y="492" width="16" height="204" fill="#5dae42" opacity="0.92" />
+      <rect x="1148" y="494" width="18" height="202" fill="#69cf61" opacity="0.9" />
+      <rect x="1192" y="506" width="14" height="190" fill="#dafc76" opacity="0.72" />
+      <rect x="836" y="510" width="12" height="178" fill="#9ef2ff" opacity="0.6" />
+      <rect x="1012" y="510" width="12" height="178" fill="#c9ff7a" opacity="0.58" />
+      <text class="era-label" x="680" y="458">VEGETATIVE FIELD</text>
+      <text class="era-note" x="680" y="481">3D: comfort loop, hidden seam, zero, time fracture, color return</text>
+    </g>
+
+    <g id="era-new-signal">
+      <ellipse cx="1344" cy="736" rx="286" ry="206" fill="#111a3b" opacity="0.32" />
+      <ellipse cx="1264" cy="608" rx="78" ry="54" fill="#14223c" opacity="0.92" />
+      <ellipse cx="1488" cy="496" rx="90" ry="58" fill="#18295b" opacity="0.92" />
+      <ellipse cx="1408" cy="912" rx="96" ry="60" fill="#121830" opacity="0.92" />
+      <ellipse cx="1600" cy="704" rx="62" ry="42" fill="#142f54" opacity="0.92" />
+      <circle cx="1264" cy="608" r="86" fill="none" stroke="#72e9ff" stroke-width="6" opacity="0.95" />
+      <circle cx="1488" cy="496" r="98" fill="none" stroke="#b97cff" stroke-width="6" opacity="0.9" />
+      <circle cx="1408" cy="912" r="104" fill="none" stroke="#ff7ca6" stroke-width="6" opacity="0.88" />
+      <circle cx="1600" cy="704" r="70" fill="none" stroke="#6bd7ff" stroke-width="5" opacity="0.8" />
+      <line x1="1236" y1="608" x2="1236" y2="504" stroke="#72e9ff" stroke-width="6" />
+      <line x1="1266" y1="608" x2="1266" y2="476" stroke="#9efc7b" stroke-width="5" />
+      <line x1="1294" y1="608" x2="1294" y2="516" stroke="#ff7ca6" stroke-width="5" />
+      <line x1="1458" y1="496" x2="1458" y2="368" stroke="#b97cff" stroke-width="6" />
+      <line x1="1492" y1="496" x2="1492" y2="354" stroke="#72e9ff" stroke-width="5" />
+      <line x1="1524" y1="496" x2="1524" y2="410" stroke="#ff88d5" stroke-width="5" />
+      <line x1="1378" y1="912" x2="1378" y2="804" stroke="#72e9ff" stroke-width="6" />
+      <line x1="1410" y1="912" x2="1410" y2="786" stroke="#b97cff" stroke-width="5" />
+      <line x1="1440" y1="912" x2="1440" y2="826" stroke="#ff7ca6" stroke-width="5" />
+      <line x1="1568" y1="704" x2="1568" y2="618" stroke="#72e9ff" stroke-width="5" />
+      <line x1="1600" y1="704" x2="1600" y2="570" stroke="#ff7ca6" stroke-width="6" />
+      <line x1="1630" y1="704" x2="1630" y2="650" stroke="#9efc7b" stroke-width="5" />
+      <text class="era-label" x="1150" y="398">NEW SIGNAL</text>
+      <text class="era-note" x="1150" y="421">3D: pit, ice, well, overload, storm lamp, office, mirror, dim city</text>
+    </g>
+  </g>
+
+  <g id="track-scenes" opacity="0.94" pointer-events="none">
+    <g transform="translate(234 522)"><use href="#motif-canal" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(314 410)"><use href="#motif-grid" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(378 554)"><use href="#motif-alley" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(442 458)"><use href="#motif-metro" x="-18" y="-18" width="36" height="36" /></g>
+
+    <g transform="translate(490 1082)"><use href="#motif-summit" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(634 1034)"><use href="#motif-ramp" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(778 1130)"><use href="#motif-staff" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(570 890)"><use href="#motif-fork" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(842 826)"><use href="#motif-fade" x="-18" y="-18" width="36" height="36" /></g>
+
+    <g transform="translate(666 634)"><use href="#motif-loop" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(842 698)"><use href="#motif-eye" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1018 618)"><use href="#motif-zero" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(922 490)"><use href="#motif-clock" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1146 554)"><use href="#motif-lantern" x="-18" y="-18" width="36" height="36" /></g>
+
+    <g transform="translate(1130 826)"><use href="#motif-pit" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1242 586)"><use href="#motif-ice" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1354 698)"><use href="#motif-well" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1466 474)"><use href="#motif-crack" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1290 890)"><use href="#motif-storm" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1514 954)"><use href="#motif-office" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1578 682)"><use href="#motif-mirror" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1386 1066)"><use href="#motif-dim" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1226 1002)"><use href="#motif-stone" x="-18" y="-18" width="36" height="36" /></g>
+    <g transform="translate(1562 410)">
+      <use href="#motif-panther" x="-18" y="-18" width="36" height="36" />
+      <text class="landmark-note" x="18" y="-12">TODO</text>
+    </g>
+  </g>
+
+  <g id="track-nodes">
+    <g transform="translate(224 576)">
+      <title>Entry Node — threshold — non-playable — birth-side origin</title>
+      <circle cx="0" cy="0" r="12" fill="#d1c7ff" stroke="#110f1e" stroke-width="2.5" />
+      <circle cx="0" cy="0" r="18" fill="none" stroke="#b88cff" stroke-width="2" stroke-dasharray="4 5" />
+      <text class="node-label" x="16" y="-14">ENTRY</text>
+    </g>
+
+    <g transform="translate(256 544)">
+      <title>A WALK IN ZEELAND — Birth Yard — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#ffb37b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">ZEELAND</text>
+    </g>
+    <g transform="translate(336 432)">
+      <title>FOOLFOULE — Birth Yard — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#ff6d8b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">FOUL</text>
+    </g>
+    <g transform="translate(400 576)">
+      <title>JAZZYPLING — Birth Yard — track</title>
+      <circle cx="0" cy="0" r="10" fill="#ff9d59" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">JAZZY</text>
+    </g>
+    <g transform="translate(464 480)">
+      <title>PLAY IT — Birth Yard — track</title>
+      <circle cx="0" cy="0" r="10" fill="#f36e7f" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">PLAY</text>
+    </g>
+
+    <g transform="translate(512 1104)">
+      <title>RISE — Older Shadows — track</title>
+      <circle cx="0" cy="0" r="10" fill="#ffbf61" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">RISE</text>
+    </g>
+    <g transform="translate(656 1056)">
+      <title>BLOSSOMING — Older Shadows — track</title>
+      <circle cx="0" cy="0" r="10" fill="#ff9e50" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">BLOSSOM</text>
+    </g>
+    <g transform="translate(800 1152)">
+      <title>ETHNIC STICK — Older Shadows — track</title>
+      <circle cx="0" cy="0" r="10" fill="#d97c2d" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">ETHNIC</text>
+    </g>
+    <g transform="translate(592 912)">
+      <title>MINUIT MOINS CINQ — Older Shadows — track</title>
+      <circle cx="0" cy="0" r="10" fill="#f0b35b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">MINUIT</text>
+    </g>
+    <g transform="translate(864 848)">
+      <title>PERDUE — Older Shadows — track</title>
+      <circle cx="0" cy="0" r="10" fill="#d8a34b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">PERDUE</text>
+    </g>
+
+    <g transform="translate(688 656)">
+      <title>MORNE, ET ? — Vegetative Field — track</title>
+      <circle cx="0" cy="0" r="10" fill="#7bce56" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">MORNE</text>
+    </g>
+    <g transform="translate(864 720)">
+      <title>DAYMASON — Vegetative Field — track</title>
+      <circle cx="0" cy="0" r="10" fill="#a4ff6d" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">DAYMASON</text>
+    </g>
+    <g transform="translate(1040 640)">
+      <title>CHAILK — Vegetative Field — track</title>
+      <circle cx="0" cy="0" r="10" fill="#70d3ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">CHAILK</text>
+    </g>
+    <g transform="translate(944 512)">
+      <title>TIME — Vegetative Field — track</title>
+      <circle cx="0" cy="0" r="10" fill="#cfff75" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">TIME</text>
+    </g>
+    <g transform="translate(1168 576)">
+      <title>TANTITOM — Vegetative Field — track</title>
+      <circle cx="0" cy="0" r="10" fill="#83df6b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">TANTITOM</text>
+    </g>
+
+    <g transform="translate(1152 848)">
+      <title>NEEKTAREUM — New Signal — track</title>
+      <circle cx="0" cy="0" r="10" fill="#7439d9" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">NEEKT</text>
+    </g>
+    <g transform="translate(1264 608)">
+      <title>ASITIS — New Signal — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#72e9ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">ASITIS</text>
+    </g>
+    <g transform="translate(1376 720)">
+      <title>RELATIVE — New Signal — track</title>
+      <circle cx="0" cy="0" r="10" fill="#a66dff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">RELATIVE</text>
+    </g>
+    <g transform="translate(1488 496)">
+      <title>OVERTHINK — New Signal — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#ff7ca6" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">OVERTHINK</text>
+    </g>
+    <g transform="translate(1312 912)">
+      <title>HOLD THE LIGHT — New Signal — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#ffcf69" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">HOLD-LIGHT</text>
+    </g>
+    <g transform="translate(1536 976)">
+      <title>MIDNIGHT WORK — New Signal — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#f5b45b" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">MIDNIGHT</text>
+    </g>
+    <g transform="translate(1600 704)">
+      <title>TELATELABA — New Signal — anchor</title>
+      <circle cx="0" cy="0" r="12" fill="#6ef0ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">TELA</text>
+    </g>
+    <g transform="translate(1408 1088)">
+      <title>LE MONDE S’ENDORT — New Signal — track</title>
+      <circle cx="0" cy="0" r="10" fill="#8dd2ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">LE-MONDE</text>
+    </g>
+    <g transform="translate(1248 1024)">
+      <title>RENEE — New Signal — track</title>
+      <circle cx="0" cy="0" r="10" fill="#d4c8ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">RENEE</text>
+    </g>
+    <g transform="translate(1584 432)">
+      <title>PANTHERE — New Signal — track</title>
+      <circle cx="0" cy="0" r="10" fill="#79e1ff" stroke="#110f1e" stroke-width="2.5" />
+      <text class="node-label" x="16" y="-14">PANTHERE</text>
+    </g>
+  </g>
+
+  <g id="legend">
+    <rect x="1776" y="160" width="470" height="1120" rx="18" fill="#10182a" stroke="#d7e3ff" stroke-opacity="0.26" stroke-width="2" />
+    <text class="legend-title" x="1800" y="198">LEGEND</text>
+
+    <rect x="1800" y="226" width="18" height="18" fill="#0a0a12" />
+    <text class="legend-text" x="1830" y="240">solid mass = landmark scaffold / set piece</text>
+
+    <line x1="1800" y1="268" x2="1848" y2="268" class="corridor-line" stroke="#9df2ff" />
+    <text class="legend-text" x="1860" y="272">dashed band = corridor that must stay open</text>
+
+    <circle cx="1809" cy="306" r="10" fill="none" stroke="#d9e1f6" stroke-width="2" />
+    <text class="legend-text" x="1830" y="310">node circle = track node</text>
+
+    <circle cx="1809" cy="344" r="16" fill="none" stroke="#d9e1f6" stroke-width="2" stroke-dasharray="8 10" />
+    <text class="legend-text" x="1830" y="348">larger ring = node protection / no tall props</text>
+
+    <rect x="1800" y="382" width="18" height="18" fill="#7c8cff" opacity="0.32" />
+    <text class="legend-text" x="1830" y="396">translucent block = prop-safe landmark zone</text>
+
+    <text class="legend-title" x="1800" y="448">TRACK SCENE MOTIFS</text>
+    <text class="legend-text" x="1800" y="476">micro icon = track-level scenic cue around each node</text>
+    <text class="legend-text" x="1800" y="500">see matrix doc for the full 24-track narrative mapping</text>
+
+    <text class="legend-title" x="1800" y="544">COLOR KEYS</text>
+    <rect x="1800" y="570" width="16" height="16" fill="#8d6cff" />
+    <text class="legend-text" x="1830" y="583">Entry / Threshold</text>
+    <rect x="1800" y="598" width="16" height="16" fill="#ff6d8b" />
+    <text class="legend-text" x="1830" y="611">Birth Yard</text>
+    <rect x="1800" y="626" width="16" height="16" fill="#ffb35a" />
+    <text class="legend-text" x="1830" y="639">Older Shadows</text>
+    <rect x="1800" y="654" width="16" height="16" fill="#93ff72" />
+    <text class="legend-text" x="1830" y="667">Vegetative Field</text>
+    <rect x="1800" y="682" width="16" height="16" fill="#6ee1ff" />
+    <text class="legend-text" x="1830" y="695">New Signal</text>
+
+    <text class="legend-title" x="1800" y="754">FUTURE 3D EXTRUSION</text>
+    <text class="legend-text" x="1800" y="784">cave mass -> dark boxes / cones</text>
+    <text class="legend-text" x="1800" y="808">lambda gate -> slanted beams + backplate</text>
+    <text class="legend-text" x="1800" y="832">city shard -> tall prism / wall fragment</text>
+    <text class="legend-text" x="1800" y="856">ridge -> cone / angled prism / poles</text>
+    <text class="legend-text" x="1800" y="880">field row -> low strip / stem / band</text>
+    <text class="legend-text" x="1800" y="904">signal island -> pad / ring / antenna</text>
+    <text class="legend-text" x="1800" y="928">corridor -> must remain empty</text>
+    <text class="legend-text" x="1800" y="952">node ring -> no tall prop</text>
+
+    <text class="legend-title" x="1800" y="1008">REVIEW REMINDER</text>
+    <text class="legend-text" x="1800" y="1036">If the map reads only as color, it fails.</text>
+    <text class="legend-text" x="1800" y="1060">If the user sees places and corridors, it can be extruded.</text>
+    <text class="legend-text" x="1800" y="1084">The SVG is a working blueprint, not a poster.</text>
+
+    <text class="legend-title" x="1800" y="1140">COORDINATES</text>
+    <text class="legend-text" x="1800" y="1170">world x -> SVG x</text>
+    <text class="legend-text" x="1800" y="1194">world z -> SVG y (inverted)</text>
+    <text class="legend-text" x="1800" y="1218">8 px = 1 world unit</text>
+  </g>
+</svg>
