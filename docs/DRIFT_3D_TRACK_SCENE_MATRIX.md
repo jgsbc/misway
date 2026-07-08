@@ -9,7 +9,7 @@
 Companion document for [DRIFT_3D_SET_DESIGN_BLUEPRINT.md](./DRIFT_3D_SET_DESIGN_BLUEPRINT.md)
 and the two blueprint SVGs.
 
-This matrix keeps the 24-track topology readable as lived scenes rather than generic era labels.
+This matrix keeps the 26-track topology readable as lived scenes rather than generic era labels.
 It is the narrative layer that future 3D primitives should extrude into landmarks.
 
 ## Reading rule
@@ -30,6 +30,7 @@ Each row translates one track into a concrete scenic cue:
 | `foolfoule` | FOOLFOULE | Birth Yard | rush-hour crowd pressure, skyscraper canyon, robot crowd grid | stacked tower grid, robot-window lattice | oppressive vertical slabs, repeated tall city modules | preserve the rush corridor; do not clog the center with pillars | high |
 | `jazzypling` | JAZZYPLING | Birth Yard | dark alleys, jazz cellars, hidden corners, unsafe backstreet | alley zigzag, basement stair, neon fragment | sunken cellar entry, narrow alley wall shards | keep the backstreet opening visible and passable | high |
 | `play-it` | PLAY IT | Birth Yard | metro line, office grid, suit routine, rule-lane, clock-in path | metro line, office grid, clock | transit frame, office block rhythm, rule gate | corridor must read as commute and remain open | high |
+| `eux-gainent` | EUX GAINENT | Birth Yard | gym-window alienation, athletes in repetition, bodies performing like machines | glass gym facade, fluorescent strips, repeated treadmill silhouettes | cold gym window block, human silhouettes moving mechanically behind glass | keep the dirty street lane outside the glass clear; no sci-fi robot literalism | high |
 | `rise` | RISE | Older Shadows | summit success, ascent path, peak vista | summit triangle, ascent line, vista marker | ridge peak, view platform, climbable silhouette | keep the ascent route clear; no blocking ridge mass | high |
 | `blossoming` | BLOSSOMING | Older Shadows | confidence at the top, extreme sports, adrenaline arc | jump ramp, cliff edge, sport arc | launch wedge, diagonal cliff cut, open-air ledge | protect the jump line; no tall props on the arc | high |
 | `ethnic-stick` | ETHNIC STICK | Older Shadows | Africa calls, values, meaning, travel roots | travel staff, warm circle, value ring | route staff, ritual ring, earth marker | keep passage open; avoid decorative clutter and cliché props | medium |
@@ -49,6 +50,7 @@ Each row translates one track into a concrete scenic cue:
 | `telatelaba` | TELATELABA | New Signal | here but elsewhere, mirror labyrinth, in-between duty | mirror maze, offset corridor, reflective slab | mirrored walllets, offset passage, labyrinth shard | corridors must stay obvious even if the maze feels odd | high |
 | `le-monde-s-endort` | LE MONDE S'ENDORT | New Signal | city and people dim, lights progressively turn off | dimming skyline lights, sleeping grid | low skyline strip, fading windows, sleep lane | keep a readable route through the dimming city | high |
 | `renee` | RENEE | New Signal | raw matter, fragile but strong, beach light, polished by time | raw stone, polished edge, beach light | stone-and-sand shore pieces, warm polished slab | keep the shore light gentle; do not make it touristy | high |
+| `eteeaooete` | ÉTÉÉAOOÉTÉ | New Signal | ocean dawn after RENEE, lambda ritual, summer salt haze, immense waves | beach ritual circle, sculpted lambda, foam bands, wave wall | sand/driftwood/stone lambda, low ritual circle, huge but non-blocking ocean mass | keep the node drivable; no floating neon lambda; waves stay toward the sea edge | high |
 | `Panthere` | PANTHERE | New Signal | cautious placeholder: dark feline shadow, optical lambda hint, discreet power | dark feline curve, optic lambda mark | shadow mark, low lambda silhouette, stealth accent | TODO / needs human confirmation before stronger 3D meaning | low |
 
 ## Legacy V0 anchors

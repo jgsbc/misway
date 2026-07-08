@@ -15,7 +15,7 @@ import type { Drift3DVehicleCollider } from "@/lib/drift3dVehiclePhysics";
  * Dispersion déterministe d'instances par archétype (conifères, feuillus,
  * buissons, rochers, herbes, troncs morts, réverbères, acacias, coquelicots),
  * pilotée par les données : appartenance d'éra, altitude (ligne des neiges),
- * pente, et distance de protection aux 25 nœuds. Tout est rendu en
+ * pente, et distance de protection aux nœuds de topologie. Tout est rendu en
  * InstancedMesh (~12 draw calls pour des milliers d'objets) ; seuls les gros
  * sujets loin des nœuds deviennent des colliders.
  */

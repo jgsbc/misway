@@ -400,6 +400,7 @@ const seedTracks: TrackSeed[] = [
     id: "20",
     slug: "Panthere",
     title: "PANTHERE",
+    audioFile: "panthere.mp3",
     yearLabel: "2026",
     publishedLabel: "New era",
     shortText: "A Walk In Zeeland rework, more intense, more polished, ",
@@ -409,6 +410,34 @@ const seedTracks: TrackSeed[] = [
     coverHint: "Wind, distance and next horizon lines.",
     coverImage: "/images/tracks/panthere.png",
     featured: true,
+  },
+  {
+    id: "21",
+    slug: "eteeaooete",
+    title: "ÉTÉÉAOOÉTÉ",
+    yearLabel: "2026",
+    publishedLabel: "New era",
+    audioFile: "étééaooété.mp3",
+    shortText:
+      "A dawn beach ritual where the lambda stays simple and the ocean grows immense.",
+    longText:
+      "A New era track set on an ocean beach at summer dawn: a lambda ritual drawn from sand, stones, driftwood and foam, with huge waves nearby and a ceremonial simplicity that stays human.",
+    tags: ["new era", "ocean", "lambda", "ritual", "waves"],
+    coverHint: "Oceanic lambda ritual, salt haze and immense waves.",
+  },
+  {
+    id: "22",
+    slug: "eux-gainent",
+    title: "EUX GAINENT",
+    yearLabel: "2026",
+    publishedLabel: "Birth era",
+    audioFile: "eux-gainent.mp3",
+    shortText:
+      "Urban repetition behind glass: bodies training like a machine that forgot why.",
+    longText:
+      "A Birth era track seen through gym windows: athletes behind glass moving like robots, performance turned into repetition, bodies under cold light and the city pressing its alienation against the pane.",
+    tags: ["birth era", "city", "gym", "robotic", "repetition"],
+    coverHint: "Glass-front gym, fluorescent light and mechanical bodies.",
   },
 ];
 

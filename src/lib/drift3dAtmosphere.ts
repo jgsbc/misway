@@ -195,6 +195,22 @@ const stormState: Drift3DAtmosphereState = {
   groundColor: rgb("#23262c"),
 };
 
+const oceanDawnState: Drift3DAtmosphereState = {
+  // plage de ÉTÉÉAOOÉTÉ : aube d'été, sel en suspension, or bas sur l'eau
+  skyColor: rgb("#e8c7a2"),
+  fogColor: rgb("#d7c4aa"),
+  fogDensity: 0.024,
+  exposure: 1.04,
+  sunDirection: { x: -0.75, y: 0.18, z: -0.22 },
+  sunColor: rgb("#ffd18b"),
+  sunIntensity: 1.25,
+  hemiSkyColor: rgb("#ead2b6"),
+  hemiGroundColor: rgb("#8b7c69"),
+  hemiIntensity: 0.58,
+  ambientIntensity: 0.14,
+  groundColor: rgb("#b49d7c"),
+};
+
 const eraStateById: Record<string, Drift3DAtmosphereState> = {
   "birth-yard": birthYardState,
   "older-shadows": olderShadowsState,
@@ -258,6 +274,16 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     radius: 9,
     strength: 2.6,
     state: stormState,
+  },
+  {
+    id: "eteeaooete-ocean-dawn",
+    center: {
+      x: drift3dTrackNodeBySlug.eteeaooete.position.x,
+      z: drift3dTrackNodeBySlug.eteeaooete.position.z,
+    },
+    radius: 10,
+    strength: 2.5,
+    state: oceanDawnState,
   },
 ];
 

@@ -6,7 +6,7 @@ const siteUrl = "https://jgsbc.github.io/misway";
 export const metadata: Metadata = {
   title: "Drift — a drivable listening world (MISWΛY)",
   description:
-    "Drive a safari 4x4 through the MISWΛY catalogue: four eras, twenty-four track places, mountains, canals, storms and dawns. Nothing plays without your click.",
+    "Drive a safari 4x4 through the MISWΛY catalogue: four eras, twenty-six track places, mountains, canals, storms and dawns. Nothing plays without your click.",
   alternates: {
     canonical: `${siteUrl}/drift/`,
   },
