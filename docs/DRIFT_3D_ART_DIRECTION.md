@@ -1,3 +1,11 @@
+> ⚠️ **CADUQUE pour la direction visuelle (2026-07-07).**
+> La source de vérité artistique est désormais
+> [DRIFT_3D_REALISM_BIBLE.md](./DRIFT_3D_REALISM_BIBLE.md) : monde figuratif,
+> réaliste, cinématographique. Le langage visuel abstrait décrit ici
+> (primitives expressives, couleurs franches non texturées, émissifs décoratifs)
+> ne doit plus guider aucun lot. Restent valides : les règles de gameplay
+> (corridors, protection des nœuds, audio explicite, échelle caméra/monde).
+
 # MISWAY — Drift 3D Art Direction Bible
 
 ## 1. Purpose
@@ -8,7 +16,7 @@ The Drift 3D experience is not a racing game, not a realistic open world, and no
 
 It is a playable inner map.
 
-The user moves through eras, tracks, memories, emotional states and musical territories. The vehicle is not a car. It is a small signal module, a listening capsule, a fragile navigator moving through the creator’s internal geography.
+The user moves through eras, tracks, memories, emotional states and musical territories. Visually and narratively, the vehicle is not a car — it is a small signal module, a listening capsule, a fragile navigator moving through the creator's internal geography. Since the driving pivot (§14.2), it now *handles* like a real small car — it accelerates, brakes, drifts and collides — while keeping its capsule shape and symbolic identity. Physical realism serves the feeling of the world, not a racing game layer.
 
 The map must feel like:
 
@@ -135,8 +143,12 @@ Do not create:
 * random clutter;
 * abstract fog or color variation without readable landmarks;
 * realistic terrain simulation;
-* physics gimmicks;
 * theme-park props.
+
+Real driving physics (acceleration, braking, drift, collision) is no longer
+forbidden — see the §14.2 amendment. What remains forbidden is decorative
+physics *gimmicks* unrelated to driving feel: no ragdoll, no destructible
+scenery, no particle-based effects, no bounce pads or game-toy mechanics.
 
 The map must remain premium and restrained.
 
@@ -1747,15 +1759,33 @@ Do not add gameplay modifiers in a pure visual atmosphere lot unless the lot exp
 
 ### 14.2 Navigation principle
 
-MISWAY should not feel like a car simulator.
+> **Amended 2026-07-06 (`DRIFT-3D-17` — driving pivot).** Human-approved decision:
+> Drift 3D now uses real small-car-game driving physics (acceleration, braking,
+> speed-dependent steering, and a slip/drift model) with solid collision against
+> existing decorative props and the world boundary. This supersedes the "should
+> not feel like a car simulator" line below and the "physics gimmicks" /
+> "collision logic" restrictions elsewhere in this document and in
+> `DRIFT_3D_SET_DESIGN_BLUEPRINT.md` §8. See `docs/DECISIONS_LOG.md` for the
+> full decision record.
+>
+> What does **not** change: no lap timers, no checkpoints, no score, no fail
+> state, no collectibles, no game UI. The vehicle remains a small capsule, not
+> a literal car model. Music stays the point — proximity zones remain
+> non-solid and audio only ever starts on explicit user action. The world
+> should now simply have physical weight: it accelerates, slides, and bumps
+> like a real small vehicle in a real place.
 
 The preferred movement model is:
 
-* 2D-intuitive navigation;
-* fixed camera orientation;
-* 3D spatial presence;
-* vehicle visually points toward movement direction;
-* camera follows by translation, not yaw rotation.
+* real acceleration/braking with a top speed, not instant velocity;
+* steering that responds to speed (tighter at low speed, wider arcs at high speed);
+* a slip/grip model so hard turns at speed produce a visible drift (heading and
+  travel direction separate briefly, then re-align);
+* solid collision against decorative props (signs, lamps, stones, desks,
+  speakers, synths, chairs, bridges) and the world boundary — the vehicle is
+  stopped/deflected, not just clamped;
+* fixed oblique camera orientation, unchanged;
+* camera follows by translation, not yaw rotation, unchanged.
 
 ---
 

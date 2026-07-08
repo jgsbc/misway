@@ -1,3 +1,10 @@
+> ⚠️ **CADUQUE pour le langage visuel (2026-07-07).**
+> La source de vérité artistique est désormais
+> [DRIFT_3D_REALISM_BIBLE.md](./DRIFT_3D_REALISM_BIBLE.md) : chaque zone doit
+> devenir une scène figurative du monde réel, pas un assemblage de primitives
+> symboliques. Restent valides ici : la topologie, les corridors, les zones
+> no-prop, la protection des nœuds et la règle du quatrième mur caméra.
+
 # DRIFT 3D Set Design Blueprint
 
 Companion SVGs:
@@ -485,8 +492,14 @@ That means:
 * corridors stay open;
 * props stay out of traversal lanes;
 * node centers stay clear;
-* no collision logic is introduced at this stage;
 * empty space is intentional design, not missing content.
+
+Update (`DRIFT-3D-17`, 2026-07-06): decorative props are now solid collision
+volumes (see `docs/DECISIONS_LOG.md`). This raises the stakes of the corridor
+rule above rather than removing it — a prop left inside a travel lane now
+physically blocks the vehicle, not just visually clutters the shot. Proximity
+zones and node markers remain non-solid; only physical decor (signs, lamps,
+stones, desks, speakers, synths, chairs, bridges) collides.
 
 The fixed oblique camera still needs readable silhouettes, so the plan favors broad landmark masses at the edges of corridors rather than clutter in the center of travel.
 

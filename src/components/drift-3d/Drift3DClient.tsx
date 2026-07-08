@@ -98,11 +98,11 @@ export default function Drift3DClient() {
   return (
     <main className="fixed inset-0 isolate overflow-hidden bg-[#f5f0e7] text-neutral-950">
       <p id="drift-3d-description" className="sr-only">
-        Experimental fullscreen 3D preview with four era regions, twenty-four
-        track nodes, a threshold origin, a follow camera, a compact proximity
-        HUD, and a small capsule vehicle that moves with the keyboard, mouse
-        drag, or touch drag. Mouse wheel adjusts camera distance. Playable
-        nodes expose an explicit audio button and nothing plays on its own.
+        Fullscreen drivable 3D listening world: a safari 4x4 crosses four eras
+        and twenty-four track places over real terrain — mountains, canals,
+        storms and dawns. Keyboard, mouse drag or touch drag to drive, mouse
+        wheel to adjust camera distance. Playable places expose an explicit
+        audio button and nothing plays on its own.
       </p>
 
       <div className="absolute inset-0">
@@ -123,7 +123,7 @@ export default function Drift3DClient() {
 
       <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(88vw,15rem)] md:left-6 md:top-6">
         <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
-          Drift 3D Lab · Move mode
+          MISWΛY · Drift
         </p>
         <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
           ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
@@ -132,17 +132,17 @@ export default function Drift3DClient() {
 
       <div className="pointer-events-none absolute bottom-4 left-4 z-20 flex flex-wrap gap-3 md:bottom-6 md:left-6">
         <Link
-          href="/drift-lab"
+          href="/"
           className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/72 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white"
         >
-          Open 2D Lab
+          MISWΛY
         </Link>
 
         <Link
-          href="/drift"
+          href="/tracks"
           className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/52 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950"
         >
-          Back to Drift
+          Tracks
         </Link>
       </div>
     </main>

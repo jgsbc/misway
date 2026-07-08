@@ -8,11 +8,13 @@ import type {
 } from "@/lib/drift3dTopology";
 import { getDrift3DNodeRadius } from "@/lib/drift3dTopology";
 import {
+  DRIFT_3D_FLOOR_Y,
   DRIFT_3D_ZONE_CORE_HEIGHT,
   DRIFT_3D_ZONE_MARKER_HEIGHT,
   DRIFT_3D_ZONE_MARKER_Y,
   DRIFT_3D_ZONE_RING_THICKNESS,
 } from "@/lib/drift3d";
+import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 
 type Drift3DEraRegionProps = {
   era: Drift3DEraTopology;
@@ -137,7 +139,7 @@ function NodeCore({
               color={tone.node}
               roughness={0.88}
               transparent
-              opacity={0.9}
+              opacity={0.18}
               depthWrite={false}
             />
           </mesh>
@@ -181,7 +183,7 @@ function NodeCore({
               color={tone.node}
               roughness={0.9}
               transparent
-              opacity={0.88}
+              opacity={0.16}
               depthWrite={false}
             />
           </mesh>
@@ -271,9 +273,13 @@ export default function Drift3DZone({
   const emphasis =
     toneState === "active" ? 1.12 : toneState === "nearest" ? 1.05 : 1;
 
+  const markerY =
+    getDrift3DGroundY(node.position.x, node.position.z) +
+    (DRIFT_3D_ZONE_MARKER_Y - DRIFT_3D_FLOOR_Y);
+
   return (
     <group
-      position={[node.position.x, DRIFT_3D_ZONE_MARKER_Y, node.position.z]}
+      position={[node.position.x, markerY, node.position.z]}
       scale={[emphasis, 1, emphasis]}
       renderOrder={2}
       aria-hidden="true"
@@ -293,7 +299,7 @@ export default function Drift3DZone({
           color={eraMaterial[era.id].region}
           roughness={0.92}
           transparent
-          opacity={0.9}
+          opacity={0.14}
           depthWrite={false}
         />
       </mesh>
@@ -312,6 +318,8 @@ export default function Drift3DZone({
         <meshStandardMaterial
           color={eraMaterial[era.id].ring}
           roughness={0.84}
+          transparent
+          opacity={0.5}
           depthWrite={false}
         />
       </mesh>

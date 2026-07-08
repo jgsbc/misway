@@ -1,6 +1,7 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import { ACESFilmicToneMapping } from "three";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   MouseEvent as ReactMouseEvent,
@@ -20,6 +21,14 @@ import {
   type Drift3DPointerDriveState,
 } from "@/lib/drift3d";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
+import {
+  createDrift3DVehiclePhysicsState,
+  type Drift3DVehiclePhysicsState,
+} from "@/lib/drift3dVehiclePhysics";
+import {
+  Drift3DAmbienceEngine,
+  getDrift3DAmbienceMixAt,
+} from "@/lib/drift3dAmbience";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -40,6 +49,11 @@ export default function Drift3DCanvas({
     null
   );
   const cameraZoomTargetRef = useRef(1);
+  const vehicleStateRef = useRef<Drift3DVehiclePhysicsState>(
+    createDrift3DVehiclePhysicsState(getDrift3DVehicleStartPosition(), 0)
+  );
+  const ambienceEngineRef = useRef<Drift3DAmbienceEngine | null>(null);
+  const [isAmbienceOn, setIsAmbienceOn] = useState(false);
   const pointerDriveStateRef = useRef<Drift3DPointerDriveState>({
     active: false,
     pointerId: null,
@@ -75,6 +89,56 @@ export default function Drift3DCanvas({
 
     const nextZoom = cameraZoomTargetRef.current + event.deltaY * 0.0011;
     setCameraZoomValue(nextZoom);
+  }
+
+  // ambiance diégétique opt-in : suit la position, se duck sous la musique
+  useEffect(() => {
+    if (!isAmbienceOn) {
+      return;
+    }
+
+    const engine = ambienceEngineRef.current;
+
+    if (!engine) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      engine.setMix(
+        getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
+        isPlaying ? 0.045 : 0.13
+      );
+    }, 280);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [isAmbienceOn, isPlaying]);
+
+  useEffect(() => {
+    return () => {
+      ambienceEngineRef.current?.stop();
+      ambienceEngineRef.current = null;
+    };
+  }, []);
+
+  function toggleAmbience() {
+    if (isAmbienceOn) {
+      ambienceEngineRef.current?.stop();
+      ambienceEngineRef.current = null;
+      setIsAmbienceOn(false);
+
+      return;
+    }
+
+    const engine = new Drift3DAmbienceEngine();
+    engine.start();
+    engine.setMix(
+      getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
+      isPlaying ? 0.045 : 0.13
+    );
+    ambienceEngineRef.current = engine;
+    setIsAmbienceOn(true);
   }
 
   useEffect(() => {
@@ -291,10 +355,10 @@ export default function Drift3DCanvas({
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#f5f0e7]">
+    <div className="relative h-full w-full overflow-hidden bg-[#08090d]">
       <section
         className="pointer-events-auto absolute inset-0"
-        aria-label="Experimental Drift 3D preview"
+        aria-label="Drift listening world"
         aria-describedby="drift-3d-description"
       >
         <Canvas
@@ -311,10 +375,12 @@ export default function Drift3DCanvas({
           }}
           dpr={[1, 1.5]}
           frameloop="always"
+          shadows
           gl={{
             antialias: true,
             alpha: true,
             powerPreference: "high-performance",
+            toneMapping: ACESFilmicToneMapping,
           }}
         >
           <Drift3DScene
@@ -322,9 +388,28 @@ export default function Drift3DCanvas({
             onProximityChange={setProximity}
             pointerDriveStateRef={pointerDriveStateRef}
             cameraZoomTargetRef={cameraZoomTargetRef}
+            vehicleStateRef={vehicleStateRef}
           />
         </Canvas>
 
+        {/* post-processing sobre (bible §6) : vignette douce + grain fin,
+            sans toucher au pipeline d'exposition scriptée du renderer */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[5]"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 60%, rgba(8,8,12,0.3) 100%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[5] opacity-[0.05] mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
         <div
           aria-hidden="true"
           className="absolute inset-0 z-10 touch-none cursor-grab select-none"
@@ -340,6 +425,23 @@ export default function Drift3DCanvas({
           }}
         />
       </section>
+
+      <div className="pointer-events-none absolute bottom-4 right-4 z-20 md:bottom-6 md:right-6">
+        <button
+          type="button"
+          onClick={toggleAmbience}
+          onPointerDown={(event) => event.stopPropagation()}
+          onPointerMove={(event) => event.stopPropagation()}
+          onPointerUp={(event) => event.stopPropagation()}
+          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-400/60 bg-white/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+          aria-pressed={isAmbienceOn}
+          aria-label={
+            isAmbienceOn ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore"
+          }
+        >
+          {isAmbienceOn ? "AMBIANCE ON" : "AMBIANCE OFF"}
+        </button>
+      </div>
 
       <div className="pointer-events-none absolute right-4 top-4 z-20 max-w-[min(92vw,24rem)] md:right-6 md:top-6">
         <div className="pointer-events-auto">

@@ -19,10 +19,10 @@ export const DRIFT_3D_ZONE_MARKER_HEIGHT = 0.004;
 export const DRIFT_3D_ZONE_RING_THICKNESS = 0.0035;
 export const DRIFT_3D_ZONE_CORE_HEIGHT = 0.004;
 export const DRIFT_3D_TRAVEL_Y = 0.16;
-export const DRIFT_3D_CAMERA_BASE_HEIGHT = 4.35;
-export const DRIFT_3D_CAMERA_BASE_DEPTH = 7.8;
+export const DRIFT_3D_CAMERA_BASE_HEIGHT = 6;
+export const DRIFT_3D_CAMERA_BASE_DEPTH = 10.4;
 export const DRIFT_3D_CAMERA_MIN_SCALE = 0.82;
-export const DRIFT_3D_CAMERA_MAX_SCALE = 1.28;
+export const DRIFT_3D_CAMERA_MAX_SCALE = 1.6;
 
 type DriftMapPoint = {
   x: number;

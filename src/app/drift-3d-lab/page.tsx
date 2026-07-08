@@ -1,28 +1,21 @@
 import type { Metadata } from "next";
-import Drift3DClient from "@/components/drift-3d/Drift3DClient";
+import Drift3DLabRedirect from "@/components/drift-3d/Drift3DLabRedirect";
 
 const siteUrl = "https://jgsbc.github.io/misway";
 
 export const metadata: Metadata = {
-  title: "Drift 3D Lab — experimental MISWAY route",
+  title: "Drift 3D Lab — moved to Drift (MISWΛY)",
   description:
-    "Experimental 3D listening world spike for MISWAY Drift. The stable 2D Drift Lab remains the reference.",
+    "The Drift 3D Lab graduated: the drivable listening world now lives on the main Drift page.",
   robots: {
     index: false,
     follow: false,
   },
   alternates: {
-    canonical: `${siteUrl}/drift-3d-lab/`,
-  },
-  openGraph: {
-    title: "Drift 3D Lab — MISWAY",
-    description:
-      "An isolated 3D spike for a future listening world where tracks become places.",
-    url: `${siteUrl}/drift-3d-lab/`,
-    type: "website",
+    canonical: `${siteUrl}/drift/`,
   },
 };
 
 export default function Drift3DLabPage() {
-  return <Drift3DClient />;
+  return <Drift3DLabRedirect />;
 }

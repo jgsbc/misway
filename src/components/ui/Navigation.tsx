@@ -18,7 +18,8 @@ function isDrift3DLabPath(pathname: string | null) {
 
   const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
 
-  return /(^|\/)drift-3d-lab(\/|$)/.test(normalizedPathname);
+  // le monde 3D plein écran vit désormais sur /drift (l'ancien lab redirige)
+  return /(^|\/)(drift|drift-3d-lab)(\/|$)/.test(normalizedPathname);
 }
 
 export default function Navigation() {

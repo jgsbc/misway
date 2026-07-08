@@ -2,6 +2,7 @@
 
 import type { DriftProp } from "@/types/drift";
 import { getDrift3DPropTransform } from "@/lib/drift3d";
+import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 
 type Drift3DPropProps = {
   prop: DriftProp;
@@ -166,7 +167,7 @@ export default function Drift3DProp({
     <group
       position={[
         transform.position.x,
-        transform.position.y,
+        getDrift3DGroundY(transform.position.x, transform.position.z) + 0.01,
         transform.position.z,
       ]}
       rotation={[0, transform.rotationY, 0]}
