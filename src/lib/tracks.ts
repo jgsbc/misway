@@ -398,7 +398,7 @@ const seedTracks: TrackSeed[] = [
   },
   {
     id: "20",
-    slug: "Panthere",
+    slug: "panthere",
     title: "PANTHERE",
     yearLabel: "2026",
     publishedLabel: "New era",
