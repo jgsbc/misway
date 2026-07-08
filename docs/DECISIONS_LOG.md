@@ -25,6 +25,20 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-PUBLISH-TRACKS-ADD-02: Ajout de ÉTÉÉAOOÉTÉ et EUX GAINENT
+- Context: Lot de publication demandé pour intégrer deux nouveaux fichiers audio locaux au catalogue, aux pages track statiques et au monde Drift 3D, sans redesign global, sans nouvelle dépendance et sans changer l'architecture audio.
+- Decision:
+  - Ajout de `eteeaooete` (`ÉTÉÉAOOÉTÉ`, audio explicite `étééaooété.mp3`) en New era / New Signal, près de la plage de RENEE mais séparé du nœud `le-monde-s-endort`.
+  - Ajout de `eux-gainent` (`EUX GAINENT`, audio explicite `eux-gainent.mp3`) en Birth era / Birth Yard, près du cluster ville/cadence sans chevaucher `foolfoule` ni `play-it`.
+  - Ajout de deux landmarks 3D figuratifs : façade de salle de sport vitrée à silhouettes mécaniques ; rituel lambda sculpté dans le sable/bois/pierre avec vagues océaniques et aube saline.
+  - Correction de sûreté audio existante : `Panthere` conserve son slug mais pointe explicitement vers `panthere.mp3`.
+  - `/drift-lab` 2D reste inchangé : la carte V0 a déjà 8 zones et ajouter deux zones risquerait de contredire sa limite de lisibilité.
+- Validation: sanity topologie/audio PASS (26 tracks = 26 nodes, fichiers audio présents, nouveaux nœuds dans les bornes), lint PASS, build PASS (38 pages statiques), diff check PASS.
+- Files affected: `src/lib/tracks.ts`, `src/lib/drift3dTopology.ts`, `src/lib/drift3dLandmarks.ts`, `src/lib/drift3dAtmosphere.ts`, `src/lib/drift3dScatter.ts`, `src/app/drift/page.tsx`, `src/app/drift/layout.tsx`, `src/components/drift-3d/Drift3DClient.tsx`, `docs/DRIFT_3D_REALISM_BIBLE.md`, `docs/DRIFT_3D_TRACK_SCENE_MATRIX.md`.
+- Follow-up needed: QA visuelle navigateur recommandée sur les deux nouveaux nœuds Drift 3D avant merge.
+
+---
+
 ### [2026-07-09] DRIFT-3D-33: Passage en production — /drift devient le monde 3D
 - Context: Directive propriétaire — « la page drift doit devenir la page drift-3d-lab, on passe en prod ».
 - Decision:

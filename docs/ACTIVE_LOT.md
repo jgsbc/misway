@@ -1,5 +1,34 @@
 # ACTIVE_LOT.md
 
+## Current Lot: DRIFT-PUBLISH-TRACKS-ADD-02
+
+**Status:** PASS.
+
+### Objective
+Integrate `ÉTÉÉAOOÉTÉ` and `EUX GAINENT` into the MISWAY catalogue, static track routes, audio path mapping, Drift 3D topology, Drift 3D landmarks and Drift documentation without changing route structure, dependencies or audio-player architecture.
+
+### Scope Completed
+- Catalogue entries added for `eteeaooete` and `eux-gainent`.
+- Explicit audio filenames set for both new tracks.
+- Existing `Panthere` audio casing corrected with `audioFile: "panthere.mp3"`.
+- Drift 3D topology expanded to 26 track nodes.
+- Drift 3D landmarks added for the glass gym and ocean lambda ritual.
+- Local dawn/salt-haze atmosphere added for `eteeaooete`.
+- 2D `/drift-lab` map left unchanged because its V0 design is already capped at 8 readable zones.
+- Drift 3D documentation updated minimally.
+
+### Validation
+- Source sanity check: PASS (26 tracks, 26 nodes, no missing audio files, new slugs resolve).
+- `npm run lint`: PASS.
+- `npm run build`: PASS (38 static pages generated).
+- `git diff --check`: PASS.
+- `git status --short --untracked-files=all`: expected modified files only.
+
+### Next Status
+READY for owner review and visual QA of the two new Drift 3D nodes.
+
+---
+
 ## Current Evolution Phase: UX/UI Refactor
 
 **Phase: Light Theme & Content Simplification**

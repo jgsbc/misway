@@ -83,7 +83,13 @@ export const drift3dEras = [
     role: "macro-region",
     center: point(-74, 0, 22),
     radius: 36,
-    trackSlugs: ["a-walk-in-zeeland", "foolfoule", "jazzypling", "play-it"],
+    trackSlugs: [
+      "a-walk-in-zeeland",
+      "foolfoule",
+      "jazzypling",
+      "play-it",
+      "eux-gainent",
+    ],
     topologyHints: [
       "dense urban compression",
       "left-origin alleys",
@@ -142,6 +148,7 @@ export const drift3dEras = [
       "le-monde-s-endort",
       "renee",
       "Panthere",
+      "eteeaooete",
     ],
     topologyHints: [
       "archipelago spacing",
@@ -233,6 +240,13 @@ export const drift3dTrackNodes = [
     eraId: "birth-yard",
     role: "track",
     position: point(-54, 0.11, 26),
+  },
+  {
+    id: "birth-yard-eux-gainent",
+    trackSlug: "eux-gainent",
+    eraId: "birth-yard",
+    role: "track",
+    position: point(-62, 0.13, 42),
   },
   {
     id: "older-shadows-rise",
@@ -378,6 +392,13 @@ export const drift3dTrackNodes = [
     eraId: "new-signal",
     role: "track",
     position: point(90, 0.14, 28),
+  },
+  {
+    id: "new-signal-eteeaooete",
+    trackSlug: "eteeaooete",
+    eraId: "new-signal",
+    role: "track",
+    position: point(56, 0.12, -66),
   },
 ] as const satisfies readonly Drift3DTrackNode[];
 

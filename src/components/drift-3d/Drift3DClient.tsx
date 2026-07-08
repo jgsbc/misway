@@ -99,7 +99,7 @@ export default function Drift3DClient() {
     <main className="fixed inset-0 isolate overflow-hidden bg-[#f5f0e7] text-neutral-950">
       <p id="drift-3d-description" className="sr-only">
         Fullscreen drivable 3D listening world: a safari 4x4 crosses four eras
-        and twenty-four track places over real terrain — mountains, canals,
+        and twenty-six track places over real terrain — mountains, canals,
         storms and dawns. Keyboard, mouse drag or touch drag to drive, mouse
         wheel to adjust camera distance. Playable places expose an explicit
         audio button and nothing plays on its own.

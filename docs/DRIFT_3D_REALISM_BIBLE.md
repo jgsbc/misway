@@ -82,6 +82,9 @@ linge aux fenêtres. Son : rumeur urbaine, klaxons, métro sous la route.
   jazz, silhouettes dans l'ombre, néon qui grésille, jazz filtré derrière les portes.
 - **play-it** — petit matin bleu-gris, flux de costumes identiques, horloges,
   passages piétons : la ville devient grille et cadence.
+- **eux-gainent** — façade de salle de sport derrière vitres : lumière
+  fluorescente froide, tapis et vélos en répétition, silhouettes humaines au
+  mouvement mécanique ; performance, aliénation urbaine, aucun robot littéral.
 
 Transition 1→2 : la route s'élève, béton → roche, fog gris sale → bleu limpide.
 
@@ -154,6 +157,10 @@ intimes. Et pourtant tout reste simple, quelconque — lambda.
   galets, bois flotté, ressac, brume marine ; **une pierre brute dont une seule
   face polie accroche le premier rayon d'or** ; caméra basse, vitesse ×0,6.
   La seule scène « parfaite » : simple, chaude, apaisée.
+- **ÉTÉÉAOOÉTÉ** — prolongement océanique plus rituel après RENEE : plage
+  d'été à l'aube, sel en suspension, vagues immenses, lambda dessiné dans le
+  sable, le bois flotté, les pierres et les chemins d'écume ; cérémonie simple,
+  drivable, jamais néon.
 
 ## Caméra & véhicule : l'émotion par le mouvement
 
@@ -188,7 +195,7 @@ Le mix diégétique baisse quand la musique du track monte.
 
 ## Méthode de travail imposée
 
-1. **Color script d'abord** : une frame de référence par track (24), palette +
+1. **Color script d'abord** : une frame de référence par track du catalogue actif, palette +
    heure + météo + un mot d'émotion, validées avant modélisation.
 2. **Greybox à l'échelle** avec spline complet et timings par track.
 3. **Pass lumière/atmosphère zone par zone** — c'est elle qui crée le réalisme.
