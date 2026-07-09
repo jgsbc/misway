@@ -12,6 +12,7 @@ import Drift3DProp from "@/components/drift-3d/Drift3DProp";
 import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import Drift3DAmbientEffects from "@/components/drift-3d/Drift3DEffects";
 import Drift3DScatterField from "@/components/drift-3d/Drift3DScatterField";
+import Drift3DWorldEdges from "@/components/drift-3d/Drift3DWorldEdges";
 import Drift3DZone from "@/components/drift-3d/Drift3DZone";
 import { driftMapConfig } from "@/lib/driftMap";
 import { getTrackBySlug } from "@/lib/tracks";
@@ -753,6 +754,8 @@ export default function Drift3DScene({
       <NightSky vehicleStateRef={vehicleStateRef} />
 
       <DriftTerrainMesh texture={terrainTexture} />
+
+      <Drift3DWorldEdges />
 
       <Drift3DZone
         node={drift3dThresholdNode}

@@ -25,6 +25,23 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20C: Profondeur des bords du monde (océan, falaises, collines, plaines, rivière)
+- Context: La map est cohérente mais les bords « finissaient dans le fog » (audit 20A). Direction : océan au nord, falaises à l'ouest, collines à l'est, plaines + rivière au sud, sans clutter — profondeur et continuité géographique.
+- Convention cardinale (déterminée empiriquement, caméra oblique en +z regardant −z) : **nord = −z (fond/haut), sud = +z (proche/bas), est = +x (droite), ouest = −x (gauche)**.
+- Decision:
+  - Nouveau composant `src/components/drift-3d/Drift3DWorldEdges.tsx` (géométrie statique, non-collidante, hors movement bounds x±108.8 / z±72, fog de scène activé pour fondre dans l'horizon) :
+    - **Océan nord** : nappe d'eau sombre (360×220) au-delà de z=−72 + 7 bandes de houle basses ; aucun Reflector (perf), se fond dans le fog teinté par zone.
+    - **Falaises ouest** : deux rangées de masses rocheuses (x −116 à −155, h 20–50), mur accidenté hors bounds, non-collidant.
+    - **Collines est** : 3 bandes de dômes qui reculent (x +118 à +194), teinte de plus en plus brume.
+    - **Plaines sud** : large sol plat au-delà de z=+72 + 2 rises douces.
+    - **Rivière** : ruban d'eau plat non-collidant (BufferGeometry, DoubleSide) échantillonné à la hauteur du terrain, du sud (z≈118) au débouché océan nord-est près d'eteeaooete, tracé pour éviter les centres de nœuds (≥~8 u). Purement visuel — physique inchangée.
+  - Monté dans `Drift3DScene.tsx` juste après le terrain (arrière-plan). NightSky (étoiles la nuit) réutilisé tel quel — pas de duplication.
+- Validation: lint PASS, build PASS (38 routes), zéro erreur console. Perf max zoom près du bord : 180 draw calls / 181k triangles (budgets ≤300 / ≤1,5M). QA : océan visible (desktop + mobile), falaises ouest (mur sombre à gauche), collines est (dômes à droite), plaines sud (bande herbeuse), rivière (ruban bleu filant vers l'océan, lisible dans le champ). ethnic-stick (bord nord exact) et eteeaooete jouables, non engloutis — l'océan derrière renforce leur scène côtière. 26 nœuds inchangés (bounds non touchés). Audio 1, aucun autoplay. Zoom 2.8 et pinch 20B intacts. Routes /drift, /drift-3d-lab, /drift-lab, /tracks/* OK.
+- Files affected: `src/components/drift-3d/Drift3DWorldEdges.tsx` (nouveau), `src/components/drift-3d/Drift3DScene.tsx`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: dans les zones à fog pâle dense (vegetative overcast) les falaises/collines restent discrètes — voulu (géographie lointaine) mais à revoir si l'on veut des bords plus francs partout ; la rivière peut clipper légèrement sur relief pentu (tracée en couloirs doux, non observé en QA).
+
+---
+
 ### [2026-07-09] DRIFT-3D-20X: Cohérence du slug Panthere
 - Context: La topologie 3D et le landmark référençaient le track avec `Panthere` (capitale) alors que le slug canonique de `tracks.ts` (et de la route `/tracks/panthere/`, de `panthere.mp3`, `panthere.png`) est `panthere`. Conséquence : `getTrackBySlug("Panthere")` renvoyait `undefined` → le nœud Panthere affichait « TRACK MISSING » dans le HUD et le bouton LISTEN n'apparaissait pas.
 - Decision: Slug canonique retenu = `panthere` (déjà utilisé par les données track, la route et les assets). Alignement des 4 références fonctionnelles : `drift3dTopology.ts` (liste `trackSlugs` de New Signal, `id` du nœud `new-signal-Panthere` → `new-signal-panthere`, `trackSlug`), et `drift3dLandmarks.ts` (`nodeOrigin("Panthere")` → `nodeOrigin("panthere")`).
