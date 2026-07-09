@@ -1922,7 +1922,7 @@ export const drift3dLandmarks: Drift3DLandmark[] = [
   {
     // placeholder prudent : ombre féline basse, discrète
     id: "signal-panthere-shadow",
-    origin: nodeOrigin("Panthere"),
+    origin: nodeOrigin("panthere"),
     primitives: [
       {
         kind: "box",

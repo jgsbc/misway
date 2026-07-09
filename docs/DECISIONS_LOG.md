@@ -25,6 +25,16 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20X: Cohérence du slug Panthere
+- Context: La topologie 3D et le landmark référençaient le track avec `Panthere` (capitale) alors que le slug canonique de `tracks.ts` (et de la route `/tracks/panthere/`, de `panthere.mp3`, `panthere.png`) est `panthere`. Conséquence : `getTrackBySlug("Panthere")` renvoyait `undefined` → le nœud Panthere affichait « TRACK MISSING » dans le HUD et le bouton LISTEN n'apparaissait pas.
+- Decision: Slug canonique retenu = `panthere` (déjà utilisé par les données track, la route et les assets). Alignement des 4 références fonctionnelles : `drift3dTopology.ts` (liste `trackSlugs` de New Signal, `id` du nœud `new-signal-Panthere` → `new-signal-panthere`, `trackSlug`), et `drift3dLandmarks.ts` (`nodeOrigin("Panthere")` → `nodeOrigin("panthere")`).
+- Why: Faire résoudre le nœud vers son track (titre, audio, route) et lever l'incohérence de casse. Le titre affiché reste `PANTHERE` (champ `title` de `tracks.ts`, inchangé).
+- Impact: Le nœud Panthere est désormais jouable (HUD résout le titre, LISTEN disponible, OPEN NODE → `/tracks/panthere/`). Aucun nœud dupliqué, aucun nœud supprimé, aucun changement visuel/narratif.
+- Files affected: `src/lib/drift3dTopology.ts`, `src/lib/drift3dLandmarks.ts`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: aucun. Les docs narratives (blueprint, matrix, layout) gardent l'orthographe `Panthere` comme label d'affichage historique — non fonctionnel, hors périmètre.
+
+---
+
 ### [2026-07-09] DRIFT-3D-34: Deux nouveaux tracks — ÉTÉÉAOOÉTÉ & EUX GAINENT
 - Context: Le propriétaire a déposé deux nouveaux MP3 et déjà câblé l'essentiel (tracks.ts, topologie, deux scènes figuratives, sous-région atmosphérique océanique, bible + métadonnées à 26 tracks). Restaient les finitions et corrections.
 - Decision:
