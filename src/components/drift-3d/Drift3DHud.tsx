@@ -99,6 +99,10 @@ export default function Drift3DHud({
   onToggleActiveTrack,
 }: Drift3DHudProps) {
   const copy = getHudCopy(proximity, activeTrack);
+  // DRIFT-3D-20B: mobile compact — on masque les lignes secondaires tant qu'on
+  // n'est pas dans un node ; desktop garde le détail complet en permanence.
+  const isInside = proximity?.isInside ?? false;
+  const secondaryVisibility = isInside ? "" : "hidden md:block";
   const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
   const progressPercent = Math.round((proximity?.progress ?? 0) * 100);
   const trackAvailability =
@@ -147,11 +151,15 @@ export default function Drift3DHud({
         </div>
       </div>
 
-      <p className="mt-2 line-clamp-2 font-mono text-[8px] uppercase leading-4 tracking-[0.12em] text-neutral-600">
+      <p
+        className={`mt-2 line-clamp-2 font-mono text-[8px] uppercase leading-4 tracking-[0.12em] text-neutral-600 ${secondaryVisibility}`}
+      >
         {copy.detail}
       </p>
 
-      <p className="mt-1 line-clamp-2 font-mono text-[7px] uppercase leading-4 tracking-[0.12em] text-neutral-500">
+      <p
+        className={`mt-1 line-clamp-2 font-mono text-[7px] uppercase leading-4 tracking-[0.12em] text-neutral-500 ${secondaryVisibility}`}
+      >
         {copy.note}
       </p>
 
