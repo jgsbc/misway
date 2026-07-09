@@ -2,6 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
+import { Volume2, VolumeX } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   MouseEvent as ReactMouseEvent,
@@ -64,6 +65,14 @@ export default function Drift3DCanvas({
       active: false,
     },
   });
+  // DRIFT-3D-20B: registre multi-pointeurs tactiles pour le pinch deux doigts.
+  const activeTouchPointersRef = useRef<Map<number, { x: number; y: number }>>(
+    new Map()
+  );
+  const pinchStateRef = useRef<{
+    startDistance: number;
+    startScale: number;
+  } | null>(null);
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
 
@@ -143,6 +152,11 @@ export default function Drift3DCanvas({
 
   useEffect(() => {
     function releasePointerDriveState() {
+      // DRIFT-3D-20B: perte de focus / onglet caché → on relâche aussi le
+      // registre tactile et le pinch pour éviter un état bloqué.
+      activeTouchPointersRef.current.clear();
+      pinchStateRef.current = null;
+
       const pointerDriveState = pointerDriveStateRef.current;
 
       if (
@@ -248,12 +262,72 @@ export default function Drift3DCanvas({
     };
   }
 
+  // DRIFT-3D-20B: distance entre les deux doigts actifs pendant un pinch.
+  function getActiveTouchDistance() {
+    const points = Array.from(activeTouchPointersRef.current.values());
+
+    if (points.length < 2) {
+      return 0;
+    }
+
+    return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+  }
+
+  function enterPinchMode() {
+    // Le pinch prend le pas sur la conduite : on gèle l'input véhicule à zéro
+    // et on mémorise la distance + le zoom de départ (mapping ratio).
+    clearPointerDriveInput();
+    pinchStateRef.current = {
+      startDistance: getActiveTouchDistance(),
+      startScale: cameraZoomTargetRef.current,
+    };
+  }
+
+  function exitPinchMode() {
+    pinchStateRef.current = null;
+    clearPointerDriveInput();
+
+    // S'il reste un doigt, on ré-arme l'origine de conduite sur sa position
+    // courante pour éviter tout saut du véhicule à la reprise.
+    const remaining = Array.from(activeTouchPointersRef.current.entries());
+
+    if (remaining.length === 1) {
+      const [pointerId, point] = remaining[0];
+      pointerDriveStateRef.current = {
+        active: false,
+        pointerId,
+        origin: { x: point.x, y: point.y },
+        input: { x: 0, z: 0, active: false },
+      };
+    }
+  }
+
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    if (
-      event.button !== 0 ||
-      event.defaultPrevented ||
-      pointerDriveStateRef.current.pointerId !== null
-    ) {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    const isTouch = event.pointerType === "touch";
+
+    if (isTouch) {
+      activeTouchPointersRef.current.set(event.pointerId, {
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      // Deux doigts posés : on bascule en pinch zoom.
+      if (activeTouchPointersRef.current.size >= 2) {
+        event.preventDefault();
+        event.stopPropagation();
+        enterPinchMode();
+
+        return;
+      }
+    } else if (event.button !== 0) {
+      return;
+    }
+
+    if (pointerDriveStateRef.current.pointerId !== null) {
       return;
     }
 
@@ -279,6 +353,33 @@ export default function Drift3DCanvas({
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "touch") {
+      const tracked = activeTouchPointersRef.current.get(event.pointerId);
+
+      if (tracked) {
+        tracked.x = event.clientX;
+        tracked.y = event.clientY;
+      }
+
+      // En pinch, la distance inter-doigts pilote le zoom (jamais la conduite).
+      if (pinchStateRef.current) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const pinch = pinchStateRef.current;
+        const distance = getActiveTouchDistance();
+
+        if (pinch.startDistance > 0 && distance > 0) {
+          // Écarter les doigts (distance ↑) rapproche la caméra (scale ↓).
+          setCameraZoomValue(
+            pinch.startScale * (pinch.startDistance / distance)
+          );
+        }
+
+        return;
+      }
+    }
+
     if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
       return;
     }
@@ -288,7 +389,19 @@ export default function Drift3DCanvas({
     setPointerDriveInput(event.pointerId, event.clientX, event.clientY);
   }
 
-  function handlePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+  function releasePointer(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "touch") {
+      activeTouchPointersRef.current.delete(event.pointerId);
+
+      if (pinchStateRef.current && activeTouchPointersRef.current.size < 2) {
+        event.preventDefault();
+        event.stopPropagation();
+        exitPinchMode();
+
+        return;
+      }
+    }
+
     if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
       return;
     }
@@ -305,21 +418,12 @@ export default function Drift3DCanvas({
     clearPointerDriveInput(event.pointerId);
   }
 
+  function handlePointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    releasePointer(event);
+  }
+
   function handlePointerCancel(event: ReactPointerEvent<HTMLDivElement>) {
-    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      // Ignore pointer capture errors on unsupported or synthetic sequences.
-    }
-
-    clearPointerDriveInput(event.pointerId);
+    releasePointer(event);
   }
 
   function handleClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
@@ -426,24 +530,31 @@ export default function Drift3DCanvas({
         />
       </section>
 
-      <div className="pointer-events-none absolute bottom-4 right-4 z-20 md:bottom-6 md:right-6">
+      <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-20 md:bottom-6 md:right-6">
         <button
           type="button"
           onClick={toggleAmbience}
           onPointerDown={(event) => event.stopPropagation()}
           onPointerMove={(event) => event.stopPropagation()}
           onPointerUp={(event) => event.stopPropagation()}
-          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-400/60 bg-white/30 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
+          className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center gap-2 rounded-full border border-neutral-400/60 bg-white/30 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20 md:px-3"
           aria-pressed={isAmbienceOn}
           aria-label={
             isAmbienceOn ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore"
           }
         >
-          {isAmbienceOn ? "AMBIANCE ON" : "AMBIANCE OFF"}
+          {isAmbienceOn ? (
+            <Volume2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
+          ) : (
+            <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
+          )}
+          <span className="hidden md:inline">
+            {isAmbienceOn ? "AMBIANCE ON" : "AMBIANCE OFF"}
+          </span>
         </button>
       </div>
 
-      <div className="pointer-events-none absolute right-4 top-4 z-20 max-w-[min(92vw,24rem)] md:right-6 md:top-6">
+      <div className="pointer-events-none absolute right-[calc(1rem+env(safe-area-inset-right))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(58vw,24rem)] md:right-6 md:top-6 md:max-w-[24rem]">
         <div className="pointer-events-auto">
           <Drift3DHud
             proximity={proximity}
@@ -456,8 +567,8 @@ export default function Drift3DCanvas({
       </div>
 
       {showPersistentAudioChip && currentTrack ? (
-        <div className="pointer-events-none absolute inset-x-4 bottom-16 z-20 flex justify-center md:inset-x-6 md:bottom-6">
-          <div className="pointer-events-auto inline-flex max-w-[min(92vw,24rem)] items-center gap-3 rounded-full bg-white/36 px-3 py-2.5 text-neutral-950 ring-1 ring-black/5 backdrop-blur-md">
+        <div className="pointer-events-none absolute inset-x-4 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-20 flex justify-center md:inset-x-6 md:bottom-6">
+          <div className="pointer-events-auto inline-flex max-w-[min(78vw,24rem)] items-center gap-2.5 rounded-full bg-white/36 px-3 py-2 text-neutral-950 ring-1 ring-black/5 backdrop-blur-md md:gap-3 md:py-2.5">
             <div className="min-w-0">
               <p className="font-mono text-[8px] uppercase tracking-[0.28em] text-neutral-500">
                 {isPlaying ? "NOW PLAYING" : "TRACK HELD"}

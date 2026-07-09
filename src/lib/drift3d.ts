@@ -22,7 +22,9 @@ export const DRIFT_3D_TRAVEL_Y = 0.16;
 export const DRIFT_3D_CAMERA_BASE_HEIGHT = 6;
 export const DRIFT_3D_CAMERA_BASE_DEPTH = 10.4;
 export const DRIFT_3D_CAMERA_MIN_SCALE = 0.82;
-export const DRIFT_3D_CAMERA_MAX_SCALE = 1.6;
+// DRIFT-3D-20B: recul max élargi (1.6 -> 2.8) pour une vue plus cinématique.
+// La caméra reste oblique fixe en translation-follow ; seule la distance change.
+export const DRIFT_3D_CAMERA_MAX_SCALE = 2.8;
 
 type DriftMapPoint = {
   x: number;

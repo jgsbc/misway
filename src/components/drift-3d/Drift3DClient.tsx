@@ -121,26 +121,28 @@ export default function Drift3DClient() {
         )}
       </div>
 
-      <div className="pointer-events-none absolute left-4 top-4 z-20 max-w-[min(88vw,15rem)] md:left-6 md:top-6">
+      <div className="pointer-events-none absolute left-[calc(1rem+env(safe-area-inset-left))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(52vw,15rem)] md:left-6 md:top-6 md:max-w-[15rem]">
         <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
           MISWΛY · Drift
         </p>
-        <p className="mt-2 max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:text-[13px]">
+        {/* DRIFT-3D-20B: le tutoriel permanent est masqué sur mobile pour
+            dégager la vue ; il reste sur desktop. */}
+        <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
           ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
         </p>
       </div>
 
-      <div className="pointer-events-none absolute bottom-4 left-4 z-20 flex flex-wrap gap-3 md:bottom-6 md:left-6">
+      <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-20 flex flex-wrap gap-2 md:bottom-6 md:left-6 md:gap-3">
         <Link
           href="/"
-          className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/72 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white"
+          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
         >
           MISWΛY
         </Link>
 
         <Link
           href="/tracks"
-          className="pointer-events-auto inline-flex min-h-[42px] items-center justify-center border border-neutral-300 bg-white/52 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950"
+          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/52 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950 md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
         >
           Tracks
         </Link>
