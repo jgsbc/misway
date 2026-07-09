@@ -214,8 +214,13 @@ export function getDrift3DAmbienceMixAt(position: {
 
   const storm = drift3dTrackNodeBySlug["hold-the-light"].position;
   const shore = drift3dTrackNodeBySlug.renee.position;
+  const ocean = drift3dTrackNodeBySlug.eteeaooete.position;
   const stormDistance = Math.hypot(position.x - storm.x, position.z - storm.z);
   const shoreDistance = Math.hypot(position.x - shore.x, position.z - shore.z);
+  // les vagues immenses d'ÉTÉÉAOOÉTÉ portent plus loin que le ressac de RENEE
+  const oceanDistance = Math.hypot(position.x - ocean.x, position.z - ocean.z);
+  const seaFromShore = 1 - (shoreDistance - 5) / 9;
+  const seaFromOcean = 1 - (oceanDistance - 6) / 12;
 
   return {
     urban: (weights["birth-yard"] ?? 0) / total,
@@ -223,6 +228,6 @@ export function getDrift3DAmbienceMixAt(position: {
     field: (weights["vegetative-field"] ?? 0) / total,
     night: (weights["new-signal"] ?? 0) / total,
     rain: Math.min(1, Math.max(0, 1 - (stormDistance - 5) / 9)),
-    sea: Math.min(1, Math.max(0, 1 - (shoreDistance - 5) / 9)),
+    sea: Math.min(1, Math.max(0, Math.max(seaFromShore, seaFromOcean))),
   };
 }

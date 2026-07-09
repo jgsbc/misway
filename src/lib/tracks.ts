@@ -417,7 +417,6 @@ const seedTracks: TrackSeed[] = [
     title: "ÉTÉÉAOOÉTÉ",
     yearLabel: "2026",
     publishedLabel: "New era",
-    audioFile: "étééaooété.mp3",
     shortText:
       "A dawn beach ritual where the lambda stays simple and the ocean grows immense.",
     longText:

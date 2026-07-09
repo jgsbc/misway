@@ -32,6 +32,8 @@ const trackMotionBySlug: Record<string, Drift3DTrackMotion> = {
   telatelaba: { speedScale: 0.7, zoomScale: 0.88 },
   relative: { speedScale: 1.1, zoomScale: 1 },
   renee: { speedScale: 0.6, zoomScale: 1.14 },
+  // prolongement océanique rituel de renee : même lenteur contemplative
+  eteeaooete: { speedScale: 0.6, zoomScale: 1.16 },
 };
 
 export function getDrift3DTrackMotion(

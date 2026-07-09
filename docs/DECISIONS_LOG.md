@@ -25,6 +25,18 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-34: Deux nouveaux tracks — ÉTÉÉAOOÉTÉ & EUX GAINENT
+- Context: Le propriétaire a déposé deux nouveaux MP3 et déjà câblé l'essentiel (tracks.ts, topologie, deux scènes figuratives, sous-région atmosphérique océanique, bible + métadonnées à 26 tracks). Restaient les finitions et corrections.
+- Decision:
+  - **Fichier audio non-ASCII corrigé** : `public/audio/étééaooété.mp3` renommé en `eteeaooete.mp3` (aligné sur le slug) et retrait de l'override `audioFile` dans `tracks.ts` (défaut = `${slug}.mp3`). Motif : un nom UTF-8 dans une URL est fragile sur l'export statique GitHub Pages (encodage NFC/NFD).
+  - **fallback.png créé** : `src/app/tracks/*` et `DriftPageClient` référençaient `/images/tracks/fallback.png` qui n'existait pas — les deux nouveaux tracks (sans coverImage) l'auraient déclenché en 404. Généré un placeholder 1254×1254 sur-charte (crème dégradé + λ sculpté sombre, jamais néon).
+  - **Cinématographie** : `eteeaooete` reçoit le grading lent/large de renee (speedScale 0.6, zoomScale 1.16) — prolongement océanique rituel contemplatif. `eux-gainent` garde le défaut Birth Yard.
+  - **Ambiance ressac** étendue : le layer `sea` suit désormais le max des distances à renee ET eteeaooete (vagues immenses portant plus loin, rayon 12).
+- Validation: lint PASS, build PASS (38 routes, +2 fiches track). QA navigateur : nœud EUX GAINENT (façade vitrée éclairée, tags CITY/GYM/ROBOTIC), nœud ÉTÉÉAOOÉTÉ (λ en bois flotté au sol, cercle de pierres rituel, vagues immenses, aube — tags OCEAN/LAMBDA/RITUAL), catalogue affiche les 2 tracks avec le fallback λ (0 image cassée), les 2 MP3 servis en audio/mpeg 200, zéro erreur console.
+- Notes: covers dédiées non produites (impossible d'égaler l'artwork 1254² fait main) — le fallback λ tient lieu de placeholder propre ; le mismatch pré-existant slug `panthere` (tracks) vs `Panthere` (topologie) n'a pas été touché car hors périmètre.
+
+---
+
 ### [2026-07-09] DRIFT-PUBLISH-TRACKS-ADD-02: Ajout de ÉTÉÉAOOÉTÉ et EUX GAINENT
 - Context: Lot de publication demandé pour intégrer deux nouveaux fichiers audio locaux au catalogue, aux pages track statiques et au monde Drift 3D, sans redesign global, sans nouvelle dépendance et sans changer l'architecture audio.
 - Decision:
