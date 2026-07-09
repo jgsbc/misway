@@ -147,7 +147,7 @@ export const drift3dEras = [
       "telatelaba",
       "le-monde-s-endort",
       "renee",
-      "Panthere",
+      "panthere",
       "eteeaooete",
     ],
     topologyHints: [
@@ -387,8 +387,8 @@ export const drift3dTrackNodes = [
     position: point(48, 0.12, -48),
   },
   {
-    id: "new-signal-Panthere",
-    trackSlug: "Panthere",
+    id: "new-signal-panthere",
+    trackSlug: "panthere",
     eraId: "new-signal",
     role: "track",
     position: point(90, 0.14, 28),
