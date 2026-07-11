@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { DRIFT_3D_FLOOR_Y } from "@/lib/drift3d";
 import {
@@ -24,7 +25,47 @@ type ScatterPartSpec = {
   emissiveIntensity?: number;
   texture?: Parameters<typeof getDriftMaterialTexture>[0];
   textureRepeat?: [number, number];
+  /** Feuillage/herbe qui ondule au vent (DRIFT-3D-20D). */
+  wind?: boolean;
 };
+
+/**
+ * DRIFT-3D-20D — vent sur la végétation.
+ * Uniformes partagés au niveau module (scène unique) : un seul `useFrame` les
+ * fait avancer, tous les matériaux « wind » les référencent.
+ */
+const windUniforms = {
+  uTime: { value: 0 },
+  uWindStrength: { value: 1 },
+};
+
+/**
+ * Patch du shader standard (onBeforeCompile) : chaque sommet est décalé
+ * horizontalement selon la position monde de l'instance + le temps, avec une
+ * amplitude proportionnelle à sa hauteur locale (la base ne bouge pas, la cime
+ * ondule). GPU only, aucune matrice mise à jour par frame, aucune dépendance.
+ */
+function applyWind(material: THREE.MeshStandardMaterial) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = windUniforms.uTime;
+    shader.uniforms.uWindStrength = windUniforms.uWindStrength;
+    shader.vertexShader =
+      "uniform float uTime;\nuniform float uWindStrength;\n" +
+      shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+        #ifdef USE_INSTANCING
+          float wphase = instanceMatrix[3].x * 0.3 + instanceMatrix[3].z * 0.25;
+          float sway = sin(uTime * 1.3 + wphase) * 0.9
+            + sin(uTime * 2.7 + wphase * 1.6) * 0.35;
+          float amp = clamp(transformed.y, 0.0, 3.0) * 0.11 * uWindStrength;
+          transformed.x += sway * amp;
+          transformed.z += cos(uTime * 1.05 + wphase) * amp * 0.7;
+        #endif`
+      );
+  };
+  material.customProgramCacheKey = () => "drift-wind";
+}
 
 const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
   conifer: [
@@ -47,6 +88,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#2f4a33",
       roughness: 0.95,
+      wind: true,
     },
   ],
   broadleaf: [
@@ -70,6 +112,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#4a6b3a",
       roughness: 0.95,
+      wind: true,
     },
   ],
   bush: [
@@ -83,6 +126,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#55703f",
       roughness: 0.96,
+      wind: true,
     },
   ],
   rock: [
@@ -108,6 +152,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#8a9a55",
       roughness: 0.97,
+      wind: true,
     },
   ],
   deadTree: [
@@ -178,6 +223,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#6b7a3a",
       roughness: 0.95,
+      wind: true,
     },
   ],
   cityBlock: [
@@ -214,6 +260,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#5f7040",
       roughness: 0.95,
+      wind: true,
     },
     {
       geometry: () => {
@@ -224,6 +271,7 @@ const partSpecsByKind: Record<Drift3DScatterKind, ScatterPartSpec[]> = {
       },
       color: "#c92c2c",
       roughness: 0.7,
+      wind: true,
     },
   ],
 };
@@ -237,23 +285,27 @@ function ScatterPart({
 }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const geometry = useMemo(() => spec.geometry(), [spec]);
-  const material = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: spec.color,
-        roughness: spec.roughness ?? 0.95,
-        emissive: new THREE.Color(spec.emissive ?? "#000000"),
-        emissiveIntensity: spec.emissiveIntensity ?? 0,
-        map: spec.texture
-          ? getDriftMaterialTexture(
-              spec.texture,
-              spec.textureRepeat?.[0] ?? 1,
-              spec.textureRepeat?.[1] ?? 1
-            ) ?? undefined
-          : undefined,
-      }),
-    [spec]
-  );
+  const material = useMemo(() => {
+    const created = new THREE.MeshStandardMaterial({
+      color: spec.color,
+      roughness: spec.roughness ?? 0.95,
+      emissive: new THREE.Color(spec.emissive ?? "#000000"),
+      emissiveIntensity: spec.emissiveIntensity ?? 0,
+      map: spec.texture
+        ? getDriftMaterialTexture(
+            spec.texture,
+            spec.textureRepeat?.[0] ?? 1,
+            spec.textureRepeat?.[1] ?? 1
+          ) ?? undefined
+        : undefined,
+    });
+
+    if (spec.wind) {
+      applyWind(created);
+    }
+
+    return created;
+  }, [spec]);
 
   useLayoutEffect(() => {
     const mesh = meshRef.current;
@@ -299,6 +351,14 @@ function ScatterPart({
 
 export default function Drift3DScatterField() {
   const instancesByKind = useMemo(() => getDrift3DScatterInstances(), []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    windUniforms.uTime.value = t;
+    // rafales : brise de fond + bourrasques lentes → mouvement naturel
+    windUniforms.uWindStrength.value =
+      0.75 + 0.45 * Math.sin(t * 0.28) + 0.28 * Math.sin(t * 0.11 + 1.7);
+  });
 
   return (
     <group aria-hidden="true">

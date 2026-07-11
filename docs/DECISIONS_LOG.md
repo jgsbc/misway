@@ -25,6 +25,17 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20D: Densification immersive — vent sur la végétation
+- Context: Après les bords du monde (20C/FIX), rendre le monde vivant à l'échelle des ères sans clutter (l'utilisateur a répété : densifier l'expérience, pas le centre / pas d'objets abstraits).
+- Decision: **Vent sur toute la végétation** via patch du shader standard (`onBeforeCompile`) dans `Drift3DScatterField` — feuillages, herbes, buissons, canopées d'acacia, coquelicots ondulent ; la base reste fixe (amplitude ∝ hauteur locale du sommet). Phase par instance (position monde) + rafales lentes (brise de fond + bourrasques) via un uniforme partagé au niveau module, avancé par un seul `useFrame`. Bible-justifié (« blé qui ondule », « la crête au vent »). Troncs, rochers, réverbères, immeubles, arbres morts : non concernés.
+- Why: Le mouvement est ce qui fait « vivre » un monde low-poly statique. C'est une densification de la SENSATION, pas du nombre d'objets.
+- Impact: **Zéro objet ajouté, zéro draw call, zéro triangle en plus** (145 calls / 171k tris, identique) — le vent est 100 % GPU, aucune matrice mise à jour par frame, aucune dépendance. Aucun clutter, aucune particule abstraite.
+- Validation: lint PASS, build PASS (38 routes), zéro erreur console (shader compile proprement, végétation rendue sans distorsion). Perf inchangée. Nœud TIME résout (INSIDE SIGNAL), audio 1 non joué (aucun autoplay). Caméra/pinch/UI mobile/HUD non touchés (seul le matériau du scatter change).
+- Files affected: `src/components/drift-3d/Drift3DScatterField.tsx`.
+- Follow-up needed: le mouvement est subtil (par design) — mieux jugé en direct qu'en screenshot. Compléments immersifs possibles en lot ultérieur si souhaité et validés comme non-abstraits : poussière dorée diégétique (heat haze Older Shadows), transitions de seuil inter-ères, lointains estompés.
+
+---
+
 ### [2026-07-09] DRIFT-3D-20C-FIX2: Refonte des bords — continuité, crêtes, fleuve, anti-bugs
 - Context: Retour humain sur 20C-FIX : bords lisant encore comme des blocs, pas de continuité (surtout nord, terrain coupé net), voiture pouvant passer sous une colline/dans une falaise, falaises = rectangles, arbres dans le fleuve.
 - Decision:
