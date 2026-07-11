@@ -25,6 +25,25 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20E: Loufoquerie contrôlée & détails signés par track
+- Context: Enrichir le caractère de scènes iconiques avec des détails diégétiques dosés (esprit MISWAY, un peu de loufoquerie), sans clutter, sans casser le test « nommable en une phrase ».
+- Decision: Ajout de 1–2 props par scène à 8 landmarks (données `drift3dLandmarks.ts`, hors centres de nœuds/corridors, primitives box/cylinder/cone/sphere existantes) :
+  - **a-walk-in-zeeland** : barque amarrée sur le canal + caisses de quai.
+  - **jazzypling** : deux poubelles de ruelle + caisse renversée.
+  - **rise** : cairn empilé (3 pierres) + fanion de sommet planté.
+  - **ethnic-stick** : jarres en terre cuite + tissu coloré tendu (marché).
+  - **morne-et** : **flamant rose gonflable de jardin** (la loufoquerie contrôlée : kitsch pavillonnaire qui renforce le « morne beau »).
+  - **perdue** : boîte aux lettres qui déborde de courrier.
+  - **midnight-work** : chouette en silhouette perchée sur l'angle du toit.
+  - **renee** : bouteille échouée + coquillages sur le sable.
+- Why: Le caractère naît des petits objets vécus, pas du volume. Chaque détail reste diégétique (bible : aucune forme abstraite, aucun émissif sans source) et renforce l'identité en une phrase de la scène.
+- Impact: ~50 primitives ajoutées (meshes de landmark, non instanciés). Perf en zone dense : ~160 draw calls / 172k triangles (budgets ≤300 / ≤1,5M — marge large). Aucun collider gênant (props hors corridors ; certains `solid` à petit rayon).
+- Validation: lint PASS, build PASS (38 routes), zéro erreur console. QA : flamant lisible instantanément (MORNE résout), plage de renee (galets/coquillages/bouteille), canal de Zeeland (barque/caisses) — nœuds INSIDE SIGNAL, audio 1 non joué. Caméra/pinch/UI mobile/HUD/topologie/audio non touchés (données visuelles uniquement).
+- Files affected: `src/lib/drift3dLandmarks.ts`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: les autres tracks peuvent recevoir le même traitement dosé en itération future si souhaité ; le vent (20D) n'anime pas ces props de landmark (tissus/fanions restent statiques) — une animation légère de quelques « hero props » serait un raffinement possible.
+
+---
+
 ### [2026-07-09] DRIFT-3D-20D: Densification immersive — vent sur la végétation
 - Context: Après les bords du monde (20C/FIX), rendre le monde vivant à l'échelle des ères sans clutter (l'utilisateur a répété : densifier l'expérience, pas le centre / pas d'objets abstraits).
 - Decision: **Vent sur toute la végétation** via patch du shader standard (`onBeforeCompile`) dans `Drift3DScatterField` — feuillages, herbes, buissons, canopées d'acacia, coquelicots ondulent ; la base reste fixe (amplitude ∝ hauteur locale du sommet). Phase par instance (position monde) + rafales lentes (brise de fond + bourrasques) via un uniforme partagé au niveau module, avancé par un seul `useFrame`. Bible-justifié (« blé qui ondule », « la crête au vent »). Troncs, rochers, réverbères, immeubles, arbres morts : non concernés.
