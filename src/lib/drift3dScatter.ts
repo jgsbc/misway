@@ -7,6 +7,7 @@ import {
   getDrift3DTerrainHeight,
   getDrift3DTerrainNormal,
 } from "@/lib/drift3dTerrain";
+import { distanceToDrift3DRiver } from "@/lib/drift3dRivers";
 import type { Drift3DVehicleCollider } from "@/lib/drift3dVehiclePhysics";
 
 /**
@@ -42,6 +43,7 @@ export type Drift3DScatterInstance = {
 
 const NODE_PROTECTION_RADIUS = 8;
 const COLLIDER_NODE_DISTANCE = 10;
+const RIVER_PROTECTION_RADIUS = 6.5;
 
 const protectedPoints = [
   ...drift3dTrackNodes.map((node) => ({
@@ -275,6 +277,11 @@ function buildScatter() {
       }
 
       if (distanceToNearestNode(x, z) < NODE_PROTECTION_RADIUS) {
+        continue;
+      }
+
+      // Rien ne pousse dans le lit / sur les berges immédiates du fleuve.
+      if (distanceToDrift3DRiver(x, z) < RIVER_PROTECTION_RADIUS) {
         continue;
       }
 

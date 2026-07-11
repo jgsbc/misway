@@ -25,6 +25,34 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20C-FIX2: Refonte des bords — continuité, crêtes, fleuve, anti-bugs
+- Context: Retour humain sur 20C-FIX : bords lisant encore comme des blocs, pas de continuité (surtout nord, terrain coupé net), voiture pouvant passer sous une colline/dans une falaise, falaises = rectangles, arbres dans le fleuve.
+- Decision:
+  - **Générateur de crêtes low-poly** (`buildRidgeGeometry`) : bande pliée base-au-sol → crête dentelée reculée vers l'extérieur, `flatShading` → vraies montagnes/falaises/collines facettées, plus des rectangles. Falaises ouest (2 couches hautes/escarpées), collines est (2 couches basses/vertes), **chaîne côtière nord-ouest** qui prolonge le massif vers la mer, ondulations lointaines au sud. Toutes montent DEPUIS le bord du plan VERS l'extérieur → **jamais dans la zone jouable** : le véhicule ne peut plus disparaître dedans/dessous.
+  - **Jupe de sol** (`GroundApron`) : 3 plans plats prolongeant le terrain à l'ouest/est/sud, cachant la coupure du plan → continuité.
+  - **Océan** refait plat et animé (eau profonde + haut-fond + liseré d'écume de rivage + stries de crête + amas d'écume, tous à plat) — **plus de barres flottantes**. Au nord, la côte (jupe + haut-fond + écume) se raccorde à l'eau : plus de bloc illisible.
+  - **Fleuve** : tracé déplacé dans un module partagé `src/lib/drift3dRivers.ts` (path + `distanceToDrift3DRiver`). Rendu continu avec **berges de terre** + eau, **largeur variable**, entre par le sud et rejoint l'océan. `drift3dScatter.ts` **exclut désormais le couloir du fleuve** (rayon 6.5) → **plus d'arbres/rochers dans l'eau**.
+  - Convention de rendu constatée empiriquement : le monde est mirroré horizontalement (−x rend à droite, +x à gauche) ; placement interne conservé (falaises −x, collines +x, océan −z, plaines +z) car cohérent avec ce que le propriétaire relit depuis 20C.
+- Validation: lint PASS, build PASS (38 routes), zéro erreur console. Perf : 139–143 draw calls / 171k triangles (budgets ≤300 / ≤1,5M). QA : côte nord continue (plus de coupure), falaises facettées crédibles, collines en relief, **fleuve à berges continu jusqu'à l'estuaire sans arbres dedans**, véhicule visible partout (aucune occlusion), scatter avec ombres. ethnic-stick / eteeaooete / time jouables (INSIDE SIGNAL). Audio 1, aucun autoplay/proximity (track chargé mais en pause = état provider). Zoom 2.8 + pinch mobile + UI 20B intacts. Routes toutes 200.
+- Files affected: `src/components/drift-3d/Drift3DWorldEdges.tsx`, `src/lib/drift3dRivers.ts` (nouveau), `src/lib/drift3dScatter.ts`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: en zones à fog pâle dense (Vegetative overcast) et nuit très sombre (New Signal), les bords lointains restent estompés — limite inhérente du fog par zone (hors périmètre). Si le propriétaire veut inverser le côté écran des falaises/collines (spec « ouest = gauche »), c'est un simple échange de signe à trancher (labeling, pas un bug).
+
+---
+
+### [2026-07-09] DRIFT-3D-20C-FIX: Matière, vie et couture des bords du monde
+- Context: 20C a posé les bords (océan/falaises/collines/plaines/rivière) mais le retour humain : eau pas assez vivante, bords qui lisent comme une « couche ajoutée » plutôt qu'un prolongement organique.
+- Decision (tout dans `src/components/drift-3d/Drift3DWorldEdges.tsx`, une seule `useFrame` légère) :
+  - **Océan** : eau profonde + haut-fond plus clair/brillant près du rivage + **liseré d'écume de rivage animé** + 11 bandes de houle animées (va-et-vient sinus) + 9 amas d'écume à opacité pulsée. Lit désormais comme un vrai plan d'eau vivant, sans Reflector ni shader.
+  - **Rivière** : ruban d'eau + **berges de terre/sable** dessous (l'assoient dans le sol), **largeur variable** (étroite à la source, large au débouché), méandres retravaillés → ne semble plus « posée par-dessus ».
+  - **Falaises ouest** : ajout de **pieds de talus** bas et larges au bord jouable + corps + arrière-plan haut froid → vrai mur géographique étagé raccordé au terrain.
+  - **Collines est** : 4 bandes (une proche basse de raccord + 3 reculs brumeux) → meilleure profondeur, lisibles même la nuit sans exploser le contraste.
+  - **Plaines sud** : nappe + **bandes de prairie** qui reculent + rises, overlap sous la lèvre de terrain pour cacher la couture.
+- Validation: lint PASS, build PASS (38 routes), zéro erreur console. Perf bord nord max zoom : 153 draw calls / 174k triangles (budgets ≤300 / ≤1,5M). QA : océan vivant (couches + écume), rivière intégrée (berges), falaises = mur crédible (talus), collines en relief nocturne lisible. ethnic-stick / eteeaooete / time jouables (TRACK READY), non dégradés. **Véhicule suit la topologie** (y 0.06→0.88 en gravissant un pic, air:0). Audio 1, aucun autoplay. Zoom 2.8 + pinch mobile + UI 20B intacts. Routes /drift, /drift-lab, /tracks/* OK.
+- Files affected: `src/components/drift-3d/Drift3DWorldEdges.tsx`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: en zones à fog pâle dense (vegetative overcast, chalk) et nuit très sombre (New Signal) les falaises/collines restent atmosphériques/discrètes — voulu ; la houle animée dépend d'une `useFrame` (coût négligeable). Instabilité observée du renderer de preview headless (non liée au code).
+
+---
+
 ### [2026-07-09] DRIFT-3D-20C: Profondeur des bords du monde (océan, falaises, collines, plaines, rivière)
 - Context: La map est cohérente mais les bords « finissaient dans le fog » (audit 20A). Direction : océan au nord, falaises à l'ouest, collines à l'est, plaines + rivière au sud, sans clutter — profondeur et continuité géographique.
 - Convention cardinale (déterminée empiriquement, caméra oblique en +z regardant −z) : **nord = −z (fond/haut), sud = +z (proche/bas), est = +x (droite), ouest = −x (gauche)**.
