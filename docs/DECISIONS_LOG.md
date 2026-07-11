@@ -25,6 +25,22 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-09] DRIFT-3D-20F: QA visuelle de production & sign-off mobile
+- Context: Dernier lot de la séquence 20 — validation complète avant merge en prod. Objectif : parcours des 26 nœuds, perf, mobile, audio, routes.
+- Decision: Lot de **QA/validation** — aucun défaut de code trouvé, donc aucune modification de code (les changements auraient été du scope creep ; le mobile est déjà poli depuis 20B avec safe-areas + HUD compact + pinch + ambiance en icône).
+- Résultats QA (preview locale) :
+  - **26/26 nœuds** : tous `INSIDE SIGNAL` + `TRACK READY` + bouton `LISTEN` présent, **zéro `TRACK MISSING`**. Seuil `ENTRY NODE` correct (pas de LISTEN). Balayage automatisé par téléportation + lecture HUD.
+  - **Audio** : un seul `<audio>` runtime, `playing=false` sur tout le balayage → **aucun autoplay ni autoplay de proximité**.
+  - **Perf à recul max (2.8)** : foolfoule 57 fps / 237 draw calls / 201k tris (point le plus lourd — foule + ville + détails 20E), côte 147 fps / 197 calls, massif 146 fps / 145 calls, champ+fleuve 165 fps / 154 calls. Tous **dans les budgets** (≤300 calls / ≤1,5M tris, ≥30 fps mobile / ~60 desktop).
+  - **Mobile (375×812)** : UI compacte (brand + HUD compact + pills + icône ambiance ; nav primaire masquée), pinch 2 doigts zoome **sans** conduire, drag 1 doigt conduit, safe-areas OK, audio 1 non joué.
+  - **Routes** : `/drift`, `/drift-3d-lab` (redirect), `/drift-lab`, `/tracks/{panthere,eteeaooete,foolfoule}` → tous 200. (Un 500 ponctuel sur `/tracks/eteeaooete/` était un transient de compilation lazy du dev-server Next ; 200 au re-fetch, et l'export statique pré-génère les 38 pages → aucun 500 possible en prod.)
+  - **Console** : zéro erreur. lint PASS, build PASS (38 routes).
+- Impact: La map 3D Drift est **prête pour la production** : 26 tracks jouables, audio sûr, perf tenue, mobile poli, bords/relief/vent/détails en place.
+- Files affected: `docs/DECISIONS_LOG.md` (documentation uniquement).
+- Follow-up needed: point de vigilance perf unique = foolfoule à recul max (237 calls) — confortable mais le plus proche du budget ; à surveiller si de futurs lots densifient encore Birth Yard. Merge de la séquence 20 (20B→20F) en `main` à la main du propriétaire.
+
+---
+
 ### [2026-07-09] DRIFT-3D-20E: Loufoquerie contrôlée & détails signés par track
 - Context: Enrichir le caractère de scènes iconiques avec des détails diégétiques dosés (esprit MISWAY, un peu de loufoquerie), sans clutter, sans casser le test « nommable en une phrase ».
 - Decision: Ajout de 1–2 props par scène à 8 landmarks (données `drift3dLandmarks.ts`, hors centres de nœuds/corridors, primitives box/cylinder/cone/sphere existantes) :
