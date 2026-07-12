@@ -40,7 +40,18 @@ This backlog sequences the approved governance and Living World evolution. It do
 - **Acceptance:** the scene is no longer defined by generic athlete/treadmill motion; machines training and classifying people is the central inversion; cues are ready for an owner listening pass; owner review remains explicit.
 - **Validation:** documentation-only diff, no runtime path, no invented timestamps, forbidden generic imagery confined to `DO NOT DO`, documentation hierarchy and lot sequence consistent.
 - **Stop conditions:** contradiction with the Living Track Matrix, more than three signature objects, invented musical timing, reusable generic scene language, runtime diff or loss of mobile/reduced-motion meaning.
-- **Next lot:** `DRIFT-LW-CUES-00` after owner identity acceptance and timestamp validation.
+- **Next lot:** `DRIFT-LW-EUX-CUE-MAP-00`.
+
+## DRIFT-LW-EUX-CUE-MAP-00 — EUX GAINENT musical dramaturgy map
+
+- **Objective:** map the canonical EUX audio structure to precise cue windows that serve the accepted singular identity contract.
+- **Indicative scope:** canonical source verification, complete waveform/spectral structure, tempo estimate, cue keep/rename/split decisions, deterministic pause/seek/loop/re-entry policy and reduced-motion/mobile equivalents.
+- **Out of scope:** runtime/audio changes, invented track content, building/collider/node movement, headlights, memory and generic cue architecture.
+- **Acceptance:** four to seven primary cues cover the real structure; every cue has start/peak/end timing and musical evidence; the unique rupture owns the signature; timestamps remain owner-governed.
+- **Validation:** documentation-only diff, canonical metadata evidence, real timestamps with no placeholders, complete structure coverage and protected runtime integrity.
+- **Stop conditions:** missing source audio, identity contradiction, timestamps unsupported by technical or listening evidence, runtime diff or owner rejection of the cue dramaturgy.
+- **Result:** seven cues proposed from technical analysis; listening status `NOT HUMAN-AUDITIONED`; timing authority `ANALYTICAL_DRAFT`.
+- **Next lot:** `DRIFT-LW-CUES-00` only after owner audition and timestamp approval.
 
 ## DRIFT-LW-CUES-00 — Governed musical cue substrate
 

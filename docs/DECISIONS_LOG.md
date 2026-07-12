@@ -28,6 +28,19 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-12] DRIFT-LW-EUX-CUE-MAP-00 — EUX GAINENT musical dramaturgy map
+- Status: ACCEPTED_WITH_FOLLOW_UP. The owner approved the analytical timestamps as the initial runtime implementation baseline; bounded timing adjustments remain possible after real listening and visual QA.
+- Supersedes: untimed cue candidates in the EUX identity contract, for analytical planning only.
+- Superseded by: future owner-approved cue timings and delivered runtime implementation.
+- Context: the singular identity contract requires musical evidence for cadence, measurement, deviation, correction, reference inversion and residue before any runtime clock or cue sheet may be implemented.
+- Decision: use canonical source `public/audio/eux-gainent.mp3` (MP3, stereo, 44.1 kHz, 256 kb/s, `225.454558` seconds) and propose seven cues. Keep `CADENCE_LOCK`, `MEASUREMENT`, `DEVIATION` and `CORRECTION`; rename `INVERSION` to `REFERENCE_INVERSION`; split `RESIDUE` into `AFTERMATH_RETURN` and final `RESIDUE`.
+- Signature: analytical window `02:18.800–02:32.730`, peak proposal `02:27.280`, driven by the track's unique major structural rupture and staged return. The exterior building, collider and node remain immobile; only the interior reference frame may create the future illusion.
+- Confidence: all cues are `MEDIUM` overall until owner audition. Structural boundary reproducibility is high for cadence, deviation, correction, signature, return and outro; the separate measurement cue requires particular listening validation.
+- Impact: the cue map now covers complete musical structure, exact proposed timestamps, KPI progression, athlete/object behavior, pause/seek/loop/zone re-entry and reduced-motion/mobile equivalents. Runtime, player, audio source, memory and headlights remain unchanged.
+- Files affected: `docs/DRIFT_3D_EUX_GAINENT_CUE_MAP.md`, `docs/DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md`, `docs/ACTIVE_LOT.md`, `docs/DECISIONS_LOG.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, `docs/DRIFT_BACKLOG.md`.
+- Follow-up needed: implement the approved baseline in `DRIFT-LW-CUES-00`; owner audition and scene QA may then justify bounded timing adjustments.
+- Owner implementation approval: the seven analytical cues are approved as the initial runtime timing baseline. This approval does not claim that the track was human-auditioned in the agent environment.
+
 ### [2026-07-12] DRIFT-LW-EUX-IDENTITY-00 — EUX GAINENT singular identity contract
 - Status: PENDING_OWNER_REVIEW. Documentary gates passed; final artistic acceptance remains an owner decision.
 - Supersedes: generic scenic descriptions of EUX GAINENT as athletes and treadmills moving in a glass gym.

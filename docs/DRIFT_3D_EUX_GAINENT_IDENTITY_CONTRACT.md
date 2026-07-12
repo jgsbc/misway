@@ -285,6 +285,15 @@ The scene passes the uniqueness gate only when a viewer can describe the inversi
 7. Design reduced-motion and mobile states alongside each implemented transformation.
 8. Keep headlights deferred and memory outside the vertical slice unless a later owner-approved lot changes scope.
 
+## Resolved owner decisions
+
+- The signature uses an **interior reference-frame illusion** only; the building shell, collider, node and exterior footprint remain immobile.
+- The dominant vocabulary is `CADENCE → ÉCART → CONFORMITÉ → RENDEMENT`.
+- `OBJECTIF DÉPLACÉ` remains the unique signature text; no additional narrative sentence is approved.
+- Headlight interaction remains deferred and no musical cue depends on it.
+- Musical structure and analytical timestamps may be recorded before audition only as `ANALYTICAL_DRAFT`; they do not become approved timing authority before owner listening.
+- The current analytical map is recorded in `DRIFT_3D_EUX_GAINENT_CUE_MAP.md`.
+
 ## 21. Unresolved owner decisions
 
 1. **Musical evidence:** which exact heard moments validate, merge or reject the six candidate cues. No timing may be authored before this listening decision.

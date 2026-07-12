@@ -1,13 +1,20 @@
 # Active lot
 
-Current lot: DRIFT-LW-EUX-IDENTITY-00
+Current lot: DRIFT-LW-EUX-CUE-MAP-00
 
-Status: PASS_WITH_OWNER_REVIEW
+Status: ACCEPTED_WITH_FOLLOW_UP
 
-Objective: define the authoritative singular visual, narrative and behavioral identity contract for EUX GAINENT without runtime changes or invented cue timestamps.
+Objective: map the canonical EUX GAINENT audio structure to precise analytical cue timings for the approved scene dramaturgy, without runtime changes.
 
-Scope: documentation only; one track-specific contract derived from the Living World authorities and the accepted local runtime constraints.
+Scope: documentation only; canonical audio metadata, waveform/spectral analysis, musical structure, cue decisions and deterministic playback policies.
 
-Acceptance: pending owner review of the North Star, spatial signature and control language.
+Listening status: NOT HUMAN-AUDITIONED
 
-Next lot: DRIFT-LW-CUES-00 — BLOCKED_PENDING_TIMESTAMPS
+Cue timing authority: OWNER_APPROVED_FOR_IMPLEMENTATION
+
+Owner decision:
+Analytical timestamps approved as the runtime implementation baseline.
+Human listening may produce bounded timing adjustments after visual QA.
+
+Next lot:
+DRIFT-LW-CUES-00 — READY
