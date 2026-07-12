@@ -28,6 +28,17 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-12] DRIFT-LW-EUX-IDENTITY-00 — EUX GAINENT singular identity contract
+- Status: PENDING_OWNER_REVIEW. Documentary gates passed; final artistic acceptance remains an owner decision.
+- Supersedes: generic scenic descriptions of EUX GAINENT as athletes and treadmills moving in a glass gym.
+- Superseded by: —
+- Context: `DRIFT-LW-CORE-00` technically proved and the owner accepted the track-local wake, freeze, resume and reset architecture with follow-up. The same owner review explicitly rejected its generic scenic execution as an artistic template for EUX or any other track.
+- Decision: adopt the North Star “EUX GAINENT is a human performance showroom where ordinary exercise machines gradually reveal that they are training, measuring and classifying the people — not the opposite.” The scene is governed by one non-reusable performance-as-production dramaturgy, three signature elements, distinct compliant/corrected/residual athlete roles and six candidate cues that contain no timestamps.
+- Why: singularity comes from the inversion of ordinary gym functions — exercise becomes output, light becomes recalibration and glazing becomes conformity control — rather than from decorative futurism or generic mechanical loops.
+- Impact: `DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md` becomes authoritative for detailed EUX visual, narrative and behavioral decisions beneath the Living Track Matrix. Headlights remain deferred, session memory remains out of scope and `DRIFT-LW-CUES-00` remains blocked pending an owner-led listening/timestamp decision.
+- Files affected: `docs/DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md`, `docs/ACTIVE_LOT.md`, `docs/DECISIONS_LOG.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, `docs/DRIFT_BACKLOG.md`.
+- Follow-up needed: owner review of the North Star, spatial signature and control language; then validate musical evidence and timestamps in `DRIFT-LW-CUES-00`.
+
 ### [2026-07-12] DRIFT-LW-CORE-00 — EUX GAINENT local living scene
 - Status: PENDING_OWNER_REVIEW. Automated technical gates passed; owner visual acceptance remains required.
 - Supersedes: —

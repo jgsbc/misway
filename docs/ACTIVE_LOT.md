@@ -1,15 +1,13 @@
 # Active lot
 
-Current lot: DRIFT-LW-CORE-00
+Current lot: DRIFT-LW-EUX-IDENTITY-00
 
-Status: ACCEPTED_WITH_FOLLOW_UP
+Status: PASS_WITH_OWNER_REVIEW
 
-Objective: prove track-local idle, listening, paused and reset states on the existing EUX GAINENT glass gym without cues, memory or a generic Living World engine.
+Objective: define the authoritative singular visual, narrative and behavioral identity contract for EUX GAINENT without runtime changes or invented cue timestamps.
 
-Owner review:
-The Living World runtime behavior is technically accepted.
-The current EUX GAINENT scene remains visually and narratively too generic.
-Its implementation must not be used as the artistic template for other tracks.
+Scope: documentation only; one track-specific contract derived from the Living World authorities and the accepted local runtime constraints.
 
-Next lot:
-DRIFT-LW-EUX-IDENTITY-00
+Acceptance: pending owner review of the North Star, spatial signature and control language.
+
+Next lot: DRIFT-LW-CUES-00 — BLOCKED_PENDING_TIMESTAMPS

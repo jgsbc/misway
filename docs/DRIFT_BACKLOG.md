@@ -30,7 +30,17 @@ This backlog sequences the approved governance and Living World evolution. It do
 - **Acceptance:** one bounded contract works without changing track playback truth; safe reset/fallback; targeted tests; mobile/reduced-motion/performance gates pass.
 - **Validation:** targeted tests, lint, build, desktop/mobile/reduced-motion QA, representative performance evidence.
 - **Stop conditions:** speculative framework, hidden global side effects, audio-provider risk, or failure to degrade safely.
-- **Next lot:** `DRIFT-LW-CUES-00`.
+- **Next lot:** `DRIFT-LW-EUX-IDENTITY-00`.
+
+## DRIFT-LW-EUX-IDENTITY-00 — EUX GAINENT singular identity contract
+
+- **Objective:** define the authoritative track-specific visual, narrative, spatial and behavioral identity that turns the accepted local gym scaffold into a singular MISWAY scene contract.
+- **Indicative scope:** North Star, performance-as-production dramaturgy, anomaly hierarchy, maximum three signature objects, distinct A/B/C athlete roles, music-moment mapping, cue candidates without timing, reduced-motion/mobile contracts and uniqueness gates.
+- **Out of scope:** runtime or asset changes, cue timestamps, player/audio/topology/collider changes, headlights implementation, memory and the final vertical slice.
+- **Acceptance:** the scene is no longer defined by generic athlete/treadmill motion; machines training and classifying people is the central inversion; cues are ready for an owner listening pass; owner review remains explicit.
+- **Validation:** documentation-only diff, no runtime path, no invented timestamps, forbidden generic imagery confined to `DO NOT DO`, documentation hierarchy and lot sequence consistent.
+- **Stop conditions:** contradiction with the Living Track Matrix, more than three signature objects, invented musical timing, reusable generic scene language, runtime diff or loss of mobile/reduced-motion meaning.
+- **Next lot:** `DRIFT-LW-CUES-00` after owner identity acceptance and timestamp validation.
 
 ## DRIFT-LW-CUES-00 — Governed musical cue substrate
 

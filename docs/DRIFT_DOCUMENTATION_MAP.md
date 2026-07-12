@@ -5,6 +5,7 @@
 1. **Product Spec:** what the product is.
 2. **Living World Bible:** what the world tells and how it behaves.
 3. **Living Track Matrix:** the contract for each track.
+   - **Track-specific identity contracts:** the approved specialization of one Living Track Matrix entry; they may make that track more precise but may not contradict the matrix or broaden product doctrine.
 4. **Realism Bible:** how the world stands up physically.
 5. **Color Script:** light, palette, weather and transitions.
 6. **Technical/runtime documentation:** implementation constraints and delivered architecture.
@@ -19,6 +20,7 @@ Code is the factual authority for the state actually delivered. A documentary ta
 | `DRIFT_3D_PRODUCT_SPEC.md` | ACTIVE | Delivered product definition and boundaries | 1 — product | Routes, delivered capabilities, permanent constraints | — |
 | `DRIFT_3D_LIVING_WORLD_BIBLE.md` | ACTIVE | Artistic, narrative and behavioral doctrine | 2 — primary artistic | Living World meaning, contaminated realism, behaviors, interaction and governed memory | — |
 | `DRIFT_3D_LIVING_TRACK_MATRIX.md` | ACTIVE | Track-by-track artistic contracts | 3 — track authority | Emotional truth, anomaly, signature situation, diffuser, hidden interaction, musical reaction | — |
+| `DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md` | ACTIVE | Singular scene contract specializing the EUX GAINENT matrix entry | 3a — authoritative for EUX visual, narrative and behavioral detail | North Star, seven-state dramaturgy, anomaly hierarchy, signature objects, athlete roles, cue candidates without timing, fallbacks and uniqueness gates | Dominates older generic EUX descriptions; remains subordinate to the Living World Bible and Living Track Matrix |
 | `DRIFT_3D_REALISM_BIBLE.md` | FOUNDATION | Physical and cinematic grounding | 4 — physical foundation | Light, scale, materials, atmosphere, silhouettes, budgets, physical credibility | Living World Bible for artistic primacy |
 | `DRIFT_3D_COLOR_SCRIPT.md` | FOUNDATION | Chromatic and atmospheric contracts | 5 — visual calibration | Light, palette, weather, transitions and matrix-derived contamination states | — |
 | `DRIFT_GOVERNANCE.md` | ACTIVE | Gates, scope and acceptance process | Execution authority | Lot rules, protected systems and stop conditions | — |
