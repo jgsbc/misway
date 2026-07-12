@@ -14,6 +14,9 @@ import Drift3DAmbientEffects from "@/components/drift-3d/Drift3DEffects";
 import Drift3DScatterField from "@/components/drift-3d/Drift3DScatterField";
 import Drift3DWorldEdges from "@/components/drift-3d/Drift3DWorldEdges";
 import Drift3DZone from "@/components/drift-3d/Drift3DZone";
+import EuxGainentLivingScene, {
+  EUX_GAINENT_LANDMARK_ID,
+} from "@/components/drift-3d/EuxGainentLivingScene";
 import { driftMapConfig } from "@/lib/driftMap";
 import { getTrackBySlug } from "@/lib/tracks";
 import {
@@ -719,6 +722,9 @@ type Drift3DSceneProps = {
   pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
   cameraZoomTargetRef: MutableRefObject<number>;
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
+  isEuxGainentInside: boolean;
+  isEuxGainentCurrentTrack: boolean;
+  isPlaying: boolean;
 };
 
 export default function Drift3DScene({
@@ -727,6 +733,9 @@ export default function Drift3DScene({
   pointerDriveStateRef,
   cameraZoomTargetRef,
   vehicleStateRef,
+  isEuxGainentInside,
+  isEuxGainentCurrentTrack,
+  isPlaying,
 }: Drift3DSceneProps) {
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
@@ -791,13 +800,22 @@ export default function Drift3DScene({
         ))
       )}
 
-      {drift3dLandmarks.map((landmark) => (
-        <Drift3DLandmark
-          key={landmark.id}
-          landmark={landmark}
-          vehicleStateRef={vehicleStateRef}
-        />
-      ))}
+      {drift3dLandmarks.map((landmark) =>
+        landmark.id === EUX_GAINENT_LANDMARK_ID ? null : (
+          <Drift3DLandmark
+            key={landmark.id}
+            landmark={landmark}
+            vehicleStateRef={vehicleStateRef}
+          />
+        )
+      )}
+
+      <EuxGainentLivingScene
+        isInsideZone={isEuxGainentInside}
+        isCurrentTrack={isEuxGainentCurrentTrack}
+        isPlaying={isPlaying}
+        vehicleStateRef={vehicleStateRef}
+      />
 
       <Drift3DScatterField />
 

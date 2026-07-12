@@ -446,6 +446,10 @@ export default function Drift3DCanvas({
     proximity?.activeNode && "trackSlug" in proximity.activeNode
       ? proximity.activeNode.trackSlug
       : null;
+  const isEuxGainentInside =
+    proximity?.isInside === true &&
+    proximity.activeNode?.id === "birth-yard-eux-gainent";
+  const isEuxGainentCurrentTrack = currentTrack?.slug === "eux-gainent";
   const showPersistentAudioChip =
     Boolean(currentTrack) &&
     (!proximity?.isInside || activeNodeTrackSlug !== currentTrack?.slug);
@@ -493,6 +497,9 @@ export default function Drift3DCanvas({
             pointerDriveStateRef={pointerDriveStateRef}
             cameraZoomTargetRef={cameraZoomTargetRef}
             vehicleStateRef={vehicleStateRef}
+            isEuxGainentInside={isEuxGainentInside}
+            isEuxGainentCurrentTrack={isEuxGainentCurrentTrack}
+            isPlaying={isPlaying}
           />
         </Canvas>
 

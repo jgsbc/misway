@@ -1,11 +1,15 @@
 # Active lot
 
-Current lot: DRIFT-GOV-00
+Current lot: DRIFT-LW-CORE-00
 
-Status: PASS
+Status: ACCEPTED_WITH_FOLLOW_UP
 
-Objective: adopt Living World governance and align Drift documentation with the delivered 3D production world, without runtime changes.
+Objective: prove track-local idle, listening, paused and reset states on the existing EUX GAINENT glass gym without cues, memory or a generic Living World engine.
 
-Scope: documentation governance only.
+Owner review:
+The Living World runtime behavior is technically accepted.
+The current EUX GAINENT scene remains visually and narratively too generic.
+Its implementation must not be used as the artistic template for other tracks.
 
-Next lot: DRIFT-LW-AUDIT-00
+Next lot:
+DRIFT-LW-EUX-IDENTITY-00

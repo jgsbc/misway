@@ -28,6 +28,22 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-12] DRIFT-LW-CORE-00 — EUX GAINENT local living scene
+- Status: PENDING_OWNER_REVIEW. Automated technical gates passed; owner visual acceptance remains required.
+- Supersedes: —
+- Superseded by: —
+- Context: the first Living World implementation lot must prove that one existing track place can wake, freeze, resume and reset from the protected global playback state without introducing cue timing, memory or an architecture for all 26 tracks.
+- Decision: implement one track-specific `EuxGainentLivingScene` mounted by `Drift3DScene`. It observes only the canonical EUX zone, current track slug and `isPlaying`; owns one local animation phase in refs; and uses one `useFrame` to control the three athletes, treadmills and two mechanical bars. Playback starts the restrained loop, pause freezes transforms and phase exactly, and zone exit or track change resets every local transform deterministically.
+- Why: a track-local scene is the smallest architecture that proves the approved core states while respecting the rule against generalization before an accepted vertical slice.
+- Impact: the existing gym structure, lights and collider remain authoritative and unchanged. Its previously static mobile primitives are reproduced locally at their authored positions so only EUX can animate. The global `AudioPlayerProvider` and controls are unchanged; there is no autoplay, audio clock, timestamp, generic engine, memory, new light, timer or dependency.
+- Files affected: `src/components/drift-3d/EuxGainentLivingScene.tsx`, `src/components/drift-3d/Drift3DCanvas.tsx`, `src/components/drift-3d/Drift3DScene.tsx`, `docs/ACTIVE_LOT.md`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: owner visual review of idle/listening/paused/reset behavior. Cue sheets and timestamps remain deferred to `DRIFT-LW-CUES-00`; memory remains deferred to `DRIFT-LW-MEMORY-00`.
+- the local runtime architecture is accepted;
+- the current visual execution is not considered a finished Living World scene;
+- shared gym primitives and generic mechanical loops are temporary scaffolding;
+- no other track may copy this scenic language;
+- EUX GAINENT requires a dedicated identity contract before the signature cue implementation.
+
 ### [2026-07-12] DRIFT-GOV-00 — Adoption of Living World governance
 - Status: ACCEPTED. Documentation-only scope, lint, static build and governance checks passed.
 - Supersedes: the active 2D V0 governance model, the old V0 backlog, the Realism Bible as unique artistic authority, and historical future-target language for the delivered 3D layout.
