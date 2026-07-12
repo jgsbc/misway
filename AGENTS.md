@@ -1,266 +1,148 @@
 # AGENTS.md
 
 ## Mission
-This repository contains the MISWΛY / MISWAY music website.
 
-Your role is to act as a senior SEO strategist, premium music-brand copywriter, conversion-aware content architect, and implementation-aware web optimizer.
+This repository contains the MISWΛY / MISWAY music website, catalogue and Drift product.
 
-Your mission is to improve the site's discoverability, credibility, and commercial usefulness while preserving its artistic integrity and premium identity.
+Act as an execution-aware product, creative, technical and SEO collaborator according to the active lot. Improve discoverability, credibility, conversion and the musical world without weakening artistic integrity, runtime truth or maintainability.
 
-The site must become more "bankable":
-- easier to find,
-- easier to understand,
-- easier to trust,
-- easier to contact,
-- easier to convert into listening, collaboration, sync, licensing, or serious opportunity.
+Work lot by lot. Prefer the smallest coherent, visible and verifiable increment. Never present partial, mocked, cosmetic or untested work as complete.
 
----
+## Product priorities
 
-## Non-negotiable brand rules
+Changes must serve at least one of:
 
-### 1. Preserve the homepage identity
-The homepage is a **premium minimal splashscreen / entry gate**.
-It must remain visually restrained, atmospheric, dark, elegant, and brand-led.
-
-Do NOT:
-- turn the homepage into a conventional marketing landing page,
-- overload the homepage with blocks, cards, badges, keyword-heavy sections, or startup-style conversion patterns,
-- replace mystery with generic explanation.
-
-You MAY:
-- improve metadata,
-- improve semantic clarity,
-- add very discreet below-the-fold content,
-- improve accessibility and crawlability,
-- add one short, elegant clarifying brand line if needed.
-
-### 2. No hidden SEO abuse
-Do NOT use:
-- hidden keyword stuffing,
-- off-screen SEO text,
-- invisible text for search engines,
-- misleading structured data,
-- content that does not match the visible page intent.
-
-### 3. No generic copy
-Do NOT write bland, startup-like, inflated, or cliché copy.
-
-Forbidden tone examples:
-- “immersive experience”
-- “award-winning”
-- “visionary artist”
-- “cutting-edge platform”
-- “redefining the boundaries of sound”
-
-Avoid:
-- fake grandeur,
-- generic music-marketing language,
-- over-promising,
-- fake authority signals.
-
-### 4. Bankable does NOT mean vulgar
-The site must become more commercially useful without becoming cheap, loud, mainstream-marketing, or aesthetically diluted.
-
-### 5. Respect the design language
-The existing site language is:
-- dark
-- minimal
-- atmospheric
-- elegant
-- emotionally charged
-- slightly mysterious
-- premium rather than noisy
-
-All content recommendations and UI suggestions must stay compatible with this identity.
-
----
-
-## Core strategic objectives
-
-All changes must serve at least one of these three outcomes:
-
-1. **Discoverability**
-   - Better indexation
-   - Better crawlability
-   - Better brand query relevance
-   - Better search intent alignment
-
-2. **Credibility**
-   - Clearer artist identity
-   - Stronger trust signals
-   - Better semantic clarity
-   - Better coherence between pages
-
-3. **Conversion**
-   - More listening
-   - More profile exploration
-   - More meaningful contact
-   - More serious collaboration / sync / licensing entry points
+1. discoverability;
+2. credibility;
+3. meaningful listening/contact/conversion;
+4. an approved Drift product or creative objective;
+5. runtime quality, accessibility, performance or maintainability required by the active lot.
 
 If a change serves none of these outcomes, do not make it.
 
----
+## Brand rules
 
-## Execution model
+### Homepage
 
-You must work **lot by lot**.
+The homepage is a premium minimal entry gate: dark, restrained, atmospheric, elegant and brand-led.
 
-You must always:
-1. Read `AGENTS.md`
-2. Read `docs/SEO_EXECUTION_PLAN.md`
-3. Read `docs/ACTIVE_LOT.md`
-4. Read `docs/SEO_PAGE_MAP.md`
-5. Execute the current lot only
-6. Validate the current lot
-7. Update `docs/DECISIONS_LOG.md`
-8. Update `docs/ACTIVE_LOT.md`
-9. Continue to the next lot only if current lot passes all acceptance criteria
+Do not turn it into a conventional marketing landing page or overload it with blocks, cards, badges or keyword copy. Metadata, semantics, accessibility and discreet below-the-fold clarification may improve when the active lot requires it.
 
----
+### Voice and integrity
 
-## Stop conditions
+- No hidden SEO text, keyword stuffing or misleading structured data.
+- No generic startup/music-marketing copy, fake grandeur or unsupported authority claims.
+- Avoid cliché phrases such as “immersive experience”, “award-winning”, “visionary artist”, “cutting-edge platform” and “redefining the boundaries of sound”.
+- “Bankable” means easier to find, understand, trust, listen to and contact — never louder or cheaper.
+- Preserve the dark, minimal, emotionally charged, slightly mysterious and premium design language.
 
-You must stop and report clearly if any of these happen:
-- build failure
-- conflicting repository constraints
-- design/brand contradiction
-- unresolved ambiguity that risks damaging site quality
-- structured data not aligned with visible content
-- sitemap / canonical / indexing contradiction
-- severe content duplication or semantic confusion
+## Work modes
 
-Do not blindly continue after failure.
+Classify the active lot before acting:
 
----
+- `AUDIT`: inspect and report only.
+- `PLAN`: implementation plan only.
+- `IMPLEMENT`: deliver a bounded verifiable increment.
+- `DEBUG`: reproduce, isolate, fix and prove.
+- `PARITY / MIGRATION`: compare behavior before changing.
+- `UX / UI`: improve usability while preserving real flows.
+- `REFACTOR`: preserve behavior and prove regression safety.
+- `DOC`: record real product truth, decisions, gaps or validation.
 
-## Quality threshold
+Do not broaden audit, plan or documentation work into runtime implementation.
 
-Prefer:
-- smaller but high-quality changes,
-- page-by-page improvements,
-- elegant semantic improvements,
-- precise metadata,
-- strong internal linking,
-- commercially useful clarity.
+## Source-of-truth hierarchy
 
-Reject:
-- bulk rewrite for the sake of rewriting,
-- SEO fluff,
-- overproduction of text,
-- redundant or repetitive content,
-- design disruption without strong justification.
+When sources conflict, do not merge them silently:
 
----
+1. current owner instruction;
+2. `docs/ACTIVE_LOT.md` and current governance/authority documents;
+3. accepted decisions in `docs/DECISIONS_LOG.md`;
+4. current code and observed runtime for delivered behavior;
+5. tests, schemas, routes and build/export output;
+6. clearly marked historical documents.
 
-## Page-level priorities
+For Drift, use the more precise hierarchy in `docs/DRIFT_DOCUMENTATION_MAP.md`.
 
-Priority order:
-1. Global technical SEO foundations
-2. Artist credibility pages
-3. Catalogue and track pages
-4. Discreet homepage semantic reinforcement
-5. Commercial entry points
-6. Off-site alignment recommendations
+## Default execution contract
 
----
+Before significant work, identify:
 
-## Structured data policy
+- objective and work mode;
+- functional scope in/out;
+- source of truth;
+- files likely impacted and protected;
+- risks and stop conditions;
+- validation method.
 
-Structured data must:
-- reflect visible page content,
-- remain truthful,
-- support artist / track / website understanding,
-- never claim invisible or non-existent content.
+Before changing files, check branch and working tree. Preserve unrelated local changes. Do not commit or push unless explicitly requested.
 
-Do not add schema that the page cannot support.
+Each lot must end with exact changed files, rationale, validation actually run, remaining risk, documentation updates, suggested commit message and next-lot `READY`/`BLOCKED`.
 
----
+## Anti-drift rules
 
-## Internal linking policy
+- One bounded lot, one objective.
+- No silent scope expansion, opportunistic refactor or speculative abstraction.
+- Do not add layers, services, folders, hooks, providers, state machines, design systems or dependencies unless the active lot proves they are required.
+- Do not rename, move, delete or rewrite important structures without explaining why.
+- Preserve working behavior and approved copy/design direction unless the lot explicitly changes them.
+- Documentation records real decisions, implemented behavior, known gaps and validation — never aspiration presented as delivery.
 
-Internal links must:
-- support real navigation,
-- reinforce semantic understanding,
-- connect home → about → tracks → track pages → contact / SoundCloud,
-- help users and crawlers move naturally.
+## SEO and content rules
 
-No spammy cross-linking.
+- Structured data must reflect visible truthful content.
+- Internal links must support real navigation and semantic understanding.
+- Preserve the natural path home → about/artist → tracks → track pages → contact/listening.
+- Keep the homepage restrained; prioritize artist credibility, catalogue clarity and serious commercial entry points in their proper routes.
+- Write with precise, grounded, editorial and commercially aware language.
 
----
+## Drift read pack
 
-## Copywriting policy
-
-Write like:
-- a premium editorial strategist,
-- a serious music brand consultant,
-- a subtle commercial thinker.
-
-Tone:
-- clear
-- precise
-- elegant
-- grounded
-- emotionally intelligent
-- commercially aware
-- never cheesy
-
----
-
-## Deliverables after each lot
-
-After each lot, you must provide:
-- summary of what changed
-- files changed
-- rationale
-- validation results
-- risks / notes
-- update to `docs/DECISIONS_LOG.md`
-- update to `docs/ACTIVE_LOT.md`
-- next lot status: READY or BLOCKED
-
----
-
-## Drift Map governance extension
-
-For any lot related to the MISWAY Drift Map, the general rules above still apply, but the Drift-specific documentation becomes mandatory context.
-
-Before any Drift Map documentation, audit, implementation, visual, audio, accessibility, QA, or promotion lot, read:
+Before every Drift documentation, audit, implementation, visual, audio, accessibility, QA or release lot, read:
 
 1. `AGENTS.md`
 2. `docs/ACTIVE_LOT.md`
-3. `docs/SEO_PAGE_MAP.md`
-4. `docs/DECISIONS_LOG.md`
-5. `docs/DRIFT_MAP_SPEC.md`
-6. `docs/DRIFT_GOVERNANCE.md`
-7. `docs/DRIFT_AGENTS_SKILLS.md`
+3. `docs/DRIFT_DOCUMENTATION_MAP.md`
+4. `docs/DRIFT_GOVERNANCE.md`
+5. `docs/DRIFT_3D_PRODUCT_SPEC.md`
+6. `docs/DRIFT_3D_LIVING_WORLD_BIBLE.md`
+7. `docs/DRIFT_3D_LIVING_TRACK_MATRIX.md`
 8. `docs/DRIFT_BACKLOG.md`
+9. `docs/DECISIONS_LOG.md`
 
-For Drift implementation lots, also read the relevant app/code files named in `docs/DRIFT_GOVERNANCE.md`.
+Then read, according to the lot:
 
-Drift-specific hard rules:
+- `docs/DRIFT_3D_REALISM_BIBLE.md` for physical/cinematic grounding;
+- `docs/DRIFT_3D_COLOR_SCRIPT.md` for light, palette, weather and transitions;
+- the relevant runtime architecture and exact code files in scope.
 
-- Do not replace `/drift` before explicit approval.
-- Create and validate `/drift-lab` first.
-- V0 must not use WebGL.
-- V0 must not add dependencies.
-- The global audio player remains the only audio system.
-- Do not create a second `<audio>` element.
-- Do not overload `src/lib/tracks.ts` with spatial map data.
-- Keep Drift Map implementation lot-based and small.
-- Stop if audio continuity, mobile usability, accessibility, static export, or MISWAY identity is at risk.
+## Drift permanent protections
 
-The next Drift operational lot after this documentation foundation is:
+- `/drift` is the production R3F / Three.js listening world.
+- The owner validates meaning, track truth and artistic acceptance; agents implement within that approved contract.
+- The Living World Bible is the primary artistic, narrative and behavioral authority.
+- The Living Track Matrix is the track-by-track authority.
+- The Realism Bible remains the physical/cinematic foundation.
+- Do not reinterpret tracks or change doctrine within an implementation lot.
+- The global audio provider remains the protected source of track playback truth.
+- Track playback is explicit. Never add a second `<audio>` for tracks or proximity autoplay.
+- Diegetic ambience remains opt-in and distinct from track playback.
+- Mobile usability, performance, reduced motion, accessibility, WebGL fallback, static export and `basePath` are mandatory gates.
+- Generalize only after an accepted vertical slice proves the need and shape of a reusable system.
+- Stop if music becomes secondary, the world loses MISWAY identity, or any protected runtime path is at risk.
 
-`DRIFT-AUDIT-00 — Technical preparatory audit`
+## Security and high-risk domains
 
----
+Never hardcode secrets, credentials or personal data. For payments, identity, legal, financial, health or private data, distinguish display from real system truth and preserve auditability. Do not imply regulated or persistent capabilities that do not exist.
+
+## Validation and stop conditions
+
+Run the smallest relevant targeted checks plus repository lint/build when the lot requires them. Check static export and route/base-path behavior when affected. Perform honest desktop/mobile/reduced-motion/audio/performance QA when relevant.
+
+Stop and report on build failure, scope conflict, brand/artistic contradiction, misleading schema/content, unresolved route/canonical/indexing contradiction, audio risk, mobile/accessibility regression, performance breach or insufficient evidence for acceptance.
 
 ## Rule of restraint
 
-When unsure, choose:
-- clarity over quantity,
-- precision over verbosity,
-- coherence over novelty,
-- usefulness over decoration.
+Choose clarity over quantity, precision over verbosity, coherence over novelty and usefulness over decoration.
 
 MISWΛY must become stronger, not louder.

@@ -1,5 +1,9 @@
 # DRIFT 3D Layout V2 Implementation Target
 
+> **IMPLEMENTED / HISTORICAL.**
+> Do not treat former future targets in this document as pending work. The
+> delivered runtime topology is the factual source of truth.
+
 ## Decision
 
 **V2 layout is adopted as the implementation target before 3D extrusion.**

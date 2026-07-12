@@ -1,10 +1,16 @@
-# DRIFT 3D — Bible de réalisme (source de vérité artistique)
+# DRIFT 3D — Bible de réalisme
+
+> **FOUNDATION — physical realism and cinematic grounding.**
+> This document is no longer the unique artistic authority. The Living World
+> Bible governs meaning and behavior; the Living Track Matrix governs each
+> track. Light, scale, materials, atmosphere, silhouettes, budgets and physical
+> credibility remain normative here.
 
 Adoptée le 2026-07-07 sur directive du propriétaire du projet.
 
-## Règle de priorité
+## Règle de priorité historique et actuelle
 
-- Ce document est la **source de vérité artistique** de la map 3D.
+- Ce document est la **fondation de réalisme physique et cinématographique** de la map 3D.
 - La documentation existante du repo reste valable pour l'architecture technique
   (stack, topologie, corridors, systèmes audio/HUD/physique), mais partout où elle
   pousse vers l'abstrait — formes géométriques nues, grilles, néons décoratifs,

@@ -14,6 +14,9 @@ Keep entries:
 ## Template
 
 ### [YYYY-MM-DD] Decision title
+- Status:
+- Supersedes:
+- Superseded by:
 - Context:
 - Decision:
 - Why:
@@ -24,6 +27,25 @@ Keep entries:
 ---
 
 ## Drift 3D decisions
+
+### [2026-07-12] DRIFT-GOV-00 — Adoption of Living World governance
+- Status: ACCEPTED. Documentation-only scope, lint, static build and governance checks passed.
+- Supersedes: the active 2D V0 governance model, the old V0 backlog, the Realism Bible as unique artistic authority, and historical future-target language for the delivered 3D layout.
+- Superseded by: —
+- Context: `/drift` is now the delivered R3F / Three.js production world with 26 tracks and 26 track nodes. The existing governance still described `/drift-lab`, no WebGL and future optional 3D as active constraints, while the owner provided a Living World Bible and Living Track Matrix for the next evolution.
+- Decision: adopt Living World / contaminated realism governance without runtime changes. The owner remains authority for product meaning and track truth; implementation agents operate only within approved bounded contracts.
+- New documentary hierarchy:
+  1. `DRIFT_3D_PRODUCT_SPEC.md` — what the delivered product is.
+  2. `DRIFT_3D_LIVING_WORLD_BIBLE.md` — primary artistic, narrative and behavioral authority.
+  3. `DRIFT_3D_LIVING_TRACK_MATRIX.md` — authoritative track-by-track contracts.
+  4. `DRIFT_3D_REALISM_BIBLE.md` — physical and cinematic foundation.
+  5. `DRIFT_3D_COLOR_SCRIPT.md` — light, palette, weather, transitions and matrix-derived states.
+  6. Runtime/technical documentation and code — architecture and delivered factual state.
+  7. Backlog, active lot and this append-only log — sequence, execution and history.
+- Historical status changes: `DRIFT_MAP_SPEC.md` is `SUPERSEDED`; `DRIFT_3D_TRACK_SCENE_MATRIX.md` is superseded for active track contracts; `DRIFT_3D_ART_DIRECTION.md` is `HISTORICAL`; `DRIFT_3D_SET_DESIGN_BLUEPRINT.md` and both V2 layout documents are `IMPLEMENTED / HISTORICAL`. Their explicitly retained corridor, node-protection, camera, provenance or physical rules remain informative only where compatible with active authorities and runtime truth.
+- Impact: documentation now recognizes `/drift` as production, protects the global audio provider/mobile/reduced-motion/performance/static-export constraints, and governs living objects, cue sheets and session memory as future work rather than delivered capability.
+- Files affected: `AGENTS.md`, `README.md`, `.github/pull_request_template.md`, `docs/ACTIVE_LOT.md`, `docs/DECISIONS_LOG.md`, `docs/DRIFT_GOVERNANCE.md`, `docs/DRIFT_AGENTS_SKILLS.md`, `docs/DRIFT_BACKLOG.md`, `docs/DRIFT_MAP_SPEC.md`, `docs/DRIFT_3D_REALISM_BIBLE.md`, `docs/DRIFT_3D_COLOR_SCRIPT.md`, `docs/DRIFT_3D_TRACK_SCENE_MATRIX.md`, `docs/DRIFT_3D_ART_DIRECTION.md`, `docs/DRIFT_3D_SET_DESIGN_BLUEPRINT.md`, `docs/DRIFT_3D_LAYOUT_RECOMMENDATION.md`, `docs/DRIFT_3D_LAYOUT_V2_IMPLEMENTATION_TARGET.md`, `docs/DRIFT_3D_LIVING_WORLD_BIBLE.md`, `docs/DRIFT_3D_LIVING_TRACK_MATRIX.md`, `docs/DRIFT_3D_PRODUCT_SPEC.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`.
+- Follow-up needed: execute `DRIFT-LW-AUDIT-00` as a read-only audit only after this lot passes and the owner opens that lot.
 
 ### [2026-07-09] DRIFT-3D-20F: QA visuelle de production & sign-off mobile
 - Context: Dernier lot de la séquence 20 — validation complète avant merge en prod. Objectif : parcours des 26 nœuds, perf, mobile, audio, routes.

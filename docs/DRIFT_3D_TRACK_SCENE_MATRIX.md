@@ -1,8 +1,12 @@
+> **SUPERSEDED for active track contracts. Historical scenic/corridor reference only.**
+>
 > ⚠️ **CADUQUE pour les motifs visuels (2026-07-07).**
 > Les scènes track par track sont désormais définies en figuratif réaliste dans
 > [DRIFT_3D_REALISM_BIBLE.md](./DRIFT_3D_REALISM_BIBLE.md) et calibrées dans
 > [DRIFT_3D_COLOR_SCRIPT.md](./DRIFT_3D_COLOR_SCRIPT.md). Les avertissements
-> corridor / no-prop de ce document restent valides.
+> corridor / no-prop de ce document restent valides lorsqu'ils sont compatibles
+> avec le runtime livré. Les contrats actifs sont dans
+> `DRIFT_3D_LIVING_TRACK_MATRIX.md`.
 
 # DRIFT 3D Track Scene Matrix
 

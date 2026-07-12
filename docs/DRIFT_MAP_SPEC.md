@@ -1,5 +1,9 @@
 # MISWAY Drift Map — Product & Technical Specification
 
+> **SUPERSEDED — historical 2D V0 specification.**
+> Do not use as an active implementation source.
+> Replaced by `DRIFT_3D_PRODUCT_SPEC.md` and Living World governance.
+
 ## 1. Status
 
 - Phase: framing and governance.

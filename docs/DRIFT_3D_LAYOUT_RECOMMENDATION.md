@@ -1,5 +1,9 @@
 # DRIFT 3D Layout Recommendation
 
+> **IMPLEMENTED / HISTORICAL.**
+> Do not treat former future targets in this document as pending work. The
+> delivered runtime topology is the factual source of truth.
+
 This document compares the current topology-derived blueprint against the candidate layout v2.
 
 The current topology is coherent and playable, but it is still compressed for the level of

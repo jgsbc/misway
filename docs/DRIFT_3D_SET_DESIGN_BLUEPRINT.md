@@ -1,3 +1,6 @@
+> **IMPLEMENTED / HISTORICAL.**
+> Corridors, node protection and camera visibility remain useful.
+>
 > ⚠️ **CADUQUE pour le langage visuel (2026-07-07).**
 > La source de vérité artistique est désormais
 > [DRIFT_3D_REALISM_BIBLE.md](./DRIFT_3D_REALISM_BIBLE.md) : chaque zone doit

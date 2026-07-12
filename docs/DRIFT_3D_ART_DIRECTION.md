@@ -1,10 +1,15 @@
+> **HISTORICAL.**
+> Myth and early principles may remain informative.
+> Not an active visual implementation authority.
+>
 > ⚠️ **CADUQUE pour la direction visuelle (2026-07-07).**
 > La source de vérité artistique est désormais
 > [DRIFT_3D_REALISM_BIBLE.md](./DRIFT_3D_REALISM_BIBLE.md) : monde figuratif,
 > réaliste, cinématographique. Le langage visuel abstrait décrit ici
 > (primitives expressives, couleurs franches non texturées, émissifs décoratifs)
 > ne doit plus guider aucun lot. Restent valides : les règles de gameplay
-> (corridors, protection des nœuds, audio explicite, échelle caméra/monde).
+> (corridors, protection des nœuds, audio explicite, échelle caméra/monde),
+> seulement lorsqu'elles restent compatibles avec les autorités actives et le runtime.
 
 # MISWAY — Drift 3D Art Direction Bible
 

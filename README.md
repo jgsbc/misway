@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MISWΛY / MISWAY
 
-## Getting Started
+MISWAY is an electronic music catalogue and artist website. Drift is its production 3D listening world: a vehicle-led R3F / Three.js journey through 26 track places, with explicit playback through the shared global audio player.
 
-First, run the development server:
+## Main routes
+
+- `/` — minimal brand entry.
+- `/tracks` and `/tracks/[slug]` — catalogue and track pages.
+- `/about`, `/artist`, `/contact` — identity and contact surfaces.
+- `/drift` — production 3D world.
+- `/drift-lab` — historical/secondary 2D prototype.
+- `/drift-3d-lab` — compatibility redirect to `/drift`.
+
+## Stack and commands
+
+Next.js 16, React 19, TypeScript, Tailwind CSS, React Three Fiber and Three.js.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The production build uses static export, trailing slashes and the `/misway` production `basePath`. Assets and routes must remain compatible with that delivery model.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Working by lot
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open one bounded lot at a time in `docs/ACTIVE_LOT.md`. State objective, scope in/out, protected systems, acceptance criteria, validation and stop conditions. Do not start the next lot until the current result passes its gates and receives the required owner decision.
 
-## Learn More
+Start with:
 
-To learn more about Next.js, take a look at the following resources:
+1. `AGENTS.md`
+2. `docs/ACTIVE_LOT.md`
+3. `docs/DRIFT_DOCUMENTATION_MAP.md`
+4. `docs/DRIFT_GOVERNANCE.md`
+5. `docs/DRIFT_BACKLOG.md`
+6. `docs/DECISIONS_LOG.md`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For Drift artistic and technical authority, follow the hierarchy in `docs/DRIFT_DOCUMENTATION_MAP.md`.

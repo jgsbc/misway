@@ -4,8 +4,9 @@
 Une ligne par track : palette dominante, heure scriptée, météo, un mot d'émotion,
 et la phrase-test qu'un inconnu doit pouvoir prononcer devant un screenshot.
 
-Statut : v1 textuelle — à valider avant toute modélisation. Les frames de
-référence image par image restent à produire (une par track).
+Statut : **FOUNDATION — lumière, palette, météo et transitions.** Les données
+historiques ci-dessous restent conservées ; les contrats Living World compacts
+sont ajoutés en fin de document.
 
 ## Entrée
 
@@ -21,6 +22,7 @@ référence image par image restent à produire (une par track).
 | foolfoule | 8 h 30 | soleil bas et dur | verre/granit, reflets aveuglants, gris béton | oppression | « une foule à l'heure de pointe dans un canyon de gratte-ciels » |
 | jazzypling | 1 h du matin | pavés mouillés après pluie | tungstène chaud, ombres profondes, néon fatigué | interdit | « une ruelle de jazz la nuit » |
 | play-it | 7 h, petit matin | bleu-gris froid, propre | gris acier, blanc bureau, marquages au sol | cadence | « des costumes identiques qui vont au bureau au petit matin » |
+| eux-gainent | heure urbaine froide | air sale derrière la vitre | verre froid, fluorescent, rue terne | aliénation | « une salle de sport vitrée où les corps bougent comme des machines » |
 
 ## Zone 2 — Older Shadows (soleil franc, ombres nettes)
 
@@ -55,6 +57,44 @@ référence image par image restent à produire (une par track).
 | telatelaba | argent | nuit | brume au sol | haies sombres, miroirs froids | dédoublement | « un labyrinthe de haies et de miroirs dans la brume » |
 | le monde s'endort | argent | fin de nuit | air calme | ville lointaine qui s'éteint par vagues | apaisement | « une ville vue d'un belvédère dont les lumières s'éteignent » |
 | renee sens | or | aube d'été | brume marine légère | sable pâle, galets, premier rayon d'or | paix | « une plage déserte au premier rayon du matin » |
+| panthere | argent | nuit contenue | air calme, poussière courte | vitres sombres, herbes, ombres noires | puissance | « une ombre féline traverse le sol, une façade et la carrosserie » |
+| eteeaooete | or | aube d'été | brume saline, grandes vagues | sable humide, écume, bois flotté, lumière de sel | joie étrange | « une plage d'aube où l'océan compose puis efface un lambda » |
+
+## Contrats Living World des 26 tracks
+
+Cette table complète les données de lumière existantes. Elle est strictement
+dérivée de `DRIFT_3D_LIVING_TRACK_MATRIX.md` : l'état transformé reprend la
+situation signature et le cue reprend la réaction musicale principale. Le
+niveau de contamination correspond au niveau de folie de la matrice.
+
+| track | anomalie centrale | contamination | état initial | état transformé | cue musical principal |
+|---|---|---|---|---|---|
+| a-walk-in-zeeland | les reflets montrent des souvenirs absents des quais | 3 — situation | canaux, vitrines basses, plaques humides | l'eau imprime des collages puis les déforme en vagues | basses : ondulation ; voix/samples : fragments ; rupture : eau noire |
+| foolfoule | les publicités se déplacent pour rester face à la foule | 4 — bascule | foule, façades, abribus et fenêtres répétitives | les panneaux encerclent le flux humain | pulsation : pas synchronisés ; drop : poursuite ; silence : foule figée |
+| jazzypling | chaque porte de cave contient une couche différente du morceau | 3 — situation | ruelle, portes de cave, murs humides | l'avancée produit un mix spatial involontaire | stems : portes vibrantes ; break : une seule lumière de cave |
+| play-it | le passage piéton est un séquenceur | 4 — bascule | marquage au sol, horloge, métro, panneaux | le véhicule compose une boucle qui déplace les costumes | kick : bandes actives ; contretemps : piétons ; drop : ville-partition |
+| eux-gainent | les machines entraînent le bâtiment | 4 — bascule | salle vitrée, sportifs, compteurs, fluorescent | les silhouettes se figent, les tapis et le bâtiment continuent | rythme : gestes ; montée : compteurs ; drop : bâtiment mobile ; silence : une machine |
+| rise | les cairns déplacent eux-mêmes leurs pierres | 3 — situation | cairns, neige, paroi, balises | une route se recompose jusqu'au sommet puis s'effondre | montée : empilement ; sommet : ouverture caméra ; rupture : souffle nu |
+| blossoming | les équipements exécutent seuls les trajectoires humaines | 4 — bascule | rampes, fanions, télécabines, roche | wingsuit, kayak et VTT vides traversent le paysage | accents : passages ; break : suspension ; reprise : libération |
+| ethnic-stick | les motifs quittent les tissus et circulent | 3 — situation | marché, tissus, terre, fumée, façades | un motif passe du marché au sol, aux ombres puis au véhicule | percussions : propagation ; basse : sol ; silence : feu et voix |
+| minuit-moins-cinq | l'horloge change la signalétique selon l'hésitation | 4 — bascule | horloge, bifurcation, panneaux | l'attente multiplie les panneaux ; le choix les fait tomber | tic : panneaux ; montée : vent ; décision : chute |
+| perdue | la ferme retire ses signes d'existence | 2 — contamination | ferme, courrier, panneau, banc | volets, boîte aux lettres, panneau et lumière disparaissent | retraits phrase par phrase ; rupture : vent ; outro : empreintes |
+| morne-et | les objets domestiques servent le même système de productivité | 4 — bascule | lotissement et routines synchronisés | après collision, la routine tombe en panne et la vie revient avant réinitialisation | intro : routine ; montée : synchronisation ; drop : panne ; outro : remise à zéro |
+| daymason | les regards peints suivent l'ombre du véhicule | 3 — situation | bâtisse, gravures, brume, ombre | une seconde architecture décalée apparaît dans la brume | basses : décalage d'ombre ; rupture : disparition de la seconde bâtisse |
+| chailk | les traces du véhicule deviennent les seuls traits permanents | 3 — situation | craie, parois blanches, brouillard | les traces forment une composition graphique involontaire | impulsions : poussière ; silence : effacement ; outro : vue de haut |
+| time | chaque horloge mesure une dimension différente | 5 — monde intérieur | horloges, route, fissures | la route se fracture puis se stabilise quand le joueur ralentit | tempo : bascules ; break : suspension ; reprise : recomposition |
+| tantitom | la couleur revient dans le sillage, pas sur les objets | 3 — situation | sol, coquelicots, lanternes, fumée | les couleurs suivent le véhicule puis s'ancrent | chaque couche : une couleur ; drop : village ; silence : une lanterne |
+| neektareum | les panneaux attribuent des responsabilités | 4 — bascule | forêt, panneaux, troncs argentés | regarder accuse et assombrit ; avancer efface les mots | voix/texture : mots ; basse : profondeur ; décision : clairière |
+| asitis | la glace reflète exactement la scène présente | 2 — contamination | glace, buée, stalactites, parois | les effets graphiques disparaissent jusqu'au monde nu | retrait progressif ; break : souffle/craquement ; reprise : lune nette |
+| relative | haut et bas dépendent de la vitesse | 5 — monde intérieur | puits, eau, anneaux de pierre | l'accélération transforme la descente apparente en remontée | montée : rotation ; impact : bascule ; outro : source claire |
+| overthink | ralentir produit de nouvelles options et routes théoriques | 5 — monde intérieur | chantier, panneaux, grues, GPS | les échangeurs fantômes saturent l'espace ; seul le chemin nu reste réel | densité : multiplication ; drop : maximum ; silence : disparition |
+| hold-the-light | le halo convertit le réel en matière imprimée | 4 — bascule | lanterne, pluie, flaques, manteau | pluie, éclairs et lande deviennent encre, déchirures et aplats | intensité : rayon ; éclair : déchirure ; silence : lanterne |
+| midnight-work | la fenêtre continue de travailler sans la silhouette | 3 — situation | fenêtre chaude, écran, ciel, reflet | plusieurs activités se succèdent dans la pièce | couches : activités ; break : pièce vide/clavier actif ; outro : extinction |
+| telatelaba | les miroirs rejouent les déplacements avec retard | 5 — monde intérieur | labyrinthe, miroirs, flaques, métal | plusieurs versions temporelles du véhicule prennent d'anciens chemins | délai : doubles ; répétitions : trajectoires ; silence : un reflet actif |
+| le-monde-s-endort | les lumières s'éteignent selon une onde musicale | 3 — situation | skyline, fenêtres, enseignes, trafic | la ville disparaît sauf une fenêtre vers Midnight Work | fréquences retirées : quartiers éteints ; outro : silence |
+| renee | une face polie reflète une lumière selon le parcours | 2 — contamination | pierre, galets, eau, bois flotté | le premier rayon relie brièvement les pierres rencontrées | montée : rayon ; break : mer nue ; outro : chaleur stable |
+| panthere | une ombre féline traverse les matériaux sans animal visible | 3 — situation | ombres, vitres, herbes, carrosserie | l'ombre passe du sol à la façade puis à la carrosserie et forme un λ | attaques : griffures ; basses : déplacement ; silence : disparition |
+| eteeaooete | l'océan imprime et efface traces, souvenirs et symboles | 4 — bascule | vagues, écume, sable, bois, brume saline | écume, bois, pierres et traces forment un λ, puis une vague le dissout | basse : vague ; percussion : écume ; samples : mémoire ; drop : grande vague |
 
 ## Règles transverses
 
