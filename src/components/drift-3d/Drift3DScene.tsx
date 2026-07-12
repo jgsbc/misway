@@ -62,6 +62,7 @@ import {
   smoothDrift3DAtmosphere,
 } from "@/lib/drift3dAtmosphere";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
+import type { Drift3DAudioClockRef } from "@/lib/drift3dAudioClock";
 import {
   getDrift3DGroundY,
   getDrift3DTerrainHeight,
@@ -717,6 +718,7 @@ function KeyboardVehicleMotion({
 }
 
 type Drift3DSceneProps = {
+  audioClockRef: Drift3DAudioClockRef;
   proximity: Drift3DTopologyProximity | null;
   onProximityChange?: (proximity: Drift3DTopologyProximity) => void;
   pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
@@ -728,6 +730,7 @@ type Drift3DSceneProps = {
 };
 
 export default function Drift3DScene({
+  audioClockRef,
   proximity,
   onProximityChange,
   pointerDriveStateRef,
@@ -811,6 +814,7 @@ export default function Drift3DScene({
       )}
 
       <EuxGainentLivingScene
+        audioClockRef={audioClockRef}
         isInsideZone={isEuxGainentInside}
         isCurrentTrack={isEuxGainentCurrentTrack}
         isPlaying={isPlaying}

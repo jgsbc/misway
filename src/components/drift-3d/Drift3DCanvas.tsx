@@ -30,8 +30,10 @@ import {
   Drift3DAmbienceEngine,
   getDrift3DAmbienceMixAt,
 } from "@/lib/drift3dAmbience";
+import type { Drift3DAudioClockRef } from "@/lib/drift3dAudioClock";
 
 type Drift3DCanvasProps = {
+  audioClockRef: Drift3DAudioClockRef;
   isCurrentTrack: (track: Track) => boolean;
   isPlaying: boolean;
   toggleTrack: (track: Track) => void;
@@ -40,6 +42,7 @@ type Drift3DCanvasProps = {
 };
 
 export default function Drift3DCanvas({
+  audioClockRef,
   isCurrentTrack,
   isPlaying,
   toggleTrack,
@@ -492,6 +495,7 @@ export default function Drift3DCanvas({
           }}
         >
           <Drift3DScene
+            audioClockRef={audioClockRef}
             proximity={proximity}
             onProximityChange={setProximity}
             pointerDriveStateRef={pointerDriveStateRef}

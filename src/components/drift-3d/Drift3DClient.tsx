@@ -2,11 +2,21 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
   type Drift3DFallbackReason,
 } from "@/components/drift-3d/Drift3DFallback";
+import {
+  createDrift3DAudioClockSnapshot,
+  updateDrift3DAudioClockSnapshot,
+} from "@/lib/drift3dAudioClock";
 
 const Drift3DCanvas = dynamic(
   () => import("@/components/drift-3d/Drift3DCanvas"),
@@ -30,13 +40,40 @@ function canUseWebGL() {
 }
 
 export default function Drift3DClient() {
-  const { current, isPlaying, toggleTrack, togglePlayback, isCurrentTrack } =
-    useAudioPlayer();
+  const {
+    current,
+    currentTime,
+    duration,
+    isLooping,
+    isPlaying,
+    toggleTrack,
+    togglePlayback,
+    isCurrentTrack,
+  } = useAudioPlayer();
+  const initialAudioClockSnapshot = useMemo(
+    () => createDrift3DAudioClockSnapshot(),
+    []
+  );
+  const audioClockRef = useRef(initialAudioClockSnapshot);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<
     boolean | null
   >(null);
   const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
   const currentTrack = current.kind === "track" ? current : null;
+
+  useLayoutEffect(() => {
+    updateDrift3DAudioClockSnapshot(
+      audioClockRef.current,
+      {
+        trackSlug: currentTrack?.slug ?? null,
+        sampledTimeSeconds: currentTime,
+        durationSeconds: duration,
+        isPlaying,
+        isLooping,
+      },
+      performance.now()
+    );
+  }, [currentTime, currentTrack?.slug, duration, isLooping, isPlaying]);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +149,7 @@ export default function Drift3DClient() {
           </div>
         ) : (
           <Drift3DCanvas
+            audioClockRef={audioClockRef}
             isCurrentTrack={isCurrentTrack}
             isPlaying={isPlaying}
             currentTrack={currentTrack}

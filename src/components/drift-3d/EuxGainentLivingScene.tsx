@@ -11,10 +11,21 @@ import {
 } from "@/lib/drift3dLandmarks";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
+import {
+  resolveDrift3DAudioTime,
+  type Drift3DAudioClockRef,
+} from "@/lib/drift3dAudioClock";
+import {
+  EUX_GAINENT_TRACK_SLUG,
+  euxGainentCues,
+  resolveEuxGainentCueState,
+  resolveEuxGainentPhaseProgress,
+} from "@/lib/drift3dEuxGainentCues";
 
 export const EUX_GAINENT_LANDMARK_ID = "birth-eux-gainent-glass-gym";
 
 type EuxGainentLivingSceneProps = {
+  audioClockRef: Drift3DAudioClockRef;
   isInsideZone: boolean;
   isCurrentTrack: boolean;
   isPlaying: boolean;
@@ -30,6 +41,7 @@ type AthleteSpec = {
   headCenterY: number;
   color: string;
   phase: number;
+  freezeCycle: number;
 };
 
 type TreadmillSpec = {
@@ -65,6 +77,7 @@ const athleteSpecs: readonly AthleteSpec[] = [
     headCenterY: 0.99,
     color: "#15181d",
     phase: 0,
+    freezeCycle: 0.72,
   },
   {
     x: gymOrigin.x - 2.8,
@@ -75,6 +88,7 @@ const athleteSpecs: readonly AthleteSpec[] = [
     headCenterY: 1.03,
     color: "#171a1f",
     phase: 0.24,
+    freezeCycle: 0.18,
   },
   {
     x: gymOrigin.x - 0.9,
@@ -85,6 +99,7 @@ const athleteSpecs: readonly AthleteSpec[] = [
     headCenterY: 0.95,
     color: "#15181d",
     phase: 0.48,
+    freezeCycle: -0.42,
   },
 ];
 
@@ -114,7 +129,12 @@ const firstMechanicY =
 const secondMechanicY =
   getDrift3DGroundY(gymOrigin.x - 1.45, gymOrigin.z - 3.12) + 0.325;
 
+function clamp01(value: number) {
+  return Math.min(Math.max(value, 0), 1);
+}
+
 export default function EuxGainentLivingScene({
+  audioClockRef,
   isInsideZone,
   isCurrentTrack,
   isPlaying,
@@ -123,17 +143,21 @@ export default function EuxGainentLivingScene({
   const athleteRefs = useRef<Array<THREE.Group | null>>([null, null, null]);
   const treadmillRefs = useRef<Array<THREE.Group | null>>([null, null, null]);
   const mechanicsRef = useRef<THREE.Group | null>(null);
-  const animationTimeRef = useRef(0);
   const activityRef = useRef(0);
   const hasListenedRef = useRef(false);
+  const wasActiveRef = useRef(false);
 
   useFrame((_, delta) => {
-    const shouldReset = !isInsideZone || !isCurrentTrack;
+    const audioClock = audioClockRef.current;
+    const shouldReset =
+      !isInsideZone ||
+      !isCurrentTrack ||
+      audioClock.trackSlug !== EUX_GAINENT_TRACK_SLUG;
 
     if (shouldReset) {
-      animationTimeRef.current = 0;
       activityRef.current = 0;
       hasListenedRef.current = false;
+      wasActiveRef.current = false;
 
       for (let index = 0; index < athleteSpecs.length; index += 1) {
         const spec = athleteSpecs[index];
@@ -160,46 +184,115 @@ export default function EuxGainentLivingScene({
       return;
     }
 
-    if (!isPlaying) {
-      // A scene that already listened is paused, not reset: every transform
-      // stays exactly where the global player paused it.
-      if (hasListenedRef.current) {
-        return;
-      }
+    const firstActiveFrame = !wasActiveRef.current;
+    wasActiveRef.current = true;
 
+    if (isPlaying || audioClock.sampledTimeSeconds > 0) {
+      hasListenedRef.current = true;
+    }
+
+    if (!hasListenedRef.current) {
       return;
     }
 
-    hasListenedRef.current = true;
-    animationTimeRef.current += delta;
-    activityRef.current +=
-      (1 - activityRef.current) * Math.min(1, delta * 3.2);
+    if (firstActiveFrame && !isPlaying) {
+      activityRef.current = 1;
+    } else if (isPlaying) {
+      activityRef.current +=
+        (1 - activityRef.current) * Math.min(1, delta * 4);
+    }
 
-    const time = animationTimeRef.current;
+    const time = resolveDrift3DAudioTime(audioClock, performance.now());
+    const cueState = resolveEuxGainentCueState(time);
+    const phaseProgress = resolveEuxGainentPhaseProgress(time, cueState);
     const activity = activityRef.current;
+    const correctionCue = euxGainentCues[3];
+    const inversionCue = euxGainentCues[4];
+    const correctionProgress = clamp01(
+      (time - correctionCue.startSeconds) /
+        (correctionCue.endSeconds - correctionCue.startSeconds)
+    );
+    const inversionFreeze = clamp01(
+      (time - inversionCue.startSeconds) /
+        (inversionCue.peakSeconds - inversionCue.startSeconds)
+    );
+    const aftermathReturn = clamp01(
+      (time - euxGainentCues[5].startSeconds) / 0.4
+    );
+    const commonTime = time * 2.65;
 
     for (let index = 0; index < athleteSpecs.length; index += 1) {
       const spec = athleteSpecs[index];
-      const cycle = Math.sin(time * 2.65 + spec.phase);
+      let phaseOffset = spec.phase;
+
+      if (cueState.phase === "cadence-lock") {
+        phaseOffset = spec.phase * (1 - phaseProgress);
+      } else if (cueState.phase === "measurement") {
+        phaseOffset = index === 2 ? 0.08 : index === 1 ? 0.03 : 0;
+      } else if (cueState.phase === "deviation") {
+        phaseOffset =
+          index === 1
+            ? 0.2 + phaseProgress * 0.9
+            : index === 2
+              ? 0.18
+              : 0;
+      } else if (cueState.phase === "correction") {
+        phaseOffset =
+          index === 1
+            ? 1.1 * (1 - correctionProgress)
+            : index === 2
+              ? 0.12
+              : 0;
+      } else if (cueState.phase === "aftermath-return") {
+        phaseOffset = index === 2 ? 0.14 : 0;
+      } else if (cueState.phase === "residue") {
+        phaseOffset = index === 2 ? 0.38 : 0;
+      }
+
+      const liveCycle = Math.sin(commonTime + phaseOffset);
+      let cycle = liveCycle;
+
+      if (cueState.phase === "reference-inversion") {
+        cycle =
+          liveCycle * (1 - inversionFreeze) +
+          spec.freezeCycle * inversionFreeze;
+      } else if (cueState.phase === "aftermath-return") {
+        cycle =
+          spec.freezeCycle * (1 - aftermathReturn) +
+          liveCycle * aftermathReturn;
+      }
+      const amplitude = cueState.phase === "measurement" ? 0.021 : 0.025;
       const athlete = athleteRefs.current[index];
 
       if (athlete) {
         athlete.position.y =
-          spec.groundY + Math.abs(cycle) * 0.025 * activity;
+          spec.groundY + Math.abs(cycle) * amplitude * activity;
         athlete.rotation.x = cycle * 0.075 * activity;
       }
 
       const treadmill = treadmillRefs.current[index];
 
       if (treadmill) {
+        const machinePhaseOffset =
+          cueState.phase === "pre-cadence"
+            ? treadmillSpecs[index].phase
+            : cueState.phase === "cadence-lock"
+              ? treadmillSpecs[index].phase * (1 - phaseProgress)
+              : cueState.phase === "residue" && index === 2
+                ? 0.28
+                : 0;
+        const machineCycle = Math.sin(commonTime + machinePhaseOffset);
+
         treadmill.position.z =
-          treadmillSpecs[index].z + cycle * 0.035 * activity;
-        treadmill.scale.z = 1 + cycle * 0.025 * activity;
+          treadmillSpecs[index].z + machineCycle * 0.035 * activity;
+        treadmill.scale.z = 1 + machineCycle * 0.025 * activity;
       }
     }
 
     if (mechanicsRef.current) {
-      const mechanicalCycle = Math.sin(time * 2.65);
+      const mechanicalPhase =
+        cueState.phase === "residue" ? 0.2 : 0;
+      const mechanicalCycle = Math.sin(commonTime + mechanicalPhase);
       mechanicsRef.current.position.x =
         gymOrigin.x + mechanicalCycle * 0.025 * activity;
       mechanicsRef.current.rotation.z =

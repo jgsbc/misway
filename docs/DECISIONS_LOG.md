@@ -28,6 +28,19 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-12] DRIFT-LW-CUES-00 — Deterministic EUX audio clock and cue resolution
+- Status: PENDING_OWNER_REVIEW. Automated gates and bounded runtime QA passed; final musical and visual cue timing requires owner QA.
+- Supersedes: the Core scene's local elapsed-time-only behavior for EUX while the owner-approved track is active.
+- Superseded by: —
+- Context: the seven analytical cue windows are owner-approved as the runtime baseline. EUX needs absolute-time resolution that survives pause, seek, loop, track changes and zone re-entry without replaying a fragile event history.
+- Decision: add one stable mutable audio-clock ref synchronized in `Drift3DClient` from the existing global context values. Visual time extrapolates by at most 500 ms only while playing. Add a pure constant-time EUX resolver with seven track-local cues, and extend the existing EUX `useFrame` to derive athlete and machine transforms from absolute musical time.
+- Audio integrity: `AudioPlayerProvider` and `GlobalAudioPlayer` remain unchanged and authoritative. No second audio source, event listener, timer, polling loop, audio context or temporal React prop enters the Canvas.
+- Determinism: pause freezes the sampled time; paused and playing seeks resolve the destination phase directly; loop return resolves `pre-cadence`; track change and zone exit reset locally; re-entry resolves the current musical phase with a bounded activation blend.
+- Performance: no new `useFrame`, draw call, light, timer, per-frame object/array allocation or dependency. The resolver returns static readonly phase states and performs constant-time numeric work.
+- Validation: resolver boundary/invariant harness passed 21 cue cases plus clock extrapolation, pause, paused seek and track replacement; lint and 38-route static build passed. Browser QA confirmed paused seek to `02:27`, route continuity into `/drift`, a frozen inversion-phase scene, mobile 375×812 readability and zero console errors. Automated audio playback was unavailable, so continuous-play visual timing remains owner QA.
+- Files affected: `src/lib/drift3dAudioClock.ts`, `src/lib/drift3dEuxGainentCues.ts`, `src/components/drift-3d/Drift3DClient.tsx`, `src/components/drift-3d/Drift3DCanvas.tsx`, `src/components/drift-3d/Drift3DScene.tsx`, `src/components/drift-3d/EuxGainentLivingScene.tsx`, `docs/ACTIVE_LOT.md`, `docs/DECISIONS_LOG.md`.
+- Follow-up needed: owner cue QA, real listening and visual review before opening the final EUX signature vertical slice.
+
 ### [2026-07-12] DRIFT-LW-EUX-CUE-MAP-00 — EUX GAINENT musical dramaturgy map
 - Status: ACCEPTED_WITH_FOLLOW_UP. The owner approved the analytical timestamps as the initial runtime implementation baseline; bounded timing adjustments remain possible after real listening and visual QA.
 - Supersedes: untimed cue candidates in the EUX identity contract, for analytical planning only.
