@@ -147,6 +147,58 @@ export default function AboutPage() {
           </div>
         </section>
 
+        <section className="light-border light-card-bg mb-20 overflow-hidden border">
+          <div className="grid md:grid-cols-[220px_1fr]">
+            <div className="light-border flex min-h-[220px] items-center justify-center border-b p-8 md:border-b-0 md:border-r">
+              <span
+                aria-hidden="true"
+                className="light-text-primary font-mono text-[8rem] font-light leading-none tracking-[-0.12em] md:text-[10rem]"
+              >
+                Λ
+              </span>
+            </div>
+
+            <div className="p-6 md:p-8">
+              <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
+                / THE LAMBDA
+              </p>
+
+              <h2 className="light-text-primary mt-4 text-3xl font-semibold tracking-tight md:text-5xl">
+                An opening, not an answer
+              </h2>
+
+              <div className="light-text-secondary mt-6 space-y-4 text-sm leading-7 md:text-base">
+                <p>The lambda appeared before it had one fixed meaning.</p>
+
+                <p>
+                  It can look like a path dividing, a mountain, a doorway, a wave or a body trying to remain
+                  standing. In mathematics, it can represent a variable: something present, but not yet entirely
+                  known.
+                </p>
+
+                <p className="light-text-primary">That openness is what matters to me.</p>
+
+                <p>
+                  I do not see the world as a straight line or a problem that eventually resolves into one clear
+                  answer. It is dense, contradictory, sometimes violent, often absurd and occasionally beautiful
+                  for reasons that are difficult to explain. People search for direction while moving through
+                  routines, systems, memories, desires and accidents that constantly reshape them.
+                </p>
+
+                <p>
+                  The lambda does not point toward the correct road. It marks the moment when another road becomes
+                  possible.
+                </p>
+
+                <p>
+                  Inside MISWAY, it is a small sign of movement: the refusal to remain completely fixed, even when
+                  the way forward is uncertain.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="mb-20">
           <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
             / A FEW PLACES TO START
