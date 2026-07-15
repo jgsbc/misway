@@ -8,8 +8,6 @@ import TrackPlayButton from "@/components/audio/TrackPlayButton";
 
 const siteUrl = "https://jgsbc.github.io/misway";
 const trackCount = tracks.length;
-const birthEraCount = tracks.filter((track) => track.publishedLabel === "Birth era").length;
-const latestCount = tracks.filter((track) => track.publishedLabel === "New era").length;
 
 export const metadata: Metadata = {
   title: "Tracks — MISWΛY complete catalogue",
@@ -93,48 +91,29 @@ export default function TracksPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-10">
           <p className="light-text-tertiary font-mono text-[10px] tracking-[0.35em]">
-            / FULL TIMELINE
+            / MUSIC OVER TIME
           </p>
           <h1 className="light-text-primary mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
             Tracks
           </h1>
           <p className="light-text-secondary mt-4 max-w-3xl text-sm leading-7 md:text-base">
-            Public chronology of the MISWΛY catalogue, from the Birth era — the
-            very first steps in music production on computer — to the most recent
-            releases now living on the site.
+            These pieces were made at different moments, with different tools and different versions of me.
+            Some are carefully finished. Others kept the rough edges that made them worth remembering.
+          </p>
+          <p className="light-text-secondary mt-4 max-w-3xl text-sm leading-7 md:text-base">
+            The order follows the path rather than a release strategy: early attempts, long pauses, returns,
+            accidents and newer pieces that are still finding their place.
           </p>
         </div>
 
-        <section className="light-border light-card-bg mb-10 grid gap-4 border p-5 md:grid-cols-3">
-          <div>
-            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
-              CATALOGUE SIZE
-            </p>
-            <p className="light-text-primary mt-4 text-2xl font-semibold">{trackCount}</p>
-            <p className="light-text-secondary mt-2 text-sm leading-7">
-              Local tracks currently available on the MISWΛY site player.
-            </p>
-          </div>
-
-          <div>
-            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
-              BIRTH ERA
-            </p>
-            <p className="light-text-primary mt-4 text-2xl font-semibold">{birthEraCount}</p>
-            <p className="light-text-secondary mt-2 text-sm leading-7">
-              First steps in MAO: rough, instinctive, formative sketches.
-            </p>
-          </div>
-
-          <div>
-            <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
-              NEW ERA
-            </p>
-            <p className="light-text-primary mt-4 text-2xl font-semibold">{latestCount}</p>
-            <p className="light-text-secondary mt-2 text-sm leading-7">
-              Recent nodes, current releases and the living front edge of the project.
-            </p>
-          </div>
+        <section className="light-border light-card-bg mb-10 border p-5 md:p-6">
+          <p className="light-text-tertiary font-mono text-[10px] tracking-[0.24em]">
+            HOW TO MOVE THROUGH IT
+          </p>
+          <p className="light-text-secondary mt-4 max-w-3xl text-sm leading-7 md:text-base">
+            Start at the beginning, jump to a title, follow the images or press play wherever curiosity lands.
+            Nothing here is ranked, and the unevenness is part of the story.
+          </p>
         </section>
 
         <div className="space-y-4">
