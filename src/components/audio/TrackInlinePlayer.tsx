@@ -29,10 +29,10 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="light-text-tertiary font-mono text-[10px] tracking-[0.2em]">
-            AUDIO_PORT
+            LISTEN HERE
           </p>
           <p className="light-text-secondary mt-2 text-sm">
-            Native playback routed through the persistent site player.
+            Play this track here. It will keep playing while you move through the site.
           </p>
         </div>
 
