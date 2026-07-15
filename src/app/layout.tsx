@@ -24,7 +24,7 @@ const geistMono = localFont({
 const siteUrl = "https://jgsbc.github.io/misway";
 const siteTitle = "MISWΛY (MISWAY)";
 const siteDescription =
-  "MISWΛY (MISWAY) is an electronic music project blending atmospheric electronica, trip-hop tension, ambient textures and cinematic pressure.";
+  "MISWΛY (MISWAY) is a personal collection of music, images and detours made over time, from early computer sketches to newer electronic pieces.";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -37,26 +37,30 @@ const structuredData = {
       alternateName: "MISWAY",
       description: siteDescription,
       inLanguage: "en",
+      creator: {
+        "@id": `${siteUrl}/#person`,
+      },
     },
     {
-      "@type": "MusicGroup",
-      "@id": `${siteUrl}/#artist`,
+      "@type": "Person",
+      "@id": `${siteUrl}/#person`,
       name: "MISWΛY",
       alternateName: "MISWAY",
-      url: `${siteUrl}/`,
-      image: `${siteUrl}/images/tracks-hero-1920x1080-v3.webp`,
+      url: `${siteUrl}/about/`,
+      image: `${siteUrl}/images/about/misway-portrait.jpg`,
       description: siteDescription,
-      genre: [
-        "Electronic music",
-        "Atmospheric electronica",
-        "Trip-hop",
-        "Ambient electronic",
-        "Cinematic electronic music",
-      ],
       sameAs: ["https://soundcloud.com/misway"],
-      mainEntityOfPage: {
-        "@id": `${siteUrl}/#website`,
-      },
+      mainEntityOfPage: `${siteUrl}/about/`,
+      knowsAbout: [
+        "Music composition",
+        "Electronic music",
+        "Trip-hop",
+        "Acid jazz",
+        "Piano",
+        "Guitar",
+        "Saxophone",
+        "Music production",
+      ],
     },
   ],
 };
@@ -64,7 +68,7 @@ const structuredData = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteTitle} — Atmospheric electronic music`,
+    default: `${siteTitle} — Music made over time`,
     template: `%s | ${siteTitle}`,
   },
   description: siteDescription,
@@ -73,15 +77,14 @@ export const metadata: Metadata = {
   keywords: [
     "MISWAY",
     "MISWΛY",
-    "electronic music artist",
-    "atmospheric electronica",
+    "electronic music",
     "trip-hop",
-    "ambient electronic music",
-    "cinematic electronic music",
-    "dark electronic music",
-    "music project",
+    "acid jazz",
+    "ambient music",
+    "French song melodies",
+    "personal music collection",
   ],
-  authors: [{ name: "MISWΛY" }],
+  authors: [{ name: "MISWΛY", url: `${siteUrl}/about/` }],
   creator: "MISWΛY",
   publisher: "MISWΛY",
   category: "music",
@@ -92,7 +95,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/`,
   },
   openGraph: {
-    title: `${siteTitle} — Atmospheric electronic music`,
+    title: `${siteTitle} — Music made over time`,
     description: siteDescription,
     url: `${siteUrl}/`,
     siteName: "MISWΛY",
@@ -103,13 +106,13 @@ export const metadata: Metadata = {
         url: `${siteUrl}/images/tracks-hero-1920x1080-v3.webp`,
         width: 1920,
         height: 1080,
-        alt: "MISWΛY electronic music project",
+        alt: "MISWΛY music and images made over time",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteTitle} — Atmospheric electronic music`,
+    title: `${siteTitle} — Music made over time`,
     description: siteDescription,
     images: [`${siteUrl}/images/tracks-hero-1920x1080-v3.webp`],
   },

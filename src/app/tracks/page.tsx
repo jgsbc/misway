@@ -10,15 +10,15 @@ const siteUrl = "https://jgsbc.github.io/misway";
 const trackCount = tracks.length;
 
 export const metadata: Metadata = {
-  title: "Tracks — MISWΛY complete catalogue",
-  description: `Browse ${trackCount} MISWΛY tracks from Birth era sketches to recent releases. Explore the full electronic music catalogue chronologically, including early experiments, archive nodes and current pieces.`,
+  title: "Tracks — music made over time",
+  description: `Listen through ${trackCount} MISWΛY pieces made across different periods: early computer sketches, returns, experiments and newer electronic tracks.`,
   alternates: {
     canonical: "/tracks/",
   },
   openGraph: {
-    title: "MISWΛY Tracks — full catalogue",
+    title: "MISWΛY Tracks — music over time",
     description:
-      "Explore the complete MISWΛY audio catalogue, from Birth era first steps to the newest releases.",
+      "A chronological path through early sketches, pauses, returns, experiments and newer MISWΛY pieces.",
     url: `${siteUrl}/tracks/`,
     type: "website",
   },
@@ -46,23 +46,29 @@ const breadcrumbSchema = {
 const collectionSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "MISWΛY Tracks — complete catalogue",
-  description: `Browse ${trackCount} MISWΛY tracks from Birth era sketches to the current catalogue.`,
+  "@id": `${siteUrl}/tracks/#collection`,
+  name: "MISWΛY Tracks — music over time",
+  description: `A chronological path through ${trackCount} MISWΛY pieces made across different periods.`,
   url: `${siteUrl}/tracks/`,
+  about: {
+    "@id": `${siteUrl}/#person`,
+  },
   mainEntity: {
-    "@type": "MusicAlbum",
-    name: "MISWΛY Catalogue",
-    byArtist: {
-      "@type": "MusicGroup",
-      name: "MISWΛY",
-      alternateName: "MISWAY",
-      url: `${siteUrl}/`,
-    },
-    track: tracks.map((track) => ({
-      "@type": "MusicRecording",
-      name: track.title,
-      url: `${siteUrl}/tracks/${track.slug}/`,
-      genre: track.tags,
+    "@type": "ItemList",
+    numberOfItems: trackCount,
+    itemListElement: tracks.map((track, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "MusicRecording",
+        "@id": `${siteUrl}/tracks/${track.slug}/#recording`,
+        name: track.title,
+        url: `${siteUrl}/tracks/${track.slug}/`,
+        genre: track.tags,
+        byArtist: {
+          "@id": `${siteUrl}/#person`,
+        },
+      },
     })),
   },
 };
