@@ -39,7 +39,7 @@ export default function GlobalAudioPlayer() {
 
   const label = useMemo(() => {
     if (current.kind === "ambient") {
-      return "ENTRY AMBIENT / BACKGROUND LOOP";
+      return "ENTRY AMBIENT / BACKGROUND";
     }
     return `${current.title} / ${current.publishedLabel}`;
   }, [current]);
