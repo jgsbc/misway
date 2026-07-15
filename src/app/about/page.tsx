@@ -89,7 +89,7 @@ export default function AboutPage() {
                 </p>
                 <p className="light-text-secondary mt-4 text-sm leading-7">
                   To share what feels worth taking out of the hard drive, keep a trace of the path and let the
-                  pieces meet people without asking them to become customers.
+                  pieces meet people and become part of someone else&apos;s day.
                 </p>
               </div>
             </div>
@@ -157,8 +157,8 @@ export default function AboutPage() {
           </h2>
 
           <p className="light-text-secondary mt-4 max-w-2xl text-sm leading-7 md:text-base">
-            These tracks are not a professional selection or a definitive summary. They are simply a few open
-            doors into different corners of the path.
+            These tracks are not a definitive summary. They are simply a few open doors into different corners
+            of the path.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
