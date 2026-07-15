@@ -11,13 +11,13 @@
 
 Cette revue clôt le programme `SITE-IDENTITY-00` à `SITE-IDENTITY-08`.
 
-Elle vérifie que le site public présente désormais MISWAY comme un espace personnel de création et de partage, sans posture de catalogue professionnel, de service, de licensing ou de synchronisation commerciale, tout en préservant les morceaux, leurs lecteurs et le monde Drift.
+Elle vérifie que le site public présente désormais MISWAY comme un espace personnel de création, de mémoire et de partage, sans posture de catalogue professionnel, de service, de licensing ou de synchronisation commerciale.
 
-La revue distingue volontairement :
+Elle distingue volontairement :
 
-- les contrôles établis directement dans le code et l’historique Git ;
-- les corrections minimales appliquées dans ce dernier lot ;
-- les contrôles qui nécessitent encore un navigateur et un checkout local complet.
+- les contrôles établis dans le code et l’historique Git ;
+- les corrections minimales du dernier lot ;
+- les validations qui nécessitent encore un checkout local et un navigateur.
 
 Aucun résultat manuel ou automatisé n’est déclaré réussi sans preuve disponible.
 
@@ -27,133 +27,168 @@ Aucun résultat manuel ou automatisé n’est déclaré réussi sans preuve disp
 
 | Domaine | Statut | Conclusion |
 |---|---|---|
-| Positionnement éditorial | `PASS` | MISWAY est présenté comme une pratique personnelle, sensible et non commerciale |
-| Accueil | `PASS_CODE` | entrée simple vers Tracks, About et Drift ; aucun CTA commercial |
-| About et contact | `PASS_WITH_FIXES` | deux formulations défensives retirées ; portrait, SoundCloud et Formspree conservés |
-| Tracks | `PASS_CODE` | parcours chronologique sans classement, score ou logique de lancement |
-| Fiches morceaux | `PASS_WITH_FIXES` | textes contextualisés ; aucun bloc sync/licensing ; marqueurs internes de PERDUE retirés |
-| Vérité des textes | `PASS` | incertitudes assumées ; audit dédié conservé |
-| Navigation | `PASS_CODE` | Home / Tracks / Drift / About ; logique active et masquage Drift préservés |
-| Lecteurs | `PASS_CODE` | lecteur global et lecteur de fiche inchangés fonctionnellement pendant le programme d’identité |
-| SEO et données structurées | `PASS_CODE` | `Person`, `CollectionPage`, `ItemList` et `MusicRecording` cohérents |
-| Sitemap | `PASS_CODE` | 4 routes principales et 26 pages de morceaux ; `/artist/` exclu |
-| Route `/artist/` | `PASS_CODE` | page de continuité, canonical `/about/`, `noindex, follow` |
-| Export statique | `PASS_CONFIG` | `output: "export"`, `trailingSlash`, `basePath` et images non optimisées configurés |
-| Non-régression Drift | `PASS_HISTORY` | aucun fichier Drift modifié depuis la baseline du programme |
-| Lint et build du lot final | `MANUAL_REQUIRED` | aucun CI disponible et clone réseau impossible dans l’environnement de revue |
-| QA visuelle, audio et formulaire | `MANUAL_REQUIRED` | doit être exécutée dans le navigateur avant fusion finale |
+| Positionnement éditorial | `PASS` | espace personnel, sensible, ouvert et non commercial |
+| Accueil | `PASS_CODE` | entrée vers Tracks, About et Drift, sans CTA commercial |
+| About | `PASS_WITH_FIXES` | parcours, pratique amateure, lambda, vision du monde, contact et SoundCloud réunis |
+| Tracks | `PASS_CODE` | parcours chronologique sans classement ou logique de lancement |
+| Fiches morceaux | `PASS_WITH_FIXES` | textes contextualisés et marqueurs internes retirés |
+| Vérité des textes | `PASS` | incertitudes assumées et audit dédié conservé |
+| Navigation | `PASS_CODE` | Home / Tracks / Drift / About |
+| Lecteurs | `PASS_CODE` | logique existante conservée |
+| SEO et données structurées | `PASS_CODE` | `Person`, `CollectionPage`, `ItemList`, `MusicRecording` |
+| Sitemap | `PASS_CODE` | 4 routes principales et 26 morceaux, sans `/artist/` |
+| Route `/artist/` | `PASS_CODE` | page de continuité, canonical About, `noindex, follow` |
+| Ancienne page Artist | `REMOVED` | `src/app/artist/page-old.tsx` supprimé du code applicatif |
+| Export statique | `PASS_CONFIG` | `output: "export"`, `trailingSlash`, `basePath` |
+| Non-régression Drift | `PASS_HISTORY` | aucun fichier Drift modifié par le programme d’identité |
+| Lint et build finaux | `MANUAL_REQUIRED` | aucun CI disponible dans l’environnement de revue |
+| QA visuelle, audio et formulaire | `MANUAL_REQUIRED` | contrôle navigateur obligatoire avant fusion |
 
 ---
 
-## 3. Corrections appliquées dans le lot final
+## 3. Corrections du lot final
 
 ### 3.1 About — retrait du cadre commercial résiduel
 
-Deux formulations visibles entretenaient encore inutilement un contraste avec un site professionnel :
+Les formulations suivantes ont été retirées :
 
 - `without asking them to become customers` ;
 - `not a professional selection`.
 
-Elles sont remplacées par des formulations positives et autonomes :
+Elles sont remplacées par des formulations positives : les morceaux peuvent rencontrer des personnes, entrer dans leur journée et servir de portes d’entrée dans le parcours.
 
-- les morceaux peuvent rencontrer des personnes et entrer dans leur journée ;
-- la sélection est décrite simplement comme quelques portes d’entrée, sans comparaison professionnelle.
+### 3.2 About — ajout du lambda et de la vision du monde
 
-Aucun changement n’est apporté au portrait, aux liens, aux morceaux proposés, au formulaire ou à sa destination Formspree.
+Une section `THE LAMBDA` est ajoutée après `A NAME FOR THE DETOURS`.
 
-### 3.2 PERDUE — retrait de marqueurs internes
+Elle présente le lambda comme un signe volontairement ouvert :
 
-La fiche publique exposait encore :
+- chemin qui se divise ;
+- montagne ;
+- porte ;
+- vague ;
+- corps cherchant à rester debout ;
+- variable représentant quelque chose de présent mais encore inconnu.
 
-- le tag `to-confirm` ;
-- la note d’image `archival node`.
+Le texte exprime une vision du monde non linéaire : dense, contradictoire, parfois violent, souvent absurde et parfois beau pour des raisons difficiles à expliquer.
 
-Ces marqueurs de travail internes sont remplacés par :
+Le symbole ne prétend pas indiquer la bonne route. Il marque le moment où une autre route devient possible et rappelle la possibilité de rester en mouvement malgré l’incertitude.
+
+La section utilise un grand `Λ` typographique et les styles existants de la page About. Aucun nouvel asset, composant ou effet n’est introduit.
+
+### 3.3 PERDUE — retrait de marqueurs internes
+
+La fiche exposait encore :
+
+- `to-confirm` ;
+- `archival node`.
+
+Ils sont remplacés par :
 
 - `transition`, `fading`, `relationship` ;
 - `A shared world slowly leaving the frame.`
 
-Le titre, l’ID, le slug, l’URL SoundCloud, l’embed, l’année, l’ère, la durée, l’image et l’audio restent inchangés.
+Le titre, l’ID, le slug, SoundCloud, l’embed, l’année, l’ère, la durée, l’image et l’audio restent inchangés.
+
+### 3.4 Ancienne page Artist — suppression
+
+`src/app/artist/page-old.tsx` conservait l’ancienne posture commerciale :
+
+- sync et licensing ;
+- collaborations film, télévision et publicité ;
+- offres commerciales ;
+- conditions de licence ;
+- faux positionnement de groupe ou d’artiste disponible pour des projets.
+
+Ce fichier n’était plus la route active, mais il restait sous `src/app` et polluait les recherches de conformité. Il est supprimé.
+
+La route active `src/app/artist/page.tsx` reste en place pour assurer la continuité des anciens liens vers `/about/`.
 
 ---
 
 ## 4. Contrôle éditorial
 
-### 4.1 Accueil
+### Accueil
 
-L’accueil contient désormais :
+L’accueil conserve :
 
-- une phrase courte sur la musique, les images et les choses faites en chemin ;
-- une reconnaissance des périodes anciennes, nouvelles et encore indécises ;
-- `ENTER` vers `/tracks` ;
-- `ABOUT` vers `/about` ;
-- `DRIFT` vers `/drift`.
+- une entrée courte et personnelle ;
+- `ENTER` vers Tracks ;
+- `ABOUT` vers About ;
+- `DRIFT` vers Drift.
 
-Aucune offre, disponibilité, prestation, licence, argument de vente ou promesse de carrière n’y apparaît.
+Aucune offre, licence, prestation ou promesse de carrière n’y apparaît.
 
-### 4.2 About
+### About
 
-La page présente :
+La page réunit désormais :
 
 - piano, guitare, saxophone, groupes, Reason et Ableton ;
-- les interruptions et retours ;
-- une pratique amateure au sens littéral, sans dévalorisation de la musique ;
-- trip-hop, acid jazz, ambient, électronique et mélodies issues de la chanson française ;
-- MISWAY comme nom compatible avec les détours, sans invention d’une origine exacte ;
-- le partage et la conservation d’une trace comme raisons principales du site.
+- les périodes de silence et de retour ;
+- la pratique amateure au sens littéral ;
+- trip-hop, acid jazz, ambient, électronique et mélodies de chanson française ;
+- MISWAY comme nom des détours ;
+- le lambda comme signe ouvert ;
+- une vision du monde personnelle, contradictoire et non linéaire ;
+- quelques portes d’entrée musicales ;
+- SoundCloud et le formulaire de contact.
 
-Le contact reste ouvert aux émotions, souvenirs, références, idées, associations étranges et problèmes techniques.
+Le contact reste ouvert aux émotions, souvenirs, références, associations étranges, idées et problèmes techniques.
 
-### 4.3 Tracks et fiches
+### Tracks et fiches
 
 La page Tracks :
 
 - conserve l’ordre des 26 morceaux ;
-- explique que l’ordre suit le chemin plutôt qu’une stratégie de sortie ;
+- suit le chemin plutôt qu’une stratégie de sortie ;
 - ne classe pas les morceaux ;
-- conserve les cartes, images, tags, lecteurs et liens.
+- conserve cartes, images, tags, lecteurs et liens.
 
 Les fiches :
 
-- conservent le lecteur local et les liens SoundCloud ;
-- ne contiennent plus de bloc `Collaboration & Sync` ;
+- conservent le lecteur local et SoundCloud lorsqu’il existe ;
+- ne contiennent aucun bloc Collaboration & Sync ;
 - proposent simplement de poursuivre l’écoute ;
-- affichent un texte long, un résumé, une note d’image et les informations de période.
+- présentent texte long, résumé, note d’image et période.
 
-L’audit `MISWAY_TRACK_COPY_TRUTH_AUDIT.md` reste la référence pour les niveaux `CONFIRMED`, `CURRENT_READING`, `PARTIAL_MEMORY` et les questions nécessitant encore la mémoire du créateur.
+`MISWAY_TRACK_COPY_TRUTH_AUDIT.md` reste la référence pour les niveaux de confiance et les questions encore ouvertes.
 
 ---
 
 ## 5. Recherche des anciennes promesses commerciales
 
-La revue vise les familles de termes suivantes dans les contenus publics :
+La recherche finale doit viser notamment :
 
-- sync au sens commercial ;
-- licensing ;
-- commercial partnership ;
-- serious offer ;
-- premium content ;
-- film and TV ;
-- ad campaign ;
-- press inquiry ;
-- artist inquiry ;
-- professional artist ;
-- customer comme destination du visiteur ;
-- marqueurs internes tels que `to-confirm`.
+- `licens` ;
+- `commercial partnership` ;
+- `serious offer` ;
+- `premium content` ;
+- `film and TV` ;
+- `ad campaign` ;
+- `press inquiry` ;
+- `artist inquiry` ;
+- `professional artist` ;
+- `to-confirm` ;
+- `archival node` ;
+- `customers`.
 
-### Résultat
+Commande :
 
-Aucune promesse commerciale active n’a été identifiée dans les pages publiques inspectées.
+```bash
+git grep -n -Ei "licens|commercial partnership|serious offer|premium content|film and TV|ad campaign|press inquiry|artist inquiry|professional artist|to-confirm|archival node|customers" -- src
+```
 
-Le terme technique `syncSource` demeure dans `AudioPlayerProvider.tsx`. Il désigne uniquement la synchronisation de la source du lecteur HTML Audio et n’est ni visible par le visiteur ni lié à la synchronisation musicale commerciale.
+Résultat attendu après suppression de `page-old.tsx` : **aucune occurrence**.
 
-Les documents historiques de doctrine et de backlog peuvent naturellement contenir les mots interdits puisqu’ils décrivent précisément ce qui devait être retiré. Ils ne constituent pas du contenu public du site.
+Le mot `sync` doit être interprété :
+
+- `syncSource` dans le lecteur audio est technique et invisible ;
+- les fonctions de synchronisation de préférences de mouvement dans Drift sont techniques ;
+- aucune occurrence commerciale ne doit rester dans les contenus publics ou les sources obsolètes sous `src`.
 
 ---
 
-## 6. Navigation et routes
-
-### Navigation visible
+## 6. Navigation, routes et SEO
 
 Le dock utilise :
 
@@ -162,211 +197,144 @@ Le dock utilise :
 - Drift ;
 - About.
 
-L’état actif couvre les sous-routes `/tracks/*`. Le dock reste absent de la page d’accueil et des routes Drift.
+Il reste absent de l’accueil et des routes Drift.
 
-### Route Artist
+`/artist/` reste une page de continuité :
 
-`/artist/` reste une page de continuité compatible avec l’export statique :
-
-- canonical vers `/about/` ;
+- canonical `/about/` ;
 - `robots.index = false` ;
 - `robots.follow = true` ;
 - liens vers About et Tracks ;
-- aucune entrée dans le sitemap.
+- absence du sitemap.
 
-Aucun lien principal du site ne renvoie encore vers `/artist/` dans les fichiers de navigation et de pages inspectés.
+Le graphe global contient `WebSite` et `Person`. Tracks utilise `CollectionPage` et `ItemList`. Chaque fiche utilise `MusicRecording` et référence la même personne.
 
----
-
-## 7. SEO et données structurées
-
-Le graphe global contient :
-
-- `WebSite` ;
-- `Person` pour la personne derrière MISWAY ;
-- la relation `creator` ;
-- le portrait ;
-- SoundCloud ;
-- les instruments et champs musicaux réellement décrits.
-
-La page Tracks est une `CollectionPage` dont l’entité principale est un `ItemList` de 26 `MusicRecording`.
-
-Chaque fiche de morceau :
-
-- possède un canonical propre ;
-- conserve son image et son audio ;
-- conserve son lien SoundCloud lorsqu’il existe ;
-- référence la même personne via `#person` ;
-- appartient sémantiquement à la collection Tracks, et non à un album fictif.
-
-Le sitemap est produit statiquement et contient :
+Le sitemap attendu contient :
 
 - `/` ;
 - `/about/` ;
 - `/tracks/` ;
 - `/drift/` ;
-- les 26 routes `/tracks/<slug>/`.
+- 26 routes de morceaux.
 
 Total attendu : **30 URLs**.
 
 ---
 
-## 8. Lecteurs et médias
+## 7. Lecteurs, médias et formulaire
 
-### Contrôles établis dans le code
+Le fournisseur audio conserve :
 
-Le fournisseur audio :
+- l’ambiance d’entrée ;
+- les sources locales avec `basePath` ;
+- lecture, pause, suivant, précédent, boucle et seek ;
+- l’ordre de `tracks` ;
+- la protection des routes Drift ;
+- l’état persistant hors Drift.
 
-- conserve une ambiance d’entrée ;
-- construit les sources locales avec le `basePath` ;
-- gère lecture, pause, piste suivante, piste précédente, boucle et seek ;
-- utilise l’ordre de `tracks` ;
-- arrête la reprise automatique de l’ambiance sur les routes Drift ;
-- conserve l’état du lecteur au niveau du layout pendant la navigation hors Drift.
-
-Les 26 morceaux restent construits à partir du même tableau. Les deux noms de fichiers explicitement dérogatoires restent :
+Les deux fichiers audio à nom dérogatoire restent :
 
 - `panthere.mp3` ;
 - `eux-gainent.mp3`.
 
-Les autres sources suivent `/audio/<slug>.mp3`.
-
-### Limite
-
-Le contrôle du code ne remplace pas :
-
-- l’écoute de chaque fichier ;
-- le contrôle des erreurs 404 audio ;
-- le comportement réel d’autoplay selon le navigateur ;
-- la coexistence sonore avec Drift ;
-- le contrôle des liens SoundCloud dans un navigateur.
-
----
-
-## 9. Formulaire
+Les autres suivent `/audio/<slug>.mp3`.
 
 Le formulaire About conserve :
 
-- l’action Formspree `https://formspree.io/f/xqeywvda` ;
-- la méthode `POST` ;
+- Formspree `https://formspree.io/f/xqeywvda` ;
+- méthode `POST` ;
 - `name` ;
 - `email` requis ;
 - `subject` ;
 - `message` requis ;
-- le honeypot `_gotcha`.
+- `_gotcha`.
 
-Aucune promesse de réponse commerciale ou catégorie de demande professionnelle n’est affichée.
-
-Un envoi réel doit encore être testé manuellement afin de confirmer la réception, le comportement Formspree et l’expérience après soumission.
+L’écoute réelle, les erreurs 404, l’autoplay, les liens externes et l’envoi Formspree restent à vérifier dans un navigateur.
 
 ---
 
-## 10. Non-régression Drift
+## 8. Non-régression Drift
 
-La comparaison entre la baseline `5aaabcd5739bc02fc8f67d5b50e8a223ef8b4321` et `main` après fusion du lot 07 ne contient aucun fichier :
+La comparaison entre la baseline `5aaabcd5739bc02fc8f67d5b50e8a223ef8b4321` et `main` après le lot 07 ne contient aucun fichier Drift, shader, matériau, contrôle, ambiance ou changement de topologie.
 
-- `src/app/drift/**` ;
-- composant de monde Drift ;
-- matériau ;
-- shader ;
-- contrôle ;
-- ambiance propre à Drift ;
-- topologie de carte.
-
-Les seuls fichiers modifiés par le programme d’identité avant ce lot sont les pages éditoriales, les métadonnées, le sitemap, les textes de morceaux, la navigation générale et les lecteurs généraux.
-
-Le lot final ne modifie lui-même que :
+Le lot final modifie seulement :
 
 - `src/app/about/page.tsx` ;
 - `src/lib/tracks.ts` ;
+- `src/app/artist/page-old.tsx` en suppression ;
 - le présent rapport.
 
-Cette preuve historique garantit l’absence de modification directe de Drift. Elle ne remplace pas une inspection visuelle et audio de `/drift/` dans le build final.
+Cette preuve historique garantit l’absence de modification directe de Drift. Elle ne remplace pas une inspection visuelle et audio du build final.
 
 ---
 
-## 11. Validation manuelle obligatoire avant fusion
+## 9. Validation manuelle obligatoire avant fusion
 
-Exécuter depuis la branche `site-identity-08-final-review` :
+Depuis `site-identity-08-final-review` :
 
 ```bash
 npm run lint
 npm run build
 ```
 
-Puis contrôler :
+Contrôler ensuite :
 
 ### Export
 
-- présence de `out/index.html` ;
-- présence de `out/about/index.html` ;
-- présence de `out/artist/index.html` ;
-- présence de `out/tracks/index.html` ;
-- présence des 26 dossiers de morceaux ;
-- présence de `out/drift/index.html` ;
-- présence et contenu de `out/sitemap.xml`.
+- `out/index.html` ;
+- `out/about/index.html` ;
+- `out/artist/index.html` ;
+- `out/tracks/index.html` ;
+- les 26 dossiers de morceaux ;
+- `out/drift/index.html` ;
+- `out/sitemap.xml` avec 30 URLs.
 
-### Pages
+### About
 
-- accueil desktop et mobile ;
-- About desktop et mobile ;
-- Tracks desktop et mobile ;
-- au moins une fiche Birth era ;
-- au moins une fiche Older era ;
-- au moins une fiche Vegetative era ;
-- au moins trois fiches New era, dont une locale et une SoundCloud ;
-- `/artist/` et son lien vers About.
+- ordre des sections ;
+- lisibilité du grand lambda sur desktop et mobile ;
+- absence de débordement horizontal ;
+- contraste et rythme des six paragraphes ;
+- portrait, SoundCloud, morceaux proposés et formulaire.
 
 ### Audio
 
 - ambiance d’entrée ;
-- lecture depuis une carte Tracks ;
-- lecture depuis une fiche ;
-- pause ;
-- seek ;
-- précédent / suivant ;
-- boucle ;
-- persistance pendant la navigation ;
+- lecture depuis Tracks et une fiche ;
+- pause, seek, précédent, suivant et boucle ;
+- persistance entre pages ;
 - `panthere.mp3` ;
 - `eux-gainent.mp3` ;
-- une piste standard `/audio/<slug>.mp3` ;
-- absence de lecteur global visible dans Drift.
+- une piste standard ;
+- coexistence avec Drift.
+
+### Routes et liens
+
+- `/artist/` et son lien vers About ;
+- liens SoundCloud ;
+- navigation desktop et mobile ;
+- soumission Formspree réelle.
 
 ### Drift
 
-- chargement du monde ;
-- déplacement ;
-- contrôles ;
-- carte et nœuds ;
-- ambiances ;
-- entrée et sortie ;
-- absence de chevauchement du dock général ;
-- absence de régression visuelle évidente.
-
-### Contact et liens
-
-- soumission Formspree réelle ;
-- lien SoundCloud général ;
-- au moins trois liens SoundCloud de morceaux ;
-- liens Home / Tracks / Drift / About ;
-- liens de retour et CTA internes.
+- chargement ;
+- déplacement et contrôles ;
+- carte ;
+- sons ;
+- absence du dock et du lecteur global ;
+- absence de régression visuelle.
 
 ---
 
-## 12. Critères de clôture
+## 10. Critère de clôture
 
-Le programme pourra être déclaré `DONE` lorsque :
+Le programme peut être déclaré `DONE` lorsque :
 
-1. `npm run lint` passe ;
-2. `npm run build` passe ;
-3. les routes statiques attendues sont présentes ;
-4. le sitemap contient les 30 URLs attendues et pas `/artist/` ;
-5. les lecteurs local et persistant fonctionnent ;
-6. le formulaire est testé ;
-7. la navigation mobile et desktop est lisible ;
-8. Drift est inspecté sans régression ;
-9. aucun autre changement n’est introduit dans la PR finale.
-
-Avant ces contrôles, le statut honnête reste :
-
-`DONE_WITH_MANUAL_QA_REQUIRED`
+1. lint réussit ;
+2. build statique réussit ;
+3. la recherche des anciennes promesses commerciales est vide dans `src` ;
+4. les 30 URLs attendues existent ;
+5. About et la section Lambda sont validées sur desktop et mobile ;
+6. les lecteurs et trois sources audio représentatives fonctionnent ;
+7. Formspree reçoit un message de test ;
+8. Drift est validé visuellement et fonctionnellement.
