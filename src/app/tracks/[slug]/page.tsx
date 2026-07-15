@@ -179,7 +179,7 @@ export default async function TrackDetailPage({ params }: Props) {
         <div className="light-border light-text-secondary mb-10 flex flex-wrap items-center justify-between gap-4 border-b pb-6">
           <div>
             <p className="light-text-tertiary font-mono text-xs tracking-[0.28em]">
-              / TRACK NODE {track.id}
+              / TRACK {track.id}
             </p>
             <h1 className="light-text-primary mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
               {track.title}
@@ -208,7 +208,7 @@ export default async function TrackDetailPage({ params }: Props) {
               </a>
             ) : (
               <span className="light-border border px-4 py-2 text-xs font-mono tracking-[0.2em] text-neutral-400">
-                LOCAL ARCHIVE
+                ON THIS SITE
               </span>
             )}
           </div>
@@ -226,15 +226,7 @@ export default async function TrackDetailPage({ params }: Props) {
               />
             </div>
 
-            <div className="space-y-5">
-              <p className="light-text-primary text-base leading-7">{track.longText}</p>
-
-              <p className="light-text-secondary text-sm leading-7">
-                <span className="light-text-primary">{track.title}</span> is part of the
-                MISWΛY catalogue, a body of electronic music shaped by atmosphere,
-                emotional density, synthetic textures and inner motion.
-              </p>
-            </div>
+            <p className="light-text-primary text-base leading-7">{track.longText}</p>
 
             <div className="flex flex-wrap gap-2">
               {track.tags.map((tag) => (
@@ -276,28 +268,27 @@ export default async function TrackDetailPage({ params }: Props) {
 
             <div className="border border-white/10 bg-white/[0.03] p-5">
               <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                TRACK SUMMARY
+                IN A FEW WORDS
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-300">{track.shortText}</p>
             </div>
 
             <div className="border border-white/10 bg-white/[0.03] p-5">
               <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                COVER NOTE
+                IMAGE NOTE
               </p>
               <p className="mt-4 text-sm leading-7 text-neutral-400">
-                {track.coverHint ?? "A listening chamber inside the MISWΛY archive."}
+                {track.coverHint ?? "A small visual room made for this piece."}
               </p>
             </div>
 
             {track.soundcloudUrl ? (
               <div className="border border-white/10 bg-white/[0.03] p-5">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                  LISTEN EXTERNALLY
+                  ALSO ON SOUNDCLOUD
                 </p>
                 <p className="mt-4 text-sm leading-7 text-neutral-400">
-                  This track also points to the public SoundCloud node for external
-                  listening and discovery.
+                  This track also lives on SoundCloud.
                 </p>
                 <a
                   href={track.soundcloudUrl}
@@ -305,55 +296,36 @@ export default async function TrackDetailPage({ params }: Props) {
                   rel="noreferrer"
                   className="mt-5 inline-flex border border-white/10 px-4 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
                 >
-                  OPEN ON SOUNDCLOUD ↗
+                  LISTEN ON SOUNDCLOUD ↗
                 </a>
               </div>
             ) : (
               <div className="border border-white/10 bg-white/[0.03] p-5">
                 <p className="font-mono text-[10px] tracking-[0.2em] text-neutral-500">
-                  LOCAL ARCHIVE NOTE
+                  LISTENING NOTE
                 </p>
                 <p className="mt-4 text-sm leading-7 text-neutral-400">
-                  This track currently lives on the site player and local MISWΛY archive.
-                  No public external listening node is attached yet.
+                  For now, this track lives here in the site player. No external link is attached.
                 </p>
               </div>
             )}
           </aside>
         </div>
 
-        <section className="mt-14 border border-white/10 bg-white/[0.02] p-8">
-          <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
-            / COLLABORATION & SYNC
-          </p>
-          <h2 className="mt-4 text-xl font-semibold tracking-tight text-white md:text-2xl">
-            Interested in sync, licensing, or collaboration?
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-neutral-400">
-            If you&apos;re exploring this track for a project, remix, synchronization, or creative collaboration, get in touch directly.
-          </p>
-          <Link
-            href="/about#contact"
-            className="mt-6 inline-flex border border-white/10 px-5 py-3 font-mono text-[10px] tracking-[0.22em] text-neutral-300 transition hover:border-white/30 hover:text-white"
-          >
-            START A CONVERSATION →
-          </Link>
-        </section>
-
         <section className="mt-14 border-t border-white/10 pt-10">
           <p className="font-mono text-[10px] tracking-[0.35em] text-neutral-600">
-            / MORE FROM MISWΛY
+            / KEEP LISTENING
           </p>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white md:text-4xl">
-            Continue through the catalogue
+            Take another path
           </h2>
 
           <p className="mt-3 max-w-2xl text-sm leading-7 text-neutral-400">
             {sameEraOtherTracks.length > 0
-              ? `More tracks from the ${track.publishedLabel}. Explore the full catalogue for additional works.`
+              ? `More tracks from ${track.publishedLabel}.`
               : sharedTagTracks.length > 0
-                ? `Tracks with similar sonic qualities. Browse the catalogue for more.`
-                : `Discover other works in the MISWΛY archive.`}
+                ? `A few pieces that share part of the same weather.`
+                : `Three other places to continue.`}
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
