@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const trackUrl = `${siteUrl}/tracks/${track.slug}/`;
-  const description = `${track.title} by MISWΛY (MISWAY). ${track.shortText} Explore the track page, artwork, context and listening routes.`;
+  const description = `${track.title} by MISWΛY. ${track.shortText} Listen on its track page and see the accompanying image and notes.`;
 
   return {
     title: `${track.title} — MISWΛY track`,
@@ -104,6 +104,7 @@ export default async function TrackDetailPage({ params }: Props) {
   const trackSchema = {
     "@context": "https://schema.org",
     "@type": "MusicRecording",
+    "@id": `${trackUrl}#recording`,
     name: track.title,
     url: trackUrl,
     description: track.longText,
@@ -113,14 +114,13 @@ export default async function TrackDetailPage({ params }: Props) {
     audio: `${siteUrl}${track.audioSrc}`,
     sameAs: track.soundcloudUrl ? [track.soundcloudUrl] : undefined,
     byArtist: {
-      "@type": "MusicGroup",
-      name: "MISWΛY",
-      alternateName: "MISWAY",
-      url: `${siteUrl}/`,
+      "@id": `${siteUrl}/#person`,
     },
-    inAlbum: {
-      "@type": "MusicAlbum",
-      name: "MISWΛY catalogue",
+    isPartOf: {
+      "@type": "CollectionPage",
+      "@id": `${siteUrl}/tracks/#collection`,
+      name: "MISWΛY Tracks",
+      url: `${siteUrl}/tracks/`,
     },
   };
 
