@@ -10,7 +10,7 @@ const links = [
   { href: "/", label: "Home", icon: House },
   { href: "/tracks", label: "Tracks", icon: AudioLines },
   { href: "/drift", label: "Drift", icon: Waves },
-  { href: "/about", label: "Info", icon: Info },
+  { href: "/about", label: "About", icon: Info },
 ];
 
 function isDrift3DLabPath(pathname: string | null) {
