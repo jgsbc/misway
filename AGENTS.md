@@ -90,7 +90,8 @@ Puis, selon le lot, ajouter :
 - le contrat d'ère concerné ;
 - le contrat d'identité de la track concernée (ex. `docs/DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md` pour un lot EUX GAINENT) ;
 - la cue map approuvée de la track concernée (ex. `docs/DRIFT_3D_EUX_GAINENT_CUE_MAP.md` pour un lot EUX GAINENT) ;
-- les documents d'acceptation pertinents.
+- les documents d'acceptation pertinents ;
+- `docs/DRIFT_3D_RUNTIME_BASELINE.md` pour tout lot `SYS-*` ou Build citant un budget de performance.
 
 Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné ; ils n'entrent jamais dans le read pack obligatoire immédiat ci-dessus.
 
@@ -121,8 +122,9 @@ Règles de lecture :
 - Un seul identifiant canonique de `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` peut devenir `ACTIVE_LOT` à la fois.
 - `VS1` / `VS2` / `VS3` (« vertical slice ») désignent des rôles de preuve, jamais des lots exécutables.
 - Les anciens identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` sont `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne peuvent plus nommer une branche, une PR ni un commit.
-- `DRIFT-IV-BASE-00` est le seul prochain lot après le merge de `DRIFT-IV-GOV-30`.
+- `DRIFT-IV-BASE-00` reste le lot actif après le merge de `DRIFT-IV-GOV-30`, actuellement `REWORK_REQUIRED` ; `DRIFT-IV-SYS-00` reste `BLOCKED_BY_DEPENDENCY` et ne doit pas être ouvert.
 - Pour comprendre l'origine et le mapping des aliases retirés, lire conditionnellement `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` (rapport de réconciliation de gouvernance, pas un backlog).
+- `docs/DRIFT_3D_RUNTIME_BASELINE.md` est une partial runtime baseline : performance acceptance targets inherited from the Programme, real performance evidence still required avant que `DRIFT-IV-BASE-00` (actuellement `REWORK_REQUIRED`) ne devienne `DONE` et que `DRIFT-IV-SYS-00` (`BLOCKED_BY_DEPENDENCY`) ne s'ouvre.
 
 ---
 
