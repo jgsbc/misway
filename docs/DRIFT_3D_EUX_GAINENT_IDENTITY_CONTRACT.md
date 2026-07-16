@@ -13,7 +13,8 @@ This contract specializes the Living Track Matrix for EUX GAINENT. It dominates 
 **Runtime status:**
 NOT YET INTEGRATED ON MAIN.
 Implementation candidate is preserved at `ad21600` and must be
-reimplemented or selectively ported in `DRIFT-IV-VS1-00`.
+reimplemented or selectively ported in `DRIFT-IV-BY-EUX-20`
+(build) and accepted in `DRIFT-IV-BY-EUX-30` (owner acceptance).
 
 ## 1. North Star
 
@@ -196,7 +197,7 @@ Timing authority belongs to
 are owner-approved as the initial implementation baseline.
 
 Human listening may produce bounded calibration adjustments
-before final `DRIFT-IV-VS1-00` acceptance.
+before final `DRIFT-IV-BY-EUX-30` acceptance.
 
 ## 14. Cue candidates for listening validation
 
@@ -312,12 +313,12 @@ The scene passes the uniqueness gate only when a viewer can describe the inversi
 
 The identity decisions above (interior reference-frame illusion, immobile shell/collider/node/footprint, `CADENCE → ÉCART → CONFORMITÉ → RENDEMENT`, `OBJECTIF DÉPLACÉ` as the unique signature text, deferred headlights, the A/B/C athlete identity, and the humans-freeze/machines-continue signature) are **approved and closed**. None of them is reopened by this section.
 
-What remains before `DRIFT-IV-VS1-00` can be accepted is implementation follow-up, not identity decisions:
+What remains before `DRIFT-IV-BY-EUX-30` can accept this track is implementation follow-up, not identity decisions:
 
 1. **Human listening of the canonical source.** The seven cue candidates in `DRIFT_3D_EUX_GAINENT_CUE_MAP.md` were produced analytically and have never been human-auditioned.
 2. **Bounded timestamp adjustments, if the listening pass justifies them.** Adjustments may refine start/peak/end values within the approved structural windows; they may not introduce a new signature event, a new dominant term, or a second signature text.
-3. **Visual and musical QA of the future runtime**, once `DRIFT-IV-VS1-00` implements the scene and cue wiring.
-4. **Owner acceptance of the `DRIFT-IV-VS1-00` lot**, per the standard Build → Acceptance cycle.
+3. **Visual and musical QA of the future runtime**, once `DRIFT-IV-BY-EUX-20` implements the scene and cue wiring.
+4. **Owner acceptance of the `DRIFT-IV-BY-EUX-30` lot**, per the standard Build → Acceptance cycle.
 
 These are listening and QA follow-up items for the cue and vertical-slice lots. They do not reopen the North Star, the anomaly hierarchy, the signature mechanism or any other approved scene identity.
 

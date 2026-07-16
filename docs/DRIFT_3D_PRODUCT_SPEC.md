@@ -40,7 +40,16 @@ Drift is MISWAY's production 3D listening world. It turns the catalogue into a d
 
 The delivered product contains scene landmarks, atmospheres, scatter and interaction needed by the current 3D world. It does **not** yet claim the Living World object's behavioral model, directed musical cue sheets or bounded session memory described by the new artistic authorities.
 
-Those capabilities are the next governed evolution. They are gated by `DRIFT-IV-SYS-00` (shared audio-clock service) and `DRIFT-IV-VS1-00` (EUX GAINENT living scene, cue wiring); their existence must not be claimed until implemented, validated and accepted lot by lot. The EUX GAINENT implementation candidate is preserved on the historical branch at `ad21600` and is not yet integrated on `main` — see `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
+Those capabilities are the next governed evolution. These capabilities follow the canonical prerequisite chain defined by `DRIFT_3D_INTEGRAL_BACKLOG.md`:
+
+```text
+DRIFT-IV-BASE-00
+→ DRIFT-IV-SYS-00 through DRIFT-IV-SYS-70
+→ DRIFT-IV-BY-EUX-20
+→ DRIFT-IV-BY-EUX-30.
+```
+
+The backlog governs the detailed execution order. Their existence must not be claimed until implemented, validated and accepted lot by lot. The EUX GAINENT implementation candidate is preserved on the historical branch at `ad21600` and is not yet integrated on `main` — see `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
 
 ## Sources of delivered truth
 

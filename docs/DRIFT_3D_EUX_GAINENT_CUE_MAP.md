@@ -52,7 +52,7 @@ The environment can decode, render and measure the source but does not transmit 
 - musical labels describe measured structure, density, onset and spectral change rather than subjective timbre;
 - every cue is capped at `MEDIUM` overall confidence until an owner listening pass;
 - the timestamps are authorized as the initial implementation baseline, not as final musical approval;
-- `DRIFT-IV-VS1-00` may implement runtime against this baseline; a listening pass may still produce bounded timestamp adjustments before owner acceptance of that lot.
+- `DRIFT-IV-BY-EUX-20` may implement runtime against this baseline; a listening pass may still produce bounded timestamp adjustments before owner acceptance in `DRIFT-IV-BY-EUX-30`.
 
 ## 4. Method — four analytical substitute passes
 
@@ -94,8 +94,8 @@ Temporary analysis files were stored under the system temp directory and removed
 - Exact labels such as “drop” are avoided where only a rupture or density return is measurable.
 - `02:27.280` is the strongest analytical peak inside the signature window, but its artistic dominance must be confirmed by ear against the full return at `02:32.730`.
 - Owner approval is recorded for this initial temporal baseline.
-  The cues become delivered runtime only after implementation,
-  QA and acceptance in `DRIFT-IV-VS1-00`.
+  The cues become delivered runtime only after implementation
+  in `DRIFT-IV-BY-EUX-20`, QA and acceptance in `DRIFT-IV-BY-EUX-30`.
 
 ## 6. Duration, tempo and broad arc
 
@@ -328,7 +328,7 @@ The recommended map preserves:
 
 ## 20. Contract ready for initial implementation
 
-`DRIFT-IV-VS1-00` may implement, against this approved initial baseline:
+`DRIFT-IV-BY-EUX-20` may implement, against this approved initial baseline:
 
 - seven track-local cue boundaries listed in this document;
 - deterministic phase resolution from zone, current track, playback state and current time;
@@ -341,7 +341,7 @@ It may not infer additional cues, move the building, add headlights or memory, b
 
 ## 21. Required listening and calibration follow-up
 
-This is a listening and calibration checklist, not a precondition blocking initial implementation. `DRIFT-IV-VS1-00` may proceed against the baseline in §9 while this checklist is worked through during the lot's owner QA:
+This is a listening and calibration checklist, not a precondition blocking initial implementation. `DRIFT-IV-BY-EUX-20` may proceed against the baseline in §9 while this checklist is worked through during `DRIFT-IV-BY-EUX-30`'s owner QA:
 
 1. Audition the canonical source and accept or adjust each cue start/peak/end within its approved structural window.
 2. Confirm whether `02:27.280` is the perceived signature peak, or whether the full return at `02:32.730` should own the visual peak while preserving the same window.
