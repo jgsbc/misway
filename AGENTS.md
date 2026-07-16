@@ -45,7 +45,7 @@ DRIFT 3D INTEGRAL SYSTEMS ARCHITECTURE
   architecture cible, jamais vérité runtime automatique
 
 ERA / TRANSITION CONTRACTS
-  futurs contrats créés dans GOV-20
+  active era-level authorities created in GOV-20
 
 APPROVED CUE MAPS
   autorité temporelle et musicale
@@ -93,6 +93,28 @@ Puis, selon le lot, ajouter :
 - les documents d'acceptation pertinents.
 
 Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné ; ils n'entrent jamais dans le read pack obligatoire immédiat ci-dessus.
+
+### Mapping conditionnel des contrats d'ères
+
+```text
+ENTRY
+→ docs/DRIFT_3D_ERA_ENTRY_CONTRACT.md
+BIRTH YARD
+→ docs/DRIFT_3D_ERA_BIRTH_YARD_CONTRACT.md
+OLDER SHADOWS
+→ docs/DRIFT_3D_ERA_OLDER_SHADOWS_CONTRACT.md
+VEGETATIVE FIELD
+→ docs/DRIFT_3D_ERA_VEGETATIVE_FIELD_CONTRACT.md
+NEW SIGNAL
+→ docs/DRIFT_3D_ERA_NEW_SIGNAL_CONTRACT.md
+```
+
+Règles de lecture :
+
+- un lot track lit le contrat de son ère ;
+- un lot de transition lit le contrat source et le contrat destination ;
+- `GOV-30`, `BASE-00` et les audits globaux lisent les cinq ;
+- les cinq contrats ne doivent pas tous être chargés automatiquement pour une modification locale sans rapport.
 
 ---
 

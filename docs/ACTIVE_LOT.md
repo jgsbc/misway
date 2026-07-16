@@ -1,25 +1,29 @@
 # ACTIVE_LOT.md
 
 Current lot:
-DRIFT-IV-GOV-10 — Reconcile Living World branches
+DRIFT-IV-GOV-20 — Create era contracts
 
 Status:
 DONE — PENDING MERGE
 
 Baseline:
-main@522477d or newer verified baseline containing GOV-00
+main@fbc1539 or newer verified baseline containing GOV-10
 
 Type:
-Git/history and documentation reconciliation
+Documentation and artistic governance only
 
 Completed:
-- ten historical commits classified;
-- every divergent file classified;
-- five Living World documents reconciled onto main;
-- historical QA separated from current runtime truth;
-- runtime candidates assigned to BASE-00, SYS-00 and VS1-00;
-- branch and archive tag retained;
-- no historical branch merged.
+- Entry era contract created;
+- Birth Yard era contract created;
+- Older Shadows era contract created;
+- Vegetative Field era contract created;
+- New Signal era contract created;
+- four inter-era transitions assigned to a single source authority;
+- ocean synthesis and transformed return governed;
+- density envelopes established without invented runtime budgets;
+- 27 segments and 26 tracks mapped exactly once;
+- seven motif lifecycles closed;
+- recurring population and bureaucracy progression governed.
 
 Protected scope:
 - no src/**
@@ -28,14 +32,14 @@ Protected scope:
 - no audio
 - no assets
 - no dependencies
-- no merge
-- no rebase
-- no cherry-pick
+- no config
+- no cue timestamps changed
+- no EUX identity decision changed
+- no branch history changes
 - no stash application
-- no branch deletion
 
 Next lot:
-DRIFT-IV-GOV-20 — Create era contracts
+DRIFT-IV-GOV-30 — Finalize director backlog after era contracts
 
 Next status:
 NEXT_AFTER_MERGE

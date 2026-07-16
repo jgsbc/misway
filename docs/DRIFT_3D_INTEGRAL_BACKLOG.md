@@ -39,6 +39,17 @@ GOV-10 outcome:
 - archive tag and historical branches retained;
 - direct merge remains prohibited.
 
+GOV-20 outcome:
+- five era and transition authorities created;
+- 27 segments and 26 tracks mapped exactly once;
+- transition ownership assigned to source eras;
+- era density envelopes established;
+- recurring population, bureaucracy and seven motifs governed;
+- ocean synthesis and transformed return contracted;
+- no runtime or numeric performance baseline claimed;
+- GOV-30 remains responsible for reconciling lot identifiers,
+  dependencies, gates and rollout order.
+
 ---
 
 # 3. Vague A — Gouvernance et fondations
