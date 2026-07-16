@@ -30,7 +30,7 @@ export default function LandingPage() {
           </p>
 
           <div className="relative min-h-[560px] md:min-h-[620px]">
-            <div className="absolute inset-x-0 top-[37%] -translate-y-1/2 px-3 text-center sm:top-[38%] md:top-[36%]">
+            <div className="absolute inset-x-0 top-[37%] -translate-y-1/2 px-3 text-center sm:top-[38%] md:top-[43%]">
               <h1
                 aria-label="MISWΛY"
                 className="relative mx-auto h-[1em] text-5xl font-semibold leading-none tracking-[0.12em] text-white sm:text-7xl md:text-8xl lg:text-[8.5rem]"
