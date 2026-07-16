@@ -30,6 +30,15 @@
 - cette ligne historique doit être réconciliée dans `DRIFT-IV-GOV-10` ;
 - elle ne doit pas être mergée directement dans ce lot ni dans un lot antérieur à sa réconciliation explicite.
 
+GOV-10 outcome:
+- five Living World authorities reconciled onto main;
+- historical CUES runtime remains outside main;
+- audio clock assigned to SYS-00;
+- EUX living scene and cue wiring assigned to VS1-00;
+- world-edge, river, vegetation and scatter candidates assigned to BASE-00;
+- archive tag and historical branches retained;
+- direct merge remains prohibited.
+
 ---
 
 # 3. Vague A — Gouvernance et fondations
