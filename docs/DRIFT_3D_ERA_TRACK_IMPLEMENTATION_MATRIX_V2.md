@@ -8,6 +8,10 @@
 > Aucune entrée de cette matrice n'autorise directement du code.
 > Chaque segment exige un Identity Contract spécialisé et accepté.
 
+> Era-level identity, density and transitions are governed by
+> the five approved Era Contracts created in DRIFT-IV-GOV-20.
+> This matrix remains preliminary for track-local production.
+
 ---
 
 # 0. Champs obligatoires
@@ -30,6 +34,9 @@ Chaque segment devra documenter :
 ---
 
 # ENTRY — Contrôle de normalité
+
+**Authoritative era contract:**
+`docs/DRIFT_3D_ERA_ENTRY_CONTRACT.md`
 
 **Fonction :** Être déclaré anormal et autorisé à entrer.
 
@@ -58,6 +65,9 @@ Chaque segment devra documenter :
 
 
 # BIRTH YARD — La machine urbaine
+
+**Authoritative era contract:**
+`docs/DRIFT_3D_ERA_BIRTH_YARD_CONTRACT.md`
 
 **Fonction :** Apprendre à fonctionner dans la ville qui fabrique des rôles.
 
@@ -159,6 +169,9 @@ Chaque segment devra documenter :
 
 # OLDER SHADOWS — La liberté dangereuse
 
+**Authoritative era contract:**
+`docs/DRIFT_3D_ERA_OLDER_SHADOWS_CONTRACT.md`
+
 **Fonction :** Se sentir vivant par le mouvement, l'altitude, le risque et le choix.
 
 **Monde :** Routes suspendues, montagne, villages, plateaux, forêts, rivières et vent.
@@ -259,6 +272,9 @@ Chaque segment devra documenter :
 
 # VEGETATIVE FIELD — Le confort anesthésiant
 
+**Authoritative era contract:**
+`docs/DRIFT_3D_ERA_VEGETATIVE_FIELD_CONTRACT.md`
+
 **Fonction :** Fonctionner si bien que la vie disparaît derrière la maintenance.
 
 **Monde :** Lotissements, zones d'activités, écoles, entrepôts, pelouses et messages positifs.
@@ -358,6 +374,9 @@ Chaque segment devra documenter :
 
 
 # NEW SIGNAL — L'intérieur déborde
+
+**Authoritative era contract:**
+`docs/DRIFT_3D_ERA_NEW_SIGNAL_CONTRACT.md`
 
 **Fonction :** Ne plus pouvoir continuer selon les anciennes références et reconstruire autrement.
 
