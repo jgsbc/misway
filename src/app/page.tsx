@@ -30,26 +30,28 @@ export default function LandingPage() {
           </p>
 
           <div className="relative min-h-[560px] md:min-h-[620px]">
-            <div className="absolute inset-x-0 top-0 bottom-[33%] flex flex-col items-center justify-center px-3 text-center md:bottom-[18%]">
-              <h1
-                aria-label="MISWΛY"
-                className="relative mx-auto h-[1em] text-5xl font-semibold leading-none tracking-[0.12em] text-white sm:text-7xl md:text-8xl lg:text-[8.5rem]"
-              >
-                <span aria-hidden="true" className="absolute right-1/2 mr-[0.24em]">
-                  MIS
-                </span>
-                <span aria-hidden="true" className="absolute left-1/2 -ml-[0.24em]">
-                  WΛY
-                </span>
-              </h1>
+            <div className="absolute inset-x-0 top-[35%] -translate-y-1/2 px-3 text-center sm:top-[36%] md:top-[34%]">
+              <div className="translate-y-8 sm:translate-y-10 md:translate-y-12">
+                <h1
+                  aria-label="MISWΛY"
+                  className="relative mx-auto h-[1em] text-5xl font-semibold leading-none tracking-[0.12em] text-white sm:text-7xl md:text-8xl lg:text-[8.5rem]"
+                >
+                  <span aria-hidden="true" className="absolute right-1/2 mr-[0.24em]">
+                    MIS
+                  </span>
+                  <span aria-hidden="true" className="absolute left-1/2 -ml-[0.24em]">
+                    WΛY
+                  </span>
+                </h1>
 
-              <div className="mx-auto mt-7 max-w-2xl sm:mt-8 md:mt-9">
-                <p className="text-base leading-7 text-neutral-300 sm:text-lg sm:leading-8">
-                  Music, images and things made along the way.
-                </p>
-                <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-500 sm:mt-4 sm:text-base">
-                  Some old, some new, some still slightly lost.
-                </p>
+                <div className="mx-auto mt-7 max-w-2xl sm:mt-8 md:mt-9">
+                  <p className="text-base leading-7 text-neutral-300 sm:text-lg sm:leading-8">
+                    Music, images and things made along the way.
+                  </p>
+                  <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-neutral-500 sm:mt-4 sm:text-base">
+                    Some old, some new, some still slightly lost.
+                  </p>
+                </div>
               </div>
             </div>
 
