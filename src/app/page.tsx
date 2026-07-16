@@ -34,10 +34,10 @@ export default function LandingPage() {
               aria-label="MISWΛY"
               className="absolute inset-x-0 top-[11%] h-[1em] text-5xl font-semibold leading-none tracking-[0.12em] text-white sm:top-[12%] sm:text-7xl md:top-[10%] md:text-8xl lg:text-[8.5rem]"
             >
-              <span aria-hidden="true" className="absolute right-[0.24em]">
+              <span aria-hidden="true" className="absolute right-1/2 mr-[0.24em]">
                 MIS
               </span>
-              <span aria-hidden="true" className="absolute left-[-0.24em]">
+              <span aria-hidden="true" className="absolute left-1/2 -ml-[0.24em]">
                 WΛY
               </span>
             </h1>
