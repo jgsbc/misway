@@ -26,20 +26,17 @@ DRIFT 3D REALISM BIBLE
   active visual authority on main
 
 DRIFT 3D PRODUCT SPEC
-  contrat produit
-  PENDING RECONCILIATION — NOT ACTIVE ON MAIN
+  contrat produit — active, reconciled on main 2026-07-16
 
 DRIFT 3D LIVING WORLD BIBLE
-  doctrine artistique
-  PENDING RECONCILIATION — NOT ACTIVE ON MAIN
+  doctrine artistique — active, reconciled on main 2026-07-16
 
 DRIFT 3D LIVING TRACK MATRIX
-  vision track par track
-  PENDING RECONCILIATION — NOT ACTIVE ON MAIN
+  vision track par track — active, reconciled on main 2026-07-16
 
 APPROVED TRACK IDENTITY CONTRACTS
   autorité artistique locale
-  EUX GAINENT contract: PENDING RECONCILIATION — NOT ACTIVE ON MAIN
+  EUX GAINENT contract: APPROVED LOCAL ARTISTIC AUTHORITY — runtime still deferred to VS1-00
 
 DRIFT 3D INTEGRAL WORLD PROGRAM
   programme directeur de production
@@ -52,7 +49,7 @@ ERA / TRANSITION CONTRACTS
 
 APPROVED CUE MAPS
   autorité temporelle et musicale
-  EUX GAINENT cue map: PENDING RECONCILIATION — NOT ACTIVE ON MAIN
+  EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up required — runtime still deferred to VS1-00
 
 DRIFT 3D INTEGRAL BACKLOG
   séquence directrice
@@ -63,7 +60,7 @@ ACTIVE LOT
 
 Le programme organise la livraison. Il ne réinterprète jamais un contrat artistique déjà accepté.
 Le code reste l'autorité de l'état réellement livré.
-Les entrées marquées `PENDING RECONCILIATION — NOT ACTIVE ON MAIN` ne doivent jamais être présentées comme des autorités présentes avant `DRIFT-IV-GOV-10`.
+Une autorité artistique ou temporelle approuvée (Living World Bible, Living Track Matrix, Identity Contract, Cue Map) ne prouve jamais que son runtime est livré sur `main` — voir `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
 
 Voir `docs/DRIFT_DOCUMENTATION_MAP.md` pour le rôle, le statut et l'autorité de chaque document.
 
@@ -78,6 +75,9 @@ AGENTS.md
 docs/ACTIVE_LOT.md
 docs/DRIFT_DOCUMENTATION_MAP.md
 docs/DRIFT_3D_REALISM_BIBLE.md
+docs/DRIFT_3D_PRODUCT_SPEC.md
+docs/DRIFT_3D_LIVING_WORLD_BIBLE.md
+docs/DRIFT_3D_LIVING_TRACK_MATRIX.md
 docs/DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md
 docs/DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md
 docs/DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md
@@ -88,24 +88,11 @@ docs/DRIFT_3D_QA_ACCEPTANCE_PLAYBOOK.md
 Puis, selon le lot, ajouter :
 
 - le contrat d'ère concerné ;
-- le contrat d'identité de la track concernée ;
-- la cue map approuvée de la track concernée ;
+- le contrat d'identité de la track concernée (ex. `docs/DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md` pour un lot EUX GAINENT) ;
+- la cue map approuvée de la track concernée (ex. `docs/DRIFT_3D_EUX_GAINENT_CUE_MAP.md` pour un lot EUX GAINENT) ;
 - les documents d'acceptation pertinents.
 
-### Pending reconciliation documents
-
-```text
-docs/DRIFT_3D_PRODUCT_SPEC.md
-docs/DRIFT_3D_LIVING_WORLD_BIBLE.md
-docs/DRIFT_3D_LIVING_TRACK_MATRIX.md
-approved EUX GAINENT identity contract
-approved EUX GAINENT cue map
-```
-
-- Ces documents ne sont pas encore présents sur `main`.
-- Ils doivent être inspectés depuis la branche historique dans `DRIFT-IV-GOV-10`.
-- Ils ne deviennent autorités actives sur `main` qu'après une décision explicite de réconciliation.
-- Aucun agent ne doit inventer leur contenu ou supposer leur adoption.
+Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné ; ils n'entrent jamais dans le read pack obligatoire immédiat ci-dessus.
 
 ---
 
