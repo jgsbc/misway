@@ -25,6 +25,31 @@ Keep entries:
 
 ## Drift 3D decisions
 
+### [2026-07-16] DRIFT-IV-GOV-00: Integral World program adopted
+- Context: Le programme SITE-IDENTITY est clos (baseline `main@2513998`, PR #14 fusionnée). MISWAY est confirmé comme espace personnel de création, de mémoire et de partage — non commercial. Le propriétaire a déposé un package documentaire complet (`DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md`, `DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md`, `DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md`, `DRIFT_3D_INTEGRAL_BACKLOG.md`, `DRIFT_3D_QA_ACCEPTANCE_PLAYBOOK.md`, `DRIFT_3D_INTEGRAL_PACKAGE_ADOPTION.md`) pour adopter une gouvernance de production intégrale du monde vivant Drift.
+- Decision: Adoption du programme intégral comme nouvelle gouvernance de production. Dix décisions propriétaire consignées :
+  1. North Star approuvée (road movie mental post-rupture, qui révèle ce qu'il a dû sacrifier pour tenir debout) ;
+  2. Entry et les quatre régimes d'ères approuvés (Birth Yard, Older Shadows, Vegetative Field, New Signal) ;
+  3. sept motifs transversaux approuvés (vélo vide, panneau administratif, fenêtre allumée, pierre, trace, ombre, lumière portative) ;
+  4. population récurrente d'archétypes silencieux approuvée (douze archétypes, sans dialogue ni biographie) ;
+  5. progression de la bureaucratie invisible approuvée (de l'autorisation à la perte de contrôle puis à l'illisibilité océanique) ;
+  6. océan comme synthèse imparfaite puis effacement approuvé (3 à 7 fragments maximum, jamais une checklist) ;
+  7. retour transformé vers le monde initial approuvé (boucle visible, non narrativement fermée) ;
+  8. cycle standard à quatre lots par morceau approuvé (Identity Contract → Cue Map → Build → Acceptance) ;
+  9. gate d'industrialisation après trois vertical slices approuvé (EUX GAINENT, MORNE ET ?, ÉTÉÉAOOÉTÉ) — aucune abstraction partagée avant preuve sur au moins deux scènes ;
+  10. contrats d'ères tranchés en faveur de cinq fichiers distincts (Entry, Birth Yard, Older Shadows, Vegetative Field, New Signal), à produire dans `DRIFT-IV-GOV-20`.
+  - Official sequence: `GOV-00 → GOV-10 → GOV-20 → GOV-30 → BASE-00`. `DRIFT-IV-GOV-30` finalise le backlog directeur après la production des cinq contrats d'ères (réconciliation des identifiants de lot, dépendances, gates et ordre de déploiement) ; il ne répète pas l'adoption déjà réalisée dans `GOV-00`.
+  - Couverture confirmée : 27 segments, 26 tracks, quatre lots standardisés par segment (108 lots track), 152 lots directeurs au total.
+  - Architecture cible (`DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md`) explicitement non assimilée au runtime — statut `TARGET_ARCHITECTURE — NOT RUNTIME TRUTH` conservé.
+  - État Living World/CUES constaté factuellement : `main` ne contient pas encore l'implémentation Living World/CUES ; celle-ci est sécurisée sur la branche `drift-lw-cues-00-eux-gainent` au commit `ad21600` ; la Cue Map est sécurisée au commit `46930a1` ; le tag `archive/drift-lw-cues-implemented-20260713` fige cet état. Cette branche n'a **pas** été mergée dans ce lot et doit être réconciliée dans `DRIFT-IV-GOV-10`.
+  - Aucun changement runtime, audio, asset ou dépendance dans ce lot — documentation seulement.
+- Why: Aligner la gouvernance de production sur le positionnement personnel et non commercial désormais validé du site, et donner à Drift un programme directeur cohérent avant l'industrialisation de ses 26 tracks.
+- Impact: `AGENTS.md` réécrit (mission personnelle, hiérarchie d'autorité, read packs, non-négociables produit, modèle d'exécution, stop conditions — anciennes directives « bankable »/licensing/sync/conversion supprimées des documents d'autorité actifs) ; `docs/ACTIVE_LOT.md` remplacé ; `docs/DRIFT_BACKLOG.md` réduit à une redirection vers le nouveau backlog intégral ; `docs/DRIFT_DOCUMENTATION_MAP.md` créé.
+- Files affected: `AGENTS.md`, `docs/ACTIVE_LOT.md`, `docs/DRIFT_BACKLOG.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, `docs/DECISIONS_LOG.md`, `docs/DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md`, `docs/DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md`, `docs/DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md`, `docs/DRIFT_3D_INTEGRAL_BACKLOG.md`, `docs/DRIFT_3D_QA_ACCEPTANCE_PLAYBOOK.md`, `docs/DRIFT_3D_INTEGRAL_PACKAGE_ADOPTION.md`.
+- Follow-up needed: `DRIFT-IV-GOV-10 — Reconcile Living World branches` (réconciliation Git de la branche/tag CUES avant tout autre lot Drift). Aucun runtime modifié dans ce lot.
+
+---
+
 ### [2026-07-09] DRIFT-3D-20X: Cohérence du slug Panthere
 - Context: La topologie 3D et le landmark référençaient le track avec `Panthere` (capitale) alors que le slug canonique de `tracks.ts` (et de la route `/tracks/panthere/`, de `panthere.mp3`, `panthere.png`) est `panthere`. Conséquence : `getTrackBySlug("Panthere")` renvoyait `undefined` → le nœud Panthere affichait « TRACK MISSING » dans le HUD et le bouton LISTEN n'apparaissait pas.
 - Decision: Slug canonique retenu = `panthere` (déjà utilisé par les données track, la route et les assets). Alignement des 4 références fonctionnelles : `drift3dTopology.ts` (liste `trackSlugs` de New Signal, `id` du nœud `new-signal-Panthere` → `new-signal-panthere`, `trackSlug`), et `drift3dLandmarks.ts` (`nodeOrigin("Panthere")` → `nodeOrigin("panthere")`).
