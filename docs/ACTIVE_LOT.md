@@ -1,35 +1,39 @@
 # ACTIVE_LOT.md
 
 Current lot:
-DRIFT-IV-GOV-30 — Finalize director backlog after era contracts
+DRIFT-IV-BASE-00 — Capture runtime baseline
 
 Status:
-DONE — PENDING MERGE
+REWORK_REQUIRED — FOREGROUND EVIDENCE MISSING
 
 Baseline:
-main@84ecf8b or newer verified baseline containing GOV-20
+main@02b4fb2 (contains DRIFT-IV-GOV-30, merged)
 
 Type:
-Documentation and production governance only
+Documentation and runtime measurement only
 
 Completed:
-- mandatory pre-modification audit run and classified (ACTIVE_PRESCRIPTIVE / ACTIVE_STATUS / HISTORICAL_RECORD / ALIAS_REFERENCE / STALE);
-- five duplicate lot identifiers retired as `RETIRED_ALIAS — DO NOT EXECUTE` with explicit canonical mapping;
-- total canonical executable lots recalculated from 152 to 147;
-- Entry special case distinguished: 27 Identity Contracts, 26 track Cue Maps, 1 Entry ambient and transition temporal map, 27 Builds, 27 Acceptances;
-- new status vocabulary adopted (DONE, DONE_PENDING_MERGE, SATISFIED_BY_EXISTING_AUTHORITY, READY, PLANNED, BLOCKED_BY_DEPENDENCY, PENDING_OWNER_REVIEW, REWORK_REQUIRED, SKIPPED_BY_GATE, RETIRED_ALIAS);
-- EUX GAINENT `-00` / `-10` confirmed `SATISFIED_BY_EXISTING_AUTHORITY`; `-20` / `-30` confirmed unexecuted; no EUX runtime declared delivered;
-- `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` created as a governance reconciliation record, not a second backlog;
-- `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` rewritten to Version 3.0, `ACTIVE — FINALIZED BY DRIFT-IV-GOV-30`, with full canonical catalogue, dependencies, gates and deployment order;
-- `AGENTS.md`, `DRIFT_DOCUMENTATION_MAP.md`, `DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md` and `DRIFT_3D_PRODUCT_SPEC.md` updated to canonical identifiers only;
-- EUX Identity Contract, EUX Cue Map, Living World Reconciliation and the New Signal era contract updated to canonical identifiers only, no artistic content changed;
-- Integral World Program updated with the vertical-slice-is-a-proof-role rule and canonical Phase 1 identifiers; North Star untouched;
-- Integral Package Adoption's historical resolution preserved verbatim; a dated GOV-30 note appended after it recording the alias retirement.
+- `docs/DRIFT_3D_RUNTIME_BASELINE.md` created — real architecture inventory (`src/components/drift-3d/`, `src/lib/drift3d*`), build/lint validation, partial live browser verification of the `/drift` golden path;
+- console clean, chunk/module loading, single-canvas WebGL context, opt-in ambiance (no autoplay) and mobile tutorial-hiding confirmed live;
+- no-WebGL and reduced-motion fallback paths reviewed by source code only (`Drift3DClient.tsx`) — not triggered live;
+- six historical runtime candidates deferred to `DRIFT-IV-BASE-00` by `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md` requalified with zero code ported: `Drift3DWorldEdges.tsx` / `drift3dRivers.ts` / scatter river-exclusion hunk / `Drift3DScene.tsx` WorldEdges-mount hunk → `ARCHITECTURAL_PORT_REJECTED — DO NOT BLIND PORT`; `drift3dLandmarks.ts` track-flavor props hunk → `DO NOT CHERRY-PICK — REASSESS LOCALLY IN RELEVANT TRACK BUILDS`; `Drift3DScatterField.tsx` wind hunk → `CANDIDATE_FOR_FUTURE_ENHANCEMENT`, destined to a future `GLOB-*` harmonization lot if pursued, no new identifier created;
+- performance values from `DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md` §9 (mobile ≥30 fps, desktop ≥50 fps, ≤300 draw calls, ≤1.5M triangles) relabeled as `PERFORMANCE ACCEPTANCE TARGETS — NOT CURRENT RUNTIME MEASUREMENTS`, not a measured baseline.
+
+Not completed — blocks `DONE`:
+- real fps;
+- real draw calls;
+- real triangles;
+- desktop visual screenshot;
+- mobile visual verification;
+- real reduced-motion trigger;
+- real no-WebGL trigger.
+
+These seven items must be captured in a foreground browser session (not this automated preview environment, which reports `document.hidden === true` and cannot render a stable frame) and recorded in the evidence matrix at `docs/DRIFT_3D_RUNTIME_BASELINE.md` §8 before this lot can become `DONE`.
 
 Protected scope:
 - no src/**
 - no public/**
-- no runtime
+- no runtime code changes
 - no audio
 - no assets
 - no dependencies
@@ -40,7 +44,7 @@ Protected scope:
 - no stash application
 
 Next lot:
-DRIFT-IV-BASE-00 — Capture runtime baseline
+DRIFT-IV-BASE-00 — Complete runtime evidence
 
 Next status:
-NEXT_AFTER_MERGE
+CONTINUE_CURRENT_LOT
