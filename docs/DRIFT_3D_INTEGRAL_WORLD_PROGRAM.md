@@ -84,7 +84,7 @@ PROTECTED PRODUCT SHELL
   + GOVERNED CROSS-WORLD CONTINUITY
 ```
 
-Une abstraction ne devient partagée qu'après preuve sur au moins deux scènes et validation au `INDUSTRIALIZATION_GATE`.
+Une abstraction ne devient partagée qu'après preuve sur au moins deux scènes et validation au `INDUSTRIALIZATION_GATE`. Cette règle de preuve concerne les abstractions issues des scènes, les systèmes de continuité post-gate et les comportements narratifs partagés. Elle ne bloque pas les services minces déjà autorisés en §5.1 (services partagés autorisables avant le gate).
 
 ## 3.2 Le monde ne doit pas attendre le joueur
 
@@ -117,6 +117,10 @@ Chaque track possède une anomalie centrale. Les autres étrangetés servent cet
 ## 3.6 La mémoire est bornée
 
 Les mémoires autorisées sont locales à la route ou à la session, limitées en nombre, abstraites, réinitialisables et sans donnée personnelle.
+
+## 3.7 Vertical slice = rôle de preuve, jamais un espace de lots
+
+Vertical slice 1, 2 et 3 désignent des rôles de preuve (respectivement EUX GAINENT, MORNE ET ?, ÉTÉÉAOOÉTÉ), jamais un espace de lots distinct. L'exécution canonique utilise toujours les quatre identifiants standard de segment (`-00` Identity Contract, `-10` Cue Map ou carte temporelle pour Entry, `-20` Build, `-30` Acceptance). Les identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00` et `DRIFT-IV-VS3-10` sont des alias retirés — voir `DRIFT_3D_INTEGRAL_BACKLOG.md` et `DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md`.
 
 ---
 
@@ -257,9 +261,9 @@ Aucune track ne passe directement de l'idée au code.
 
 ## Phase 1 — Fondations prouvées
 
-- achever CUES et VS1 EUX ;
-- produire VS2 MORNE, ET ? ;
-- produire VS3 ÉTÉÉAOOÉTÉ ;
+- achever les contrats, cue maps et la proof slice 1 EUX GAINENT (`DRIFT-IV-BY-EUX-00` à `DRIFT-IV-BY-EUX-30`) ;
+- produire la proof slice 2 MORNE ET ? (`DRIFT-IV-VF-MORNE-00` à `DRIFT-IV-VF-MORNE-30`) ;
+- produire la proof slice 3 ÉTÉÉAOOÉTÉ (`DRIFT-IV-NS-ETEE-00` à `DRIFT-IV-NS-ETEE-30`) ;
 - mesurer les trois architectures ;
 - décider ce qui peut être partagé.
 

@@ -4,7 +4,7 @@
 - **Date :** 2026-07-15
 - **Statut :** `TARGET_ARCHITECTURE — NOT RUNTIME TRUTH`
 - **Adopted by program :** 2026-07-16 — `DRIFT-IV-GOV-00` (adoption du programme directeur ; ce document reste une cible, non une vérité runtime).
-- **Règle :** aucun composant partagé décrit ici ne doit être extrait avant preuve et acceptation au gate d'industrialisation.
+- **Règle :** aucune abstraction de scène track et aucun composant de continuité post-gate décrits ici ne doivent être extraits avant preuve et acceptation au gate d'industrialisation. Les services d'infrastructure minces assignés à `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70` constituent la seule exception pré-gate.
 
 ---
 

@@ -301,7 +301,7 @@ Le retour transformé (§13.6) n'est pas un reset narratif : le sens du trajet a
 - aucune duplication de fragment ne doit survenir à chaque revisite de la plage — une revisite recompose, elle n'accumule pas ;
 - aucune donnée personnelle et aucune mémoire non bornée n'entrent dans ce calcul ; seules des traces de session bornées et réinitialisables (§13.3, §13.4) y participent ;
 - un reset complet de session efface les résidus de session utilisés par la restitution, y compris ceux déjà présentés dans une composition antérieure ;
-- aucune de ces capacités — recalcul, nettoyage, non-duplication, reset — n'est présentée comme déjà implémentée ; ce contrat décrit une exigence future de production pour `DRIFT-IV-VS3-00` / `DRIFT-IV-VS3-10`.
+- aucune de ces capacités — recalcul, nettoyage, non-duplication, reset — n'est présentée comme déjà implémentée ; ce contrat décrit une exigence future de production pour `DRIFT-IV-NS-ETEE-00` / `DRIFT-IV-NS-ETEE-10` / `DRIFT-IV-NS-ETEE-20` / `DRIFT-IV-NS-ETEE-30`.
 
 ---
 

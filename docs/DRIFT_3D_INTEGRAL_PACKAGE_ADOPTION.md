@@ -166,3 +166,14 @@ Les dix décisions propriétaire ci-dessous sont consignées comme approuvées e
 10. **Contrats d'ères en cinq fichiers distincts** — tranché en faveur de cinq fichiers séparés (Entry, Birth Yard, Older Shadows, Vegetative Field, New Signal) plutôt qu'un document unique, à produire dans `DRIFT-IV-GOV-20`. Approuvé.
 
 Cette résolution ferme la proposition `PROPOSED` du 2026-07-15 et fait passer le statut de ce document et des cinq documents du package à `ACTIVE` / `ADOPTED` selon leur nature respective. Aucun runtime n'est modifié par cette adoption.
+
+---
+
+# Note GOV-30 — 2026-07-16 (nomenclature des alias retirés)
+
+Cette note est ajoutée par `DRIFT-IV-GOV-30` et ne réécrit ni la résolution d'adoption ci-dessus ni la séquence historique de la section 6.
+
+- L'intention de séquence documentée en section 6 (« Première séquence ») reste valide dans son ordre et son objectif.
+- Les cinq identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00` et `DRIFT-IV-VS3-10` cités dans cette séquence historique sont désormais des `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne doivent plus être ouverts comme lots, branches ou PR.
+- Les lots canoniques exécutables sont ceux du cycle standard à quatre identifiants (`-00` / `-10` / `-20` / `-30`) par segment, tels que listés dans `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` (Version 3.0).
+- Le backlog directeur finalisé (`docs/DRIFT_3D_INTEGRAL_BACKLOG.md`, Version 3.0) fait seul autorité sur la nomenclature, le compte de lots et l'ordre de déploiement ; voir aussi `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` pour le raisonnement de réconciliation.

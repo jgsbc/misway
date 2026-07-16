@@ -36,7 +36,7 @@ DRIFT 3D LIVING TRACK MATRIX
 
 APPROVED TRACK IDENTITY CONTRACTS
   autorité artistique locale
-  EUX GAINENT contract: APPROVED LOCAL ARTISTIC AUTHORITY — runtime still deferred to VS1-00
+  EUX GAINENT contract: APPROVED LOCAL ARTISTIC AUTHORITY — runtime build: DRIFT-IV-BY-EUX-20 ; owner acceptance: DRIFT-IV-BY-EUX-30
 
 DRIFT 3D INTEGRAL WORLD PROGRAM
   programme directeur de production
@@ -49,10 +49,10 @@ ERA / TRANSITION CONTRACTS
 
 APPROVED CUE MAPS
   autorité temporelle et musicale
-  EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up required — runtime still deferred to VS1-00
+  EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up required — runtime build: DRIFT-IV-BY-EUX-20 ; owner acceptance: DRIFT-IV-BY-EUX-30
 
 DRIFT 3D INTEGRAL BACKLOG
-  séquence directrice
+  FINALIZED ACTIVE DIRECTOR BACKLOG — 147 canonical executable lots, 5 retired VS aliases
 
 ACTIVE LOT
   unique périmètre exécutable immédiat
@@ -116,6 +116,14 @@ Règles de lecture :
 - `GOV-30`, `BASE-00` et les audits globaux lisent les cinq ;
 - les cinq contrats ne doivent pas tous être chargés automatiquement pour une modification locale sans rapport.
 
+### Règles du backlog directeur finalisé
+
+- Un seul identifiant canonique de `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` peut devenir `ACTIVE_LOT` à la fois.
+- `VS1` / `VS2` / `VS3` (« vertical slice ») désignent des rôles de preuve, jamais des lots exécutables.
+- Les anciens identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` sont `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne peuvent plus nommer une branche, une PR ni un commit.
+- `DRIFT-IV-BASE-00` est le seul prochain lot après le merge de `DRIFT-IV-GOV-30`.
+- Pour comprendre l'origine et le mapping des aliases retirés, lire conditionnellement `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` (rapport de réconciliation de gouvernance, pas un backlog).
+
 ---
 
 ## Non-négociables produit
@@ -126,7 +134,7 @@ Règles de lecture :
 - Le monde diégétique reste distinct de la track.
 - Mobile, reduced motion, no-WebGL, export statique et `basePath` sont des chemins produit de première classe, jamais secondaires.
 - Aucune invention artistique runtime sans contrat accepté.
-- Aucune abstraction partagée avant preuve sur plusieurs vertical slices.
+- Aucune abstraction de scène ou de continuité mondiale n'est partagée avant le gate d'industrialisation. Seuls les huit services d'infrastructure minces explicitement autorisés par `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70` peuvent être réalisés avant les proof slices.
 - Aucun lot track `PASS` sans décision propriétaire explicite.
 - Aucune QA déclarée sans preuve.
 - Aucune modification hors lot.

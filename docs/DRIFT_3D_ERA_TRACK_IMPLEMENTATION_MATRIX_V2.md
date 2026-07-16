@@ -61,7 +61,7 @@ Chaque segment devra documenter :
 | Low quality | Réduire population, particules et arrière-plan ; conserver anomalie et cue principale. |
 | No WebGL | Panneau ou illustration statique, écoute explicite et texte court non explicatif. |
 | Do not do | Réutiliser une scène générique ; multiplier les anomalies ; ajouter un effet sans fonction ; déclencher la musique automatiquement. |
-| Lots | `DRIFT-IV-ENTRY-ENTRY-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. |
+| Lots | `DRIFT-IV-ENTRY-ENTRY-00` identité ; `-10` ambient and transition temporal map (jamais une Cue Map de track) ; `-20` build ; `-30` acceptance. |
 
 
 # BIRTH YARD — La machine urbaine
@@ -164,7 +164,7 @@ Chaque segment devra documenter :
 | Low quality | Réduire population, particules et arrière-plan ; conserver anomalie et cue principale. |
 | No WebGL | Panneau ou illustration statique, écoute explicite et texte court non explicatif. |
 | Do not do | Réutiliser une scène générique ; multiplier les anomalies ; ajouter un effet sans fonction ; déclencher la musique automatiquement. |
-| Lots | `DRIFT-IV-BY-EUX-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. |
+| Lots | `DRIFT-IV-BY-EUX-00` identité (`SATISFIED_BY_EXISTING_AUTHORITY`) ; `-10` cue map (`SATISFIED_BY_EXISTING_AUTHORITY`) ; `-20` build (proof-slice 1, next after systems) ; `-30` acceptance (proof-slice 1 owner acceptance). |
 
 
 # OLDER SHADOWS — La liberté dangereuse
@@ -298,7 +298,7 @@ Chaque segment devra documenter :
 | Low quality | Réduire population, particules et arrière-plan ; conserver anomalie et cue principale. |
 | No WebGL | Panneau ou illustration statique, écoute explicite et texte court non explicatif. |
 | Do not do | Réutiliser une scène générique ; multiplier les anomalies ; ajouter un effet sans fonction ; déclencher la musique automatiquement. |
-| Lots | `DRIFT-IV-VF-MORNE-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. |
+| Lots | `DRIFT-IV-VF-MORNE-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. Ces quatre lots canoniques constituent intégralement la proof slice 2 ; aucun lot supplémentaire n'est créé pour cette preuve. |
 
 
 ## DAYMASON
@@ -581,4 +581,4 @@ Chaque segment devra documenter :
 | Low quality | Réduire population, particules et arrière-plan ; conserver anomalie et cue principale. |
 | No WebGL | Panneau ou illustration statique, écoute explicite et texte court non explicatif. |
 | Do not do | Réutiliser une scène générique ; multiplier les anomalies ; ajouter un effet sans fonction ; déclencher la musique automatiquement. |
-| Lots | `DRIFT-IV-NS-ETEE-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. |
+| Lots | `DRIFT-IV-NS-ETEE-00` identité ; `-10` cue map ; `-20` build ; `-30` acceptance. Ces quatre lots canoniques constituent intégralement la proof slice 3 ; aucun lot supplémentaire n'est créé pour cette preuve. |
