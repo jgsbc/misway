@@ -63,6 +63,11 @@ import {
   getDrift3DTerrainHeight,
   getDrift3DTerrainNormal,
 } from "@/lib/drift3dTerrain";
+import {
+  readDrift3DAudioClockProgress,
+  readDrift3DAudioClockTime,
+  type Drift3DAudioClockRef,
+} from "@/lib/drift3dAudioClock";
 
 const DRIFT_3D_VEHICLE_MAX_LEAN = 0.24;
 const DRIFT_3D_VEHICLE_MAX_PITCH = 0.5;
@@ -718,6 +723,7 @@ type Drift3DSceneProps = {
   pointerDriveStateRef: MutableRefObject<Drift3DPointerDriveState>;
   cameraZoomTargetRef: MutableRefObject<number>;
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
+  audioClockRef: Drift3DAudioClockRef;
 };
 
 export default function Drift3DScene({
@@ -726,6 +732,7 @@ export default function Drift3DScene({
   pointerDriveStateRef,
   cameraZoomTargetRef,
   vehicleStateRef,
+  audioClockRef,
 }: Drift3DSceneProps) {
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
@@ -744,6 +751,37 @@ export default function Drift3DScene({
 
   const terrainTexture = useDriftTerrainTexture();
   const cinematicZoomRef = useRef(1);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    Object.defineProperty(window, "__drift3dAudioClock", {
+      configurable: true,
+      get() {
+        const snapshot = audioClockRef.current;
+        const nowMs = performance.now();
+
+        return {
+          sourceKind: snapshot.source.kind,
+          sourceSlug: snapshot.source.slug,
+          playbackState: snapshot.playbackState,
+          timeSeconds: readDrift3DAudioClockTime(snapshot, nowMs),
+          durationSeconds: snapshot.durationSeconds,
+          progress: readDrift3DAudioClockProgress(snapshot, nowMs),
+          playbackRate: snapshot.playbackRate,
+          loopEnabled: snapshot.loopEnabled,
+          timelineRevision: snapshot.timelineRevision,
+          lastReason: snapshot.lastReason,
+        };
+      },
+    });
+
+    return () => {
+      delete (window as unknown as Record<string, unknown>).__drift3dAudioClock;
+    };
+  }, [audioClockRef]);
 
   return (
     <>

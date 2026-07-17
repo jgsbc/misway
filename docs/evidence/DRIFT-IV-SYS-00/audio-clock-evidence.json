@@ -1,0 +1,236 @@
+{
+  "lot": "DRIFT-IV-SYS-00",
+  "date": "2026-07-17",
+  "method": "Real foreground Chrome tab (Claude in Chrome), SPA client-side navigation between /drift/, /tracks/foolfoule/ and / to preserve AudioPlayerProvider state across route changes; window.__drift3dAudioClock dev-only probe read directly.",
+  "environmentNote": "This automated tab persistently reports document.hidden === true / visibilityState 'hidden' regardless of focus. This suspends requestAnimationFrame (and therefore the R3F Canvas's own internal mount/render pipeline) until a frame is externally forced (a screenshot capture). HTMLMediaElement playback and React effect commits are NOT throttled by this — only Canvas-tree mounting and useFrame-driven updates are. Consistent with the same limitation documented in docs/DRIFT_3D_RUNTIME_BASELINE.md.",
+  "sections": {
+    "9.1_init": {
+      "audioElements": 1,
+      "clock": {
+        "sourceKind": "ambient",
+        "sourceSlug": "__ambient__",
+        "playbackState": "idle",
+        "timeSeconds": 0,
+        "durationSeconds": 234.959979,
+        "progress": 0,
+        "playbackRate": 1,
+        "loopEnabled": false,
+        "timelineRevision": 0,
+        "lastReason": "metadata"
+      },
+      "result": "PASS — 1 audio element, ambient source, not playing, no autoplay"
+    },
+    "9.2_explicit_playback": {
+      "trigger": "Explicit PLAY on Foolfoule inline track player at /tracks/foolfoule/",
+      "readings": [
+        { "capturedAtMs": 63560.5, "sourceSlug": "foolfoule", "timeSeconds": 51.591418, "progress": 0.2767010 },
+        { "capturedAtMs": 64061.5, "sourceSlug": "foolfoule", "timeSeconds": 52.086558, "progress": 0.2793566 },
+        { "capturedAtMs": 64565.2, "sourceSlug": "foolfoule", "timeSeconds": 52.600989, "progress": 0.2821156 }
+      ],
+      "audioElements": 1,
+      "result": "PASS — sourceSlug=foolfoule, playbackState=playing, timeSeconds and progress strictly increasing across 3 readings ~500ms apart, single audio element"
+    },
+    "9.3_pause": {
+      "readingBeforeWait": { "playbackState": "paused", "timeSeconds": 77.446974, "lastReason": "pause" },
+      "readingAfter1sWait": { "playbackState": "paused", "timeSeconds": 77.446974, "lastReason": "pause" },
+      "absoluteDeltaSeconds": 0,
+      "result": "PASS — |Δt| = 0 ≤ 0.05s, playbackState=paused"
+    },
+    "9.4_resume": {
+      "readingAtResume": { "timeSeconds": 77.446974 },
+      "readingAfter1sWait": { "playbackState": "playing", "timeSeconds": 78.393192, "lastReason": "timeupdate" },
+      "result": "PASS — time continues from the paused position (delta ≈ 0.95s over ~1s wait), no jump to elapsed wall-clock time"
+    },
+    "9.5_seek": {
+      "method": "Real click on the Foolfoule inline player's seek bar (not a scripted currentTime assignment)",
+      "seekTargetSeconds": 101.860176,
+      "durationSeconds": 186.451875,
+      "seekTargetRatio": 0.5462,
+      "readingAfterNavigatingToDrift": {
+        "sourceSlug": "foolfoule",
+        "timeSeconds": 125.066201,
+        "timelineRevisionBefore": 1,
+        "timelineRevisionAfter": 7
+      },
+      "result": "PRE_FIX_FINDING — DUPLICATE_TIMELINE_REVISION — source unchanged by the seek, state immediately reconstructed, but the +6 revision jump for a single seek reflected a real double-counting bug (command-path bump plus the native seeking/seeked pair it also triggers). Historical reading preserved as-is; not deleted. Fixed via the pendingDiscontinuityRef mechanism — see section 14, Test A, for the corrected replay (delta = 1 exactly)."
+    },
+    "9.6_track_change": {
+      "trigger": "Explicit 'Next track' button",
+      "before": { "sourceSlug": "foolfoule" },
+      "domReadingRightAfterClick": { "src": "jazzypling.mp3", "currentTime": 13.730747 },
+      "readingAfterNavigatingToDrift": {
+        "sourceSlug": "jazzypling",
+        "timeSeconds": 35.333513,
+        "timelineRevisionBefore": 7,
+        "timelineRevisionAfter": 8
+      },
+      "audioElements": 1,
+      "result": "PASS — sourceSlug changed, time reset near zero at the transition, timelineRevision increased, single audio element"
+    },
+    "9.7_loop_restart": {
+      "trigger": "Loop enabled via 'Loop current track', then currentTime advanced to duration-2s to reach the natural end within a few real seconds",
+      "beforeEnd": { "src": "jazzypling.mp3", "currentTime": 233.554125, "durationSeconds": 235.554125 },
+      "domReadingAfterWrap": { "src": "jazzypling.mp3", "currentTime": 17.811423, "paused": false, "nativeLoopAttribute": false },
+      "readingAfterNavigatingToDrift": {
+        "sourceSlug": "jazzypling",
+        "loopEnabled": true,
+        "playbackState": "playing",
+        "timelineRevisionBefore": 8,
+        "timelineRevisionAfter": 11
+      },
+      "result": "PRE_FIX_FINDING — DUPLICATE_TIMELINE_REVISION — loopEnabled=true, wrapped to near zero, sourceSlug unchanged, playback resumed, but the +3 revision jump for a single loop wrap reflected the same double-counting bug as 9.5 (the loop's currentTime=0 reset bumped once via the command path and again via the native seeking/seeked pair it triggered). Historical reading preserved as-is; not deleted. Fixed via the pendingDiscontinuityRef mechanism — see section 14, Test D, for the corrected replay (delta = 1 exactly)."
+    },
+    "9.8_route_change": {
+      "path": "/drift/ -> / -> /drift/ (SPA client-side navigation throughout)",
+      "readingOnHome": { "audioElements": 1, "src": "jazzypling.mp3", "currentTime": 68.255494, "paused": false },
+      "readingBackOnDrift": {
+        "audioElements": 1,
+        "sourceSlug": "jazzypling",
+        "timeSeconds": 88.86609,
+        "timelineRevision": 11
+      },
+      "result": "PASS — global player state preserved across the route round trip, single audio element throughout, coherent time"
+    },
+    "9.9_zone_entry_no_track_playing": {
+      "precondition": "Current track (jazzypling) explicitly paused before teleport",
+      "teleport": "window.__drift3dTeleport = { x: -78, z: 34 } (Foolfoule node)",
+      "readingInsideFoolfouleZone": {
+        "sourceSlug": "jazzypling",
+        "playbackState": "paused",
+        "timeSeconds": 112.187405,
+        "lastReason": "pause"
+      },
+      "result": "PASS — no source change and no autoplay triggered by entering Foolfoule's zone while jazzypling was paused"
+    }
+  },
+  "console": {
+    "errors": "None observed (checked via console error filter after all scenarios)",
+    "knownWarnings": [
+      {
+        "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.",
+        "classification": "KNOWN_NON_BLOCKING_DEPRECATION_WARNING"
+      },
+      {
+        "text": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+        "classification": "KNOWN_NON_BLOCKING_DEPRECATION_WARNING"
+      },
+      {
+        "text": "THREE.Material: parameter 'map' has value of undefined.",
+        "classification": "KNOWN_NON_BLOCKING_PARAMETER_WARNING",
+        "note": "Pre-existing runtime technical debt, unrelated to this lot, not fixed here (src/** limited to the audio clock scope)."
+      }
+    ]
+  },
+  "gate": {
+    "singleAudioElement": "PASS",
+    "noAutoplayRegression": "PASS",
+    "stableSharedRef": "PASS",
+    "boundedExtrapolation": "PASS (implemented, ≤500ms cap; not independently timed in this browser session — see limitation)",
+    "timeIncreasesWhilePlaying": "PASS",
+    "timeFrozenWhilePaused": "PASS",
+    "immediateSeek": "PASS",
+    "seekingStateNoExtrapolation": "PASS — live transient capture achieved for restart (see section15), verified by code reading for UI seek (section14.testA)",
+    "revisionBumpsOnDiscontinuity": "PASS — corrected and replayed in section14 (exactly +1 per logical discontinuity; 9.5/9.7 above were PRE_FIX_FINDING double-counts, now fixed)",
+    "playbackRateReanchors": "PASS (see section14.testE)",
+    "coherentRouteChange": "PASS",
+    "noCueResolverIntroduced": "PASS",
+    "lintPass": "PASS",
+    "buildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-00 = DONE — PENDING MERGE",
+    "decisionHistory": "Briefly REWORK_REQUIRED between the initial evidence submission and this final decision, for the duration of the correction round captured in section14, which eliminated the timelineRevision double-counting found in 9.5/9.7."
+  },
+  "limitations": [
+    "The 500ms extrapolation cap and the extrapolation formula itself are exercised by the pure unit-level logic in src/lib/drift3dAudioClock.ts, but this browser session did not independently time-box a live extrapolation window beyond what §9.3/§9.4 show (pause-freeze and resume-continuity) — no separate stopwatch-style measurement of the extrapolation ceiling was captured live.",
+    "No screenshot binaries were committed under this directory for the same reason documented in docs/DRIFT_3D_RUNTIME_BASELINE.md (the save_to_disk mechanism captures an unrelated fixed desktop image, not the driven tab's content) — one screenshot was reviewed live in-session (zone entry, §9.9) confirming HUD/canvas/scene correctness, not persisted as a file.",
+    "section14 (correction round): the transient 'seeking' playbackState during Test A was not captured live — seeked resolution on an already-buffered local file (readyState 4) is faster than this session's browser-control round-trip latency. Verified by code reading of onSeeking/onSeeked instead (which unconditionally sets playbackState:'seeking' and never bumps timelineRevision for that reason) rather than by a live transient snapshot.",
+    "section14 (correction round): window.__drift3dAudioClock (the Drift3DScene dev probe, gated behind the R3F Canvas mount and therefore requestAnimationFrame) was unreachable in this session — rAF never fired even after the frame-forcing techniques (screenshot capture) that worked earlier in this same lot's troubleshooting became themselves unresponsive. Worked around by reading the same underlying audioClockRef.current directly via React fiber traversal from the <audio> DOM node, which does not depend on Canvas mounting or rAF. This is a read-only introspection technique; no application code was changed to enable it."
+  ],
+  "section14_correctionRoundReplay": {
+    "date": "2026-07-17",
+    "method": "Real Chrome session (Claude Browser pane), foolfoule track (duration 186.451875s), continuous SPA session, audioClockRef.current read via React fiber traversal from the <audio> DOM node (bypasses the Canvas/rAF-gated window.__drift3dAudioClock probe — see limitations).",
+    "testA_seekUi": {
+      "trigger": "Single real click on the Foolfoule inline seek bar",
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "delta": 1,
+      "anchorTimeSecondsAfter": 101.399205,
+      "playbackStateAfter": "playing",
+      "seekingTransientCaptured": false,
+      "result": "PASS — exactly +1 for a single logical seek (was +6 pre-fix in 9.5)"
+    },
+    "testB_seekExternal": {
+      "trigger": "document.querySelector('audio').currentTime = 30 set directly via JS, bypassing seekToRatio",
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "delta": 1,
+      "result": "PASS — dedup does not mask a genuinely externally-originated seek"
+    },
+    "testC_restart": {
+      "trigger": "Single click on 'Previous track' with playback beyond 5s (anchorTimeSeconds=49.87)",
+      "revisionBefore": 6,
+      "revisionAfter": 7,
+      "delta": 1,
+      "sourceSlugUnchanged": true,
+      "anchorTimeSecondsAfter": 3.190577,
+      "result": "PASS — exactly +1 for a single restart"
+    },
+    "testD_loopWrap": {
+      "trigger": "Loop enabled, currentTime advanced to duration-3s via JS, natural end-of-track reached and wrapped",
+      "revisionBefore": 10,
+      "revisionAfter": 11,
+      "delta": 1,
+      "sourceSlugUnchanged": true,
+      "anchorTimeSecondsAfter": 12.714537,
+      "playbackStateAfter": "playing",
+      "result": "PASS — exactly +1 for a single loop wrap (was +3 pre-fix in 9.7)"
+    },
+    "testE_rateChange": {
+      "before": { "audioCurrentTime": 30.246237, "clockTimeExtrapolated": 30.230896, "timelineRevision": 11, "playbackRate": 1 },
+      "action": "audio.playbackRate = 1.5, ~2s real wait",
+      "after": { "audioCurrentTime": 63.552764, "clockTimeExtrapolated": 63.523937, "timelineRevision": 11, "playbackRate": 1.5, "lastReason": "timeupdate" },
+      "revisionDelta": 0,
+      "movedBackward": false,
+      "clockStaysCloseToAudioCurrentTime": true,
+      "result": "PASS — onRateChange correctly re-anchors anchorTimeSeconds with the new playbackRate; playbackRate reset to 1 after the test"
+    },
+    "testF_pauseResume": {
+      "pause": { "anchorTimeSeconds": 93.726837, "readingAfter1sWait": 93.726837, "deltaSeconds": 0 },
+      "resume": { "resumedFromApproximately": 93.7, "readingAfterVerificationRoundTrip": 96.171679, "noWallClockCatchUp": true },
+      "result": "PASS — pause delta = 0s (≤0.05s required); resume continues from the paused position, not from an inflated wall-clock-elapsed value"
+    },
+    "summary": {
+      "seekUi": { "revisionBefore": 4, "revisionAfter": 5, "delta": 1 },
+      "seekExternal": { "revisionBefore": 5, "revisionAfter": 6, "delta": 1 },
+      "restart": { "revisionBefore": 6, "revisionAfter": 7, "delta": 1 },
+      "loop": { "revisionBefore": 10, "revisionAfter": 11, "delta": 1 },
+      "rateChange": { "revisionDelta": 0, "movedBackward": false },
+      "pauseResume": { "pauseDeltaSeconds": 0, "resumedFromPausedPosition": true }
+    }
+  },
+  "section15_correctionRound2_restartOrdering": {
+    "date": "2026-07-17",
+    "gap": "applyClockRestart did not synchronously set playbackState:'seeking' at the call site, and playPrevious / the same-track branch of playTrack mutated audio.currentTime before arming applyClockRestart/pendingDiscontinuityRef, leaving a theoretical window where extrapolation or an unarmed native seeking event could occur.",
+    "fix": "applyClockRestart now patches { anchorTimeSeconds: 0, playbackState: 'seeking' } in one synchronous updateDrift3DAudioClock call. playPrevious and playTrack's same-track branch now call applyClockRestart() before mutating audio.currentTime (playTrack's branch also gained an explicit setCurrentTime(0), previously missing there).",
+    "method": "Real Chrome session (Claude Browser pane), foolfoule track, audioClockRef.current read via React fiber traversal (same technique as section14). The transient state was captured reliably this time by triggering the button via a synchronous element.click() in JavaScript and re-reading the clock in the SAME script block immediately after, before any return to the browser event loop — capturing the exact state set by the command path before the asynchronous native 'seeking' event could itself run.",
+    "testPreviousRestart": {
+      "precondition": "anchorTimeSeconds = 41.23 (> 5s)",
+      "revisionBefore": 2,
+      "immediatelyAfterCommand": { "playbackState": "seeking", "anchorTimeSeconds": 0, "timelineRevision": 3, "lastReason": "restart" },
+      "afterSeekedResolved": { "playbackState": "playing", "timelineRevision": 3, "sourceSlugUnchanged": true },
+      "delta": 1,
+      "result": "PASS — immediate playbackState=seeking captured synchronously (not just by code reading), exactly +1, no double count after seeked resolves"
+    },
+    "testSameTrackPlayTrackRestart": {
+      "trigger": "playTrack invoked directly on the AudioPlayerContext value (located via React fiber traversal — no UI button currently wires to playTrack; TrackInlinePlayer/TrackPlayButton use toggleTrack) with the currently active track's slug",
+      "revisionBefore": 3,
+      "immediatelyAfterCommand": { "playbackState": "seeking", "anchorTimeSeconds": 0, "timelineRevision": 4, "lastReason": "restart" },
+      "afterSeekedResolved": { "playbackState": "playing", "timelineRevision": 4, "sourceSlugUnchanged": true },
+      "delta": 1,
+      "result": "PASS — exactly +1, sourceSlug unchanged, time near zero, no double count"
+    },
+    "summary": {
+      "previousRestart": { "revisionBefore": 2, "revisionImmediatelyAfterCommand": 3, "playbackStateImmediatelyAfterCommand": "seeking", "revisionAfterSeeked": 3, "delta": 1 },
+      "sameTrackPlayTrackRestart": { "revisionBefore": 3, "revisionImmediatelyAfterCommand": 4, "playbackStateImmediatelyAfterCommand": "seeking", "revisionAfterSeeked": 4, "delta": 1 }
+    }
+  }
+}

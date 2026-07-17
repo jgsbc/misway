@@ -13,6 +13,13 @@ import { usePathname } from "next/navigation";
 import type { Track } from "@/lib/tracks";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
+import {
+  createDrift3DAudioClockSnapshot,
+  updateDrift3DAudioClock,
+  type Drift3DAudioClockRef,
+  type Drift3DAudioClockSnapshot,
+  type Drift3DAudioClockSource,
+} from "@/lib/drift3dAudioClock";
 
 type AmbientAudio = {
   kind: "ambient";
@@ -28,6 +35,15 @@ type PlayerTrack = Track & {
 };
 
 type CurrentAudio = PlayerTrack | AmbientAudio;
+
+/**
+ * Tracks a discontinuity already counted (`timelineRevision` bumped) at its
+ * command site (`seekToRatio`, a same-track restart, a loop wrap), so the
+ * native `seeking`/`seeked` pair that follows confirms it instead of
+ * counting it a second time. Left `null`, a `seeked` event is treated as an
+ * externally-originated seek and counted on its own.
+ */
+type PendingDiscontinuity = "seek" | "restart" | "loop" | null;
 
 type AudioPlayerContextValue = {
   current: CurrentAudio;
@@ -46,6 +62,27 @@ type AudioPlayerContextValue = {
   isCurrentTrack: (track: Track) => boolean;
 };
 
+/**
+ * Coarse runtime context for consumers (like Drift 3D) that need player
+ * state and the shared audio clock, but must never re-render on the fast
+ * `currentTime`/`duration`/`progress` updates that `useAudioPlayer()` emits
+ * on every `timeupdate`.
+ */
+type AudioPlayerRuntimeContextValue = {
+  current: CurrentAudio;
+  isPlaying: boolean;
+  isLooping: boolean;
+  playTrack: (track: Track) => void;
+  toggleTrack: (track: Track) => void;
+  togglePlayback: () => void;
+  toggleLoop: () => void;
+  playNext: () => void;
+  playPrevious: () => void;
+  seekToRatio: (ratio: number) => void;
+  isCurrentTrack: (track: Track) => boolean;
+  audioClockRef: Drift3DAudioClockRef;
+};
+
 const AMBIENT_AUDIO: AmbientAudio = {
   kind: "ambient",
   slug: "__ambient__",
@@ -53,7 +90,15 @@ const AMBIENT_AUDIO: AmbientAudio = {
   audioSrc: "/audio/entry-ambient.mp3",
 };
 
+function toAudioClockSource(audioItem: CurrentAudio): Drift3DAudioClockSource {
+  return audioItem.kind === "ambient"
+    ? { kind: "ambient", slug: audioItem.slug }
+    : { kind: "track", slug: audioItem.slug };
+}
+
 const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
+const AudioPlayerRuntimeContext =
+  createContext<AudioPlayerRuntimeContextValue | null>(null);
 
 const DRIFT_LAB_ROUTES = ["/drift", "/drift-lab", "/drift-3d-lab"] as const;
 
@@ -118,6 +163,14 @@ export function AudioPlayerProvider({
   const interactionRetryRef = useRef(false);
   const isDriftLabRouteRef = useRef(isDriftLabRoute);
   const shouldResumeRef = useRef(true);
+  // `capturedAtMs: 0` is a pure, deterministic initial value (no `performance.now()`
+  // call during render) — harmless, since extrapolation only reads `capturedAtMs`
+  // once `playbackState` becomes "playing", by which point the `play` event
+  // handler has already stamped it with a real timestamp.
+  const audioClockRef = useRef<Drift3DAudioClockSnapshot>(
+    createDrift3DAudioClockSnapshot(toAudioClockSource(AMBIENT_AUDIO), 0)
+  );
+  const pendingDiscontinuityRef = useRef<PendingDiscontinuity>(null);
 
   const [current, setCurrent] = useState<CurrentAudio>(AMBIENT_AUDIO);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -134,6 +187,35 @@ export function AudioPlayerProvider({
     }
   }, [current.kind, isDriftLabRoute]);
 
+  const applyClockSourceChange = useCallback((audioItem: CurrentAudio) => {
+    audioClockRef.current = updateDrift3DAudioClock(
+      audioClockRef.current,
+      {
+        source: toAudioClockSource(audioItem),
+        playbackState: "idle",
+        anchorTimeSeconds: 0,
+        durationSeconds: 0,
+      },
+      "source-change",
+      performance.now()
+    );
+  }, []);
+
+  const applyClockRestart = useCallback(() => {
+    // Marked *before* the caller mutates `audio.currentTime`, so the native
+    // `seeking`/`seeked` pair that follows confirms this single discontinuity
+    // instead of bumping `timelineRevision` a second time. `playbackState` is
+    // set to "seeking" immediately, so no extrapolation is possible between
+    // this command and the native `seeking` event that follows it.
+    pendingDiscontinuityRef.current = "restart";
+    audioClockRef.current = updateDrift3DAudioClock(
+      audioClockRef.current,
+      { anchorTimeSeconds: 0, playbackState: "seeking" },
+      "restart",
+      performance.now()
+    );
+  }, []);
+
   const playCurrent = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -142,6 +224,11 @@ export function AudioPlayerProvider({
       await audio.play();
       interactionRetryRef.current = false;
       setIsPlaying(true);
+      // `audioClockRef`'s `playbackState` is deliberately NOT set to "playing"
+      // here: it only becomes "playing" via the native `play` event handler
+      // below, which the browser fires only once playback genuinely starts.
+      // A rejected `audio.play()` (the `catch` branch) therefore never leaves
+      // the clock in a "playing" state it didn't actually reach.
     } catch {
       interactionRetryRef.current = true;
       setIsPlaying(false);
@@ -195,24 +282,137 @@ export function AudioPlayerProvider({
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        { anchorTimeSeconds: audio.currentTime },
+        "timeupdate",
+        performance.now()
+      );
+    };
     const onLoadedMetadata = () => {
       if (Number.isFinite(audio.duration)) {
         setDuration(audio.duration);
       }
+      // Anchor to the actual current position: this event can in principle
+      // fire while already playing (e.g. a metadata re-fetch), and
+      // `updateDrift3DAudioClock` always stamps a fresh `capturedAtMs` — an
+      // update that resets `capturedAtMs` while playing must re-anchor to
+      // `audio.currentTime`, or extrapolation would jump from a stale anchor.
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        {
+          durationSeconds: Number.isFinite(audio.duration)
+            ? audio.duration
+            : audioClockRef.current.durationSeconds,
+          anchorTimeSeconds: audio.currentTime,
+        },
+        "metadata",
+        performance.now()
+      );
     };
     const onDurationChange = () => {
       if (Number.isFinite(audio.duration)) {
         setDuration(audio.duration);
       }
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        {
+          durationSeconds: Number.isFinite(audio.duration)
+            ? audio.duration
+            : audioClockRef.current.durationSeconds,
+          anchorTimeSeconds: audio.currentTime,
+        },
+        "metadata",
+        performance.now()
+      );
     };
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPlay = () => {
+      setIsPlaying(true);
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        {
+          playbackState: "playing",
+          anchorTimeSeconds: audio.currentTime,
+          playbackRate: audio.playbackRate,
+        },
+        "play",
+        performance.now()
+      );
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        { playbackState: "paused", anchorTimeSeconds: audio.currentTime },
+        "pause",
+        performance.now()
+      );
+    };
+    const onSeeking = () => {
+      // "seeking" never bumps `timelineRevision` — the discontinuity itself
+      // was already counted at the command site (or, for an externally
+      // originated seek, will be counted once on `seeked` below). While in
+      // this state, `readDrift3DAudioClockTime` never extrapolates (it only
+      // extrapolates when `playbackState === "playing"`).
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        { playbackState: "seeking", anchorTimeSeconds: audio.currentTime },
+        "seeking",
+        performance.now()
+      );
+    };
+    const onSeeked = () => {
+      const resolvedPlaybackState = audio.paused ? "paused" : "playing";
+
+      if (pendingDiscontinuityRef.current) {
+        // Confirms a discontinuity already counted at its command site
+        // (seekToRatio / same-track restart / loop wrap) — do not bump
+        // `timelineRevision` again.
+        pendingDiscontinuityRef.current = null;
+        audioClockRef.current = updateDrift3DAudioClock(
+          audioClockRef.current,
+          { playbackState: resolvedPlaybackState, anchorTimeSeconds: audio.currentTime },
+          "seeking",
+          performance.now()
+        );
+        return;
+      }
+
+      // No pending command-path discontinuity: this seek did not originate
+      // from seekToRatio/restart/loop, so it is counted here.
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        { playbackState: resolvedPlaybackState, anchorTimeSeconds: audio.currentTime },
+        "seek",
+        performance.now()
+      );
+    };
+    const onRateChange = () => {
+      // Re-anchor to the current position together with the new rate: an
+      // update that resets `capturedAtMs` while playing must anchor to
+      // `audio.currentTime`, or extrapolation would jump using the new rate
+      // from a stale anchor.
+      audioClockRef.current = updateDrift3DAudioClock(
+        audioClockRef.current,
+        { anchorTimeSeconds: audio.currentTime, playbackRate: audio.playbackRate },
+        "rate-change",
+        performance.now()
+      );
+    };
     const onEnded = () => {
       if (isLooping) {
         shouldResumeRef.current = true;
+        pendingDiscontinuityRef.current = "loop";
         audio.currentTime = 0;
         setCurrentTime(0);
+        audioClockRef.current = updateDrift3DAudioClock(
+          audioClockRef.current,
+          { anchorTimeSeconds: 0, playbackState: "idle" },
+          "loop",
+          performance.now()
+        );
         void playCurrent();
         return;
       }
@@ -222,12 +422,22 @@ export function AudioPlayerProvider({
       if (!nextTrack) {
         setIsPlaying(false);
         setCurrentTime(audio.duration || 0);
+        audioClockRef.current = updateDrift3DAudioClock(
+          audioClockRef.current,
+          {
+            playbackState: "ended",
+            anchorTimeSeconds: audio.duration || audioClockRef.current.anchorTimeSeconds,
+          },
+          "ended",
+          performance.now()
+        );
         return;
       }
 
       shouldResumeRef.current = true;
       setCurrentTime(0);
       setDuration(0);
+      applyClockSourceChange(toPlayerTrack(nextTrack));
       setCurrent(toPlayerTrack(nextTrack));
     };
 
@@ -236,6 +446,9 @@ export function AudioPlayerProvider({
     audio.addEventListener("durationchange", onDurationChange);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
+    audio.addEventListener("seeking", onSeeking);
+    audio.addEventListener("seeked", onSeeked);
+    audio.addEventListener("ratechange", onRateChange);
     audio.addEventListener("ended", onEnded);
 
     return () => {
@@ -244,9 +457,12 @@ export function AudioPlayerProvider({
       audio.removeEventListener("durationchange", onDurationChange);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("seeking", onSeeking);
+      audio.removeEventListener("seeked", onSeeked);
+      audio.removeEventListener("ratechange", onRateChange);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [current, isLooping, playCurrent]);
+  }, [applyClockSourceChange, current, isLooping, playCurrent]);
 
   useEffect(() => {
     const retry = () => {
@@ -287,7 +503,11 @@ export function AudioPlayerProvider({
   }, [playCurrent]);
 
   const toggleLoop = useCallback(() => {
-    setIsLooping((value) => !value);
+    setIsLooping((value) => {
+      const next = !value;
+      audioClockRef.current = { ...audioClockRef.current, loopEnabled: next };
+      return next;
+    });
   }, []);
 
   const playNext = useCallback(() => {
@@ -297,13 +517,15 @@ export function AudioPlayerProvider({
     shouldResumeRef.current = true;
     setCurrentTime(0);
     setDuration(0);
+    applyClockSourceChange(toPlayerTrack(nextTrack));
     setCurrent(toPlayerTrack(nextTrack));
-  }, [current]);
+  }, [applyClockSourceChange, current]);
 
   const playPrevious = useCallback(() => {
     const audio = audioRef.current;
 
     if (current.kind === "track" && audio && audio.currentTime > 5) {
+      applyClockRestart();
       audio.currentTime = 0;
       setCurrentTime(0);
       return;
@@ -315,15 +537,18 @@ export function AudioPlayerProvider({
     shouldResumeRef.current = true;
     setCurrentTime(0);
     setDuration(0);
+    applyClockSourceChange(toPlayerTrack(previousTrack));
     setCurrent(toPlayerTrack(previousTrack));
-  }, [current]);
+  }, [applyClockRestart, applyClockSourceChange, current]);
 
   const playTrack = useCallback(
     (track: Track) => {
       const audio = audioRef.current;
 
       if (current.kind === "track" && current.slug === track.slug && audio) {
+        applyClockRestart();
         audio.currentTime = 0;
+        setCurrentTime(0);
         shouldResumeRef.current = true;
         void playCurrent();
         return;
@@ -332,9 +557,10 @@ export function AudioPlayerProvider({
       shouldResumeRef.current = true;
       setCurrentTime(0);
       setDuration(0);
+      applyClockSourceChange(toPlayerTrack(track));
       setCurrent(toPlayerTrack(track));
     },
-    [current, playCurrent]
+    [applyClockRestart, applyClockSourceChange, current, playCurrent]
   );
 
   const toggleTrack = useCallback(
@@ -355,9 +581,10 @@ export function AudioPlayerProvider({
       shouldResumeRef.current = true;
       setCurrentTime(0);
       setDuration(0);
+      applyClockSourceChange(toPlayerTrack(track));
       setCurrent(toPlayerTrack(track));
     },
-    [current, playCurrent]
+    [applyClockSourceChange, current, playCurrent]
   );
 
   const seekToRatio = useCallback((ratio: number) => {
@@ -367,8 +594,18 @@ export function AudioPlayerProvider({
     }
 
     const nextTime = Math.min(Math.max(ratio, 0), 1) * audio.duration;
+    // Marked *before* mutating `audio.currentTime`, so the native
+    // `seeking`/`seeked` pair this triggers confirms this single
+    // discontinuity instead of bumping `timelineRevision` a second time.
+    pendingDiscontinuityRef.current = "seek";
     audio.currentTime = nextTime;
     setCurrentTime(nextTime);
+    audioClockRef.current = updateDrift3DAudioClock(
+      audioClockRef.current,
+      { anchorTimeSeconds: nextTime, playbackState: "seeking" },
+      "seek",
+      performance.now()
+    );
   }, []);
 
   const value = useMemo<AudioPlayerContextValue>(
@@ -405,9 +642,45 @@ export function AudioPlayerProvider({
     ]
   );
 
+  // Coarse runtime value — deliberately excludes currentTime/duration/progress
+  // so a fast `timeupdate` never invalidates this memo. Drift 3D reads the
+  // shared clock through `audioClockRef` instead.
+  const runtimeValue = useMemo<AudioPlayerRuntimeContextValue>(
+    () => ({
+      current,
+      isPlaying,
+      isLooping,
+      playTrack,
+      toggleTrack,
+      togglePlayback,
+      toggleLoop,
+      playNext,
+      playPrevious,
+      seekToRatio,
+      isCurrentTrack: (track) =>
+        current.kind === "track" && current.slug === track.slug,
+      audioClockRef,
+    }),
+    [
+      audioClockRef,
+      current,
+      isLooping,
+      isPlaying,
+      playNext,
+      playPrevious,
+      playTrack,
+      seekToRatio,
+      toggleLoop,
+      togglePlayback,
+      toggleTrack,
+    ]
+  );
+
   return (
     <AudioPlayerContext.Provider value={value}>
-      {children}
+      <AudioPlayerRuntimeContext.Provider value={runtimeValue}>
+        {children}
+      </AudioPlayerRuntimeContext.Provider>
       <audio ref={audioRef} hidden aria-hidden="true" />
     </AudioPlayerContext.Provider>
   );
@@ -418,6 +691,18 @@ export function useAudioPlayer() {
 
   if (!context) {
     throw new Error("useAudioPlayer must be used inside AudioPlayerProvider");
+  }
+
+  return context;
+}
+
+export function useAudioPlayerRuntime() {
+  const context = useContext(AudioPlayerRuntimeContext);
+
+  if (!context) {
+    throw new Error(
+      "useAudioPlayerRuntime must be used inside AudioPlayerProvider"
+    );
   }
 
   return context;
