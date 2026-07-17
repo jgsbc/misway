@@ -115,6 +115,8 @@ Aucun des services partagés visés en §5 (`AudioClockRef`, Cue Resolver, Scene
 
 C'est attendu : ces services sont le périmètre de `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70`, pas de `BASE-00`.
 
+**Mise à jour post-`BASE-00` (`DRIFT-IV-SYS-00`, 2026-07-17)** : un `AudioClockRef` dédié existe désormais (`src/lib/drift3dAudioClock.ts`, intégré dans `AudioPlayerProvider.tsx`, exposé en développement via `window.__drift3dAudioClock`) — voir `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-00/audio-clock-evidence.md`. Cette mise à jour ne prétend pas que le Cue Resolver, le Scene Lifecycle formel, la Signature Arbitration, le Quality Tier ou l'Evidence Harness formalisé sont livrés — ils restent le périmètre de `DRIFT-IV-SYS-10` à `DRIFT-IV-SYS-70`.
+
 ---
 
 ## 5. Golden path et fallbacks — mesuré en session réelle

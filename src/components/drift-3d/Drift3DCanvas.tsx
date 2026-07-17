@@ -30,6 +30,7 @@ import {
   Drift3DAmbienceEngine,
   getDrift3DAmbienceMixAt,
 } from "@/lib/drift3dAmbience";
+import type { Drift3DAudioClockRef } from "@/lib/drift3dAudioClock";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -37,6 +38,7 @@ type Drift3DCanvasProps = {
   toggleTrack: (track: Track) => void;
   currentTrack: Track | null;
   togglePlayback: () => void;
+  audioClockRef: Drift3DAudioClockRef;
 };
 
 export default function Drift3DCanvas({
@@ -45,6 +47,7 @@ export default function Drift3DCanvas({
   toggleTrack,
   currentTrack,
   togglePlayback,
+  audioClockRef,
 }: Drift3DCanvasProps) {
   const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(
     null
@@ -493,6 +496,7 @@ export default function Drift3DCanvas({
             pointerDriveStateRef={pointerDriveStateRef}
             cameraZoomTargetRef={cameraZoomTargetRef}
             vehicleStateRef={vehicleStateRef}
+            audioClockRef={audioClockRef}
           />
         </Canvas>
 

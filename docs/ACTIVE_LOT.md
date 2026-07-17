@@ -1,42 +1,45 @@
 # ACTIVE_LOT.md
 
 Current lot:
-DRIFT-IV-BASE-00 — Complete runtime evidence
+DRIFT-IV-SYS-00 — Shared audio-clock service
 
 Status:
 DONE — PENDING MERGE
 
 Baseline:
-main@1eaf8c5 (contains DRIFT-IV-BASE-00 partial-baseline PR #20, merged)
+main@d66b63b (contains DRIFT-IV-BASE-00, merged)
 
 Type:
-Documentation and runtime measurement only
+Runtime service (audio clock) + documentation
 
 Completed:
-- `docs/DRIFT_3D_RUNTIME_BASELINE.md` updated to `ACTIVE — RUNTIME BASELINE COMPLETE` — real architecture inventory, build/lint validation, live golden-path verification, six historical runtime candidates requalified with zero code ported;
-- one real foreground mobile FPS sample adopted and recorded (Foolfoule, 390×844 @ DPR 3, 50.5 fps, 173 draw calls, 197076 triangles, `visibilityState: "visible"`), classified `MEASURED — REAL FOREGROUND MOBILE SAMPLE`;
-- a real cross-zone render-cost envelope recorded across Entry Node, A Walk In Zeeland, Foolfoule and ÉTÉÉAOOÉTÉ (draw calls 139–175, triangles 178644–198124), classified `MEASURED CROSS-ZONE ENVELOPE`, both well under the ≤300 draw-call / ≤1.5M triangle ceilings;
-- a mobile structural check performed at a genuinely resized 390×844 viewport (no horizontal overflow, single canvas, HUD/ambiance visible, desktop tutorial hidden), classified `AUTOMATED_STRUCTURAL_EVIDENCE`; devicePixelRatio (2.0 observed vs 3 requested) and touch emulation could not be forced — no CDP-level tool was available;
-- reduced-motion and no-WebGL fallbacks genuinely triggered in a real foreground browser session (forced via `MediaQueryList`/`getContext` overrides plus a same-document SPA remount) and visually confirmed live, classified `MEASURED — FALLBACK TRIGGERED IN REAL BROWSER SESSION`;
-- `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.json` and `runtime-evidence.md` created with the full evidence report, per-scene visual confirmation notes, and an explicit gate decision table;
-- absence of a per-zone desktop FPS figure and absence of committed screenshot binaries both explicitly recorded as `KNOWN_ENVIRONMENT_LIMITATION` (never presented as obtained measurements) — the `save_to_disk` screenshot mechanism was verified to produce an unrelated, fixed desktop-level image rather than the driven tab's content;
-- performance values from `DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md` §9 kept labelled `PERFORMANCE ACCEPTANCE TARGETS — NOT CURRENT RUNTIME MEASUREMENTS`.
+- `src/lib/drift3dAudioClock.ts` created — framework-agnostic snapshot/update/read functions (`createDrift3DAudioClockSnapshot`, `updateDrift3DAudioClock`, `readDrift3DAudioClockTime`, `readDrift3DAudioClockProgress`), extrapolation bounded to 500ms, `timelineRevision` bumping only on `source-change`/`seek`/`restart`/`loop`;
+- `AudioPlayerProvider.tsx` integrated — a single stable `audioClockRef` synchronized on every native `<audio>` event (`timeupdate`, `loadedmetadata`, `durationchange`, `play`, `pause`, `seeking`, `seeked`, `ratechange`, `ended`) and on every imperative action (`playTrack`, `toggleTrack`, `togglePlayback`, `toggleLoop`, `playNext`, `playPrevious`, `seekToRatio`) — seek and restart update the ref immediately, not on the next `timeupdate`; still exactly one `<audio>` element, `useAudioPlayer()` unchanged (no breaking change);
+- `AudioPlayerRuntimeContext` / `useAudioPlayerRuntime()` added — coarse runtime context (`current`, `isPlaying`, `isLooping`, action callbacks, `audioClockRef`) whose memo excludes `currentTime`/`duration`/`progress`, so a `timeupdate` no longer invalidates it;
+- `Drift3DClient.tsx` migrated from `useAudioPlayer()` to `useAudioPlayerRuntime()`;
+- `audioClockRef` threaded as a stable dependency `Drift3DClient → Drift3DCanvas → Drift3DScene` — no per-frame prop;
+- `Drift3DScene.tsx` installs a dev-only read-only getter `window.__drift3dAudioClock` via `Object.defineProperty` in a plain `useEffect` (no new `useFrame`, no timer), cleaned up on unmount;
+- `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` created (now v1.1, see correction round below) — full runtime contract, `ACTIVE — RUNTIME CONTRACT`;
+- real behavioral evidence captured in a real foreground Chrome session (`docs/evidence/DRIFT-IV-SYS-00/`): init (no autoplay), explicit playback (strictly increasing time), pause (frozen to 0.05s), resume (no wall-clock jump), real UI seek (immediate, revision bump), explicit track change, loop/restart, route-change coherence, zone-entry with no active track (no source change, no autoplay) — all real, all PASS.
+
+Correction round (post-review, same PR, single amended commit):
+- Fixed a `timelineRevision` double-count: command-path discontinuities (`seekToRatio`, restart, loop wrap) were bumping the revision once for the command and again via the native `seeking`/`seeked` pair they also trigger. Fixed with a `pendingDiscontinuityRef` set at each command site before mutating `audio.currentTime`, consulted and cleared by `onSeeked` — externally-originated seeks (not preceded by a command) are still counted on their own;
+- `onSeeking` now sets `playbackState: "seeking"` (new, non-discontinuous reason `"seeking"` added to `Drift3DAudioClockUpdateReason`) so extrapolation is inert during a pending seek; `onSeeked` restores `playbackState` from `audio.paused`;
+- `onRateChange` now re-anchors `anchorTimeSeconds: audio.currentTime` together with `playbackRate`, preventing clock drift after a rate change; `loadedmetadata`/`durationchange` audited for the same rule;
+- `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` corrected to v1.1: immediacy claims split into discontinuity-target-immediate vs. play/pause-confirmed-by-native-event;
+- `docs/evidence/DRIFT-IV-SYS-00/audio-clock-evidence.md`/`.json`: the old seek (1→7) and loop (8→11) findings requalified `PRE_FIX_FINDING — DUPLICATE_TIMELINE_REVISION` (historical data preserved, not deleted); six targeted scenarios (A-F) replayed live and appended in section 14 — all exact expected deltas confirmed (seek UI +1, external seek +1, restart +1, loop +1, rate-change +0 with no backward movement, pause/resume delta 0s).
 
 Protected scope:
-- no src/**
 - no public/**
-- no runtime code changes
-- no audio
-- no assets
-- no dependencies
-- no config
-- no cue timestamps changed
-- no artistic contract changes
-- no branch history changes
-- no stash application
+- no package.json / package-lock.json
+- no next.config.* / tsconfig.json
+- no new dependency (no Playwright, no Puppeteer)
+- no src/lib/tracks.ts, no src/lib/cues/**
+- no track identity contract, no Cue Map, no artistic bible touched
+- no cue resolver, no scene lifecycle, no signature arbitration, no quality tiers, no track-specific animation, no EUX GAINENT runtime, no FFT, no second audio source, no second player, no autoplay introduced
 
 Next lot:
-DRIFT-IV-SYS-00 — Shared audio-clock service
+DRIFT-IV-SYS-10 — Scene lifecycle and cleanup
 
 Next status:
 NEXT_AFTER_MERGE

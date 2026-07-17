@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
+import { useAudioPlayerRuntime } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
   type Drift3DFallbackReason,
 } from "@/components/drift-3d/Drift3DFallback";
@@ -30,8 +30,14 @@ function canUseWebGL() {
 }
 
 export default function Drift3DClient() {
-  const { current, isPlaying, toggleTrack, togglePlayback, isCurrentTrack } =
-    useAudioPlayer();
+  const {
+    current,
+    isPlaying,
+    toggleTrack,
+    togglePlayback,
+    isCurrentTrack,
+    audioClockRef,
+  } = useAudioPlayerRuntime();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<
     boolean | null
   >(null);
@@ -117,6 +123,7 @@ export default function Drift3DClient() {
             currentTrack={currentTrack}
             toggleTrack={toggleTrack}
             togglePlayback={togglePlayback}
+            audioClockRef={audioClockRef}
           />
         )}
       </div>
