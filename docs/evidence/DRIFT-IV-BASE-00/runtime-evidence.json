@@ -1,0 +1,142 @@
+{
+  "lot": "DRIFT-IV-BASE-00",
+  "reportDate": "2026-07-17",
+  "protocol": "REPRESENTATIVE_REAL_FPS_SAMPLE + CROSS_ZONE_RENDER_COST_ENVELOPE + AUTOMATED_VISUAL_MOBILE_AND_FALLBACK_EVIDENCE",
+  "evidenceClasses": [
+    "MEASURED",
+    "INFERRED_FROM_REPRESENTATIVE_SAMPLE",
+    "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "KNOWN_ENVIRONMENT_LIMITATION"
+  ],
+  "fpsSample": {
+    "classification": "MEASURED — REAL FOREGROUND MOBILE SAMPLE",
+    "label": "FOOLFOULE",
+    "capturedAt": "2026-07-16T20:06:45.105Z",
+    "visibilityState": "visible",
+    "viewport": { "width": 390, "height": 844, "devicePixelRatio": 3 },
+    "fps": { "frames": 532, "durationMs": 10532, "fps": 50.5 },
+    "render": { "calls": 173, "triangles": 197076 },
+    "canvasCount": 1,
+    "memory": {
+      "usedJSHeapSize": 41128608,
+      "totalJSHeapSize": 45036556,
+      "jsHeapSizeLimit": 4395630592
+    },
+    "targets": {
+      "mobileFps30Plus": "PASS",
+      "drawCalls300Max": "PASS",
+      "triangles1_5MMax": "PASS",
+      "canvasCountOne": "PASS",
+      "visibilityStateVisible": "PASS"
+    }
+  },
+  "crossZoneRenderEnvelope": {
+    "classification": "MEASURED CROSS-ZONE ENVELOPE",
+    "zones": {
+      "entryNode": { "drawCallsObserved": [139, 140], "trianglesObserved": [197146, 197158] },
+      "aWalkInZeeland": { "drawCallsObserved": [160, 161], "trianglesObserved": [198008, 198020] },
+      "foolfoule": { "drawCallsObserved": [173, 175], "trianglesObserved": [197076, 198124] },
+      "eteeaooete": { "drawCallsObserved": [157], "trianglesObserved": [178644] }
+    },
+    "envelope": { "drawCalls": [139, 175], "triangles": [178644, 198124] },
+    "criteria": {
+      "maxDrawCalls175Under300": "PASS",
+      "maxTriangles198124Under1_5M": "PASS"
+    },
+    "note": "Values recorded across two independent real-browser sessions (Claude in Chrome, real foreground Chrome tab) via window.__drift3dRender (Three.js gl.info). Each zone's own screenshot was visually reviewed live in-session and confirmed to show the correct, distinct rendered scene — see runtime-evidence.md for per-scene confirmation notes. No exact value was invented for a zone not directly observed."
+  },
+  "interpretation": {
+    "classification": "INFERRED_FROM_REPRESENTATIVE_SAMPLE",
+    "statement": "No separate reliable desktop FPS figure was obtained because automated background-tab throttling invalidated requestAnimationFrame sampling. The real foreground mobile sample reached 50.5 fps at DPR 3, while all measured desktop scenes remained within the same bounded render-cost envelope (139-175 draw calls, 178644-198124 triangles), both well under the 300 draw-call / 1.5M triangle ceiling. This is treated as an inference that the runtime holds a large margin against its geometric budgets across the four measured zones, not as a proven per-zone desktop fps figure."
+  },
+  "mobileStructuralCheck": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "method": "Real viewport resize via the project's own automated preview-browser tool (confirmed to genuinely change window.innerWidth/innerHeight and trigger CSS media queries), not literal Chrome DevTools Protocol Emulation.setDeviceMetricsOverride — no CDP-level tool was available in this session.",
+    "targetRequested": { "width": 390, "height": 844, "deviceScaleFactor": 3, "mobile": true, "touch": true },
+    "actualObserved": {
+      "width": 390,
+      "height": 844,
+      "devicePixelRatio": 2.0000000298023224,
+      "horizontalOverflow": false,
+      "canvasCount": 1,
+      "hudVisible": true,
+      "ambianceControlVisible": true,
+      "desktopTutorialHidden": true
+    },
+    "deviations": [
+      "devicePixelRatio observed as 2.0, not the requested 3 — no tool available to force DPR override",
+      "touch emulation was not applied — no tool available for Emulation.setTouchEmulationEnabled",
+      "no mobile-width screenshot PNG was produced — see limitations"
+    ],
+    "result": "PASS (structural), with the deviations above explicitly noted"
+  },
+  "fallbacks": {
+    "reducedMotion": {
+      "classification": "MEASURED — FALLBACK TRIGGERED IN REAL BROWSER SESSION",
+      "method": "Forced via a prototype-level override of MediaQueryList.prototype.matches (matches=true for '(prefers-reduced-motion: reduce)'), followed by a same-document SPA client-side navigation away from and back to /drift/ to force Drift3DClient to remount and re-evaluate the media query.",
+      "observed": {
+        "heading": "REDUCED MOTION",
+        "title": "The 3D room stays closed today.",
+        "body": "Motion is reduced, so this route keeps the quieter path open.",
+        "canvasCount": 0
+      },
+      "result": "PASS"
+    },
+    "noWebgl": {
+      "classification": "MEASURED — FALLBACK TRIGGERED IN REAL BROWSER SESSION",
+      "method": "Forced via a monkey-patch of HTMLCanvasElement.prototype.getContext returning null for any 'webgl'-containing context type, followed by the same same-document SPA remount technique.",
+      "observed": {
+        "heading": "NO WEBGL",
+        "title": "This browser cannot open the 3D room.",
+        "body": "The 2D lab remains the reference map. Nothing needs to play here.",
+        "canvasCount": 0
+      },
+      "result": "PASS"
+    }
+  },
+  "console": {
+    "errors": "None observed (checked via console error filter across the full session)",
+    "knownWarnings": [
+      {
+        "text": "THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.",
+        "classification": "KNOWN_NON_BLOCKING_DEPRECATION_WARNING",
+        "occurrences": "once per scene mount (5 observed)"
+      },
+      {
+        "text": "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.",
+        "classification": "KNOWN_NON_BLOCKING_DEPRECATION_WARNING",
+        "occurrences": 1
+      },
+      {
+        "text": "THREE.Material: parameter 'map' has value of undefined.",
+        "classification": "KNOWN_NON_BLOCKING_PARAMETER_WARNING",
+        "occurrences": "~34, at initial scene construction",
+        "note": "Non-blocking during BASE-00 capture, but retained as runtime technical debt for later investigation. Approximately 34 occurrences were observed during initial scene construction."
+      },
+      {
+        "text": "THREE.WebGLRenderer: Context Lost.",
+        "classification": "SELF_INDUCED_TEST_WARNING",
+        "occurrences": 1,
+        "note": "Caused by this session's own no-WebGL fallback test procedure (getContext monkey-patch), not a spontaneous runtime failure."
+      }
+    ],
+    "notFixed": "None of the above warnings were modified in src/** — out of scope for this documentation/measurement lot."
+  },
+  "limitations": [
+    {
+      "id": "no-committed-screenshot-files",
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "description": "The `computer` tool's save_to_disk option was tested for all captured scenes and both fallback triggers. It reliably wrote a file, but every file produced — across this session and multiple unrelated historical sessions on this machine — was byte-identical (2,792,674 bytes, 4800x2160px), i.e. an unrelated fixed desktop-level image, not the driven browser tab's actual content. This was independently verified by inspecting file size/dimensions before committing anything. Because of this, no PNG artifact could be honestly committed under docs/evidence/DRIFT-IV-BASE-00/ claiming to show a specific scene. Every scene and fallback listed here was instead visually reviewed live, inline, in this session (each screenshot rendered correctly and distinctly — different terrain, HUD text and landmark geometry per zone) before this report was written."
+    },
+    {
+      "id": "no-cdp-device-emulation-tool",
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "description": "No Chrome DevTools Protocol tool (Emulation.setDeviceMetricsOverride / setTouchEmulationEnabled) was available in this session. The mobile structural check therefore used the project's own preview-browser resize tool, which does genuinely alter window.innerWidth/innerHeight and trigger real CSS media queries, but cannot override devicePixelRatio or emulate touch input."
+    },
+    {
+      "id": "no-desktop-fps-figure",
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "description": "requestAnimationFrame-driven continuous sampling is throttled to near-zero in every automated browser session available (document.visibilityState remains 'hidden' regardless of focus, click, or JS-level visibility overrides — confirmed empirically with an instrumented rAF counter that logged 1 frame in 33+ seconds). Only the single real-foreground mobile sample adopted in this report (Foolfoule, 50.5 fps) escaped this throttling."
+    }
+  ]
+}
