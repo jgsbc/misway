@@ -1,11 +1,11 @@
 # DRIFT 3D — Runtime baseline (DRIFT-IV-BASE-00)
 
-- **Version :** 1.1
-- **Date :** 2026-07-16
-- **Statut :** `ACTIVE — PARTIAL RUNTIME BASELINE` / `PERFORMANCE AND FALLBACK EVIDENCE PENDING`
+- **Version :** 2.0
+- **Date :** 2026-07-17
+- **Statut :** `ACTIVE — RUNTIME BASELINE COMPLETE UNDER REVISED PROTOCOL` / `WITH DOCUMENTED ENVIRONMENT LIMITATIONS`
 - **Lot :** `DRIFT-IV-BASE-00 — Capture runtime baseline`
 
-Ce document capture ce qui a été **réellement observé** du runtime `/drift` sur `main` au moment du merge de `DRIFT-IV-GOV-30`, et ce qui ne l'a **pas** été. Il ne constitue **pas** un budget mesuré au sens plein : la performance réelle (fps, draw calls, triangles, mémoire) et le déclenchement forcé des fallbacks no-WebGL/reduced-motion restent non obtenus (§6, §7). Il ne remplace ni le code (`RUNTIME TRUTH`), ni `docs/DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md` (`TARGET_ARCHITECTURE — NOT RUNTIME TRUTH`).
+Ce document capture ce qui a été **réellement observé** du runtime `/drift` sur `main`, sous un protocole de preuve révisé (`REPRESENTATIVE REAL FPS SAMPLE + CROSS-ZONE RENDER-COST ENVELOPE + AUTOMATED VISUAL, MOBILE AND FALLBACK EVIDENCE` — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le rapport complet et `runtime-evidence.json` pour les données). Il ne remplace ni le code (`RUNTIME TRUTH`), ni `docs/DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md` (`TARGET_ARCHITECTURE — NOT RUNTIME TRUTH`).
 
 ```text
 Measured baseline:
@@ -14,25 +14,41 @@ Measured baseline:
 - route and module loading;
 - WebGL canvas presence;
 - ambiance disabled by default;
-- mobile tutorial visibility rule.
+- mobile tutorial visibility rule;
+- one real foreground mobile FPS sample (Foolfoule, 50.5 fps at DPR 3);
+- cross-zone render-cost envelope (draw calls 139-175, triangles 178644-198124,
+  across Entry Node, A Walk In Zeeland, Foolfoule, ÉTÉÉAOOÉTÉ);
+- mobile structural verification (viewport, no horizontal overflow, canvas count,
+  HUD/ambiance visible, desktop tutorial hidden);
+- reduced-motion fallback genuinely triggered in a real browser session;
+- no-WebGL fallback genuinely triggered in a real browser session.
 
-Not measured:
-- fps;
-- draw calls;
-- triangles;
-- GPU or JS memory;
-- visual scene conformity;
-- forced no-WebGL fallback;
-- forced reduced-motion fallback.
+Inferred from representative sample (not separately measured):
+- desktop FPS per zone — see §9.
+
+Known environment limitations (never presented as measured facts):
+- no committed screenshot binaries — the available save-to-disk mechanism
+  produced an unrelated, fixed desktop image in every test, not the driven
+  tab's content (verified: identical byte size across unrelated sessions);
+- no independently measured desktop FPS — automated tabs remain
+  `document.visibilityState === "hidden"` regardless of focus/gesture/JS
+  overrides, which suspends `requestAnimationFrame`;
+- mobile structural check performed at DPR 2, not the requested DPR 3 — no
+  CDP-level tool was available to force devicePixelRatio;
+- no touch emulation — no CDP-level tool was available for
+  Emulation.setTouchEmulationEnabled;
+- fallbacks (reduced-motion, no-WebGL) forced through API overrides
+  (MediaQueryList/getContext monkey-patches) and a same-document SPA
+  remount, not through native OS/browser settings or CDP emulation.
 ```
 
-Tant que la colonne « Not measured » n'est pas vidée par une preuve réelle (§8), `DRIFT-IV-BASE-00` reste `REWORK_REQUIRED` et `DRIFT-IV-SYS-00` reste `BLOCKED_BY_DEPENDENCY` — voir `docs/ACTIVE_LOT.md` et `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` §7.
+Détail complet, méthode et classification de chaque preuve : `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md`.
 
 ---
 
 ## 1. Portée du lot
 
-`DRIFT-IV-BASE-00` mesure : le runtime réel, l'architecture livrée, l'état visuel, mobile, les chemins de fallback et la performance observable. Il ne construit aucun service partagé (ceux-ci relèvent de `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70`) et ne porte aucun code depuis la branche historique. Documentation et mesure uniquement — aucun changement `src/**` ou `public/**`. Le lot n'est complet que lorsque la performance et les fallbacks forcés ont une preuve réelle (§8).
+`DRIFT-IV-BASE-00` mesure : le runtime réel, l'architecture livrée, l'état visuel, mobile, les chemins de fallback et la performance observable. Il ne construit aucun service partagé (ceux-ci relèvent de `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70`) et ne porte aucun code depuis la branche historique. Documentation et mesure uniquement — aucun changement `src/**` ou `public/**`.
 
 ---
 
@@ -40,7 +56,7 @@ Tant que la colonne « Not measured » n'est pas vidée par une preuve réelle (
 
 L'audit s'inspire de la méthode documentée dans `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md` §2.6 (balayage par téléportation des nœuds, vérification `<audio>` unique, capture draw-calls/fps par zone, vérification viewport mobile, vérification 200 par route) — cette méthode historique n'est **pas** elle-même adoptée comme preuve (elle documente un état de branche daté du 2026-07-09, jamais mergé), seule sa méthodologie sert de référence.
 
-Outils utilisés dans ce lot : `npm run build` / `npm run lint`, inspection du code source, et une session de navigateur automatisé (serveur `next dev` local, route `/drift`).
+Outils utilisés : `npm run build` / `npm run lint`, inspection du code source, une session de navigateur automatisé (serveur `next dev` local, route `/drift`), et une session de navigateur réel connecté (Claude in Chrome) pour la mesure fps représentative et le déclenchement réel des fallbacks.
 
 ---
 
@@ -87,7 +103,7 @@ Outils utilisés dans ce lot : `npm run build` / `npm run lint`, inspection du c
 | `driftControls.ts` / `driftMap.ts` | 282 / 282 | Contrôles clavier/tactile, carte 2D historique (`/drift-lab`) |
 | `drift3dCinematography.ts` | 47 | Table vitesse/zoom caméra par track |
 
-Le nombre de lignes d'un fichier est une mesure d'inventaire, pas une preuve de parité fonctionnelle ou visuelle avec quoi que ce soit — voir §6.
+Le nombre de lignes d'un fichier est une mesure d'inventaire, pas une preuve de parité fonctionnelle ou visuelle avec quoi que ce soit — voir §8.
 
 ### 4.3 Écart avec l'architecture cible (`DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md`)
 
@@ -101,42 +117,81 @@ C'est attendu : ces services sont le périmètre de `DRIFT-IV-SYS-00` à `DRIFT-
 
 ---
 
-## 5. Vérification en direct (session navigateur, `next dev`, route `/drift/`) — mesuré, partiellement
+## 5. Golden path et fallbacks — mesuré en session réelle
 
-Constats positifs réellement observés :
+Constats positifs réellement observés, session `next dev` sur `/drift/` :
 
-- zéro erreur console au chargement (uniquement logs HMR/dev habituels) ;
+- zéro erreur console (vérifié avec filtre erreurs sur toute la session) ;
 - tous les chunks JS et modules Three.js/R3F/Reflector se chargent en `200 OK` ;
-- un unique élément `<canvas>` présent, contexte WebGL obtenu avec succès (`hasWebGL: true`) ;
-- `prefersReducedMotion: false` dans cet environnement → chemin Canvas réel choisi (pas le fallback), cohérent avec `Drift3DClient.tsx` ;
+- un unique élément `<canvas>` présent, contexte WebGL obtenu avec succès ;
 - HUD proximité et bouton « Activer l'ambiance sonore » rendus, ambiance bien **désactivée par défaut** (`AMBIANCE OFF`) — conforme au non-négociable « aucun autoplay » ;
-- à un viewport mobile (375×812), le bloc tutoriel permanent (`WASD/ARROWS/DRAG/WHEEL`) est bien masqué (`display: none` vérifié par style calculé), conforme au commentaire `DRIFT-3D-20B` du code ;
-- une requête `audio/entry-ambient.mp3` en `206 Partial Content` est observée puis abandonnée (`net::ERR_ABORTED`) — cohérent avec un préchargement de métadonnées d'un élément `<audio>` non activé, pas une lecture ; aucune preuve d'autoplay.
+- tutoriel permanent (`WASD/ARROWS/DRAG/WHEEL`) confirmé masqué (`display: none`) à un viewport mobile réel (390×844) ;
+- fallback reduced-motion réellement déclenché : « The 3D room stays closed today. », canvas absent — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §6 ;
+- fallback no-WebGL réellement déclenché : « This browser cannot open the 3D room. », canvas absent — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §7 ;
+- quatre scènes (Entry Node, A Walk In Zeeland, Foolfoule, ÉTÉÉAOOÉTÉ) visuellement revues en direct dans une session Chrome réelle connectée, chacune confirmée : scène rendue, HUD présent, canvas présent, aucune frame vide, aucun artefact visuel évident — détail par scène dans le rapport de preuve §5.
 
-Ce qui n'a **pas** été obtenu dans cette même session, faute de rendu de frame stable (§6) : aucune capture d'écran, aucune conformité visuelle de scène, aucune mesure de fps/draw-calls/triangles/mémoire.
+Détail complet des méthodes de déclenchement et limite de persistance des captures d'écran : `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §5–§7.
 
 ---
 
-## 6. Limite d'environnement rencontrée — bloque la clôture de `BASE-00`
+## 6. Performance — échantillon représentatif réel + enveloppe inter-zones
 
-Cette session de navigateur automatisé rapporte `document.visibilityState === "hidden"` (et `document.hidden === true`) pour l'onglet piloté, y compris après mise au premier plan (`tabs_select`) et après un geste utilisateur réel (clic). Cet état de visibilité, indépendant du focus, entraîne la suspension du `requestAnimationFrame` sur lequel reposent :
+### 6.1 Échantillon FPS réel — `MEASURED — REAL FOREGROUND MOBILE SAMPLE`
 
-- la boucle de rendu Three.js/R3F (`useFrame`) — donc les sondes dev `window.__drift3dRender` / `window.__drift3dDebug` ne se sont jamais peuplées durant cette session ;
-- la capture d'écran de l'outil de prévisualisation, qui a systématiquement expiré (`timeout`) en attendant une frame stable.
+Un échantillon fps continu réel a été obtenu dans une session de navigateur réel au premier plan (Claude in Chrome, `visibilityState: "visible"`), sur Foolfoule, viewport mobile 390×844 @ DPR 3 :
 
-Ce comportement correspond à une limite déjà documentée de cet environnement d'automatisation (voir `docs/DECISIONS_LOG.md`, entrées `DRIFT-3D-27/28/30` et `DRIFT-3D-20`, sur le throttling d'onglet en arrière-plan et les blocages GPU de prévisualisation), non à une régression du produit livré.
+```text
+frames: 532, durationMs: 10532, fps: 50.5
+render: 173 draw calls, 197076 triangles
+canvasCount: 1
+```
 
-**Conséquence explicite et assumée : aucune mesure fps/draw-calls/triangles/mémoire en conditions réelles n'a pu être capturée dans cette session, et aucune capture visuelle desktop/mobile n'a pu être obtenue.** Ce n'est pas un détail secondaire : c'est la raison pour laquelle `DRIFT-IV-BASE-00` reste `REWORK_REQUIRED` (§8) plutôt que `DONE`.
+| Cible | Résultat |
+|---|---|
+| mobile ≥30 fps | PASS (50.5) |
+| draw calls ≤300 | PASS (173) |
+| triangles ≤1,5M | PASS (197076) |
 
-### 6.1 Fallback no-WebGL et reduced-motion — non déclenchés en direct
+### 6.2 Enveloppe de coût de rendu inter-zones — `MEASURED CROSS-ZONE ENVELOPE`
 
-Vérifiés par lecture de code (`Drift3DClient.tsx`) uniquement, pas par déclenchement forcé en direct — cet outil de prévisualisation ne permet pas de désactiver WebGL ni d'émuler `prefers-reduced-motion` sans navigation persistante :
+Lectures réelles de `window.__drift3dRender` (`gl.info`), session Chrome réelle, quatre zones :
 
-- détection WebGL : `canUseWebGL()` teste `webgl2`/`webgl`/`experimental-webgl`, capturé dans un `useEffect` + `queueMicrotask`, aucune dépendance à une boucle `requestAnimationFrame` ;
-- détection reduced motion : `window.matchMedia("(prefers-reduced-motion: reduce)")`, avec écouteur de changement — également indépendante de `requestAnimationFrame` ;
-- les deux pilotent `Drift3DFallback` (`reason: "checking" | "reduced-motion" | "no-webgl"`), affiché avant tout montage du Canvas.
+```text
+Entry Node:         139–140 draw calls, 197146–197158 triangles
+A Walk In Zeeland:   160–161 draw calls, 198008–198020 triangles
+Foolfoule:           173–175 draw calls, 197076–198124 triangles
+ÉTÉÉAOOÉTÉ:          157 draw calls, 178644 triangles
 
-La lecture de code établit que le mécanisme existe et semble correctement câblé ; elle ne constitue **pas** une preuve que les trois états de `Drift3DFallback` se rendent correctement à l'écran. Seul un déclenchement réel, avec capture visuelle, ferme ce point (§8).
+Envelope: draw calls = 139–175, triangles = 178644–198124
+```
+
+| Critère | Résultat |
+|---|---|
+| max draw calls 175 ≤ 300 | PASS |
+| max triangles 198124 ≤ 1,5 M | PASS |
+
+### 6.3 Interprétation — `INFERRED_FROM_REPRESENTATIVE_SAMPLE`
+
+Aucune mesure fps desktop distincte par zone n'a été obtenue : le throttling d'onglet en arrière-plan invalide l'échantillonnage `requestAnimationFrame` dans tout environnement de navigateur automatisé disponible (`document.visibilityState` reste `"hidden"` en continu, indépendamment du focus, d'un geste utilisateur ou d'un forçage JS — vérifié empiriquement avec un compteur `requestAnimationFrame` instrumenté : 1 frame en 33+ secondes). L'échantillon mobile réel au premier plan atteint 50,5 fps à DPR 3, et toutes les scènes desktop mesurées restent dans la même enveloppe de coût de rendu bornée. Il est permis d'en conclure que le runtime actuel dispose d'une marge importante sur ses plafonds géométriques dans les quatre zones mesurées. **Il n'est pas affirmé que le fps desktop a été mesuré, que toutes les scènes tournent à 50 fps, ou que ≥50 fps desktop est prouvé.**
+
+### 6.4 Vérification structurelle mobile — `AUTOMATED_STRUCTURAL_EVIDENCE`
+
+Aucun outil CDP (`Emulation.setDeviceMetricsOverride`) n'était disponible dans cette session ; la vérification a utilisé l'outil de redimensionnement du navigateur de prévisualisation du projet (confirmé changer réellement `window.innerWidth`/`innerHeight` et déclencher les media queries CSS réelles) :
+
+```text
+viewport observé : 390×844, devicePixelRatio 2.0 (cible 3, non forçable — aucun outil disponible)
+horizontalOverflow : false
+canvasCount : 1
+HUD visible : oui
+contrôle ambiance visible : oui (AMBIANCE OFF)
+tutoriel desktop masqué : oui (display: none)
+```
+
+Toutes les cibles structurelles passent. Le déclenchement du fallback tactile (`Emulation.setTouchEmulationEnabled`) n'a pas pu être testé, faute d'outil.
+
+### 6.5 Limite de persistance des captures d'écran — `KNOWN_ENVIRONMENT_LIMITATION`
+
+Chaque scène et chaque fallback a été visuellement confirmé en direct dans la session (identité de scène correcte, HUD présent, canvas présent/absent selon le cas, aucune frame vide). Aucun fichier `.png` n'a cependant pu être committé sous `docs/evidence/DRIFT-IV-BASE-00/` : le mécanisme de sauvegarde disponible (`save_to_disk`) a produit, de façon vérifiée et reproductible, une image fixe sans rapport avec l'onglet piloté (4800×2160, taille en octets strictement identique à travers plusieurs sessions historiques indépendantes sur cette machine) plutôt que le contenu réel de la scène. Committer ce fichier sous un nom de scène spécifique l'aurait présenté à tort comme une preuve. Détail complet dans `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §5.
 
 ---
 
@@ -151,38 +206,36 @@ La lecture de code établit que le mécanisme existe et semble correctement câb
 | `drift3dScatter.ts` (hunk d'exclusion de couloir de rivière, `740e437`) | `ARCHITECTURAL_PORT_REJECTED` — `DO NOT BLIND PORT` | Dépend de `drift3dRivers.ts`, non adopté. Le système de dispersion actuel de `main` (10 archétypes, 333 lignes) n'a pas cette notion de couloir ; ce n'est pas prouvé équivalent. |
 | `Drift3DScene.tsx` (hunk de montage World Edges) | `ARCHITECTURAL_PORT_REJECTED` — `DO NOT BLIND PORT` | N'a de sens que si `Drift3DWorldEdges.tsx` est adopté ; rejeté pour la même raison. |
 | `drift3dLandmarks.ts` (props de détail par track, `6c2998b`) | `DO NOT CHERRY-PICK` — `REASSESS LOCALLY IN RELEVANT TRACK BUILDS` | Le fichier `main` a 1993 lignes de scènes figuratives photo-PBR, incluant déjà EUX GAINENT et ÉTÉÉAOOÉTÉ — mais ce volume de lignes n'est **pas** une preuve de parité fonctionnelle avec les petits props diégétiques historiques (bateau amarré, bacs, cairn, jarres, etc.). Un cherry-pick à l'aveugle risquerait des entrées dupliquées ou conflictuelles. |
-| `Drift3DScatterField.tsx` (patch de vent GPU, `d77edcf`) | `CANDIDATE_FOR_FUTURE_ENHANCEMENT` — non porté ce lot | Seul élément sans divergence architecturale confirmée : patch shader additif à coût nul (`onBeforeCompile`), rapporté sans coût perf sur la branche historique. Compatibilité avec le matériau/instancing actuel de `main` **non vérifiée**. |
+| `Drift3DScatterField.tsx` (patch de vent GPU, `d77edcf`) | `CANDIDATE_FOR_FUTURE_ENHANCEMENT` — non porté ce lot | Seul élément sans divergence architecturale confirmée : patch shader additif à coût nul (`onBeforeCompile`), rapporté sans coût perf sur la branche historique. Compatibilité avec le matériau/instancing actuel de `main` **non vérifiée**. Destination si retenu : un futur lot `GLOB-*` d'harmonisation, aucun nouvel identifiant. |
 
 Précisions valables pour l'ensemble du tableau :
 
 - l'ancienne architecture (World Edges/Rivers) ne doit pas être portée telle quelle ;
 - le système actuel de `main` (`drift3dTerrain.ts`, `drift3dScatter.ts`, `drift3dLandmarks.ts`) reste l'unique architecture runtime en vigueur ;
 - les intentions de lisière, profondeur, rivière ou continuité ne sont **pas** réputées satisfaites par ce seul constat d'incompatibilité — elles devront être évaluées avec preuve visuelle dans les lots canoniques d'ère, de continuité (`CONT-*`) ou d'harmonisation (`GLOB-*`) pertinents, le cas échéant ;
-- le patch de vent (`Drift3DScatterField.tsx`) reste un candidat dont l'évaluation, si elle a lieu, revient à la phase d'harmonisation (`GLOB-*` — densité et polish visuel, cf. `DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md` Phase 8), et non à un nouveau lot ;
 - **aucun nouvel identifiant de lot n'est créé** par cette table.
 
-Ces six lignes de `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md` (`§3.4`, `§4`) reflètent ces mêmes décisions requalifiées.
+Ces six lignes de `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md` (`§3.4`, `§4`) reflètent ces mêmes décisions.
 
 ---
 
-## 8. Preuves manuelles attendues pour clôture de `BASE-00`
+## 8. Console
 
-Matrice vide, à remplir uniquement par une session de navigateur au premier plan (pas cet environnement automatisé — voir §6). Aucune ligne `pending` ne peut devenir `PASS` sans preuve réelle jointe (capture d'écran, valeurs lues).
+Aucune erreur runtime observée (vérifié avec filtre erreurs sur toute la session).
 
-| Scenario | Viewport | FPS | Draw calls | Triangles | Screenshot | Result |
-|---|---:|---:|---:|---:|---|---|
-| Zeeland | desktop | pending | pending | pending | pending | pending |
-| Foolfoule | desktop | pending | pending | pending | pending | pending |
-| Hold The Light ou ÉTÉÉAOOÉTÉ | desktop | pending | pending | pending | pending | pending |
-| Golden path | mobile | pending | pending | pending | pending | pending |
-| Reduced motion | mobile/desktop | n/a | n/a | n/a | pending | pending |
-| No WebGL | desktop | n/a | n/a | n/a | pending | pending |
+Avertissement connu, non corrigé dans ce lot (`src/**` non modifié) :
+
+```text
+THREE.WebGLShadowMap: PCFSoftShadowMap has been deprecated. Using PCFShadowMap instead.
+```
+
+Classification : `KNOWN_NON_BLOCKING_DEPRECATION_WARNING`. Avertissements additionnels observés et catalogués (également non corrigés) : dépréciation `THREE.Clock`, avertissements `THREE.Material: parameter 'map' has value of undefined` (construction initiale de scène), et un log `THREE.WebGLRenderer: Context Lost` causé par la procédure de test no-WebGL de ce lot elle-même (pas spontané). Détail complet : `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §8.
 
 ---
 
 ## 9. Performance acceptance targets — not current runtime measurements
 
-Ces valeurs, déjà posées par `docs/DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md` §9, sont des **cibles d'acceptation issues du Programme**, pas une mesure de la baseline observée dans ce lot :
+Ces valeurs, déjà posées par `docs/DRIFT_3D_INTEGRAL_WORLD_PROGRAM.md` §9, restent des **cibles d'acceptation issues du Programme** :
 
 ```text
 mobile      ≥30 fps
@@ -190,16 +243,18 @@ desktop     ≥50 fps sur scènes de référence
 plafond     ≤300 draw calls et ≤1,5 M triangles
 ```
 
-Tout lot Build doit capturer sa propre mesure réelle (fps, draw calls, triangles, mémoire) contre ces cibles, dans une session de navigateur au premier plan. `BASE-00` ne fournit à ce stade aucune mesure fps/draw-calls en conditions réelles (§6) et ne doit pas être cité comme preuve de performance tant que §8 reste `pending`.
+L'échantillon mobile réel (§6.1, 50,5 fps) et l'enveloppe de coût inter-zones (§6.2) montrent une marge confortable sur les plafonds géométriques. Aucune mesure fps desktop distincte par zone n'existe (§6.3) — tout lot Build souhaitant une telle mesure doit la capturer lui-même, dans une session de navigateur au premier plan.
 
 ---
 
 ## 10. Conclusion
 
 - Architecture réellement livrée inventoriée (§4, mesuré) ; écart avec la cible documenté, non comblé (attendu, relève de `SYS-*`).
-- Golden path `/drift` partiellement vérifié : console propre, chargement réseau, ambiance opt-in, règle mobile confirmée (§5, mesuré) — mais aucune capture visuelle ni conformité de scène.
-- Fallbacks no-WebGL/reduced-motion vérifiés par code seulement, jamais déclenchés en direct (§6.1) — `pending`.
-- Aucune mesure fps/draw-calls/triangles/mémoire en conditions réelles obtenue (§6) — `pending`.
+- Golden path `/drift` vérifié : console propre, chargement réseau, ambiance opt-in, règle mobile confirmée à un viewport réel, quatre scènes visuellement revues en direct (§5).
+- Fallbacks no-WebGL et reduced-motion réellement déclenchés et confirmés en session réelle (§5, §6.5).
+- Un échantillon fps réel au premier plan (mobile, 50,5 fps) et une enveloppe de coût de rendu inter-zones réelle (139–175 draw calls, 178644–198124 triangles) obtenus (§6) — largement sous les plafonds.
+- Aucune mesure fps desktop distincte par zone — explicitement étiquetée `INFERRED_FROM_REPRESENTATIVE_SAMPLE`, jamais présentée comme mesurée (§6.3).
+- Aucun fichier `.png` committé — limite d'environnement vérifiée et documentée, jamais contournée par une preuve fabriquée (§6.5).
 - Six éléments runtime historiques requalifiés sans portage (§7) — aucun nouvel identifiant créé.
 - Aucun changement `src/**` ou `public/**` dans ce lot.
-- **`DRIFT-IV-BASE-00` reste `REWORK_REQUIRED` tant que la matrice §8 n'est pas remplie par une preuve réelle. `DRIFT-IV-SYS-00` reste `BLOCKED_BY_DEPENDENCY`.**
+- **Décision de gate : `DRIFT-IV-BASE-00` → `DONE`. `DRIFT-IV-SYS-00` → `READY`.** Voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §9 pour le détail du gate.

@@ -158,7 +158,7 @@ Interdictions absolues :
 
 ---
 
-# 7. Current backlog state — DRIFT-IV-BASE-00 in progress
+# 7. Effective state upon merge of DRIFT-IV-BASE-00
 
 | Lot | Statut |
 |---|---|
@@ -168,12 +168,12 @@ Interdictions absolues :
 | `DRIFT-IV-GOV-30` | `DONE` |
 | `DRIFT-IV-BY-EUX-00` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BY-EUX-10` | `SATISFIED_BY_EXISTING_AUTHORITY` |
-| `DRIFT-IV-BASE-00` | `REWORK_REQUIRED` |
-| `DRIFT-IV-SYS-00` | `BLOCKED_BY_DEPENDENCY` |
+| `DRIFT-IV-BASE-00` | `DONE` |
+| `DRIFT-IV-SYS-00` | `READY` |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
-`DRIFT-IV-BASE-00` reste le lot actif : fps réel, draw calls réels, triangles réels, capture visuelle desktop, vérification visuelle mobile, déclenchement réel reduced-motion et déclenchement réel no-WebGL restent à obtenir (matrice vide, `docs/DRIFT_3D_RUNTIME_BASELINE.md` §8). Merger la présente correction ne change pas ce statut — le gate reste ouvert. `DRIFT-IV-SYS-00` reste `BLOCKED_BY_DEPENDENCY` et ne doit pas être ouvert avant que `DRIFT-IV-BASE-00` passe à `DONE`. `docs/DRIFT_3D_RUNTIME_BASELINE.md` reste une baseline **partielle** — performance acceptance targets héritées du Programme, pas une mesure observée — jusqu'à preuve réelle.
+`DRIFT-IV-BASE-00` est passé à `DONE` sous le protocole de preuve révisé (`REPRESENTATIVE REAL FPS SAMPLE + CROSS-ZONE RENDER-COST ENVELOPE + AUTOMATED VISUAL, MOBILE AND FALLBACK EVIDENCE`) : un échantillon fps réel au premier plan, une enveloppe de coût de rendu inter-zones réelle, une vérification structurelle mobile automatisée et le déclenchement réel des deux fallbacks ont tous été obtenus — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le rapport complet et la décision de gate. `DRIFT-IV-SYS-00` est désormais `READY`.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -212,7 +212,7 @@ DRIFT-IV-BASE-00
 
 | Lot | Gate produit |
 |---|---|
-| `BASE-00` | mesure du runtime réel, architecture, visuel, mobile, fallback, performance — `REWORK_REQUIRED`, preuve de performance et de fallback en attente, voir `docs/DRIFT_3D_RUNTIME_BASELINE.md` |
+| `BASE-00` | mesure du runtime réel, architecture, visuel, mobile, fallback, performance — `DONE`, voir `docs/DRIFT_3D_RUNTIME_BASELINE.md` et `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` |
 | `SYS-00` | horloge audio unique et stable |
 | `SYS-10` | lifecycle et nettoyage |
 | `SYS-20` | harness de resolver de cues |
