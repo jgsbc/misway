@@ -31,6 +31,11 @@ import {
   getDrift3DAmbienceMixAt,
 } from "@/lib/drift3dAmbience";
 import type { Drift3DAudioClockRef } from "@/lib/drift3dAudioClock";
+import {
+  createDrift3DSceneLifecycleSnapshot,
+  transitionDrift3DSceneLifecycle,
+  type Drift3DSceneLifecycleSnapshot,
+} from "@/lib/drift3dSceneLifecycle";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -76,6 +81,19 @@ export default function Drift3DCanvas({
     startDistance: number;
     startScale: number;
   } | null>(null);
+  // `changedAtMs: 0` mirrors the AudioClock's deterministic init (no
+  // `performance.now()` call during render) — harmless, since the mount
+  // effect below stamps a real timestamp before any consumer reads it.
+  const sceneLifecycleRef = useRef<Drift3DSceneLifecycleSnapshot>(
+    createDrift3DSceneLifecycleSnapshot(0)
+  );
+  // Bumped on every real invocation of the lifecycle effect's setup (see
+  // below), including a React 18 Strict Mode dev replay on the same
+  // component instance. Lets the deferred route-unmount decision (also
+  // below) tell a genuine unmount apart from a Strict Mode
+  // setup->cleanup->setup cycle on that same instance.
+  const lifecycleEffectGenerationRef = useRef(0);
+  const [sceneRuntimeActive, setSceneRuntimeActive] = useState(false);
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
 
@@ -127,10 +145,126 @@ export default function Drift3DCanvas({
     };
   }, [isAmbienceOn, isPlaying]);
 
+  // Scene lifecycle: mount, document-visibility-driven active/paused, and an
+  // explicit route-unmount reset. This is the only place that transitions
+  // `sceneLifecycleRef` for mount/visibility/unmount — the audio player is
+  // never touched here, and no track/cue vocabulary enters this effect.
   useEffect(() => {
+    let cancelled = false;
+    const activeTouchPointers = activeTouchPointersRef.current;
+    const effectGeneration = ++lifecycleEffectGenerationRef.current;
+
+    sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+      sceneLifecycleRef.current,
+      "mount",
+      performance.now()
+    );
+
+    if (document.visibilityState === "visible") {
+      sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+        sceneLifecycleRef.current,
+        "activate",
+        performance.now()
+      );
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setSceneRuntimeActive(true);
+        }
+      });
+    }
+
+    function onVisibilityChange() {
+      const nowMs = performance.now();
+      const state = sceneLifecycleRef.current.state;
+
+      if (document.hidden) {
+        if (state === "ACTIVE") {
+          sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+            sceneLifecycleRef.current,
+            "pause",
+            nowMs
+          );
+          setSceneRuntimeActive(false);
+        }
+
+        return;
+      }
+
+      if (state === "PAUSED") {
+        sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+          sceneLifecycleRef.current,
+          "resume",
+          nowMs
+        );
+        setSceneRuntimeActive(true);
+      } else if (state === "IDLE") {
+        sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+          sceneLifecycleRef.current,
+          "activate",
+          nowMs
+        );
+        setSceneRuntimeActive(true);
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      // Resource cleanup and transient-state clearing stay immediate and
+      // unconditional — they are cheap, idempotent, and correct whether
+      // this cleanup turns out to be a real unmount or a React 18 Strict
+      // Mode dev replay of the same instance.
       ambienceEngineRef.current?.stop();
       ambienceEngineRef.current = null;
+      pointerDriveStateRef.current = {
+        active: false,
+        pointerId: null,
+        origin: null,
+        input: { x: 0, z: 0, active: false },
+      };
+      activeTouchPointers.clear();
+      pinchStateRef.current = null;
+
+      // The *logical* route-unmount transition is deferred to a microtask.
+      // Strict Mode's dev-only replay runs setup -> cleanup -> setup
+      // synchronously on the same instance: by the time this microtask
+      // runs, `lifecycleEffectGenerationRef.current` will already have
+      // been bumped again by that replay's setup, so this check tells a
+      // genuine unmount (no later setup ever bumps it again) apart from a
+      // phantom one. No setTimeout/setInterval/rAF — this is not a polling
+      // timer, just a way to let the (possible) next synchronous setup
+      // declare itself before this decision is made. No `setState` call in
+      // this deferred block either way — the component may already be
+      // unmounting for real.
+      queueMicrotask(() => {
+        // Intentionally reading the *live* ref value here, not a value
+        // captured at cleanup time — that live read is exactly what tells
+        // a later setup apart from "no later setup ever ran".
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        if (lifecycleEffectGenerationRef.current !== effectGeneration) {
+          return;
+        }
+
+        sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+          sceneLifecycleRef.current,
+          "reset",
+          performance.now(),
+          "route-unmount"
+        );
+        sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+          sceneLifecycleRef.current,
+          "reset-complete",
+          performance.now()
+        );
+        sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
+          sceneLifecycleRef.current,
+          "unmount",
+          performance.now()
+        );
+      });
     };
   }, []);
 
@@ -481,7 +615,7 @@ export default function Drift3DCanvas({
             far: 200,
           }}
           dpr={[1, 1.5]}
-          frameloop="always"
+          frameloop={sceneRuntimeActive ? "always" : "never"}
           shadows
           gl={{
             antialias: true,
@@ -497,6 +631,7 @@ export default function Drift3DCanvas({
             cameraZoomTargetRef={cameraZoomTargetRef}
             vehicleStateRef={vehicleStateRef}
             audioClockRef={audioClockRef}
+            sceneLifecycleRef={sceneLifecycleRef}
           />
         </Canvas>
 

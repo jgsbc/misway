@@ -158,7 +158,7 @@ Interdictions absolues :
 
 ---
 
-# 7. Effective state upon merge of DRIFT-IV-SYS-00
+# 7. Effective state upon merge of DRIFT-IV-SYS-10
 
 | Lot | Statut |
 |---|---|
@@ -170,13 +170,16 @@ Interdictions absolues :
 | `DRIFT-IV-BY-EUX-10` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BASE-00` | `DONE` |
 | `DRIFT-IV-SYS-00` | `DONE` |
-| `DRIFT-IV-SYS-10` | `READY` |
+| `DRIFT-IV-SYS-10` | `DONE` |
+| `DRIFT-IV-SYS-20` | `READY` |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
 `DRIFT-IV-BASE-00` est passé à `DONE` sous le protocole de preuve révisé (`REPRESENTATIVE REAL FPS SAMPLE + CROSS-ZONE RENDER-COST ENVELOPE + AUTOMATED VISUAL, MOBILE AND FALLBACK EVIDENCE`) : un échantillon fps réel au premier plan, une enveloppe de coût de rendu inter-zones réelle, une vérification structurelle mobile automatisée et le déclenchement réel des deux fallbacks ont tous été obtenus — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le rapport complet et la décision de gate.
 
-`DRIFT-IV-SYS-00` livre l'horloge audio partagée (`src/lib/drift3dAudioClock.ts`, intégrée dans `AudioPlayerProvider.tsx`, propagée jusqu'à `Drift3DScene.tsx`) — comportement vérifié en session de navigateur réelle au premier plan sur les neuf scénarios requis (init, lecture, pause, reprise, seek, changement de track, loop, changement de route, entrée en zone sans lecture), tous `PASS` — voir `docs/evidence/DRIFT-IV-SYS-00/audio-clock-evidence.md`. Aucun cue resolver, scene lifecycle formel, signature arbitration ou quality tier n'est livré par ce lot. `DRIFT-IV-SYS-10` est désormais `READY`.
+`DRIFT-IV-SYS-00` livre l'horloge audio partagée (`src/lib/drift3dAudioClock.ts`, intégrée dans `AudioPlayerProvider.tsx`, propagée jusqu'à `Drift3DScene.tsx`) — comportement vérifié en session de navigateur réelle au premier plan sur les neuf scénarios requis (init, lecture, pause, reprise, seek, changement de track, loop, changement de route, entrée en zone sans lecture), tous `PASS` — voir `docs/evidence/DRIFT-IV-SYS-00/audio-clock-evidence.md`. Aucun cue resolver, scene lifecycle formel, signature arbitration ou quality tier n'est livré par ce lot.
+
+`DRIFT-IV-SYS-10` livre le lifecycle de scène partagé (`src/lib/drift3dSceneLifecycle.ts` : cinq états, matrice de transitions, `mountRevision`/`lifecycleRevision`/`resetRevision`), intégré dans `Drift3DCanvas.tsx` (visibilité document pilotant `ACTIVE`/`PAUSED`, `frameloop` synchronisé, démontage de route ordonné) et complété par les cleanups de `Drift3DScene.tsx` (texture terrain disposée, clavier vidé, probes dev supprimés avec garde de propriété par instance) — comportement vérifié en session de navigateur réelle : montage initial, pause/reprise de visibilité (via un override de visibilité distinctement étiqueté `FORCED_VISIBILITY_PATH`, le document automatisé restant `hidden` en continu), démontage de route (player global et audio inchangés, `resetRevision` +1 exact, cinq globals dev supprimés), retour sur Drift, trois cycles SPA sans accumulation, disposal terrain (preuve structurelle), et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-10/scene-lifecycle-evidence.md`. Aucun Cue Resolver, lifecycle track-local, signature arbitration ou quality tier n'est livré par ce lot. `DRIFT-IV-SYS-20` est désormais `READY`.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -217,7 +220,7 @@ DRIFT-IV-BASE-00
 |---|---|
 | `BASE-00` | mesure du runtime réel, architecture, visuel, mobile, fallback, performance — `DONE`, voir `docs/DRIFT_3D_RUNTIME_BASELINE.md` et `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` |
 | `SYS-00` | horloge audio unique et stable — `DONE`, voir `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` |
-| `SYS-10` | lifecycle et nettoyage |
+| `SYS-10` | lifecycle et nettoyage — `DONE`, voir `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` |
 | `SYS-20` | harness de resolver de cues |
 | `SYS-30` | arbitrage d'une seule signature majeure |
 | `SYS-40` | quality tiers préservant l'identité |

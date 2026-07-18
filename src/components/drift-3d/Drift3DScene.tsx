@@ -68,6 +68,7 @@ import {
   readDrift3DAudioClockTime,
   type Drift3DAudioClockRef,
 } from "@/lib/drift3dAudioClock";
+import type { Drift3DSceneLifecycleRef } from "@/lib/drift3dSceneLifecycle";
 
 const DRIFT_3D_VEHICLE_MAX_LEAN = 0.24;
 const DRIFT_3D_VEHICLE_MAX_PITCH = 0.5;
@@ -84,12 +85,35 @@ function terrainNoise(x: number, y: number) {
 }
 
 /**
+ * Dev-only ownership registry for `window.__drift3d*` probes. Not a generic
+ * cleanup registry for resources (those stay owned by their own components)
+ * — this exists solely so a late-firing cleanup from an already-replaced
+ * scene instance can never delete a probe a newer instance just installed.
+ * Each mounted `Drift3DScene` claims its probe keys with its own private
+ * token object; a release only takes effect if that token still matches.
+ */
+const drift3dDevProbeOwners = new Map<string, object>();
+
+function claimDrift3DDevProbe(key: string, owner: object) {
+  drift3dDevProbeOwners.set(key, owner);
+}
+
+function releaseDrift3DDevProbe(key: string, owner: object) {
+  if (drift3dDevProbeOwners.get(key) !== owner) {
+    return;
+  }
+
+  drift3dDevProbeOwners.delete(key);
+  delete (window as unknown as Record<string, unknown>)[key];
+}
+
+/**
  * Zone-blended ground albedo (color script palettes) with fine grain and a
  * chalk quarry patch around `chailk`. Generated once on the client; replaces
  * the flat single-color floor forbidden by the realism bible.
  */
 function useDriftTerrainTexture() {
-  return useMemo(() => {
+  const texture = useMemo(() => {
     if (typeof document === "undefined") {
       return null;
     }
@@ -143,12 +167,20 @@ function useDriftTerrainTexture() {
 
     context.putImageData(image, 0, 0);
 
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 4;
+    const canvasTexture = new THREE.CanvasTexture(canvas);
+    canvasTexture.colorSpace = THREE.SRGBColorSpace;
+    canvasTexture.anisotropy = 4;
 
-    return texture;
+    return canvasTexture;
   }, []);
+
+  useEffect(() => {
+    return () => {
+      texture?.dispose();
+    };
+  }, [texture]);
+
+  return texture;
 }
 
 /**
@@ -536,6 +568,8 @@ function KeyboardVehicleMotion({
   }, [onProximityChange, startPosition, vehicleRef, vehicleStateRef]);
 
   useEffect(() => {
+    const pressedKeys = pressedKeysRef.current;
+
     function releaseAllKeys() {
       if (pressedKeysRef.current.size === 0) {
         return;
@@ -582,6 +616,9 @@ function KeyboardVehicleMotion({
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", releaseAllKeys);
       document.removeEventListener("visibilitychange", releaseAllKeys);
+      // No key stays "pressed" across an unmount/remount — a returning
+      // instance always starts from a genuinely empty set.
+      pressedKeys.clear();
     };
   }, []);
 
@@ -724,6 +761,7 @@ type Drift3DSceneProps = {
   cameraZoomTargetRef: MutableRefObject<number>;
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
   audioClockRef: Drift3DAudioClockRef;
+  sceneLifecycleRef: Drift3DSceneLifecycleRef;
 };
 
 export default function Drift3DScene({
@@ -733,6 +771,7 @@ export default function Drift3DScene({
   cameraZoomTargetRef,
   vehicleStateRef,
   audioClockRef,
+  sceneLifecycleRef,
 }: Drift3DSceneProps) {
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
@@ -751,10 +790,33 @@ export default function Drift3DScene({
 
   const terrainTexture = useDriftTerrainTexture();
   const cinematicZoomRef = useRef(1);
+  // Computed once per component instance (fiber), not per effect run: a
+  // React 18 Strict Mode dev replay (setup -> cleanup -> setup on the same
+  // instance) reuses this exact object across both setups, so the probe
+  // ownership claimed below stays stable through that replay. Only a
+  // genuinely new instance (a real unmount followed by a real remount)
+  // gets a different token.
+  const devProbeOwnerRef = useRef<object>({});
 
   useEffect(() => {
     if (process.env.NODE_ENV === "production") {
       return;
+    }
+
+    // Per-instance token: guards every probe this effect claims, so this
+    // instance's cleanup can never delete a later instance's probe (see
+    // `claimDrift3DDevProbe`/`releaseDrift3DDevProbe` above).
+    const owner = devProbeOwnerRef.current;
+    const ownedProbeKeys = [
+      "__drift3dAudioClock",
+      "__drift3dLifecycle",
+      "__drift3dRender",
+      "__drift3dDebug",
+      "__drift3dTeleport",
+    ] as const;
+
+    for (const key of ownedProbeKeys) {
+      claimDrift3DDevProbe(key, owner);
     }
 
     Object.defineProperty(window, "__drift3dAudioClock", {
@@ -778,10 +840,37 @@ export default function Drift3DScene({
       },
     });
 
+    // Read-only: a frozen object exposing only a `read()` getter method,
+    // never a mutator. `__drift3dRender`/`__drift3dDebug` are written
+    // per-frame elsewhere (`AtmosphereRig`/`KeyboardVehicleMotion`) and
+    // `__drift3dTeleport` is written externally by a dev/test script — this
+    // effect only claims cleanup rights over them, it never sets their value.
+    Object.defineProperty(window, "__drift3dLifecycle", {
+      configurable: true,
+      value: Object.freeze({
+        read: () => {
+          const snapshot = sceneLifecycleRef.current;
+
+          return {
+            state: snapshot.state,
+            previousState: snapshot.previousState,
+            lifecycleRevision: snapshot.lifecycleRevision,
+            mountRevision: snapshot.mountRevision,
+            resetRevision: snapshot.resetRevision,
+            lastEvent: snapshot.lastEvent,
+            lastResetReason: snapshot.lastResetReason,
+            changedAtMs: snapshot.changedAtMs,
+          };
+        },
+      }),
+    });
+
     return () => {
-      delete (window as unknown as Record<string, unknown>).__drift3dAudioClock;
+      for (const key of ownedProbeKeys) {
+        releaseDrift3DDevProbe(key, owner);
+      }
     };
-  }, [audioClockRef]);
+  }, [audioClockRef, sceneLifecycleRef]);
 
   return (
     <>
