@@ -42,6 +42,11 @@ import {
   resolveDrift3DCueFromAudioClock,
   type Drift3DCuePhase,
 } from "@/lib/drift3dCueResolver";
+import {
+  arbitrateDrift3DMajorSignature,
+  getDrift3DSignatureCandidateIssues,
+  type Drift3DSignatureCandidate,
+} from "@/lib/drift3dSignatureArbitration";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -324,6 +329,42 @@ export default function Drift3DCanvas({
       }
     };
   }, [audioClockRef]);
+
+  // Dev-only, read-only signature arbitration harness. Same rationale as
+  // the cue resolver harness above: lives here (Drift3DCanvas) so it never
+  // depends on the Canvas's internal mount or on `requestAnimationFrame`.
+  // It only proves the pure arbiter against caller-supplied candidates — it
+  // is never wired to any real scene, track or lifecycle state in this lot,
+  // and exposes no way to command playback, the scene lifecycle or a scene.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      validate: (candidates: readonly Drift3DSignatureCandidate[]) =>
+        getDrift3DSignatureCandidateIssues(candidates),
+      arbitrate: (candidates: readonly Drift3DSignatureCandidate[]) =>
+        arbitrateDrift3DMajorSignature(candidates),
+    });
+
+    Object.defineProperty(window, "__drift3dSignatureArbitration", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Same simple identity check as the cue resolver probe — no shared
+      // ownership registry, no change to Drift3DScene's probe registry.
+      if (
+        (window as unknown as Record<string, unknown>)
+          .__drift3dSignatureArbitration === probe
+      ) {
+        delete (window as unknown as Record<string, unknown>)
+          .__drift3dSignatureArbitration;
+      }
+    };
+  }, []);
 
   function toggleAmbience() {
     if (isAmbienceOn) {
