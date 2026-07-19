@@ -1,0 +1,261 @@
+{
+  "lot": "DRIFT-IV-SYS-60",
+  "date": "2026-07-19",
+  "method": "real Chrome session via MCP browser (dev server restarted fresh for this lot); window.__drift3dNoWebGL for pure contract evidence, real DOM navigation and audio for shell/listening-path behavior",
+  "methodologyNote": "SPA navigation was triggered via real clicks (screen coordinates or programmatic element.click() on DOM <a> elements when more reliable) — always a genuine DOM click handled by the Next.js router. No-WebGL was simulated by overriding HTMLCanvasElement.prototype.getContext to return null for webgl2/webgl/experimental-webgl, explicitly restored once no longer needed.",
+  "environmentIncident": null,
+  "consoleErrorsDuringSession": 0,
+  "sections": {
+    "testA_canonicalContract": {
+      "validateCanonical": [],
+      "path": {
+        "representation": "panel",
+        "requiresWebGL": false,
+        "mounts3DCanvas": false,
+        "audioAuthority": "global-player",
+        "autoplay": false,
+        "promises3DInteraction": false,
+        "destinations": [
+          { "id": "map", "href": "/drift-lab", "role": "map" },
+          { "id": "tracks", "href": "/tracks", "role": "listening" }
+        ],
+        "guarantees": {
+          "usefulRoute": true,
+          "catalogueAccessible": true,
+          "mapAccessible": true,
+          "globalAudioPreserved": true,
+          "staticLightweightRepresentation": true,
+          "honestInteractionBoundary": true
+        }
+      },
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testB_immutability": {
+      "isFrozenPath": true,
+      "isFrozenDestinations": true,
+      "isFrozenDestination0": true,
+      "isFrozenDestination1": true,
+      "isFrozenGuarantees": true,
+      "unchangedAfterMutationAttempt": true,
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testC_invalidFixtures": {
+      "fixtureCount": 18,
+      "fixtures": {
+        "representationNotPanel": [{ "type": "representation-not-panel" }],
+        "requiresWebGLTrue": [{ "type": "requires-webgl-not-false" }],
+        "mounts3DCanvasTrue": [{ "type": "mounts-3d-canvas-not-false" }],
+        "audioAuthorityWrong": [{ "type": "audio-authority-not-global-player" }],
+        "autoplayTrue": [{ "type": "autoplay-not-false" }],
+        "promises3DInteractionTrue": [{ "type": "promises-3d-interaction-not-false" }],
+        "mapDestinationMissing": [{ "type": "destination-missing", "id": "map" }],
+        "tracksDestinationMissing": [{ "type": "destination-missing", "id": "tracks" }],
+        "duplicateDestinationId": [
+          { "type": "destination-duplicate-id", "id": "map" },
+          { "type": "destination-missing", "id": "tracks" }
+        ],
+        "wrongMapHref": [{ "type": "destination-invalid-href", "id": "map" }],
+        "wrongTracksHref": [{ "type": "destination-invalid-href", "id": "tracks" }],
+        "wrongTracksRole": [{ "type": "destination-invalid-role", "id": "tracks" }],
+        "guarantee_usefulRoute_false": [{ "type": "guarantee-not-true", "guarantee": "usefulRoute" }],
+        "guarantee_catalogueAccessible_false": [{ "type": "guarantee-not-true", "guarantee": "catalogueAccessible" }],
+        "guarantee_mapAccessible_false": [{ "type": "guarantee-not-true", "guarantee": "mapAccessible" }],
+        "guarantee_globalAudioPreserved_false": [{ "type": "guarantee-not-true", "guarantee": "globalAudioPreserved" }],
+        "guarantee_staticLightweightRepresentation_false": [{ "type": "guarantee-not-true", "guarantee": "staticLightweightRepresentation" }],
+        "guarantee_honestInteractionBoundary_false": [{ "type": "guarantee-not-true", "guarantee": "honestInteractionBoundary" }]
+      },
+      "note": "All fixtures built by shallow-copying real canonical contract values into new objects — the canonical contract itself was never modified. duplicateDestinationId honestly produces two issues (duplicate-id and missing-tracks) since duplicating the map destination in a 2-element array drops tracks — correct validator behavior, documented as observed.",
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS — every fixture detected with its exact expected issue type"
+    },
+    "testD_realNoWebGLRuntime": {
+      "canvasCount": 0,
+      "audioCount": 1,
+      "audioPaused": true,
+      "hasNoWebGLProbe": true,
+      "hasReducedMotionProbe": true,
+      "hasQualityProbe": false,
+      "hasCueResolverProbe": false,
+      "hasSignatureArbitrationProbe": false,
+      "pageTextConfirmed": [
+        "NO WEBGL",
+        "This browser cannot open the 3D room.",
+        "The 2D lab remains the reference map. Nothing needs to play here.",
+        "ABOUT THE 3D ROOM",
+        "OPEN 2D LAB",
+        "TRACKS"
+      ],
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testE_mapAccessible": {
+      "action": "real click on Open 2D Lab from the no-WebGL panel",
+      "resultingHref": "http://localhost:3000/drift-lab/",
+      "resultingTitle": "Drift Lab — experimental MISWΛY map | MISWΛY (MISWAY)",
+      "consoleErrors": 0,
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testF_catalogueAccessible": {
+      "action": "real click on Tracks from the no-WebGL panel",
+      "resultingHref": "http://localhost:3000/tracks/",
+      "resultingTitle": "Tracks — music made over time | MISWΛY (MISWAY)",
+      "distinctTrackLinksObserved": 26,
+      "note": "count observed, not hardcoded in SYS-60 code",
+      "consoleErrors": 0,
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testG_realListeningPath": {
+      "explicitPlaybackLaunched": { "audioCount": 1, "audioPaused": false, "audioSrc": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+      "pauseViaExistingGlobalControlOnTracks": { "audioPaused": true },
+      "resumeViaExistingGlobalControlOnTracks": { "audioPaused": false },
+      "afterNavigatingToDriftNoWebGL": { "canvasCount": 0, "audioCount": 1, "audioPaused": false, "audioSrc": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+      "honestFinding": "GlobalAudioPlayer hides itself on any /drift* route (pre-existing behavior in src/components/audio/GlobalAudioPlayer.tsx, not modified by this lot), and the no-WebGL panel renders no playback control of its own (absolute rule of this lot). Confirmed hasAnyPlaybackButton=false on /drift in no-WebGL. /tracks is therefore the real path to launch/control the global player; playback continuity on /drift no-WebGL is real and measured, but no control is visible on that specific route — not invented here.",
+      "classification": "LISTENING_PATH_EVIDENCE",
+      "evidenceLevel": "MEASURED",
+      "result": "PASS"
+    },
+    "testH_noWebGLEntryWithoutPlayback": {
+      "note": "Identical to Test D data (no audio launched yet at that point in the session).",
+      "audioCount": 1,
+      "audioPaused": true,
+      "noAutoplay": true,
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testI_reducedMotionPriorityPreserved": {
+      "override": "prefersReducedMotion=true (fake MediaQueryList) AND WebGL unavailable, real SPA navigation to /drift/",
+      "renderedFallback": "reduced-motion",
+      "pageTextConfirmed": [
+        "REDUCED MOTION",
+        "The 3D room stays closed today.",
+        "Motion is reduced, so this route keeps the quieter path open."
+      ],
+      "noWebGLPanelRendered": false,
+      "note": "Pre-existing reduced-motion priority from DRIFT-IV-SYS-50 remains intact, unchanged by this lot.",
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testJ_returnToWebGL": {
+      "override": "matchMedia restored to matches:false, getContext restored to original, real SPA navigation / -> /drift/",
+      "canvasCount": 1,
+      "audioCount": 1,
+      "audioPaused": false,
+      "hasNoWebGLProbe": true,
+      "sameProbeInstanceAsBefore": false,
+      "noWebGLPanelPresent": false,
+      "note": "Remount required a full route navigation (Drift3DClient unmounted/remounted), hence a genuinely new probe instance — method explicitly documented.",
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testK_probeCleanupRemount": {
+      "onDrift_beforeNavigation": { "probePresent": true, "capturedAs": "oldProbe" },
+      "afterSpaNavigateAway": { "href": "http://localhost:3000/", "audioCount": 1, "probePresent": false },
+      "afterSpaNavigateBack": { "href": "http://localhost:3000/drift/", "audioCount": 1, "probePresent": true, "sameInstanceAsBefore": false },
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testL_noFalseInteractionPromise": {
+      "drivingTutorialVisibility": {
+        "standardRuntime_canvasPresent": { "tutorialVisible": true },
+        "noWebGLFallback": { "tutorialVisible": false },
+        "reducedMotionFallback": { "tutorialVisible": false }
+      },
+      "noWebGLPanelCTALabels": ["Open 2D Lab", "Tracks"],
+      "noPromiseOfDrivingOrExploring": true,
+      "classification": "REAL_NO_WEBGL_SHELL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testM_basePathNavigation": {
+      "command": "git grep -n \"localhost\\|window.location\" -- src/lib/drift3dNoWebGL.ts src/components/drift-3d/Drift3DNoWebGLPath.tsx",
+      "matches": 0,
+      "buildStaticExport": "PASS (38 routes)",
+      "classification": "STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testN_structuralScope": {
+      "note": "git grep without -E uses POSIX basic regex, where alternation requires \\| not a plain |. Commands below are the actual commands executed.",
+      "timersOrUseFrame": { "command": "git grep -n \"setInterval\\|setTimeout\\|requestAnimationFrame\\|useFrame\" -- src/lib/drift3dNoWebGL.ts src/components/drift-3d/Drift3DNoWebGLPath.tsx", "matches": 0 },
+      "threeOrCanvasOrWebGL": {
+        "command": "git grep -n \"THREE\\|three\\|Canvas\\|WebGLRenderer\\|getContext\" -- src/lib/drift3dNoWebGL.ts src/components/drift-3d/Drift3DNoWebGLPath.tsx",
+        "matches": 7,
+        "matchedLines": [
+          "src/components/drift-3d/Drift3DNoWebGLPath.tsx:21: * Static, lightweight no-WebGL narrative path (DRIFT-IV-SYS-60). No Canvas,",
+          "src/lib/drift3dNoWebGL.ts:49:  mounts3DCanvas: false;",
+          "src/lib/drift3dNoWebGL.ts:82:  mounts3DCanvas: boolean;",
+          "src/lib/drift3dNoWebGL.ts:144:  mounts3DCanvas: false,",
+          "src/lib/drift3dNoWebGL.ts:171: * mounts3DCanvas/audioAuthority/autoplay/promises3DInteraction not matching",
+          "src/lib/drift3dNoWebGL.ts:198:  if (path.mounts3DCanvas !== false) {",
+          "src/lib/drift3dNoWebGL.ts:201:      message: `mounts3DCanvas must be false (got ${path.mounts3DCanvas}).`,"
+        ],
+        "classificationOfMatches": {
+          "commentDocstringOnly": ["Drift3DNoWebGLPath.tsx:21 (\"No Canvas,\")"],
+          "contractValidatorSemantics": [
+            "drift3dNoWebGL.ts:49 (type field declaration)",
+            "drift3dNoWebGL.ts:82 (candidate type field declaration)",
+            "drift3dNoWebGL.ts:144 (canonical literal value mounts3DCanvas: false)",
+            "drift3dNoWebGL.ts:171 (docstring listing validated fields)",
+            "drift3dNoWebGL.ts:198 (functional validator check: if (path.mounts3DCanvas !== false))",
+            "drift3dNoWebGL.ts:201 (error message referencing mounts3DCanvas)"
+          ]
+        },
+        "result": "PASS — Canvas vocabulary exists as contract/validation semantics (mounts3DCanvas: false) and one explanatory comment. No Canvas component is imported or mounted. No Three.js functional dependency exists. No WebGLRenderer/getContext functional runtime usage exists."
+      },
+      "forbiddenModuleImports": { "command": "git grep -n \"drift3dQuality\\|drift3dReducedMotion\\|drift3dCueResolver\\|drift3dSignatureArbitration\\|@/lib/tracks\" -- src/lib/drift3dNoWebGL.ts", "matches": 0 },
+      "forbiddenArtisticVocabulary": { "command": "git grep -in \"eux-gainent\\|eteeaooete\\|foolfoule\\|jazzypling\\|cadence-lock\\|wave-ritual\\|deviation\" -- src/lib/drift3dNoWebGL.ts src/components/drift-3d/Drift3DNoWebGLPath.tsx", "matches": 0 },
+      "browserGlobalDocstringNote": "src/lib/drift3dNoWebGL.ts's header docstring deliberately names window/document/navigator/WebGL to state the module never reads or uses them. This is explanatory/documentary vocabulary, not a literal absence of these words. The module performs zero functional reads or runtime usage of window/document/navigator and uses no WebGL API — a functional-behavior claim, not a claim about the file's literal text.",
+      "changedFiles": [
+        "src/lib/drift3dNoWebGL.ts (created)",
+        "src/components/drift-3d/Drift3DNoWebGLPath.tsx (created)",
+        "src/components/drift-3d/Drift3DFallback.tsx (modified)",
+        "src/components/drift-3d/Drift3DClient.tsx (modified)"
+      ],
+      "audioPlayerProviderUntouched": true,
+      "classification": "STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testO_noArtisticAssetAdded": {
+      "command": "git status --short -- public/",
+      "matches": 0,
+      "classification": "STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    }
+  },
+  "console": {
+    "errorsDuringSession": 0
+  },
+  "limits": [
+    "The track used for Test G is a real catalogue track launched via the existing UI; its identity has no meaning for this lot.",
+    "Overriding HTMLCanvasElement.prototype.getContext is a necessary environment control to reproducibly simulate the absence of WebGL in an automated session — explicitly restored between scenarios that no longer needed it.",
+    "No visible audio control exists on the /drift route in no-WebGL mode (inherited pre-existing behavior of GlobalAudioPlayer, not modified by this lot) — documented honestly in Test G rather than hidden or invented.",
+    "No .png file committed under this directory — same environment limitation as prior lots."
+  ],
+  "gate": {
+    "noWebGLContractValid": "PASS",
+    "contractFrozen": "PASS",
+    "canvasAbsentInNoWebGL": "PASS",
+    "staticPanelReallyVisible": "PASS",
+    "honestProductSummary": "PASS",
+    "noNewArtisticInvention": "PASS",
+    "driftLabAccessible": "PASS",
+    "tracksAccessible": "PASS",
+    "realListeningPathDemonstrated": "PASS",
+    "uniqueGlobalPlayer": "PASS",
+    "noAutoplay": "PASS",
+    "noSecondPlayer": "PASS",
+    "reducedMotionStaysDistinct": "PASS",
+    "reducedMotionKeepsExistingPriority": "PASS",
+    "noWebGLNotEqualLow": "PASS",
+    "noPromiseOf3DInteraction": "PASS",
+    "drivingTutorialHiddenInFallback": "PASS",
+    "basePathNavigationPreserved": "PASS",
+    "noPublicAssetAdded": "PASS",
+    "noTrackSpecificFallbackAbstraction": "PASS",
+    "lintPasses": "PASS",
+    "buildPasses": "PASS",
+    "decision": "DRIFT-IV-SYS-60 = DONE — PENDING MERGE. DRIFT-IV-SYS-70 = NEXT_AFTER_MERGE."
+  }
+}

@@ -7,6 +7,13 @@ import { useAudioPlayerRuntime } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
   type Drift3DFallbackReason,
 } from "@/components/drift-3d/Drift3DFallback";
+import { DRIFT_3D_WORLD_SUMMARY } from "@/components/drift-3d/Drift3DNoWebGLPath";
+import {
+  getDrift3DCanonicalNoWebGLIssues,
+  getDrift3DNoWebGLNarrativePath,
+  getDrift3DNoWebGLPathIssues,
+  type Drift3DNoWebGLNarrativePathCandidate,
+} from "@/lib/drift3dNoWebGL";
 import {
   DRIFT_3D_REDUCED_MOTION_MODES,
   getDrift3DCanonicalReducedMotionIssues,
@@ -144,6 +151,41 @@ export default function Drift3DClient() {
     };
   }, []);
 
+  // Dev-only, read-only no-WebGL narrative path harness. Same rationale as
+  // the reduced-motion harness above: lives at the shell level because the
+  // Canvas is intentionally absent whenever this fallback is active. It
+  // only lets a caller CALCULATE the contract/validate a candidate — it
+  // never applies anything: no forceNoWebGL, no disableWebGL, no
+  // setFallback, no navigate, no play/pause.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      getPath: () => getDrift3DNoWebGLNarrativePath(),
+      validate: (path: Drift3DNoWebGLNarrativePathCandidate) =>
+        getDrift3DNoWebGLPathIssues(path),
+      validateCanonical: () => getDrift3DCanonicalNoWebGLIssues(),
+    });
+
+    Object.defineProperty(window, "__drift3dNoWebGL", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Same simple identity check as the other dev probes above.
+      if (
+        (window as unknown as Record<string, unknown>).__drift3dNoWebGL ===
+        probe
+      ) {
+        delete (window as unknown as Record<string, unknown>)
+          .__drift3dNoWebGL;
+      }
+    };
+  }, []);
+
   const reducedMotionMode: Drift3DReducedMotionMode | null =
     prefersReducedMotion === null
       ? null
@@ -161,11 +203,9 @@ export default function Drift3DClient() {
   return (
     <main className="fixed inset-0 isolate overflow-hidden bg-[#f5f0e7] text-neutral-950">
       <p id="drift-3d-description" className="sr-only">
-        Fullscreen drivable 3D listening world: a safari 4x4 crosses four eras
-        and twenty-six track places over real terrain — mountains, canals,
-        storms and dawns. Keyboard, mouse drag or touch drag to drive, mouse
-        wheel to adjust camera distance. Playable places expose an explicit
-        audio button and nothing plays on its own.
+        {DRIFT_3D_WORLD_SUMMARY} Keyboard, mouse drag or touch drag to drive,
+        mouse wheel to adjust camera distance. Playable places expose an
+        explicit audio button and nothing plays on its own.
       </p>
 
       <div className="absolute inset-0">
@@ -190,10 +230,14 @@ export default function Drift3DClient() {
           MISWΛY · Drift
         </p>
         {/* DRIFT-3D-20B: le tutoriel permanent est masqué sur mobile pour
-            dégager la vue ; il reste sur desktop. */}
-        <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
-          ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
-        </p>
+            dégager la vue ; il reste sur desktop. DRIFT-IV-SYS-60: masqué
+            aussi quand un fallback est actif (Canvas absent) pour ne
+            jamais promettre une interaction de conduite indisponible. */}
+        {!fallbackReason ? (
+          <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
+            ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
+          </p>
+        ) : null}
       </div>
 
       <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-20 flex flex-wrap gap-2 md:bottom-6 md:left-6 md:gap-3">

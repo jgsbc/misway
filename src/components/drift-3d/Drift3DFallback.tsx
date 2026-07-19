@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Drift3DNoWebGLPath from "@/components/drift-3d/Drift3DNoWebGLPath";
 
 export type Drift3DFallbackReason =
   | "checking"
@@ -6,7 +7,7 @@ export type Drift3DFallbackReason =
   | "no-webgl";
 
 const fallbackCopy: Record<
-  Drift3DFallbackReason,
+  Exclude<Drift3DFallbackReason, "no-webgl">,
   { label: string; title: string; body: string }
 > = {
   checking: {
@@ -19,11 +20,6 @@ const fallbackCopy: Record<
     title: "The 3D room stays closed today.",
     body: "Motion is reduced, so this route keeps the quieter path open.",
   },
-  "no-webgl": {
-    label: "No WebGL",
-    title: "This browser cannot open the 3D room.",
-    body: "The 2D lab remains the reference map. Nothing needs to play here.",
-  },
 };
 
 export default function Drift3DFallback({
@@ -31,6 +27,13 @@ export default function Drift3DFallback({
 }: {
   reason: Drift3DFallbackReason;
 }) {
+  // DRIFT-IV-SYS-60: the no-WebGL path gets its own dedicated static panel
+  // (map/tracks destinations, honest 3D-unavailable summary) instead of the
+  // generic template below — checking/reduced-motion stay unchanged.
+  if (reason === "no-webgl") {
+    return <Drift3DNoWebGLPath />;
+  }
+
   const copy = fallbackCopy[reason];
 
   return (
