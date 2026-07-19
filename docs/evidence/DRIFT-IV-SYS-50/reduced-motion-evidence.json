@@ -1,0 +1,205 @@
+{
+  "lot": "DRIFT-IV-SYS-50",
+  "date": "2026-07-19",
+  "method": "real Chrome session via MCP browser; window.__drift3dReducedMotion for pure contract evidence, real DOM navigation (/, /drift/, /tracks/) for real shell behavior",
+  "methodologyNote": "SPA navigation was triggered via real programmatic clicks on DOM <a> elements (element.click()) after a coordinate-based click proved occasionally unreliable in this automated environment — this remains a genuine DOM click handled by the Next.js router, not a simulation of React state.",
+  "environmentIncident": null,
+  "consoleErrorsDuringSession": 0,
+  "sections": {
+    "testA_deterministicModeResolution": {
+      "modes": ["standard", "reduced"],
+      "resolveFalse": "standard",
+      "resolveTrue": "reduced",
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testB_canonicalPoliciesValidAndImmutable": {
+      "validateCanonical": [],
+      "validateStandard": [],
+      "validateReduced": [],
+      "frozen": {
+        "standard": { "isFrozenPolicy": true, "isFrozenMotion": true, "isFrozenMeaning": true, "unchangedAfterMutationAttempt": true },
+        "reduced": { "isFrozenPolicy": true, "isFrozenMotion": true, "isFrozenMeaning": true, "unchangedAfterMutationAttempt": true }
+      },
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testC_reducedInvariants": {
+      "mode": "reduced",
+      "motion": {
+        "allowCameraShake": false,
+        "allowForcedCameraTravel": false,
+        "allowRapidPulsation": false,
+        "allowAggressiveMotion": false,
+        "allowSlowTransitions": true
+      },
+      "meaning": { "poses": true, "states": true, "lighting": true, "materials": true, "beforeAfter": true },
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testD_standardInvariants": {
+      "mode": "standard",
+      "motion": {
+        "allowCameraShake": true,
+        "allowForcedCameraTravel": true,
+        "allowRapidPulsation": true,
+        "allowAggressiveMotion": true,
+        "allowSlowTransitions": true
+      },
+      "meaning": { "poses": true, "states": true, "lighting": true, "materials": true, "beforeAfter": true },
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS"
+    },
+    "testE_invalidFixtures": {
+      "invalidMode": [{ "type": "invalid-mode", "mode": "ultra" }],
+      "reducedShakeTrue": [{ "type": "motion-capability-mismatch", "mode": "reduced", "capability": "allowCameraShake" }],
+      "reducedForcedTravelTrue": [{ "type": "motion-capability-mismatch", "mode": "reduced", "capability": "allowForcedCameraTravel" }],
+      "reducedRapidPulsationTrue": [{ "type": "motion-capability-mismatch", "mode": "reduced", "capability": "allowRapidPulsation" }],
+      "reducedAggressiveMotionTrue": [{ "type": "motion-capability-mismatch", "mode": "reduced", "capability": "allowAggressiveMotion" }],
+      "reducedSlowTransitionsFalse": [{ "type": "motion-capability-mismatch", "mode": "reduced", "capability": "allowSlowTransitions" }],
+      "standardWrongCapability": [{ "type": "motion-capability-mismatch", "mode": "standard", "capability": "allowCameraShake" }],
+      "posesFalse": [{ "type": "meaning-guarantee-not-true", "mode": "reduced", "guarantee": "poses" }],
+      "statesFalse": [{ "type": "meaning-guarantee-not-true", "mode": "reduced", "guarantee": "states" }],
+      "lightingFalse": [{ "type": "meaning-guarantee-not-true", "mode": "reduced", "guarantee": "lighting" }],
+      "materialsFalse": [{ "type": "meaning-guarantee-not-true", "mode": "reduced", "guarantee": "materials" }],
+      "beforeAfterFalse": [{ "type": "meaning-guarantee-not-true", "mode": "reduced", "guarantee": "beforeAfter" }],
+      "note": "All fixtures built by shallow-copying real canonical policy values into new objects — no canonical policy was modified.",
+      "classification": "PURE_CONTRACT_EVIDENCE",
+      "result": "PASS — every fixture detected with its exact expected issue type"
+    },
+    "testF_realStandardRuntimeUnchanged": {
+      "canvasCount": 1,
+      "audioCount": 1,
+      "audioPaused": true,
+      "hasReducedMotionProbe": true,
+      "hasQualityProbe": true,
+      "hasCueResolverProbe": true,
+      "hasSignatureArbitrationProbe": true,
+      "resolveModeFalse": "standard",
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "result": "PASS"
+    },
+    "testG_realReducedMotionRuntime": {
+      "override": "fake MediaQueryList with matches: true, installed before a real SPA navigation to /drift/",
+      "canvasCount": 0,
+      "audioCount": 1,
+      "audioPaused": true,
+      "hasReducedMotionProbe": true,
+      "hasQualityProbe": false,
+      "hasCueResolverProbe": false,
+      "hasSignatureArbitrationProbe": false,
+      "fallbackLabel": "Reduced motion",
+      "fallbackTitle": "The 3D room stays closed today.",
+      "open2dLabAccessible": true,
+      "note": "Canvas-scoped probes are absent only because the Canvas is not mounted — never presented as reduced-motion = LOW.",
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "result": "PASS"
+    },
+    "testH_livePreferenceChange": {
+      "controllableFakeMediaQueryList": "matches, addEventListener('change', ...), removeEventListener('change', ...) — installed once, driven both directions",
+      "startState": { "matches": true, "canvasCount": 0, "probeCaptured": "oldProbe" },
+      "afterChangeToFalse": { "canvasCount": 1, "audioCount": 1, "hasQualityProbe": true, "sameReducedMotionProbeInstance": true, "fallbackGone": true },
+      "afterChangeBackToTrue": { "canvasCount": 0, "audioCount": 1, "fallbackShownAgain": true, "sameReducedMotionProbeInstance": true },
+      "note": "The shell-level probe stays the same instance across live preference changes because its useEffect([]) in Drift3DClient.tsx does not re-run — only the Canvas's conditional render changes. No timer used to drive this test; registered change callbacks were invoked directly.",
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "result": "PASS"
+    },
+    "testI_globalAudioUncontrolledByReducedMotion": {
+      "case1_noAudioLaunched": { "audioCount": 1, "audioPaused": true, "noAutoplay": true },
+      "case2_audioExplicitlyLaunchedBeforehand": {
+        "trackLaunchedVia": "existing /tracks/ UI Play button (real catalogue track, slug not hardcoded in SYS-50, no artistic meaning for this lot)",
+        "afterNavigatingToDriftWithReducedMotionActive": { "canvasCount": 0, "audioCount": 1, "audioPaused": false, "sameAudioSource": true }
+      },
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "evidenceLevel": "MEASURED",
+      "result": "PASS — playback measured to continue uninterrupted through the reduced-motion fallback"
+    },
+    "noteAdditional_browserGlobalsCheck": {
+      "command": "git grep -n \"window\\|document\\|navigator\\|matchMedia\\|devicePixelRatio\\|deviceMemory\\|hardwareConcurrency\" -- src/lib/drift3dReducedMotion.ts",
+      "matches": 2,
+      "matchedLines": [
+        "src/lib/drift3dReducedMotion.ts:13: * This module never reads `matchMedia`, `navigator`, `window` or `document`",
+        "src/lib/drift3dReducedMotion.ts:157: * `matchMedia` — the caller (`Drift3DClient`) is responsible for reading"
+      ],
+      "matchLocation": "module header docstring, before any executable code",
+      "matchNature": "comment/docstring-only prose naming the browser APIs the module refuses to read — not a property, not a branch, not a runtime assignment, not an import, not a dependency",
+      "result": "PASS — comment/docstring-only matches for window/document/navigator/matchMedia; no functional read, branch, assignment, import, dependency or runtime usage of these browser APIs in drift3dReducedMotion.ts. It would be incorrect to claim zero occurrences or zero literal references — the grep returns 2, both non-functional.",
+      "classification": "STRUCTURAL_EVIDENCE"
+    },
+    "testJ_qualityTierSeparation": {
+      "command": "git grep -n \"drift3dQuality\\|getDrift3DQualityProfile\\|setTier\\|qualityTier\" -- src/lib/drift3dReducedMotion.ts",
+      "matches": 0,
+      "classification": "STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testK_noWebglSeparation": {
+      "override": "matches: false, HTMLCanvasElement.prototype.getContext returns null for webgl2/webgl/experimental-webgl, applied before a real SPA navigation to /drift/",
+      "canvasCount": 0,
+      "audioCount": 1,
+      "hasReducedMotionProbe": true,
+      "resolveModeFalse": "standard",
+      "fallbackLabel": "No WebGL",
+      "fallbackTitle": "This browser cannot open the 3D room.",
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "result": "PASS"
+    },
+    "testL_probeCleanupRemount": {
+      "onDrift_beforeNavigation": { "probePresent": true, "capturedAs": "oldProbe" },
+      "afterSpaNavigateAway": { "href": "http://localhost:3000/", "audioCount": 1, "probePresent": false },
+      "afterSpaNavigateBack": { "href": "http://localhost:3000/drift/", "canvasCount": 1, "audioCount": 1, "probePresent": true, "sameInstanceAsBefore": false },
+      "classification": "REAL_SHELL_BEHAVIOR",
+      "result": "PASS"
+    },
+    "testM_noArtisticInvention": {
+      "command": "git grep -in \"eux-gainent\\|eteeaooete\\|foolfoule\\|jazzypling\\|cadence-lock\\|wave-ritual\\|deviation\" -- src/lib/drift3dReducedMotion.ts",
+      "matches": 0,
+      "classification": "STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testN_runtimeScope": {
+      "untouchedFiles": [
+        "src/components/drift-3d/Drift3DFallback.tsx",
+        "src/components/drift-3d/Drift3DCanvas.tsx",
+        "src/components/drift-3d/Drift3DScene.tsx",
+        "src/lib/drift3dQuality.ts"
+      ],
+      "drift3dClientDiff": "Net addition — existing matchMedia listener preserved as-is, pure resolver call added, shell-level dev harness added, no new timer, no audio command, no quality command.",
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    }
+  },
+  "console": {
+    "errorsDuringSession": 0
+  },
+  "limits": [
+    "The track used for Test I case 2 is a real catalogue track launched via the existing UI; its identity has no meaning for this lot and is only mentioned to keep the proof verifiable.",
+    "The fake MediaQueryList (Tests G, H, K) is a necessary environment control — window.matchMedia is not otherwise drivable in a standard automated Chrome session without changing system settings. It remains a faithful replacement of the real API (same methods, same contract), not a simulation of the component.",
+    "No .png file committed under this directory — same environment limitation as prior lots."
+  ],
+  "gate": {
+    "exactlyTwoCanonicalModes": "PASS",
+    "deterministicTrueFalseResolution": "PASS",
+    "policiesFrozen": "PASS",
+    "reducedRemovesShakeForcedTravelRapidPulsationAggressiveMotion": "PASS",
+    "reducedKeepsSlowTransitions": "PASS",
+    "fiveMeaningGuaranteesTrueBothModes": "PASS",
+    "standardKeepsAllCapabilities": "PASS",
+    "reducedMotionDoesNotImportQualityTier": "PASS",
+    "reducedMotionDoesNotSelectLow": "PASS",
+    "reducedMotionDistinctFromNoWebgl": "PASS",
+    "currentShellReducedToFallbackUnchanged": "PASS",
+    "noCanvasMountedInCurrentReducedPath": "PASS",
+    "globalPlayerAlwaysUnique": "PASS",
+    "noAutoplay": "PASS",
+    "livePreferenceChangeClean": "PASS",
+    "shellLevelProbePresentEvenDuringFallback": "PASS",
+    "cleanRemount": "PASS",
+    "noTrackSpecificLogic": "PASS",
+    "noCueMap": "PASS",
+    "noSharedDramaturgicalAbstraction": "PASS",
+    "noDrift3DFallbackChange": "PASS",
+    "noRealArtisticChange": "PASS",
+    "lintAndBuildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-50 = DONE — PENDING MERGE. DRIFT-IV-SYS-60 = NEXT_AFTER_MERGE."
+  }
+}

@@ -7,6 +7,16 @@ import { useAudioPlayerRuntime } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
   type Drift3DFallbackReason,
 } from "@/components/drift-3d/Drift3DFallback";
+import {
+  DRIFT_3D_REDUCED_MOTION_MODES,
+  getDrift3DCanonicalReducedMotionIssues,
+  getDrift3DReducedMotionPolicy,
+  getDrift3DReducedMotionPolicyIssues,
+  isDrift3DReducedMotionMode,
+  resolveDrift3DReducedMotionMode,
+  type Drift3DReducedMotionMode,
+  type Drift3DReducedMotionPolicyCandidate,
+} from "@/lib/drift3dReducedMotion";
 
 const Drift3DCanvas = dynamic(
   () => import("@/components/drift-3d/Drift3DCanvas"),
@@ -92,10 +102,57 @@ export default function Drift3DClient() {
     };
   }, []);
 
+  // Dev-only, read-only reduced-motion harness. Lives here (Drift3DClient,
+  // the shell) rather than in Drift3DCanvas: the Canvas is intentionally
+  // absent whenever reduced motion is active, so a probe installed there
+  // would disappear exactly when it is most useful to inspect. It only
+  // lets a caller CALCULATE a mode/policy — it never applies a mode, never
+  // toggles the system preference, and issues no scene/audio/lifecycle/
+  // quality command of any kind.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      modes: DRIFT_3D_REDUCED_MOTION_MODES,
+      resolveMode: (prefersReducedMotionValue: boolean) =>
+        resolveDrift3DReducedMotionMode(prefersReducedMotionValue),
+      getPolicy: (mode: string) =>
+        isDrift3DReducedMotionMode(mode)
+          ? getDrift3DReducedMotionPolicy(mode)
+          : null,
+      validate: (policy: Drift3DReducedMotionPolicyCandidate) =>
+        getDrift3DReducedMotionPolicyIssues(policy),
+      validateCanonical: () => getDrift3DCanonicalReducedMotionIssues(),
+    });
+
+    Object.defineProperty(window, "__drift3dReducedMotion", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Same simple identity check as the SYS-20/SYS-30/SYS-40 probes.
+      if (
+        (window as unknown as Record<string, unknown>)
+          .__drift3dReducedMotion === probe
+      ) {
+        delete (window as unknown as Record<string, unknown>)
+          .__drift3dReducedMotion;
+      }
+    };
+  }, []);
+
+  const reducedMotionMode: Drift3DReducedMotionMode | null =
+    prefersReducedMotion === null
+      ? null
+      : resolveDrift3DReducedMotionMode(prefersReducedMotion);
+
   const fallbackReason: Drift3DFallbackReason | null =
-    prefersReducedMotion === null || hasWebGL === null
+    reducedMotionMode === null || hasWebGL === null
       ? "checking"
-      : prefersReducedMotion
+      : reducedMotionMode === "reduced"
         ? "reduced-motion"
         : hasWebGL
           ? null
