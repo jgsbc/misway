@@ -117,6 +117,8 @@ C'est attendu : ces services sont le périmètre de `DRIFT-IV-SYS-00` à `DRIFT-
 
 **Mise à jour post-`BASE-00` (`DRIFT-IV-SYS-00`, 2026-07-17)** : un `AudioClockRef` dédié existe désormais (`src/lib/drift3dAudioClock.ts`, intégré dans `AudioPlayerProvider.tsx`, exposé en développement via `window.__drift3dAudioClock`) — voir `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-00/audio-clock-evidence.md`. Cette mise à jour ne prétend pas que le Cue Resolver, le Scene Lifecycle formel, la Signature Arbitration, le Quality Tier ou l'Evidence Harness formalisé sont livrés — ils restent le périmètre de `DRIFT-IV-SYS-10` à `DRIFT-IV-SYS-70`.
 
+**Mise à jour post-`SYS-00` (`DRIFT-IV-SYS-10`, 2026-07-18)** : un Scene Lifecycle formel existe désormais (`src/lib/drift3dSceneLifecycle.ts`, intégré dans `Drift3DCanvas.tsx`/`Drift3DScene.tsx`, exposé en développement via `window.__drift3dLifecycle`) — voir `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-10/scene-lifecycle-evidence.md`. Cette mise à jour ne prétend pas que le Cue Resolver, la Signature Arbitration, le Quality Tier ou l'Evidence Harness formalisé sont livrés — ils restent le périmètre de `DRIFT-IV-SYS-20` à `DRIFT-IV-SYS-70`. Elle ne modifie ni ne re-mesure aucune donnée de performance de ce document.
+
 ---
 
 ## 5. Golden path et fallbacks — mesuré en session réelle

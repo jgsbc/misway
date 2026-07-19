@@ -1,0 +1,245 @@
+{
+  "lot": "DRIFT-IV-SYS-10",
+  "date": "2026-07-18",
+  "method": "Real Chrome session (Claude Browser pane), SPA navigation exclusively (real <Link> clicks), local next dev server.",
+  "environmentLimitations": [
+    "document.hidden === true / visibilityState 'hidden' persists throughout this automated tab regardless of focus. window.__drift3dAudioClock and window.__drift3dLifecycle (both installed inside Drift3DScene, a child of the react-three-fiber Canvas) never became readable because the Canvas's internal mount stays suspended until a frame is produced (requestAnimationFrame never fires). Worked around by reading the underlying sceneLifecycleRef (owned by Drift3DCanvas, a plain React component OUTSIDE the react-three-fiber tree) directly via React fiber traversal from a stable DOM node Drift3DCanvas itself renders — no application code was changed to enable this.",
+    "document.visibilityState could not naturally become 'visible' in this session to exercise IDLE->ACTIVE / PAUSED<->ACTIVE. Worked around via a distinctly labeled FORCED_VISIBILITY_PATH: Object.defineProperty override of document.hidden/visibilityState followed by a real document.dispatchEvent(new Event('visibilitychange')) — this triggers the real, unmodified visibilitychange listener installed by Drift3DCanvas, the same code path a genuine OS-level visibility change would take.",
+    "No .png files committed under this directory for the same reason documented in docs/DRIFT_3D_RUNTIME_BASELINE.md (save_to_disk produces an unrelated fixed desktop image)."
+  ],
+  "sections": {
+    "10.1_initial_mount": {
+      "realBaseline": {
+        "hidden": true,
+        "visibilityState": "hidden",
+        "canvasCount": 1,
+        "audioCount": 1
+      },
+      "lifecycleViaFiberTraversal": {
+        "state": "IDLE",
+        "previousState": "UNMOUNTED",
+        "lifecycleRevision": 5,
+        "mountRevision": 2,
+        "resetRevision": 1,
+        "lastEvent": "mount",
+        "lastResetReason": "route-unmount",
+        "changedAtMs": 1021
+      },
+      "result": "PRE_FIX_FINDING — STRICT_MODE_PHANTOM_ROUTE_UNMOUNT — mountRevision=2 and resetRevision=1 (instead of 1 and 0) came from React 18 Strict Mode's dev-only double-invocation (mount -> cleanup -> mount on the same instance): a first real mount (mountRevision 0->1), an immediate Strict Mode cleanup that synchronously applied a full route-unmount sequence (reset with resetReason 'route-unmount', resetRevision 0->1, then reset-complete, then unmount) even though no real unmount had occurred, then a second real mount (mountRevision 1->2) starting from that fictitious UNMOUNTED state. This was originally (incorrectly) presented as a positive confirmation of Strict Mode idempotence — it was in fact the opposite bug. Historical reading preserved as-is; not deleted. Fixed via lifecycleEffectGenerationRef (the route-unmount transition is now deferred to a microtask and cancelled if the same instance's setup re-declares itself first) — see section14_correctionRound_strictModePhantomUnmount.testA for the corrected replay (mountRevision=1, resetRevision=0, lastResetReason=null after mount settles, before any real navigation).",
+      "forcedVisibilityPath": {
+        "trigger": "Object.defineProperty(document, 'hidden', {get:()=>false}) + Object.defineProperty(document, 'visibilityState', {get:()=>'visible'}) + document.dispatchEvent(new Event('visibilitychange'))",
+        "result": {
+          "state": "ACTIVE",
+          "previousState": "IDLE",
+          "lifecycleRevision": 6,
+          "mountRevision": 2,
+          "resetRevision": 1,
+          "lastEvent": "activate",
+          "lastResetReason": "route-unmount",
+          "changedAtMs": 33088.7
+        },
+        "result_label": "PASS — IDLE -> ACTIVE confirmed via the real visibilitychange listener; lifecycleRevision +1; mountRevision/resetRevision unchanged"
+      }
+    },
+    "10.2_visibility_pause_resume": {
+      "method": "FORCED_VISIBILITY_PATH",
+      "toPaused": {
+        "trigger": "override to hidden=true/visibilityState='hidden' + dispatched visibilitychange",
+        "result": { "state": "PAUSED", "previousState": "ACTIVE", "lifecycleRevision": 7, "resetRevision": 1, "lastEvent": "pause" },
+        "canvasCount": 1,
+        "audioCount": 1
+      },
+      "toActive": {
+        "trigger": "override to hidden=false/visibilityState='visible' + dispatched visibilitychange",
+        "result": { "state": "ACTIVE", "previousState": "PAUSED", "lifecycleRevision": 8, "resetRevision": 1, "lastEvent": "resume" }
+      },
+      "result": "PASS — ACTIVE -> PAUSED -> ACTIVE, resetRevision unchanged (1) across the whole cycle, canvasCount/audioCount stable at 1/1, global playback untouched (verified by code: the lifecycle effect in Drift3DCanvas never references the audio player)"
+    },
+    "10.3_route_unmount": {
+      "requalificationNote": "The resetRevision/mountRevision/lastResetReason figures in this section build on the already-tainted PRE_FIX_FINDING baseline from 10.1 (resetRevision starting at 1, not 0). The measured delta (1->2, +1) remains arithmetically correct and already showed a single real unmount only counting once, but the baseline itself was not clean. See section14_correctionRound_strictModePhantomUnmount.testC for the replay on a clean baseline (resetRevision 0->1).",
+      "precondition": {
+        "ambienceActivated": "Real user-gesture click on 'Activer l'ambiance sonore' (aria-label confirmed flipped to 'Couper l'ambiance sonore') — a real AudioContext was created",
+        "heldLifecycleRefBeforeNav": { "state": "ACTIVE", "previousState": "PAUSED", "lifecycleRevision": 8, "resetRevision": 1, "lastEvent": "resume" },
+        "globalAudioBeforeNav": { "src": "http://localhost:3000/audio/entry-ambient.mp3", "paused": true, "currentTime": 0 }
+      },
+      "trigger": "Real SPA navigation via <Link href=\"/\"> click",
+      "resultOnHeldRef": {
+        "state": "UNMOUNTED",
+        "previousState": "IDLE",
+        "lifecycleRevision": 11,
+        "mountRevision": 2,
+        "resetRevision": 2,
+        "lastEvent": "unmount",
+        "lastResetReason": "route-unmount",
+        "changedAtMs": 110029.3
+      },
+      "resetRevisionDelta": 1,
+      "canvasCount": 0,
+      "audioCount": 1,
+      "globalAudioAfterNav": { "src": "http://localhost:3000/audio/entry-ambient.mp3", "paused": true, "currentTime": 0, "unchanged": true },
+      "devGlobalsPresent": {
+        "__drift3dLifecycle": false,
+        "__drift3dAudioClock": false,
+        "__drift3dRender": false,
+        "__drift3dDebug": false,
+        "__drift3dTeleport": false
+      },
+      "result": "PASS — state=UNMOUNTED, lastResetReason=route-unmount, resetRevision delta=1 exactly, canvasCount 1->0, audioCount stays 1, global player state byte-for-byte unchanged, all five dev globals absent. Ambience AudioContext.close() call verified by code reading (not independently observable via any external API) plus the disappearance of its entire owning subtree."
+    },
+    "10.4_return_to_drift": {
+      "requalificationNote": "mountRevision=2/resetRevision=1 here inherit the same tainted baseline as 10.3. See section14_correctionRound_strictModePhantomUnmount.testD for proof, on a genuinely fresh instance, that mountRevision/resetRevision restart at 1/0 and lastResetReason restarts at null.",
+      "trigger": "Real SPA navigation via <Link href=\"/drift/\"> click",
+      "canvasCount": 1,
+      "audioCount": 1,
+      "newLifecycleInstance": {
+        "state": "ACTIVE",
+        "previousState": "IDLE",
+        "lifecycleRevision": 7,
+        "mountRevision": 2,
+        "resetRevision": 1,
+        "lastEvent": "activate",
+        "lastResetReason": "route-unmount",
+        "changedAtMs": 134580.9
+      },
+      "methodologyNote": "This new instance goes straight to ACTIVE (not IDLE, unlike the very first mount in 10.1) because the document.hidden->false override from the FORCED_VISIBILITY_PATH test persists for the rest of the session (document itself is never reloaded by SPA navigation) — an expected, transparently-declared consequence of the override technique, not a natural visible mount. The Strict Mode double-invoke sequence during this second mount runs entirely under visibilityState='visible', so each of its two effect invocations independently adds its own 'activate' transition (5 real transitions total instead of 4), which is exactly why lifecycleRevision reaches 7 here versus 5 in 10.1.",
+      "ambienceButtonLabelAfterReturn": "Activer l'ambiance sonore",
+      "noAutoplay": { "paused": true, "currentTime": 0 },
+      "result": "PASS — fresh instance, no duplicated probes, no residual pointer/keyboard state, no autoplay"
+    },
+    "10.5_repeated_cycles": {
+      "cyclesPerformed": 3,
+      "cycles": [
+        { "onHome": { "canvasCount": 0, "audioCount": 1, "devGlobalsAbsent": true }, "onDrift": { "canvasCount": 1, "audioCount": 1 } },
+        { "onHome": { "canvasCount": 0, "audioCount": 1 }, "onDrift": { "canvasCount": 1, "audioCount": 1 } },
+        { "onHome": { "canvasCount": 0, "audioCount": 1, "devGlobalsAbsent": true }, "onDrift": { "canvasCount": 1, "audioCount": 1 } }
+      ],
+      "audioCountNeverDeviated": true,
+      "globalAudioStateStableAcrossCycles": { "paused": true, "currentTime": 0 },
+      "consoleErrorsObserved": 0,
+      "result": "PASS — canvasCount correct at every step, audioCount always exactly 1, no console errors, no ambience stacking"
+    },
+    "10.6_terrain_disposal": {
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "reason": "No API surfaces individual Three.js .dispose() invocations without instrumenting application code, which this lot deliberately avoids.",
+      "codeEvidence": [
+        "src/components/drift-3d/Drift3DScene.tsx useDriftTerrainTexture(): useEffect(() => { return () => { texture?.dispose(); }; }, [texture]);",
+        "src/components/drift-3d/Drift3DScene.tsx DriftTerrainMesh(): useEffect(() => { return () => { geometry.dispose(); }; }, [geometry]);"
+      ],
+      "note": "Both resources are produced exactly once per instance (useMemo, deps []), so each disposal effect runs exactly once per unmount — no recreation or double-dispose tied to lifecycle or visibility changes, since neither dependency array references sceneLifecycleRef/sceneRuntimeActive."
+    },
+    "10.7_fallbacks": {
+      "reducedMotion": {
+        "method": "window.matchMedia overridden to force matches:true for '(prefers-reduced-motion: reduce)', then SPA remount (/ -> /drift/)",
+        "canvasCount": 0,
+        "audioCount": 1,
+        "devGlobalsPresent": { "__drift3dLifecycle": false, "__drift3dAudioClock": false },
+        "renderedText": "The 3D room stays closed today.",
+        "result": "PASS"
+      },
+      "noWebGL": {
+        "method": "HTMLCanvasElement.prototype.getContext overridden to return null for any 'webgl*' context type, reduced-motion override removed, then SPA remount (/ -> /drift/)",
+        "canvasCount": 0,
+        "audioCount": 1,
+        "devGlobalsPresent": { "__drift3dLifecycle": false, "__drift3dAudioClock": false },
+        "renderedText": "NO WEBGL — This browser cannot open the 3D room.",
+        "result": "PASS"
+      }
+    }
+  },
+  "console": {
+    "errors": "None observed at any point in this session (checked repeatedly, including after the repeated cycles and both fallback triggers).",
+    "knownThreeWarningsObserved": false,
+    "knownThreeWarningsNote": "The THREE.WebGLShadowMap/THREE.Clock/THREE.Material warnings catalogued in docs/DRIFT_3D_RUNTIME_BASELINE.md never appeared in this specific session because the renderer never produced a real frame here (requestAnimationFrame never fired, same documented environment limitation) — not because they were fixed."
+  },
+  "section14_correctionRound_strictModePhantomUnmount": {
+    "date": "2026-07-19",
+    "gap": "Drift3DCanvas's lifecycle effect cleanup applied the reset('route-unmount') -> reset-complete -> unmount sequence synchronously, without distinguishing a real unmount from React 18 Strict Mode's dev-only setup->cleanup->setup replay on the same instance. Consequence: resetRevision was already 1 and lastResetReason already 'route-unmount' before any real navigation ever happened.",
+    "fix": "A lifecycleEffectGenerationRef is bumped on every real invocation of the effect's setup. The cleanup still immediately removes listeners and immediately cleans up owned resources/transient inputs (unchanged), but the logical route-unmount transition is deferred into a queueMicrotask that checks whether lifecycleEffectGenerationRef.current still equals the generation captured at that setup — if a new setup on the SAME instance already ran (Strict Mode), the generation changed and the transition is skipped (no-op); if no new setup ran (real unmount), the generation is unchanged and the transition applies. No setTimeout/setInterval/new requestAnimationFrame; no setState in the deferred block. The dev-probe ownership token in Drift3DScene.tsx was also stabilized: `const owner = {}` (recreated on every effect run) replaced by `devProbeOwnerRef.current` (computed once per instance via useRef), so the documentation's 'same instance = same token' claim is actually true.",
+    "method": "Real Chrome session (Claude Browser pane), fresh tab, same fiber-traversal reading technique as sections 2+.",
+    "testA_strictModeInitialMount": {
+      "afterSettling": {
+        "state": "IDLE",
+        "previousState": "UNMOUNTED",
+        "lifecycleRevision": 1,
+        "mountRevision": 1,
+        "resetRevision": 0,
+        "lastEvent": "mount",
+        "lastResetReason": null,
+        "changedAtMs": 822.6
+      },
+      "result": "PASS — the phantom route-unmount is gone; mountRevision=1, resetRevision=0, lastResetReason=null; state honestly IDLE (tab genuinely hidden)"
+    },
+    "testB_forcedVisibilityFromInitial": {
+      "idleToActive": { "state": "ACTIVE", "previousState": "IDLE", "lifecycleRevision": 2, "mountRevision": 1, "resetRevision": 0, "lastEvent": "activate" },
+      "activeToPaused": { "state": "PAUSED", "previousState": "ACTIVE", "lifecycleRevision": 3, "mountRevision": 1, "resetRevision": 0, "lastEvent": "pause" },
+      "pausedToActive": { "state": "ACTIVE", "previousState": "PAUSED", "lifecycleRevision": 4, "mountRevision": 1, "resetRevision": 0, "lastEvent": "resume" },
+      "result": "PASS — resetRevision stays 0 and mountRevision stays 1 throughout"
+    },
+    "testC_realRouteUnmount": {
+      "before": { "resetRevision": 0 },
+      "trigger": "Real SPA navigation via <Link href=\"/\"> click",
+      "afterMicrotaskResolved": {
+        "state": "UNMOUNTED",
+        "previousState": "IDLE",
+        "lifecycleRevision": 7,
+        "mountRevision": 1,
+        "resetRevision": 1,
+        "lastEvent": "unmount",
+        "lastResetReason": "route-unmount",
+        "changedAtMs": 59498.7
+      },
+      "resetRevisionDelta": 1,
+      "canvasCount": 0,
+      "audioCount": 1,
+      "globalAudioUnchanged": true,
+      "devGlobalsPresent": { "__drift3dLifecycle": false, "__drift3dAudioClock": false, "__drift3dRender": false, "__drift3dDebug": false, "__drift3dTeleport": false },
+      "result": "PASS — resetRevision delta=1 exactly on a clean baseline, mountRevision unchanged, canvasCount 1->0, audioCount stays 1, global audio state unchanged, all five dev globals absent"
+    },
+    "testD_remount": {
+      "trigger": "Real SPA navigation via <Link href=\"/drift/\"> click",
+      "freshInstance": {
+        "state": "ACTIVE",
+        "previousState": "IDLE",
+        "lifecycleRevision": 2,
+        "mountRevision": 1,
+        "resetRevision": 0,
+        "lastEvent": "activate",
+        "lastResetReason": null,
+        "changedAtMs": 81007.5
+      },
+      "sameRefAsBefore": false,
+      "methodologyNote": "state=ACTIVE directly (not IDLE) because the visibility override from testB persists across SPA navigation (document is never reloaded) — same transparent caveat as section 10.4.",
+      "result": "PASS — mountRevision=1 (fresh, not accumulated), resetRevision=0 (fresh), lastResetReason=null (fresh); the new instance does not inherit the previous instance's phantom reset"
+    },
+    "testE_oneMoreCycle": {
+      "leavingDrift": { "canvasCount": 0, "audioCount": 1 },
+      "returningToDrift": { "canvasCount": 1, "audioCount": 1 },
+      "consoleErrorsObserved": 0,
+      "result": "PASS"
+    },
+    "summary": {
+      "strictModeInitial": { "mountRevision": 1, "resetRevision": 0, "lastResetReason": null },
+      "realRouteUnmount": { "resetRevisionDelta": 1, "state": "UNMOUNTED", "lastResetReason": "route-unmount" },
+      "remount": { "freshResetRevision": 0, "freshLastResetReason": null }
+    }
+  },
+  "gate": {
+    "deterministicStateMachine": "PASS",
+    "fiveCanonicalStates": "PASS",
+    "noCueOrTrackVocabulary": "PASS",
+    "visibilityDrivesActivePaused": "PASS (FORCED_VISIBILITY_PATH, real listener replayed)",
+    "routeUnmountProducesResettingThenUnmounted": "PASS — corrected and replayed in section14 (the Strict Mode phantom route-unmount identified in 10.1/10.3/10.4 is eliminated)",
+    "resetRevisionIncrementsOncePerLogicalReset": "PASS — corrected in section14 (resetRevision=0 after mount settles, before any real navigation; +1 exact on a real unmount)",
+    "globalPlayerSurvives": "PASS",
+    "localAmbienceStops": "PASS (code-verified + owning subtree disappearance)",
+    "inputsCleared": "PASS (code-verified: pointerDriveStateRef/activeTouchPointersRef/pinchStateRef/pressedKeysRef all explicitly reset on unmount)",
+    "terrainTextureDisposed": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "devGlobalsRemoved": "PASS",
+    "threeSpaCyclesNoAccumulation": "PASS",
+    "fallbacksLeaveNoResidualLifecycle": "PASS",
+    "lintPass": "PASS",
+    "buildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-10 = DONE — PENDING MERGE",
+    "decisionHistory": "Briefly REWORK_REQUIRED between the initial evidence submission and this final decision, for the duration of the correction round captured in section14, which eliminated the Strict Mode phantom route-unmount found in 10.1/10.3/10.4."
+  }
+}
