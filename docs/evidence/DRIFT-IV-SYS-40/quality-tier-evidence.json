@@ -1,0 +1,197 @@
+{
+  "lot": "DRIFT-IV-SYS-40",
+  "date": "2026-07-19",
+  "method": "real Chrome session via MCP browser, foreground tab, on /drift/, calling exclusively window.__drift3dQuality",
+  "methodologyNote": "The harness lives in Drift3DCanvas.tsx, outside the react-three-fiber tree — available immediately on component mount, independent of the Canvas's internal mount or requestAnimationFrame.",
+  "environmentIncident": null,
+  "consoleErrorsDuringSession": 0,
+  "sections": {
+    "testA_canonicalProfilesValid": {
+      "tiers": ["low", "medium", "high"],
+      "validateCanonical": [],
+      "validateLow": [],
+      "validateMedium": [],
+      "validateHigh": [],
+      "result": "PASS"
+    },
+    "testB_runtimeImmutability": {
+      "low": {
+        "isFrozenProfile": true,
+        "isFrozenCapabilities": true,
+        "isFrozenIdentity": true,
+        "unchangedAfterMutationAttempt": true
+      },
+      "medium": {
+        "isFrozenProfile": true,
+        "isFrozenCapabilities": true,
+        "isFrozenIdentity": true,
+        "unchangedAfterMutationAttempt": true
+      },
+      "high": {
+        "isFrozenProfile": true,
+        "isFrozenCapabilities": true,
+        "isFrozenIdentity": true,
+        "unchangedAfterMutationAttempt": true
+      },
+      "note": "Mutation attempts (capabilities.populationScale, tier, identity.signatureObjects) raised no observable exception in this non-strict evaluation context (silently ignored assignment on a frozen object) — documented as observed, not hidden. The canonical profile remaining unchanged is the load-bearing fact.",
+      "result": "PASS"
+    },
+    "testC_monotonicity": {
+      "populationScale": { "low": 0.40, "medium": 0.70, "high": 1, "monotone": true, "highIsOne": true },
+      "scatterScale": { "low": 0.50, "medium": 0.75, "high": 1, "monotone": true, "highIsOne": true },
+      "dynamicTextureResolutionScale": { "low": 0.50, "medium": 0.75, "high": 1, "monotone": true, "highIsOne": true },
+      "renderProbeScale": { "low": 0.50, "medium": 0.75, "high": 1, "monotone": true, "highIsOne": true },
+      "reflectionResolutionScale": { "low": 0.50, "medium": 0.75, "high": 1, "monotone": true, "highIsOne": true },
+      "backgroundDetailScale": { "low": 0.50, "medium": 0.75, "high": 1, "monotone": true, "highIsOne": true },
+      "secondaryLoopScale": { "low": 0.35, "medium": 0.65, "high": 1, "monotone": true, "highIsOne": true },
+      "result": "PASS — monotone on all seven capabilities"
+    },
+    "testD_identityPreserved": {
+      "low": { "worldTopology": true, "coreNavigation": true, "signatureObjects": true, "primaryCue": true },
+      "medium": { "worldTopology": true, "coreNavigation": true, "signatureObjects": true, "primaryCue": true },
+      "high": { "worldTopology": true, "coreNavigation": true, "signatureObjects": true, "primaryCue": true },
+      "allEqual": true,
+      "result": "PASS — proves the generic contract only, not a real signature rendered under LOW"
+    },
+    "testE_deterministicCountReduction": {
+      "basePopulation": 130,
+      "baseScatter": 2400,
+      "minimum": 1,
+      "population": { "low": 52, "medium": 91, "high": 130 },
+      "scatter": { "low": 1200, "medium": 1800, "high": 2400 },
+      "note": "Harness calculations only — not applied to FoolfouleCrowd or the real ScatterField in this lot.",
+      "result": "PASS"
+    },
+    "testF_deterministicDimensionReduction": {
+      "baseDimension": 512,
+      "reflection": { "low": 256, "medium": 384, "high": 512 },
+      "dynamicTexture": { "low": 256, "medium": 384, "high": 512 },
+      "note": "The real Reflector is configured at 512 but is not modified by this lot — this validates only a future budget calculation.",
+      "result": "PASS"
+    },
+    "testG_invalidProfileFixtures": {
+      "capabilityZero": [{ "type": "capability-not-positive", "capability": "populationScale" }],
+      "capabilityNegative": [{ "type": "capability-not-positive", "capability": "populationScale" }],
+      "capabilityAboveOne": [{ "type": "capability-above-one", "capability": "populationScale" }],
+      "capabilityInfinity": [{ "type": "non-finite-capability", "capability": "populationScale" }],
+      "capabilityNaN": [{ "type": "non-finite-capability", "capability": "populationScale" }],
+      "identitySignatureObjectsFalse": [{ "type": "identity-signature-objects-not-true" }],
+      "identityPrimaryCueFalse": [{ "type": "identity-primary-cue-not-true" }],
+      "invalidTier": [{ "type": "invalid-tier", "tier": "ultra" }],
+      "nonMonotoneSet": [{
+        "type": "monotonicity-violation",
+        "capability": "scatterScale",
+        "message": "Capability \"scatterScale\" violates low <= medium <= high (low=0.9, medium=0.75, high=1)."
+      }],
+      "note": "All fixtures were built by shallow-copying real canonical profile values into new objects — no canonical profile was modified to run this test.",
+      "result": "PASS — every fixture detected with its exact expected issue type"
+    },
+    "testH_noDevicePolicy": {
+      "command": "git grep -n \"deviceMemory|hardwareConcurrency|userAgent|devicePixelRatio|matchMedia|navigator\" -- src/lib/drift3dQuality.ts",
+      "matches": 0,
+      "result": "PASS",
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE"
+    },
+    "testI_noStyle": {
+      "command": "git grep -in \"color|palette|hue|saturation|fog|toneMapping|exposure|trackSlug|sourceSlug|phaseId\" -- src/lib/drift3dQuality.ts",
+      "matches": 2,
+      "matchedLines": [
+        "src/lib/drift3dQuality.ts:7: * pilots CAPACITIES (how much of something renders), never STYLES (palette,",
+        "src/lib/drift3dQuality.ts:8: * color script, fog, narrative light, a signature's identity, a Cue Map, or"
+      ],
+      "matchLocation": "header block comment (lines 1-17), before any executable code",
+      "matchNature": "comment-only explanatory prose naming the concepts the module refuses to touch — not a property, not a branch, not a runtime assignment, not an import, not a style configuration",
+      "result": "PASS — comment-only vocabulary matches; no functional style property or logic exists in drift3dQuality.ts",
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE"
+    },
+    "testJ_currentRuntimeUnchanged": {
+      "canvasCount": 1,
+      "audioCount": 1,
+      "audioPaused": true,
+      "probeKeys": ["tiers", "getProfile", "validate", "validateCanonical", "validateSet", "scaleCount", "scaleDimension"],
+      "hasApply": "undefined",
+      "hasSetTier": "undefined",
+      "hasForce": "undefined",
+      "result": "PASS — no autoplay, no new UI, no route change, no quality prop reaching Drift3DScene"
+    },
+    "testK_probeCleanupRemount": {
+      "onDrift_beforeNavigation": { "probePresent": true },
+      "afterSpaNavigateAway": { "href": "http://localhost:3000/", "canvasCount": 0, "audioCount": 1, "probePresent": false },
+      "afterSpaNavigateBack": {
+        "href": "http://localhost:3000/drift/",
+        "canvasCount": 1,
+        "audioCount": 1,
+        "probePresent": true,
+        "sameInstanceAsBefore": false,
+        "audioPaused": true
+      },
+      "result": "PASS"
+    },
+    "testL_fallbacks": {
+      "reducedMotion": {
+        "override": "window.matchMedia('(prefers-reduced-motion: reduce)') -> matches: true, applied before a real SPA navigation to /drift/",
+        "canvasCount": 0,
+        "audioCount": 1,
+        "probePresent": false
+      },
+      "noWebGL": {
+        "override": "HTMLCanvasElement.prototype.getContext returns null for webgl2/webgl/experimental-webgl, matchMedia restored to matches: false, applied before a real SPA navigation to /drift/",
+        "canvasCount": 0,
+        "audioCount": 1,
+        "probePresent": false
+      },
+      "note": "Reduced motion and no-WebGL are separate fallback contracts. They are not quality tiers. Neither test claims a LOW tier was applied.",
+      "result": "PASS on both"
+    }
+  },
+  "structuralEvidence": {
+    "moduleGrepChecks": {
+      "timersOrUseFrame": { "command": "git grep -n \"setInterval|setTimeout|requestAnimationFrame|useFrame\" -- src/lib/drift3dQuality.ts", "matches": 0 },
+      "devicePolicy": { "command": "git grep -n \"deviceMemory|hardwareConcurrency|userAgent|devicePixelRatio|matchMedia|navigator\" -- src/lib/drift3dQuality.ts", "matches": 0 },
+      "forbiddenArtisticVocabulary": { "command": "git grep -in \"eux-gainent|eteeaooete|foolfoule|jazzypling|cadence-lock|wave-ritual|deviation\" -- src/lib/drift3dQuality.ts", "matches": 0 },
+      "forbiddenModuleImports": { "command": "git grep -n \"drift3dAudioClock|drift3dCueResolver|drift3dSceneLifecycle|drift3dSignatureArbitration|@/lib/tracks\" -- src/lib/drift3dQuality.ts", "matches": 0 }
+    },
+    "drift3dCanvasDiff": "Pure addition (import + one new useEffect) — no new React state for an active quality, no setTier, no quality prop passed to Drift3DScene.",
+    "untouchedFiles": [
+      "src/components/drift-3d/Drift3DScene.tsx",
+      "src/components/drift-3d/Drift3DScatterField.tsx",
+      "src/components/drift-3d/Drift3DEffects.tsx",
+      "src/components/drift-3d/Drift3DLandmark.tsx",
+      "src/components/drift-3d/drift3dTextureFactory.ts"
+    ],
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE"
+  },
+  "console": {
+    "errorsDuringSession": 0
+  },
+  "limits": [
+    "Test E/F base numbers (130, 2400, 512) are generic harness inputs, not measured from any real production scene population/scatter/resolution.",
+    "Test B observes absence of a thrown exception in non-strict evaluation context; documented as observed rather than hidden.",
+    "No .png file committed under this directory — same environment limitation as prior lots."
+  ],
+  "gate": {
+    "exactlyThreeCanonicalTiers": "PASS",
+    "deterministicProfiles": "PASS",
+    "runtimeImmutableProfiles": "PASS",
+    "allCapabilitiesInZeroToOneRange": "PASS",
+    "highEqualsOneForAllCapabilities": "PASS",
+    "lowLessOrEqualMediumLessOrEqualHigh": "PASS",
+    "identicalIdentityGuaranteesAllTrue": "PASS",
+    "noStyleInContract": "PASS — 2 grep matches, both comment-only (see testI_noStyle); zero functional style properties or logic",
+    "noAutoSelection": "PASS",
+    "noDeviceSniffing": "PASS",
+    "mobileNotEqualLow": "PASS",
+    "reducedMotionNotEqualLow": "PASS",
+    "noWebglNotEqualLow": "PASS",
+    "deterministicCountDimensionHelpers": "PASS",
+    "noNaNOrInfinity": "PASS",
+    "noTierAppliedToWorld": "PASS",
+    "noArtisticFileModified": "PASS",
+    "probeReadOnly": "PASS",
+    "probeRemovedOnUnmount": "PASS",
+    "fallbacksNoResidualProbe": "PASS",
+    "globalPlayerAlwaysUnique": "PASS",
+    "lintAndBuildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-40 = DONE — PENDING MERGE. DRIFT-IV-SYS-50 = NEXT_AFTER_MERGE."
+  }
+}
