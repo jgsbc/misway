@@ -158,7 +158,7 @@ Interdictions absolues :
 
 ---
 
-# 7. Effective state upon merge of DRIFT-IV-SYS-30
+# 7. Effective state upon merge of DRIFT-IV-SYS-40
 
 | Lot | Statut |
 |---|---|
@@ -173,7 +173,8 @@ Interdictions absolues :
 | `DRIFT-IV-SYS-10` | `DONE` |
 | `DRIFT-IV-SYS-20` | `DONE` |
 | `DRIFT-IV-SYS-30` | `DONE` |
-| `DRIFT-IV-SYS-40` | `READY` |
+| `DRIFT-IV-SYS-40` | `DONE` |
+| `DRIFT-IV-SYS-50` | `READY` |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -185,7 +186,9 @@ Interdictions absolues :
 
 `DRIFT-IV-SYS-20` livre le resolver de cues générique (`src/lib/drift3dCueResolver.ts` : timeline minimale, validation, sémantique exacte des frontières, gaps, progressions normalisées, reconstruction directe depuis le temps absolu, intégration `AudioClock`), exposé en développement via `window.__drift3dCueResolver` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur une timeline entièrement synthétique (`probe-a`/`probe-b`/`probe-c`, sans signification artistique) : validation déterministe, frontières exactes, intégration `AudioClock` réelle, reconstruction directe après seek avant/arrière, pause/reprise, restart, changement de source, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-20/cue-resolver-evidence.md`. Aucune Cue Map de track réelle, aucune phase artistique, aucune signature arbitration ou quality tier n'est livrée par ce lot.
 
-`DRIFT-IV-SYS-30` livre l'arbitrage de signature majeure générique (`src/lib/drift3dSignatureArbitration.ts` : candidat générique, `ownerKind`, priorité absolue `active-track` > `world`, priorité numérique intra-`ownerKind`, tie-break lexical déterministe, service stateless), exposé en développement via `window.__drift3dSignatureArbitration` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur des candidats entièrement synthétiques (`probe-*`, sans signification artistique) : validation déterministe, priorité absolue `active-track` > `world` même à l'extrême, priorité numérique intra-`ownerKind`, tie-break lexical indépendant de l'ordre d'entrée, éligibilité/absence de gagnant, garantie single-winner, séparation architecturale des boucles de vie, cleanup logique par liste vide/inéligibilité, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-30/signature-arbitration-evidence.md`. Aucune signature artistique réelle, aucune Cue Map, aucun mapping phase → signature, aucun quality tier n'est livré par ce lot. `DRIFT-IV-SYS-40` est désormais `READY`.
+`DRIFT-IV-SYS-30` livre l'arbitrage de signature majeure générique (`src/lib/drift3dSignatureArbitration.ts` : candidat générique, `ownerKind`, priorité absolue `active-track` > `world`, priorité numérique intra-`ownerKind`, tie-break lexical déterministe, service stateless), exposé en développement via `window.__drift3dSignatureArbitration` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur des candidats entièrement synthétiques (`probe-*`, sans signification artistique) : validation déterministe, priorité absolue `active-track` > `world` même à l'extrême, priorité numérique intra-`ownerKind`, tie-break lexical indépendant de l'ordre d'entrée, éligibilité/absence de gagnant, garantie single-winner, séparation architecturale des boucles de vie, cleanup logique par liste vide/inéligibilité, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-30/signature-arbitration-evidence.md`. Aucune signature artistique réelle, aucune Cue Map, aucun mapping phase → signature, aucun quality tier n'est livré par ce lot.
+
+`DRIFT-IV-SYS-40` livre les quality tiers génériques préservant l'identité (`src/lib/drift3dQuality.ts` : trois tiers canoniques `low`/`medium`/`high` frozen en runtime, sept capacités par tier, garanties d'identité littéralement typées `true`, validation de profil et de jeu de profils, helpers purs `scaleDrift3DQualityCount`/`scaleDrift3DQualityDimension`), exposé en développement via `window.__drift3dQuality` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur des bases numériques entièrement synthétiques (`probe-*`, `130`/`2400`/`512`, sans signification artistique) : profils canoniques valides (zéro issue), immutabilité runtime (`Object.isFrozen` vrai sur le profil, ses capacités et son identité, mutation tentée sans effet), monotonicité vérifiée sur les sept capacités, identité strictement identique (`true` partout) sur les trois tiers, réduction déterministe de quantité (`130 → 52/91/130`, `2400 → 1200/1800/2400`) et de résolution (`512 → 256/384/512`), détection de fixtures invalides (capacité nulle/négative/`>1`/infinie/`NaN`, garantie d'identité à `false`, tier invalide, non-monotonicité synthétique), absence structurelle de politique device et de style, runtime actuel inchangé, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-40/quality-tier-evidence.md`. Aucune application visuelle réelle, aucune auto-sélection de tier, aucun reduced-motion ou no-WebGL contract formel n'est livré par ce lot. `DRIFT-IV-SYS-50` est désormais `READY`.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -229,7 +232,7 @@ DRIFT-IV-BASE-00
 | `SYS-10` | lifecycle et nettoyage — `DONE`, voir `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` |
 | `SYS-20` | harness de resolver de cues — `DONE`, voir `docs/DRIFT_3D_CUE_RESOLVER_CONTRACT.md` |
 | `SYS-30` | arbitrage d'une seule signature majeure — `DONE`, voir `docs/DRIFT_3D_SIGNATURE_ARBITRATION_CONTRACT.md` |
-| `SYS-40` | quality tiers préservant l'identité |
+| `SYS-40` | quality tiers préservant l'identité — `DONE`, voir `docs/DRIFT_3D_QUALITY_TIER_CONTRACT.md` |
 | `SYS-50` | reduced-motion contract |
 | `SYS-60` | no-WebGL narrative path |
 | `SYS-70` | evidence/performance harness |

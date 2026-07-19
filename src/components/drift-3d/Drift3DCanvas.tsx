@@ -47,6 +47,18 @@ import {
   getDrift3DSignatureCandidateIssues,
   type Drift3DSignatureCandidate,
 } from "@/lib/drift3dSignatureArbitration";
+import {
+  DRIFT_3D_QUALITY_TIERS,
+  getDrift3DCanonicalQualityIssues,
+  getDrift3DQualityProfile,
+  getDrift3DQualityProfileIssues,
+  getDrift3DQualityProfileSetIssues,
+  isDrift3DQualityTier,
+  scaleDrift3DQualityCount,
+  scaleDrift3DQualityDimension,
+  type Drift3DQualityCapabilities,
+  type Drift3DQualityProfileCandidate,
+} from "@/lib/drift3dQuality";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -362,6 +374,85 @@ export default function Drift3DCanvas({
       ) {
         delete (window as unknown as Record<string, unknown>)
           .__drift3dSignatureArbitration;
+      }
+    };
+  }, []);
+
+  // Dev-only, read-only quality tier harness. Same rationale as the cue
+  // resolver and signature arbitration harnesses above: lives here
+  // (Drift3DCanvas) so it never depends on the Canvas's internal mount. It
+  // only lets a caller CALCULATE a capability profile or a scaled
+  // count/dimension — it never applies a tier to the world: no setTier,
+  // no applyTier, no scene/audio/lifecycle command of any kind, and this
+  // lot does not pass any quality prop to Drift3DScene.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      tiers: DRIFT_3D_QUALITY_TIERS,
+      getProfile: (tier: string) =>
+        isDrift3DQualityTier(tier) ? getDrift3DQualityProfile(tier) : null,
+      validate: (profile: Drift3DQualityProfileCandidate) =>
+        getDrift3DQualityProfileIssues(profile),
+      validateCanonical: () => getDrift3DCanonicalQualityIssues(),
+      // Same underlying pure validator as `validateCanonical`, but accepts
+      // any caller-supplied profile set — lets a test prove monotonicity
+      // detection against a synthetic, deliberately non-monotone fixture
+      // without ever touching the real canonical profiles.
+      validateSet: (profiles: readonly Drift3DQualityProfileCandidate[]) =>
+        getDrift3DQualityProfileSetIssues(profiles),
+      scaleCount: (
+        baseCount: number,
+        tier: string,
+        capability: keyof Drift3DQualityCapabilities,
+        minimumCount?: number
+      ) => {
+        if (!isDrift3DQualityTier(tier)) {
+          return null;
+        }
+
+        const profile = getDrift3DQualityProfile(tier);
+
+        return scaleDrift3DQualityCount(
+          baseCount,
+          profile.capabilities[capability],
+          minimumCount
+        );
+      },
+      scaleDimension: (
+        baseDimension: number,
+        tier: string,
+        capability: keyof Drift3DQualityCapabilities,
+        minimumDimension?: number
+      ) => {
+        if (!isDrift3DQualityTier(tier)) {
+          return null;
+        }
+
+        const profile = getDrift3DQualityProfile(tier);
+
+        return scaleDrift3DQualityDimension(
+          baseDimension,
+          profile.capabilities[capability],
+          minimumDimension
+        );
+      },
+    });
+
+    Object.defineProperty(window, "__drift3dQuality", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Same simple identity check as the other dev probes above.
+      if (
+        (window as unknown as Record<string, unknown>).__drift3dQuality ===
+        probe
+      ) {
+        delete (window as unknown as Record<string, unknown>).__drift3dQuality;
       }
     };
   }, []);
