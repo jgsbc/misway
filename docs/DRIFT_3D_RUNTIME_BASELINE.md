@@ -119,6 +119,8 @@ C'est attendu : ces services sont le périmètre de `DRIFT-IV-SYS-00` à `DRIFT-
 
 **Mise à jour post-`SYS-00` (`DRIFT-IV-SYS-10`, 2026-07-18)** : un Scene Lifecycle formel existe désormais (`src/lib/drift3dSceneLifecycle.ts`, intégré dans `Drift3DCanvas.tsx`/`Drift3DScene.tsx`, exposé en développement via `window.__drift3dLifecycle`) — voir `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-10/scene-lifecycle-evidence.md`. Cette mise à jour ne prétend pas que le Cue Resolver, la Signature Arbitration, le Quality Tier ou l'Evidence Harness formalisé sont livrés — ils restent le périmètre de `DRIFT-IV-SYS-20` à `DRIFT-IV-SYS-70`. Elle ne modifie ni ne re-mesure aucune donnée de performance de ce document.
 
+**Mise à jour post-`SYS-10` (`DRIFT-IV-SYS-20`, 2026-07-19)** : un resolver de cues générique existe désormais (`src/lib/drift3dCueResolver.ts`, exposé en développement via `window.__drift3dCueResolver`, installé depuis `Drift3DCanvas.tsx`) — voir `docs/DRIFT_3D_CUE_RESOLVER_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-20/cue-resolver-evidence.md`. Cette mise à jour ne prétend pas qu'une Cue Map de track réelle, une Signature Arbitration, un Quality Tier ou un Evidence Harness formalisé sont livrés — ils restent le périmètre de `DRIFT-IV-SYS-30` à `DRIFT-IV-SYS-70` et des futurs lots Build. Elle ne modifie ni ne re-mesure aucune donnée de performance de ce document.
+
 ---
 
 ## 5. Golden path et fallbacks — mesuré en session réelle

@@ -36,6 +36,12 @@ import {
   transitionDrift3DSceneLifecycle,
   type Drift3DSceneLifecycleSnapshot,
 } from "@/lib/drift3dSceneLifecycle";
+import {
+  getDrift3DCueTimelineIssues,
+  resolveDrift3DCueAtTime,
+  resolveDrift3DCueFromAudioClock,
+  type Drift3DCuePhase,
+} from "@/lib/drift3dCueResolver";
 
 type Drift3DCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -267,6 +273,57 @@ export default function Drift3DCanvas({
       });
     };
   }, []);
+
+  // Dev-only, read-only cue resolver harness. Lives here (Drift3DCanvas)
+  // rather than inside the react-three-fiber tree so it never depends on
+  // the Canvas's internal mount or on `requestAnimationFrame`. It only
+  // proves the pure resolver against a caller-supplied timeline — it never
+  // interprets a real Cue Map, never names a track, and exposes no way to
+  // command playback or the scene lifecycle.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      validate: (phases: readonly Drift3DCuePhase[]) =>
+        getDrift3DCueTimelineIssues(phases),
+      resolveAt: (
+        phases: readonly Drift3DCuePhase[],
+        timeSeconds: number,
+        durationSeconds: number,
+        timelineRevision?: number
+      ) => ({
+        ...resolveDrift3DCueAtTime(phases, timeSeconds, durationSeconds),
+        timelineRevision: timelineRevision ?? null,
+      }),
+      resolveCurrent: (phases: readonly Drift3DCuePhase[]) =>
+        resolveDrift3DCueFromAudioClock(
+          phases,
+          audioClockRef.current,
+          performance.now()
+        ),
+    });
+
+    Object.defineProperty(window, "__drift3dCueResolver", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Simple identity check, no shared ownership registry: only remove
+      // the probe if it is still the exact object this effect installed —
+      // a late cleanup from a replaced instance can never delete a newer
+      // instance's probe.
+      if (
+        (window as unknown as Record<string, unknown>)
+          .__drift3dCueResolver === probe
+      ) {
+        delete (window as unknown as Record<string, unknown>)
+          .__drift3dCueResolver;
+      }
+    };
+  }, [audioClockRef]);
 
   function toggleAmbience() {
     if (isAmbienceOn) {

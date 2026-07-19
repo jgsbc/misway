@@ -1,0 +1,207 @@
+{
+  "lot": "DRIFT-IV-SYS-20",
+  "date": "2026-07-19",
+  "method": "Real Chrome session (Claude Browser pane), SPA navigation (real <Link> clicks), local next dev server. Fully synthetic timeline (probe-a/probe-b/probe-c) — no artistic meaning, never presented as a real MISWAY cue map.",
+  "methodologyNote": "Unlike window.__drift3dAudioClock/window.__drift3dLifecycle (installed inside Drift3DScene, a child of the react-three-fiber Canvas, gated behind a produced frame), window.__drift3dCueResolver is installed from Drift3DCanvas.tsx, a plain React component OUTSIDE the react-three-fiber tree. It was directly readable (typeof window.__drift3dCueResolver === 'object') on the very first /drift/ load, with no fiber traversal or frame-forcing workaround needed.",
+  "environmentIncident": {
+    "description": "Mid-session, the next dev server process (inherited from an earlier session, running continuously for several hours) became unresponsive (curl with a 5s timeout got no response, HTTP 000). Diagnosed as long-lived-process overload, not a defect in this lot's code. Resolved by stopping that process and starting a fresh dev server.",
+    "consoleErrorsCaused": 4,
+    "consoleErrorText": "Failed to fetch RSC payload for http://localhost:3000/drift/. Falling back to browser navigation. TypeError: Failed to fetch",
+    "resolution": "Killed the stale process, started a fresh dev server; all subsequent navigation and evidence gathering (tests A-I below) completed with zero further console errors."
+  },
+  "sections": {
+    "testA_timelineValidation": {
+      "validTimelineWithGap": {
+        "phases": [
+          { "id": "probe-a", "startTimeSeconds": 0, "endTimeSeconds": 5 },
+          { "id": "probe-b", "startTimeSeconds": 5, "endTimeSeconds": 10 },
+          { "id": "probe-c", "startTimeSeconds": 12, "endTimeSeconds": 20 }
+        ],
+        "issues": [],
+        "result": "PASS — gap (10->12) not flagged as an error"
+      },
+      "invalidFixtures": {
+        "duplicateId": { "issueTypes": ["duplicate-id"] },
+        "overlap": { "issueTypes": ["overlap"] },
+        "endNotAfterStart": { "issueTypes": ["end-not-after-start"] },
+        "negativeStart": { "issueTypes": ["negative-start"] },
+        "nonFiniteBoundary": { "issueTypes": ["non-finite-boundary"] },
+        "unsorted": { "issueTypes": ["unsorted"] },
+        "emptyId": { "issueTypes": ["empty-id"] }
+      },
+      "result": "PASS — every invalid fixture detected with the exact expected issue type; gaps never flagged"
+    },
+    "testB_deterministicBoundaries": {
+      "durationSecondsUsed": 20,
+      "readings": {
+        "0": { "phaseId": "probe-a", "phaseIndex": 0, "phaseProgress": 0, "timelineProgress": 0 },
+        "2.5": { "phaseId": "probe-a", "phaseIndex": 0, "phaseProgress": 0.5, "timelineProgress": 0.125 },
+        "4.999": { "phaseId": "probe-a", "phaseIndex": 0, "phaseProgress": 0.9997999999999999, "timelineProgress": 0.24994999999999998 },
+        "5": { "phaseId": "probe-b", "phaseIndex": 1, "phaseProgress": 0, "timelineProgress": 0.25 },
+        "10": { "phaseId": null, "phaseIndex": -1, "phaseProgress": 0, "timelineProgress": 0.5, "isGap": true },
+        "12": { "phaseId": "probe-c", "phaseIndex": 2, "phaseProgress": 0, "timelineProgress": 0.6 },
+        "20": { "phaseId": "probe-c", "phaseIndex": 2, "phaseProgress": 1, "timelineProgress": 1 },
+        "25": { "phaseId": null, "phaseIndex": -1, "phaseProgress": 0, "timelineProgress": 1, "isAfterLastPhase": true }
+      },
+      "result": "PASS — all values exactly match spec; no NaN/Infinity/-Infinity observed"
+    },
+    "testC_audioClockIntegration": {
+      "baseline": { "sourceKind": "ambient", "sourceSlug": "__ambient__", "playbackState": "idle", "timelineRevision": 0, "durationSeconds": 234.959979 },
+      "afterExplicitPlayback": {
+        "trigger": "Real click on Foolfoule's own inline PLAY button on /tracks/foolfoule/, then SPA navigation to /drift/",
+        "resolution": {
+          "phaseId": "probe-c", "phaseIndex": 2,
+          "absoluteTimeSeconds": 15.028508, "durationSeconds": 186.451875,
+          "phaseProgress": 0.37856350000000005, "timelineProgress": 0.08060261126363036,
+          "sourceKind": "track", "sourceSlug": "foolfoule",
+          "playbackState": "playing", "timelineRevision": 1
+        }
+      },
+      "audioCount": 1,
+      "noAutoplay": true,
+      "noHardcodedSlugInResolver": true,
+      "result": "PASS"
+    },
+    "testD_directReconstructionAfterSeek": {
+      "seekForward": {
+        "trigger": "audio.currentTime = 6.5, awaited the real native 'seeked' event",
+        "before": { "timelineRevision": 3 },
+        "afterSeek": {
+          "phaseId": "probe-b", "phaseIndex": 1,
+          "absoluteTimeSeconds": 6.5,
+          "phaseProgress": 0.3, "timelineProgress": 0.034861542690305475,
+          "timelineRevision": 4
+        },
+        "resolveAtWithSameValues": {
+          "phaseId": "probe-b", "phaseIndex": 1,
+          "absoluteTimeSeconds": 6.5,
+          "phaseProgress": 0.3, "timelineProgress": 0.034861542690305475,
+          "timelineRevision": 4
+        },
+        "revisionDelta": 1,
+        "resolveAtMatchesResolveCurrent": true
+      },
+      "seekBackward": {
+        "trigger": "audio.currentTime = 2.5, awaited the real native 'seeked' event, performed immediately after seekForward",
+        "result": {
+          "phaseId": "probe-a", "phaseIndex": 0,
+          "absoluteTimeSeconds": 2.5000999999940396,
+          "phaseProgress": 0.500019999998808,
+          "timelineRevision": 5
+        },
+        "revisionDelta": 1,
+        "noIntermediatePhaseReplay": true
+      },
+      "result": "PASS — reconstruction is a pure function of absolute time, not of the path taken to reach it"
+    },
+    "testE_pauseResume": {
+      "pause": {
+        "trigger": "audio.pause(), awaited the real native 'pause' event",
+        "reading1": { "phaseId": "probe-c", "phaseIndex": 2, "absoluteTimeSeconds": 15.772865, "phaseProgress": 0.47160812499999993, "playbackState": "paused", "timelineRevision": 5 },
+        "reading2After2sRealWait": { "absoluteTimeSeconds": 15.772865, "phaseProgress": 0.47160812499999993, "identicalToReading1": true }
+      },
+      "resume": {
+        "trigger": "audio.play(), awaited the real native 'play' event",
+        "result": { "absoluteTimeSeconds": 15.776377, "playbackState": "playing", "timelineRevision": 5 },
+        "deltaFromPausedPositionSeconds": 0.003512,
+        "noWallClockCatchUp": true
+      },
+      "result": "PASS — exact freeze (delta 0 over 2s), resume continues from the paused position"
+    },
+    "testF_restart": {
+      "precondition": { "audioCurrentTimeBefore": 67.278015 },
+      "trigger": "playPrevious() invoked directly on the AudioPlayerRuntimeContext value (located via React fiber traversal from Drift3DCanvas's own DOM output — read-only introspection, no application code changed), read immediately in the same script",
+      "before": { "timelineRevision": 6 },
+      "afterImmediate": {
+        "phaseId": "probe-a", "phaseIndex": 0,
+        "absoluteTimeSeconds": 0,
+        "phaseProgress": 0,
+        "sourceSlug": "foolfoule",
+        "playbackState": "seeking",
+        "timelineRevision": 7
+      },
+      "revisionDelta": 1,
+      "sourceSlugUnchanged": true,
+      "result": "PASS"
+    },
+    "testG_sourceChange": {
+      "trigger": "playNext() invoked directly on the same AudioPlayerRuntimeContext value, read immediately in the same script",
+      "before": { "sourceSlug": "foolfoule", "timelineRevision": 7 },
+      "afterImmediate": {
+        "phaseId": "probe-a", "phaseIndex": 0,
+        "absoluteTimeSeconds": 0, "durationSeconds": 20,
+        "sourceSlug": "jazzypling",
+        "playbackState": "idle",
+        "timelineRevision": 8
+      },
+      "revisionDelta": 1,
+      "durationFallbackNote": "durationSeconds=20 (fallback to the last phase's end) because jazzypling's real metadata had not resolved yet at this precise instant — the documented fallback rule applied correctly, exactly as specified.",
+      "syntheticTimelineSourceAgnosticNote": "The synthetic timeline is intentionally source-agnostic. A future track-local resolver owns source matching and activation policy.",
+      "result": "PASS"
+    },
+    "testH_cleanupAndRemount": {
+      "precondition": "jazzypling genuinely playing (currentTime advancing)",
+      "heldOldProbeCaptured": true,
+      "afterLeavingDrift": {
+        "url": "/", "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "audioState": { "src": "http://localhost:3000/audio/jazzypling.mp3", "paused": false, "currentTime": 27.271945 }
+      },
+      "afterReturningToDrift": {
+        "url": "/drift/", "canvasCount": 1, "audioCount": 1, "hasProbe": "object",
+        "isNewObjectDistinctFromOldProbe": true,
+        "audioState": { "src": "http://localhost:3000/audio/jazzypling.mp3", "paused": false, "currentTime": 45.172731 }
+      },
+      "result": "PASS — probe absent while unmounted, fresh distinct instance on remount, global playback never interrupted, no autoplay triggered by Drift itself"
+    },
+    "testI_fallbacks": {
+      "reducedMotion": {
+        "method": "window.matchMedia overridden to force matches:true for '(prefers-reduced-motion: reduce)', then SPA remount",
+        "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "renderedText": "REDUCED MOTION — The 3D room stays closed today.",
+        "result": "PASS"
+      },
+      "noWebGL": {
+        "method": "HTMLCanvasElement.prototype.getContext overridden to return null for any 'webgl*' context type, reduced-motion override removed, then SPA remount",
+        "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "renderedText": "NO WEBGL — This browser cannot open the 3D room.",
+        "result": "PASS"
+      },
+      "note": "No track-local Cue Resolver exists yet — these fallbacks only prove the generic harness leaves no residue, not that a future track-local resolver works under fallback conditions."
+    }
+  },
+  "structuralEvidence": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "checks": [
+      "git grep -n \"setInterval|setTimeout|requestAnimationFrame|useFrame\" -- src/lib/drift3dCueResolver.ts => no matches",
+      "git grep -in \"eux-gainent|cadence-lock|wave-ritual|deviation\" -- src/lib/drift3dCueResolver.ts src/components/drift-3d/Drift3DCanvas.tsx => no matches"
+    ],
+    "note": "src/lib/drift3dCueResolver.ts imports no React and no DOM API (only Drift3DAudioClockSnapshot/Drift3DAudioPlaybackState/readDrift3DAudioClockTime from drift3dAudioClock.ts). The single useEffect added to Drift3DCanvas.tsx for this lot only installs a frozen object — no useFrame, no timer, no fast-progress React state."
+  },
+  "console": {
+    "errorsDuringIncident": 4,
+    "errorsDuringTestsAtoI": 0,
+    "note": "See environmentIncident above — the 4 console errors are traced to a stale dev-server process, unrelated to the code delivered by this lot."
+  },
+  "gate": {
+    "deterministicTimelineValidation": "PASS",
+    "exactBoundarySemantics": "PASS",
+    "gapsSupported": "PASS",
+    "progressionsAlwaysBounded01": "PASS",
+    "resolutionFromAbsoluteTimeOnly": "PASS",
+    "sameAbsoluteTimeSameResolution": "PASS (resolveAt === resolveCurrent)",
+    "seekForwardBackwardReconstructsDirectly": "PASS",
+    "pauseFreezesResolutionExactly": "PASS",
+    "restartReturnsDirectlyToStart": "PASS",
+    "timelineRevisionExposedWithoutInternalStateMachine": "PASS",
+    "sourceChangeObservableWithoutTrackSpecificLogic": "PASS",
+    "noRealCueMapIntroduced": "PASS",
+    "noArtisticPhaseIntroduced": "PASS",
+    "noUseFrameTimerOrFastStateAdded": "PASS (structural evidence)",
+    "devProbeRemovedOnUnmount": "PASS",
+    "fallbacksLeaveNoResidualProbe": "PASS",
+    "globalPlayerAlwaysSingle": "PASS",
+    "lintPass": "PASS",
+    "buildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-20 = DONE — PENDING MERGE"
+  }
+}
