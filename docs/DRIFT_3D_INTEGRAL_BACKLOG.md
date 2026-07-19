@@ -158,7 +158,7 @@ Interdictions absolues :
 
 ---
 
-# 7. Effective state upon merge of DRIFT-IV-SYS-20
+# 7. Effective state upon merge of DRIFT-IV-SYS-30
 
 | Lot | Statut |
 |---|---|
@@ -172,7 +172,8 @@ Interdictions absolues :
 | `DRIFT-IV-SYS-00` | `DONE` |
 | `DRIFT-IV-SYS-10` | `DONE` |
 | `DRIFT-IV-SYS-20` | `DONE` |
-| `DRIFT-IV-SYS-30` | `READY` |
+| `DRIFT-IV-SYS-30` | `DONE` |
+| `DRIFT-IV-SYS-40` | `READY` |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -182,7 +183,9 @@ Interdictions absolues :
 
 `DRIFT-IV-SYS-10` livre le lifecycle de scène partagé (`src/lib/drift3dSceneLifecycle.ts` : cinq états, matrice de transitions, `mountRevision`/`lifecycleRevision`/`resetRevision`), intégré dans `Drift3DCanvas.tsx` (visibilité document pilotant `ACTIVE`/`PAUSED`, `frameloop` synchronisé, démontage de route ordonné) et complété par les cleanups de `Drift3DScene.tsx` (texture terrain disposée, clavier vidé, probes dev supprimés avec garde de propriété par instance) — comportement vérifié en session de navigateur réelle : montage initial, pause/reprise de visibilité (via un override de visibilité distinctement étiqueté `FORCED_VISIBILITY_PATH`, le document automatisé restant `hidden` en continu), démontage de route (player global et audio inchangés, `resetRevision` +1 exact, cinq globals dev supprimés), retour sur Drift, trois cycles SPA sans accumulation, disposal terrain (preuve structurelle), et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-10/scene-lifecycle-evidence.md`. Aucun Cue Resolver, lifecycle track-local, signature arbitration ou quality tier n'est livré par ce lot.
 
-`DRIFT-IV-SYS-20` livre le resolver de cues générique (`src/lib/drift3dCueResolver.ts` : timeline minimale, validation, sémantique exacte des frontières, gaps, progressions normalisées, reconstruction directe depuis le temps absolu, intégration `AudioClock`), exposé en développement via `window.__drift3dCueResolver` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur une timeline entièrement synthétique (`probe-a`/`probe-b`/`probe-c`, sans signification artistique) : validation déterministe, frontières exactes, intégration `AudioClock` réelle, reconstruction directe après seek avant/arrière, pause/reprise, restart, changement de source, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-20/cue-resolver-evidence.md`. Aucune Cue Map de track réelle, aucune phase artistique, aucune signature arbitration ou quality tier n'est livrée par ce lot. `DRIFT-IV-SYS-30` est désormais `READY`.
+`DRIFT-IV-SYS-20` livre le resolver de cues générique (`src/lib/drift3dCueResolver.ts` : timeline minimale, validation, sémantique exacte des frontières, gaps, progressions normalisées, reconstruction directe depuis le temps absolu, intégration `AudioClock`), exposé en développement via `window.__drift3dCueResolver` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur une timeline entièrement synthétique (`probe-a`/`probe-b`/`probe-c`, sans signification artistique) : validation déterministe, frontières exactes, intégration `AudioClock` réelle, reconstruction directe après seek avant/arrière, pause/reprise, restart, changement de source, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-20/cue-resolver-evidence.md`. Aucune Cue Map de track réelle, aucune phase artistique, aucune signature arbitration ou quality tier n'est livrée par ce lot.
+
+`DRIFT-IV-SYS-30` livre l'arbitrage de signature majeure générique (`src/lib/drift3dSignatureArbitration.ts` : candidat générique, `ownerKind`, priorité absolue `active-track` > `world`, priorité numérique intra-`ownerKind`, tie-break lexical déterministe, service stateless), exposé en développement via `window.__drift3dSignatureArbitration` (harness read-only installé depuis `Drift3DCanvas.tsx`, indépendant du montage react-three-fiber) — comportement vérifié sur des candidats entièrement synthétiques (`probe-*`, sans signification artistique) : validation déterministe, priorité absolue `active-track` > `world` même à l'extrême, priorité numérique intra-`ownerKind`, tie-break lexical indépendant de l'ordre d'entrée, éligibilité/absence de gagnant, garantie single-winner, séparation architecturale des boucles de vie, cleanup logique par liste vide/inéligibilité, cleanup/remount du probe, et les deux fallbacks — voir `docs/evidence/DRIFT-IV-SYS-30/signature-arbitration-evidence.md`. Aucune signature artistique réelle, aucune Cue Map, aucun mapping phase → signature, aucun quality tier n'est livré par ce lot. `DRIFT-IV-SYS-40` est désormais `READY`.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -225,7 +228,7 @@ DRIFT-IV-BASE-00
 | `SYS-00` | horloge audio unique et stable — `DONE`, voir `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` |
 | `SYS-10` | lifecycle et nettoyage — `DONE`, voir `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` |
 | `SYS-20` | harness de resolver de cues — `DONE`, voir `docs/DRIFT_3D_CUE_RESOLVER_CONTRACT.md` |
-| `SYS-30` | arbitrage d'une seule signature majeure |
+| `SYS-30` | arbitrage d'une seule signature majeure — `DONE`, voir `docs/DRIFT_3D_SIGNATURE_ARBITRATION_CONTRACT.md` |
 | `SYS-40` | quality tiers préservant l'identité |
 | `SYS-50` | reduced-motion contract |
 | `SYS-60` | no-WebGL narrative path |

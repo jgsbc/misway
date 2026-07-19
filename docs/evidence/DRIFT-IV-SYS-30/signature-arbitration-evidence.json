@@ -1,0 +1,201 @@
+{
+  "lot": "DRIFT-IV-SYS-30",
+  "date": "2026-07-19",
+  "method": "Real Chrome session (Claude Browser pane), SPA navigation (real <Link> clicks), local next dev server. Fully synthetic candidates (probe-*) — no artistic meaning, never presented as a real MISWAY signature.",
+  "methodologyNote": "Like the cue resolver probe (DRIFT-IV-SYS-20), window.__drift3dSignatureArbitration is installed from Drift3DCanvas.tsx, outside the react-three-fiber tree. It was directly readable on the very first /drift/ load, with no fiber traversal or frame-forcing workaround needed.",
+  "environmentIncident": {
+    "description": "While testing the reduced-motion fallback, the long-lived next dev server process from this session stopped responding and then stopped listening on port 3000 (curl: connection refused). Diagnosed as long-lived-process overload/instability, the same class of issue seen in DRIFT-IV-SYS-20, unrelated to this lot's code.",
+    "consoleErrorsCaused": 2,
+    "consoleErrorText": "Failed to fetch RSC payload for http://localhost:3000/. Falling back to browser navigation. TypeError: Failed to fetch",
+    "resolution": "Restarted the dev server; both fallback tests were then fully replayed on the fresh server with success. Zero console errors observed for any of tests A-J after the restart."
+  },
+  "sections": {
+    "testA_candidateValidation": {
+      "validCandidates": {
+        "candidates": [
+          { "id": "probe-world", "ownerKind": "world", "eligible": true, "priority": 100 },
+          { "id": "probe-track", "ownerKind": "active-track", "eligible": true, "priority": -10 }
+        ],
+        "issues": [],
+        "result": "PASS"
+      },
+      "invalidFixtures": {
+        "emptyId": { "issueTypes": ["empty-id"] },
+        "duplicateId": { "issueTypes": ["duplicate-id"] },
+        "nonFinitePriority": { "issueTypes": ["non-finite-priority"] },
+        "negativePriority": { "issueTypes": [], "note": "explicitly allowed, never flagged" }
+      },
+      "result": "PASS — every invalid fixture detected with the exact expected issue type; negative priority never flagged"
+    },
+    "testB_activeTrackAbsolutePrecedence": {
+      "orderA": {
+        "candidates": [
+          { "id": "probe-world", "ownerKind": "world", "eligible": true, "priority": 1000000 },
+          { "id": "probe-track", "ownerKind": "active-track", "eligible": true, "priority": -1000000 }
+        ],
+        "result": { "activeSignatureId": "probe-track", "activeCandidateIndex": 1, "activeOwnerKind": "active-track", "activePriority": -1000000, "decision": "active-track" }
+      },
+      "orderB": {
+        "candidates": [
+          { "id": "probe-track", "ownerKind": "active-track", "eligible": true, "priority": -1000000 },
+          { "id": "probe-world", "ownerKind": "world", "eligible": true, "priority": 1000000 }
+        ],
+        "result": { "activeSignatureId": "probe-track", "activeCandidateIndex": 0, "activeOwnerKind": "active-track", "activePriority": -1000000, "decision": "active-track" }
+      },
+      "result": "PASS — active-track wins in both input orders despite an extremely unfavorable numeric priority"
+    },
+    "testC_intraOwnerKindPriority": {
+      "activeTrackCase": {
+        "candidates": [
+          { "id": "probe-a", "ownerKind": "active-track", "eligible": true, "priority": 1 },
+          { "id": "probe-b", "ownerKind": "active-track", "eligible": true, "priority": 10 },
+          { "id": "probe-c", "ownerKind": "active-track", "eligible": true, "priority": 5 }
+        ],
+        "result": { "activeSignatureId": "probe-b", "activePriority": 10, "decision": "active-track" }
+      },
+      "worldCase": {
+        "candidates": [
+          { "id": "probe-a", "ownerKind": "world", "eligible": true, "priority": 1 },
+          { "id": "probe-b", "ownerKind": "world", "eligible": true, "priority": 10 },
+          { "id": "probe-c", "ownerKind": "world", "eligible": true, "priority": 5 }
+        ],
+        "result": { "activeSignatureId": "probe-b", "activePriority": 10, "decision": "world" }
+      },
+      "result": "PASS — highest-priority candidate wins on both owner kinds"
+    },
+    "testD_deterministicTieBreak": {
+      "orderA": {
+        "candidates": [
+          { "id": "probe-beta", "ownerKind": "world", "eligible": true, "priority": 5 },
+          { "id": "probe-alpha", "ownerKind": "world", "eligible": true, "priority": 5 }
+        ],
+        "result": { "activeSignatureId": "probe-alpha", "activeCandidateIndex": 1 }
+      },
+      "orderB": {
+        "candidates": [
+          { "id": "probe-alpha", "ownerKind": "world", "eligible": true, "priority": 5 },
+          { "id": "probe-beta", "ownerKind": "world", "eligible": true, "priority": 5 }
+        ],
+        "result": { "activeSignatureId": "probe-alpha", "activeCandidateIndex": 0 }
+      },
+      "result": "PASS — probe-alpha wins in both input orders (code-unit comparison, no localeCompare)"
+    },
+    "testE_eligibilityAndNoWinner": {
+      "case1_lowerEligibleBeatsHigherIneligible": {
+        "candidates": [
+          { "id": "probe-high-ineligible", "ownerKind": "world", "eligible": false, "priority": 999 },
+          { "id": "probe-low-eligible", "ownerKind": "world", "eligible": true, "priority": 1 }
+        ],
+        "result": { "activeSignatureId": "probe-low-eligible", "eligibleCandidateCount": 1 }
+      },
+      "case2_allIneligible": {
+        "candidates": [
+          { "id": "probe-a", "ownerKind": "world", "eligible": false, "priority": 5 },
+          { "id": "probe-b", "ownerKind": "active-track", "eligible": false, "priority": 10 }
+        ],
+        "result": { "activeSignatureId": null, "activeCandidateIndex": -1, "decision": "none", "eligibleCandidateCount": 0 }
+      },
+      "case3_emptyList": {
+        "candidates": [],
+        "result": { "activeSignatureId": null, "activeCandidateIndex": -1, "decision": "none", "candidateCount": 0 }
+      },
+      "result": "PASS"
+    },
+    "testF_singleMajorSignature": {
+      "candidates": [
+        { "id": "probe-world-1", "ownerKind": "world", "eligible": true, "priority": 5 },
+        { "id": "probe-world-2", "ownerKind": "world", "eligible": true, "priority": 8 },
+        { "id": "probe-world-3", "ownerKind": "world", "eligible": true, "priority": 3 },
+        { "id": "probe-track-1", "ownerKind": "active-track", "eligible": true, "priority": -100 },
+        { "id": "probe-track-2", "ownerKind": "active-track", "eligible": true, "priority": -50 }
+      ],
+      "result": { "activeSignatureId": "probe-track-2", "activeOwnerKind": "active-track", "activePriority": -50, "candidateCount": 5, "eligibleCandidateCount": 5, "decision": "active-track" },
+      "isSingleStringId": true,
+      "result_label": "PASS — exactly one activeSignatureId, never a collection of winners"
+    },
+    "testG_lifeLoopsUnaffected": {
+      "lifeLoopsFixture": [{ "id": "probe-loop-a" }, { "id": "probe-loop-b" }],
+      "neverPassedToArbitrate": true,
+      "sameReferenceAfterUnrelatedArbitration": true,
+      "sameSerializedValueAfterUnrelatedArbitration": true,
+      "probeApiSurface": ["arbitrate", "validate"],
+      "noSuppressLifeLoopsMethod": true,
+      "classification": "STRUCTURAL + BEHAVIORAL HARNESS EVIDENCE",
+      "note": "No real artistic life loop was tested — this fixture is entirely synthetic. The core proof is architectural: the API only accepts Drift3DSignatureCandidate[] and has no life-loop suppression method."
+    },
+    "testH_logicalCleanup": {
+      "withWinner": { "candidates": [{ "id": "probe-track", "ownerKind": "active-track", "eligible": true, "priority": 1 }], "result": { "activeSignatureId": "probe-track", "decision": "active-track" } },
+      "afterEmptyList": { "result": { "activeSignatureId": null, "decision": "none" } },
+      "afterAllIneligible": { "candidates": [{ "id": "probe-track", "ownerKind": "active-track", "eligible": false, "priority": 1 }], "result": { "activeSignatureId": null, "decision": "none" } },
+      "result": "PASS — no persistent winner, no stale signature state, no imperative reset needed in the service"
+    },
+    "testI_probeCleanupAndRemount": {
+      "precondition": "audio idle (paused, currentTime 0) — no autoplay baseline",
+      "heldOldProbeCaptured": true,
+      "afterLeavingDrift": {
+        "url": "/", "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "audioState": { "paused": true, "currentTime": 0 }
+      },
+      "afterReturningToDrift": {
+        "url": "/drift/", "canvasCount": 1, "audioCount": 1, "hasProbe": "object",
+        "isNewObjectDistinctFromOldProbe": true,
+        "audioState": { "paused": true, "currentTime": 0 }
+      },
+      "result": "PASS — probe absent while unmounted, fresh distinct instance on remount, no autoplay"
+    },
+    "testJ_fallbacks": {
+      "reducedMotion": {
+        "method": "window.matchMedia overridden to force matches:true for '(prefers-reduced-motion: reduce)', then SPA remount (on a freshly restarted dev server, after the environment incident)",
+        "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "renderedText": "REDUCED MOTION — The 3D room stays closed today.",
+        "result": "PASS"
+      },
+      "noWebGL": {
+        "method": "HTMLCanvasElement.prototype.getContext overridden to return null for any 'webgl*' context type, reduced-motion override removed, then SPA remount",
+        "canvasCount": 0, "audioCount": 1, "hasProbe": false,
+        "renderedText": "NO WEBGL — This browser cannot open the 3D room.",
+        "result": "PASS"
+      },
+      "note": "No real artistic signature exists yet — these fallbacks only prove the generic harness leaves no residue, not that a future artistic signature works under fallback conditions."
+    }
+  },
+  "structuralEvidence": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "checks": [
+      "git grep -n \"setInterval|setTimeout|requestAnimationFrame|useFrame\" -- src/lib/drift3dSignatureArbitration.ts => no matches",
+      "git grep -in \"eux-gainent|eteeaooete|foolfoule|jazzypling|cadence-lock|wave-ritual|deviation\" -- src/lib/drift3dSignatureArbitration.ts => no matches",
+      "git grep -n \"drift3dAudioClock|drift3dCueResolver|drift3dSceneLifecycle|@/lib/tracks\" -- src/lib/drift3dSignatureArbitration.ts => no matches",
+      "git diff --stat src/components/drift-3d/Drift3DCanvas.tsx => 41 insertions(+), 0 deletions(-) — pure addition",
+      "git diff src/components/drift-3d/Drift3DCanvas.tsx | grep -i 'usestate|useframe|activesignature|signaturephase' => no matches"
+    ],
+    "note": "src/lib/drift3dSignatureArbitration.ts imports no React, no DOM, and no other drift3d*/tracks.ts module. Drift3DCanvas.tsx's diff for this lot is a pure addition (a single new dev-only useEffect) — no new React state for an active signature, no useFrame added, no visual change to any scene."
+  },
+  "console": {
+    "errorsDuringIncident": 2,
+    "errorsDuringTestsAtoJ": 0,
+    "note": "See environmentIncident above — the 2 console errors are traced to a stale dev-server process, the same class of issue as DRIFT-IV-SYS-20, unrelated to the code delivered by this lot."
+  },
+  "gate": {
+    "atMostOneMajorSignatureWins": "PASS",
+    "activeTrackDominatesWorldWithoutException": "PASS",
+    "numericPriorityWorksAtEqualOwnerKind": "PASS",
+    "deterministicTieBreakIndependentOfInputOrder": "PASS",
+    "ineligibleCandidatesIgnored": "PASS",
+    "noEligibleMeansNoWinner": "PASS",
+    "noWinnerPersistence": "PASS",
+    "emptyListClearsArbitrationImmediately": "PASS",
+    "lifeLoopsOutsideArbitrationChannel": "PASS (architectural + behavioral evidence)",
+    "noTrackSpecificLogic": "PASS",
+    "noSlug": "PASS",
+    "noCueMap": "PASS",
+    "noArtisticPhase": "PASS",
+    "noCueToSignatureMapping": "PASS",
+    "noUseFrameTimerOrFastStateAdded": "PASS (structural evidence)",
+    "devProbeRemovedOnUnmount": "PASS",
+    "fallbacksLeaveNoResidualProbe": "PASS",
+    "globalPlayerAlwaysSingle": "PASS",
+    "lintPass": "PASS",
+    "buildPass": "PASS",
+    "decision": "DRIFT-IV-SYS-30 = DONE — PENDING MERGE"
+  }
+}
