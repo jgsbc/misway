@@ -56,10 +56,10 @@ export default function LandingPage() {
             <div className="absolute inset-x-0 bottom-[2%] md:bottom-[9%]">
               <div className="mx-auto grid w-full max-w-sm gap-3 md:max-w-[720px] md:grid-cols-3 md:gap-4">
                 <Link
-                  href="/drift"
+                  href="/tracks"
                   className="group order-1 relative flex min-h-[50px] items-center justify-center overflow-hidden border border-white/20 px-7 py-3 font-mono text-[11px] tracking-[0.24em] text-white transition md:min-h-[54px]"
                 >
-                  <span className="relative z-10 group-hover:text-black">ENTER</span>
+                  <span className="relative z-10 group-hover:text-black">TRACKS</span>
                   <span className="absolute inset-0 origin-left scale-x-0 bg-white transition-transform duration-500 group-hover:scale-x-100" />
                 </Link>
 
