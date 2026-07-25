@@ -272,3 +272,37 @@ L'échantillon mobile réel (§6.1, 50,5 fps) et l'enveloppe de coût inter-zone
 - Six éléments runtime historiques requalifiés sans portage (§7) — aucun nouvel identifiant créé.
 - Aucun changement `src/**` ou `public/**` dans ce lot.
 - **Décision de gate : `DRIFT-IV-BASE-00` → `DONE`. `DRIFT-IV-SYS-00` → `READY`.** Voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` §9 pour le détail du gate.
+
+---
+
+## 11. Post-SYS-60 — SYS-70 evidence/performance harness
+
+Cette section est clairement séparée des mesures historiques `BASE-00` ci-dessus (§6) : elle ne les remplace jamais, elle ajoute uniquement de nouvelles mesures réelles obtenues par `DRIFT-IV-SYS-70`, avec leur classification honnête.
+
+### 11.1 Logique pure du harness — `MEASURED`
+
+Toute la logique pure du harness (`window.__drift3dEvidence`) a été exécutée réellement dans un navigateur : les quatre classifications, le calcul FPS (`computeDrift3DFps`, y compris le triplet historique `532/10532 → 50.5127...` réutilisé strictement comme entrée de régression mathématique — jamais comme nouvelle mesure), 15 fixtures de snapshot (1 valide + 14 invalides, couvrant les 12 types d'issue) et 12 fixtures d'échantillon FPS, l'immutabilité de toutes les sorties (y compris un échantillon FPS non-null réel). Les deux fallbacks (reduced-motion, no-WebGL) ont été réellement déclenchés avec `canvasPresent: false` honnête. Détail complet : `docs/evidence/DRIFT-IV-SYS-70/evidence-performance-harness-evidence.md`.
+
+### 11.2 Session initiale (2026-07-25) — `KNOWN_ENVIRONMENT_LIMITATION` rencontrée, non supprimée de l'historique
+
+Contrairement à l'échantillon mobile réel de `BASE-00` (§6.1, obtenu via « Claude in Chrome ») et à l'enveloppe de coût inter-zones de `BASE-00` (§6.2), la session de preuve initiale de `SYS-70` n'avait pas pu obtenir de nouveau snapshot Canvas actif, de nouvel échantillon FPS de premier plan, ni de nouvelle enveloppe cross-zone : `requestAnimationFrame` ne s'était jamais déclenché dans l'onglet automatisé utilisé à ce moment-là (vérifié indépendamment dans le Browser pane sandboxé et dans une vraie instance Chrome via `claude-in-chrome` — compteur `requestAnimationFrame` manuel à `0` après 1000 ms dans les deux cas, absence de l'attribut `data-engine` sur le `<canvas>`, taille bloquée à la valeur HTML par défaut). Une tentative réelle d'échantillon FPS d'environ 32 secondes avait été honnêtement enregistrée : `{ frameCount: 0, elapsedMs: 31984.8, fps: 0 }` — un résultat réel, non fabriqué. Ce constat reste documenté ici comme historique de cette tentative ; il n'est pas supprimé.
+
+### 11.3 Session de correction (2026-07-26) — mesures Canvas live obtenues — `MEASURED`
+
+Une session de correction, menée sur une vraie instance Chrome locale (`claude-in-chrome`, pas le Browser pane sandboxé) avec une navigation réelle plus soutenue et un délai réel suffisant, a permis au rendu R3F de démarrer réellement (`data-engine: "three.js r185"`, dimensions de canvas réelles, `cumulativeFrameCount` observé strictement croissant). Nouvelles mesures réelles obtenues :
+
+- **Snapshot Canvas actif** (Test F) : `canvasPresent: true`, `drawCalls: 139`, `triangles: 197146`, viewport `1278×854`, `dpr: 1`, `visibility: "visible"`.
+- **Échantillon FPS de premier plan** (Test G) : fenêtre réelle ≈22s, `frameCount: 1543`, `fps ≈ 70.17` — aucun seuil appliqué.
+- **Enveloppe cross-zone** (Test H) : Entry Node (139/197146), A Walk In Zeeland (160/198008), Foolfoule (175/198124), ÉTÉÉAOOÉTÉ (157/178644) — chaque valeur correspond exactement à une valeur historique `BASE-00` déjà observée pour la même zone (§6.2 ci-dessus).
+- **Comparabilité** (Test I) : malgré un contexte de viewport différent, chaque mesure SYS-70 de draw calls/triangles correspond exactement à une valeur déjà observée pour la même zone dans `BASE-00` — cela établit la comparabilité empirique de ces échantillons mesurés, sans prétendre que ces métriques sont intrinsèquement indépendantes du viewport dans toutes les conditions de rendu ; le FPS n'est **pas** comparé terme à terme (contextes mobile vs desktop différents) — aucune conclusion de régression ni de gain.
+- **Remontage Canvas réel** (Test L) : cycle complet standard → reduced-motion → standard avec la même instance `window.__drift3dEvidence`, `canvasPresent` basculant `true`/`false`/`true`, `cumulativeFrameCount` remis à `0` au remontage réel puis augmentant à nouveau.
+- **Probes historiques** (Test R) et **invariance audio avec lecture réelle en cours** (Test N) confirmés.
+
+**Aucune valeur historique de `BASE-00` n'est remplacée** — ces nouvelles mesures s'ajoutent et confirment la cohérence avec l'historique. Détail complet : `docs/evidence/DRIFT-IV-SYS-70/evidence-performance-harness-evidence.md` §2-§4, §6.
+
+### 11.4 Conclusion `SYS-70`
+
+- Le harness de mesure/preuve est livré et vérifié pur (§11.1).
+- Une limitation d'environnement a été honnêtement rencontrée puis documentée lors de la session initiale (§11.2, préservée dans l'historique).
+- Une session de correction a obtenu des mesures Canvas live réelles et cohérentes avec l'historique `BASE-00` (§11.3).
+- **`DRIFT-IV-SYS-70` → `DONE — PENDING MERGE`. SHARED PRE-GATE FOUNDATION COMPLETE.**

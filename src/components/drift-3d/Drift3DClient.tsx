@@ -24,6 +24,22 @@ import {
   type Drift3DReducedMotionMode,
   type Drift3DReducedMotionPolicyCandidate,
 } from "@/lib/drift3dReducedMotion";
+import {
+  DRIFT_3D_EVIDENCE_CLASSIFICATIONS,
+  beginDrift3DFpsSample,
+  computeDrift3DFps,
+  createDrift3DEvidenceRuntimeRef,
+  createDrift3DPerformanceSnapshot,
+  endDrift3DFpsSample,
+  getDrift3DFpsSampleIssues,
+  getDrift3DPerformanceSnapshotIssues,
+  isDrift3DEvidenceClassification,
+  resolveDrift3DEvidenceVisibility,
+  type Drift3DEvidenceRuntimeRef,
+  type Drift3DFpsSampleCandidate,
+  type Drift3DFpsSampleToken,
+  type Drift3DPerformanceSnapshotCandidate,
+} from "@/lib/drift3dEvidence";
 
 const Drift3DCanvas = dynamic(
   () => import("@/components/drift-3d/Drift3DCanvas"),
@@ -60,6 +76,15 @@ export default function Drift3DClient() {
   >(null);
   const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
   const currentTrack = current.kind === "track" ? current : null;
+  // Owned here (the shell), not inside Drift3DCanvas, so the harness below
+  // stays available even when the Canvas is absent (reduced-motion,
+  // no-WebGL, still checking) — it honestly reports canvasPresent=false in
+  // that case rather than disappearing. `useState`'s lazy initializer (not
+  // `useRef().current`) keeps this stable across renders without reading a
+  // ref during render.
+  const [evidenceRuntimeRef] = useState<Drift3DEvidenceRuntimeRef>(
+    createDrift3DEvidenceRuntimeRef
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -186,6 +211,55 @@ export default function Drift3DClient() {
     };
   }, []);
 
+  // Dev-only evidence/performance harness (DRIFT-IV-SYS-70). Lives here (the
+  // shell), reading `evidenceRuntimeRef` — owned above — so it stays present
+  // even when Drift3DCanvas is unmounted. It only measures and records: no
+  // setTier/forceLow/forceReduced/forceNoWebGL/teleport/play/pause/seek/
+  // resetScene/setQuality/setPerformanceTarget/autoOptimize is exposed here
+  // or anywhere in drift3dEvidence.ts.
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      return;
+    }
+
+    const probe = Object.freeze({
+      classifications: DRIFT_3D_EVIDENCE_CLASSIFICATIONS,
+      snapshot: () =>
+        createDrift3DPerformanceSnapshot(
+          evidenceRuntimeRef,
+          resolveDrift3DEvidenceVisibility(document.visibilityState)
+        ),
+      beginFpsSample: () =>
+        beginDrift3DFpsSample(evidenceRuntimeRef, performance.now()),
+      endFpsSample: (token: Drift3DFpsSampleToken) =>
+        endDrift3DFpsSample(evidenceRuntimeRef, token, performance.now()),
+      computeFps: (frameCount: number, elapsedMs: number) =>
+        computeDrift3DFps(frameCount, elapsedMs),
+      validateSnapshot: (snapshot: Drift3DPerformanceSnapshotCandidate) =>
+        getDrift3DPerformanceSnapshotIssues(snapshot),
+      validateFpsSample: (sample: Drift3DFpsSampleCandidate) =>
+        getDrift3DFpsSampleIssues(sample),
+      validateClassification: (value: unknown) =>
+        isDrift3DEvidenceClassification(value),
+    });
+
+    Object.defineProperty(window, "__drift3dEvidence", {
+      configurable: true,
+      value: probe,
+    });
+
+    return () => {
+      // Same simple identity check as the other dev probes above.
+      if (
+        (window as unknown as Record<string, unknown>).__drift3dEvidence ===
+        probe
+      ) {
+        delete (window as unknown as Record<string, unknown>)
+          .__drift3dEvidence;
+      }
+    };
+  }, [evidenceRuntimeRef]);
+
   const reducedMotionMode: Drift3DReducedMotionMode | null =
     prefersReducedMotion === null
       ? null
@@ -221,6 +295,7 @@ export default function Drift3DClient() {
             toggleTrack={toggleTrack}
             togglePlayback={togglePlayback}
             audioClockRef={audioClockRef}
+            evidenceRuntimeRef={evidenceRuntimeRef}
           />
         )}
       </div>
