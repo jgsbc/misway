@@ -127,6 +127,8 @@ C'est attendu : ces services sont le périmètre de `DRIFT-IV-SYS-00` à `DRIFT-
 
 **Mise à jour post-`SYS-40` (`DRIFT-IV-SYS-50`, 2026-07-19)** : le contrat reduced-motion est désormais formalisé (`src/lib/drift3dReducedMotion.ts`, module générique livré, intégration minimale du resolver dans `Drift3DClient.tsx`, exposé en développement via `window.__drift3dReducedMotion`). Le comportement visuel actuel reste inchangé : reduced-motion continue à utiliser le fallback sans `Canvas` exactement comme avant ce lot — voir `docs/DRIFT_3D_REDUCED_MOTION_CONTRACT.md` et `docs/evidence/DRIFT-IV-SYS-50/reduced-motion-evidence.md`. Aucun track-local reduced-motion 3D n'est livré. Aucune donnée performance n'est re-mesurée par ce lot. Le no-WebGL narrative path reste le périmètre de `DRIFT-IV-SYS-60`. Elle ne modifie ni ne re-mesure aucune donnée de performance historique de ce document.
 
+**Mise à jour post-`SYS-50` (`DRIFT-IV-SYS-60`, 2026-07-19)** : le chemin narratif no-WebGL est désormais formalisé et réellement livré (`src/lib/drift3dNoWebGL.ts`, panneau statique dédié `Drift3DNoWebGLPath.tsx`, intégré dans `Drift3DFallback.tsx`/`Drift3DClient.tsx`, exposé en développement via `window.__drift3dNoWebGL`). Le `Canvas` reste absent sur ce chemin, exactement comme avant ce lot ; la détection WebGL (`canUseWebGL()`) est inchangée. Le panneau statique léger oriente vers `/drift-lab` (carte) et `/tracks` (catalogue/écoute), le player global est conservé, aucun autoplay n'est introduit. Aucune donnée de performance 3D n'est re-mesurée par ce lot. Aucune scène track fallback spécifique n'est livrée. Elle ne modifie ni ne re-mesure aucune donnée de performance historique de ce document.
+
 ---
 
 ## 5. Golden path et fallbacks — mesuré en session réelle

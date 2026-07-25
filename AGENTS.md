@@ -98,6 +98,7 @@ Puis, selon le lot, ajouter :
 - `docs/DRIFT_3D_SIGNATURE_ARBITRATION_CONTRACT.md` pour tout lot `SYS-40`+ ou tout futur Build consommant l'arbitrage de signature.
 - `docs/DRIFT_3D_QUALITY_TIER_CONTRACT.md` pour tout lot `SYS-50`+ ou tout futur Build consommant un Quality Tier.
 - `docs/DRIFT_3D_REDUCED_MOTION_CONTRACT.md` pour tout lot `SYS-60`+ ou tout futur Build implémentant un chemin reduced-motion.
+- `docs/DRIFT_3D_NO_WEBGL_NARRATIVE_PATH_CONTRACT.md` pour tout lot `SYS-70`+ ou tout futur Build implémentant un fallback no-WebGL local.
 
 Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné ; ils n'entrent jamais dans le read pack obligatoire immédiat ci-dessus.
 
@@ -128,7 +129,7 @@ Règles de lecture :
 - Un seul identifiant canonique de `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` peut devenir `ACTIVE_LOT` à la fois.
 - `VS1` / `VS2` / `VS3` (« vertical slice ») désignent des rôles de preuve, jamais des lots exécutables.
 - Les anciens identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` sont `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne peuvent plus nommer une branche, une PR ni un commit.
-- `DRIFT-IV-BASE-00`, `DRIFT-IV-SYS-00`, `DRIFT-IV-SYS-10`, `DRIFT-IV-SYS-20`, `DRIFT-IV-SYS-30`, `DRIFT-IV-SYS-40` et `DRIFT-IV-SYS-50` sont `DONE` ; `DRIFT-IV-SYS-60` est le seul prochain lot.
+- `DRIFT-IV-BASE-00`, `DRIFT-IV-SYS-00`, `DRIFT-IV-SYS-10`, `DRIFT-IV-SYS-20`, `DRIFT-IV-SYS-30`, `DRIFT-IV-SYS-40`, `DRIFT-IV-SYS-50` et `DRIFT-IV-SYS-60` sont `DONE` ; `DRIFT-IV-SYS-70` est le seul prochain lot.
 - Pour comprendre l'origine et le mapping des aliases retirés, lire conditionnellement `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` (rapport de réconciliation de gouvernance, pas un backlog).
 - `docs/DRIFT_3D_RUNTIME_BASELINE.md` fait autorité comme baseline runtime jusqu'à révision par la preuve propre d'un lot Build ; il distingue explicitement ce qui est `MEASURED` de ce qui est `INFERRED_FROM_REPRESENTATIVE_SAMPLE` — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le détail.
 
