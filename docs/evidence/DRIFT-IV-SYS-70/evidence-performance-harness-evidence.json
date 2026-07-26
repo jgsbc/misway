@@ -1,0 +1,294 @@
+{
+  "lot": "DRIFT-IV-SYS-70",
+  "date": "2026-07-25 (initial session), 2026-07-26 (correction session)",
+  "method": "Two sessions. Initial: sandboxed Browser pane (MCP Claude_Browser) plus a first quick pass on a real local Chrome instance via claude-in-chrome — no live Canvas measurement obtained. Correction: a real local Chrome instance via claude-in-chrome, with real DOM navigation, an explicit track play, and sufficient real wait time for the browser compositor to start rendering — live Canvas measurement obtained successfully.",
+  "methodologyNote": "SPA navigation was triggered via real clicks on DOM <a> elements. Reduced-motion was simulated with a fake, controllable MediaQueryList (same methods as the real API) installed on '/' BEFORE the SPA navigation to '/drift/', so the Drift3DClient mount effect captures the fake object directly. No-WebGL was simulated by overriding HTMLCanvasElement.prototype.getContext. Zone teleports used window.__drift3dTeleport with coordinates read from src/lib/drift3dTopology.ts and the pre-existing DRIFT-IV-BASE-00 evidence (Foolfoule).",
+  "environmentIncident": null,
+  "consoleErrorsDuringSession": 0,
+  "correctionRoundChanges": [
+    "Fixed Test C fixture count: 15 total (1 valid + 14 invalid, covering all 12 issue types; cumulative-frame-count-invalid exercised 3x) — previously misreported as 13 (1 valid + 12 invalid).",
+    "Added a real non-null Drift3DFpsSample immutability proof (Test E), distinct from the immediate begin/end -> null rejection case.",
+    "Obtained real live Canvas measurements for Tests F, G, H, I, L, R, N via a real local Chrome session (claude-in-chrome) with sufficient real interaction/wait time for the compositor to start rendering.",
+    "Refined the environment-limitation diagnosis: the sandboxed Browser pane never renders (no data-engine, screenshot always times out); the real local Chrome instance renders after a delay tied to sustained real interaction, not a permanent block — see knownEnvironmentLimitationHistory below."
+  ],
+  "knownEnvironmentLimitationHistory": {
+    "initialSession2026_07_25": {
+      "summary": "requestAnimationFrame never fired in the initial observation window, in either browser tool used at that time.",
+      "evidence": {
+        "documentVisibilityStateAlwaysHidden": true,
+        "rafCallbacksObservedOver1000ms_sandboxedBrowser": 0,
+        "rafCallbacksObservedOver1000ms_realChromeFirstPass": 0,
+        "canvasDataEngineAttribute": null,
+        "canvasDimensionsStuckAtHtmlDefault": { "width": 300, "height": 150 },
+        "screenshotToolTimesOut_sandboxedBrowser": true
+      },
+      "notARegression": "Drift3DScene.tsx is not part of this lot's diff.",
+      "preserved": "Kept in the evidence markdown (5) 6.1 as historical record; not deleted."
+    },
+    "correctionSession2026_07_26": {
+      "summary": "Real local Chrome (claude-in-chrome) DOES render, but only after sustained real interaction/wait time — not a permanent block. Sandboxed Browser pane remains permanently blocked (no data-engine ever, screenshot always times out there).",
+      "diagnosticEvidence": {
+        "windowScreenX": -1927,
+        "windowScreenWidth": 1920,
+        "setIntervalFiredNormally_8ticksIn800ms": true,
+        "rafStuckAt0DespiteSetIntervalWorking": true,
+        "dataEngineEventuallySet": "three.js r185",
+        "canvasDimensionsEventuallyReal": { "width": 1278, "height": 854 },
+        "cumulativeFrameCountEventuallyIncreasing": true
+      },
+      "conclusion": "Occlusion/off-screen-window-driven rAF throttling in the real Chrome instance lifts after real user interaction + real elapsed time; the sandboxed Browser pane shows no such recovery in any attempt."
+    }
+  },
+  "sections": {
+    "testA_classifications": {
+      "classifications": ["MEASURED", "INFERRED_FROM_REPRESENTATIVE_SAMPLE", "AUTOMATED_STRUCTURAL_EVIDENCE", "KNOWN_ENVIRONMENT_LIMITATION"],
+      "classificationsFrozen": true,
+      "validForAllFour": [true, true, true, true],
+      "invalidRandomString": false,
+      "invalidEmptyString": false,
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testB_computeFps": {
+      "case_120_2000": 60,
+      "case_300_5000": 60,
+      "case_532_10532": 50.512723129510064,
+      "note_532_10532": "Reuses the historical BASE-00 numeric pair strictly as a math-regression input, never as a new measurement.",
+      "elapsedMsZero": null,
+      "elapsedMsNegative": null,
+      "elapsedMsNaN": null,
+      "elapsedMsInfinity": null,
+      "frameCountNegative": null,
+      "frameCountFractional": null,
+      "frameCountNaN": null,
+      "zeroFramesValidElapsed": 0,
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testC_snapshotFixtures": {
+      "fixtureCount": 15,
+      "fixtureCountBreakdown": "1 valid canonical snapshot + 14 invalid fixtures, covering all 12 Drift3DPerformanceSnapshotIssueType values (cumulative-frame-count-invalid exercised 3x: -1, 1.5, NaN)",
+      "correctionNote": "Previously misreported as 13 (1 valid + 12 invalid) — corrected in this round.",
+      "distinctIssueTypesCovered": ["canvas-present-not-boolean", "cumulative-frame-count-invalid", "dpr-invalid", "draw-calls-invalid", "height-invalid", "render-not-null-while-canvas-absent", "render-null-while-canvas-present", "triangles-invalid", "viewport-not-null-while-canvas-absent", "viewport-null-while-canvas-present", "visibility-invalid", "width-invalid"],
+      "distinctIssueTypesCount": 12,
+      "fixtures": {
+        "valid": [],
+        "canvasPresentNotBoolean": [{ "type": "canvas-present-not-boolean" }],
+        "cumulativeFrameCountNegative": [{ "type": "cumulative-frame-count-invalid" }],
+        "cumulativeFrameCountFractional": [{ "type": "cumulative-frame-count-invalid" }],
+        "cumulativeFrameCountNaN": [{ "type": "cumulative-frame-count-invalid" }],
+        "renderNullWhileCanvasPresent": [{ "type": "render-null-while-canvas-present" }],
+        "viewportNullWhileCanvasPresent": [{ "type": "viewport-null-while-canvas-present" }],
+        "renderNotNullWhileCanvasAbsent": [{ "type": "render-not-null-while-canvas-absent" }],
+        "viewportNotNullWhileCanvasAbsent": [{ "type": "viewport-not-null-while-canvas-absent" }],
+        "drawCallsInvalid": [{ "type": "draw-calls-invalid" }],
+        "trianglesInvalid": [{ "type": "triangles-invalid" }],
+        "widthInvalid": [{ "type": "width-invalid" }],
+        "heightInvalid": [{ "type": "height-invalid" }],
+        "dprInvalid": [{ "type": "dpr-invalid" }],
+        "visibilityInvalid": [{ "type": "visibility-invalid" }]
+      },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testD_fpsSampleFixtures": {
+      "fixtureCount": 12,
+      "fixtureCountBreakdown": "1 valid sample + 11 invalid: 3 frameCount + 4 elapsedMs + 3 fps + 1 cross-field inconsistency",
+      "fixtures": {
+        "valid": [],
+        "frameCountNegative": [{ "type": "frame-count-invalid" }],
+        "frameCountFractional": [{ "type": "frame-count-invalid" }],
+        "frameCountNaN": [{ "type": "frame-count-invalid" }],
+        "elapsedMsZero": [{ "type": "elapsed-ms-invalid" }],
+        "elapsedMsNegative": [{ "type": "elapsed-ms-invalid" }],
+        "elapsedMsNaN": [{ "type": "elapsed-ms-invalid" }],
+        "elapsedMsInfinity": [{ "type": "elapsed-ms-invalid" }],
+        "fpsNegative": [{ "type": "fps-invalid" }],
+        "fpsNaN": [{ "type": "fps-invalid" }],
+        "fpsInfinity": [{ "type": "fps-invalid" }],
+        "fpsInconsistent": [{ "type": "fps-inconsistent", "message": "fps (30) is inconsistent with frameCount/elapsedMs (expected 60)." }]
+      },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testE_immutability": {
+      "snapshotFrozen": true,
+      "tokenFrozen": true,
+      "mutationAttemptOnSnapshotIgnored": true,
+      "mutationAttemptOnTokenIgnored": true,
+      "classificationsPushAttemptIgnored": true,
+      "edgeCase_beginEndSameTick": { "sample": null, "note": "elapsedMs ~ 0 correctly rejected end-to-end through the shell harness" },
+      "newRealNonNullSample": {
+        "waitMs": 1500,
+        "sample": { "frameCount": 0, "elapsedMs": 1515.0999999996275, "fps": 0 },
+        "sampleIsNonNull": true,
+        "sampleFrozen": true,
+        "mutationAttemptIgnored": true
+      },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testF_realActiveCanvasSnapshot": {
+      "snapshot": { "canvasPresent": true, "cumulativeFrameCount": 3190, "render": { "drawCalls": 139, "triangles": 197146 }, "viewport": { "width": 1278, "height": 854, "dpr": 1 }, "visibility": "visible" },
+      "validateSnapshotResult": [],
+      "isFrozen": true,
+      "cumulativeFrameCountObservedIncreasing": [1748, 3190, 5276],
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testG_realForegroundFpsSample": {
+      "token": { "startedAtMs": 82002.09999999963, "startedFrameCount": 3733 },
+      "sample": { "frameCount": 1543, "elapsedMs": 21989, "fps": 70.17144936104415 },
+      "frozen": true,
+      "visibilityDuringSample": "visible",
+      "noThresholdApplied": true,
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testH_crossZoneRenderCostSample": {
+      "zones": {
+        "entryNode": { "teleport": null, "note": "default spawn, no teleport applied", "drawCalls": 139, "triangles": 197146 },
+        "aWalkInZeeland": { "teleport": { "x": -88, "z": 20 }, "drawCalls": 160, "triangles": 198008 },
+        "foolfoule": { "teleport": { "x": -78, "z": 34 }, "drawCalls": 175, "triangles": 198124 },
+        "eteeaoote": { "teleport": { "x": 56, "z": -66 }, "drawCalls": 157, "triangles": 178644 }
+      },
+      "viewportForAllZones": { "width": 1278, "height": 854, "dpr": 1 },
+      "visibilityForAllZones": "visible",
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testI_comparabilityWithBase00": {
+      "historicalBase00": {
+        "entryNode": { "drawCalls": [139, 140], "triangles": [197146, 197158] },
+        "aWalkInZeeland": { "drawCalls": [160, 161], "triangles": [198008, 198020] },
+        "foolfoule": { "drawCalls": [173, 175], "triangles": [197076, 198124] },
+        "eteeaoote": { "drawCalls": [157], "triangles": [178644] },
+        "fpsFoolfoulemobile": 50.5,
+        "viewportMobile": { "width": 390, "height": 844 }
+      },
+      "currentSys70Session": {
+        "entryNode": { "drawCalls": 139, "triangles": 197146 },
+        "aWalkInZeeland": { "drawCalls": 160, "triangles": 198008 },
+        "foolfoule": { "drawCalls": 175, "triangles": 198124 },
+        "eteeaoote": { "drawCalls": 157, "triangles": 178644 },
+        "fpsDesktop": 70.17144936104415,
+        "viewportDesktop": { "width": 1278, "height": 854 }
+      },
+      "matchAssessment": "Every current draw-call/triangle value exactly matches one of the previously observed historical values for the same zone.",
+      "comparabilityLimitation": "Despite the different viewport context, every SYS-70 draw-call/triangle sample falls exactly on a value already observed for the same zone in BASE-00.\n\nThis establishes empirical comparability for these measured samples. It does not claim that render-call or triangle counts are intrinsically viewport-independent in all rendering conditions.\n\nFPS is NOT compared term-to-term: BASE-00's 50.5fps was a mobile foreground context, this session's 70.17fps a different desktop context — no regression/gain claim is made from that difference.",
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testJ_reducedMotionFallback": {
+      "canvasCount": 0,
+      "bodyShowsReducedMotionPanel": true,
+      "snapshot": { "canvasPresent": false, "cumulativeFrameCount": 0, "render": null, "viewport": null, "visibility": "visible" },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testK_noWebGLFallback": {
+      "canvasCount": 0,
+      "bodyShowsNoWebGLPanel": true,
+      "snapshot": { "canvasPresent": false, "cumulativeFrameCount": 0, "render": null, "viewport": null, "visibility": "hidden" },
+      "noWebGLPathIntact": true,
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testL_liveReducedMotionToggleFullCycle": {
+      "fakeMqlInstalledBeforeMount": true,
+      "initialStandardActive": { "canvasPresent": true, "cumulativeFrameCount": 443, "render": { "drawCalls": 139, "triangles": 197146 }, "viewport": { "width": 1278, "height": 854, "dpr": 1 }, "visibility": "visible" },
+      "afterToggleToReduced": { "canvasCount": 0, "bodyShowsReducedMotionPanel": true, "evidenceRefSame": true, "snapshot": { "canvasPresent": false, "cumulativeFrameCount": 443, "render": null, "viewport": null, "visibility": "visible" } },
+      "afterToggleBackToStandardImmediate": { "canvasCount": 1, "snapshot": { "canvasPresent": false, "cumulativeFrameCount": 443, "render": null, "viewport": null } },
+      "afterToggleBackToStandardRealRemount": { "snapshot": { "canvasPresent": true, "cumulativeFrameCount": 0, "render": { "drawCalls": 139, "triangles": 197146 }, "viewport": { "width": 1278, "height": 854, "dpr": 1 }, "visibility": "visible" } },
+      "afterFurtherWait": { "snapshot": { "canvasPresent": true, "cumulativeFrameCount": 99 }, "evidenceRefSame": true },
+      "cumulativeFrameCountSequence": [443, 443, 0, 99],
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testM_routeCleanup": {
+      "afterNavigatingAwayFromDrift": { "evidenceGlobalGone": true },
+      "afterNavigatingBackToDrift": { "evidenceGlobalPresent": true, "sameReferenceAsBefore": false },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testN_audioInvariance": {
+      "silentScenario": {
+        "audioCount": 1,
+        "before": { "paused": true, "currentTime": 0, "src": "http://localhost:3000/audio/entry-ambient.mp3" },
+        "afterFiveRoundsOfSnapshotAndFpsSample": { "paused": true, "currentTime": 0, "src": "http://localhost:3000/audio/entry-ambient.mp3" }
+      },
+      "realPlaybackScenario": {
+        "audioCount": 1,
+        "onTracksAfterRealPlayClick": { "paused": false, "currentTime": 6.413452, "src": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+        "beforeSpaNav": { "paused": false, "currentTime": 13.564102, "src": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+        "onDriftAfterSpaNav": { "paused": false, "currentTime": 21.483348, "src": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+        "afterFiveHarnessCalls": { "paused": false, "currentTime": 29.543697, "src": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" },
+        "afterFullCanvasRemountCycleTestL": { "paused": false, "currentTime": 31.219415, "src": "http://localhost:3000/audio/a-walk-in-zeeland.mp3" }
+      },
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testO_zeroAutomationPolicy": {
+      "greps": {
+        "timersStorageNetwork": { "command": "setTimeout\\|setInterval\\|sendBeacon\\|localStorage\\|sessionStorage\\|indexedDB", "files": ["src/lib/drift3dEvidence.ts", "src/components/drift-3d/Drift3DEvidenceProbe.tsx"], "matches": 0 },
+        "hardwareSniffing": { "command": "deviceMemory\\|hardwareConcurrency\\|userAgent", "files": ["src/lib/drift3dEvidence.ts", "src/components/drift-3d/Drift3DEvidenceProbe.tsx", "src/components/drift-3d/Drift3DClient.tsx"], "matches": 0 },
+        "autoQualityCommands": { "command": "setTier\\|forceLow\\|autoOptimize\\|applyTier", "files": ["src/lib/drift3dEvidence.ts", "src/components/drift-3d/Drift3DEvidenceProbe.tsx", "src/components/drift-3d/Drift3DClient.tsx"], "matches": 2, "matchLocation": "Drift3DClient.tsx lines 217-218, inside a comment enumerating what the harness does NOT expose", "functionalOccurrence": false },
+        "trackVocabulary": { "command": "eux-gainent\\|eteeaooete\\|foolfoule\\|jazzypling\\|cadence-lock\\|wave-ritual\\|deviation", "files": ["src/lib/drift3dEvidence.ts", "src/components/drift-3d/Drift3DEvidenceProbe.tsx"], "matches": 0 },
+        "browserGlobalsInLib": { "command": "window\\.|document\\.|navigator\\.|performance\\.|requestAnimationFrame", "files": ["src/lib/drift3dEvidence.ts"], "matches": 0 },
+        "reactThreeImportsInLib": { "command": "from \"react\"|from \"@react-three|from \"three\"", "files": ["src/lib/drift3dEvidence.ts"], "matches": 0 }
+      },
+      "honestyNote": "It would be incorrect to claim the autoQualityCommands grep returns zero matches — it returns two, both non-functional (comment-only).",
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testP_hotPathAllocationReview": {
+      "useFrameCallbackInspected": "Drift3DEvidenceProbe.tsx",
+      "scalarMutationsOnly": true,
+      "forbiddenPatternsFound": [],
+      "threeInternalAllocationsExcluded": true,
+      "confirmedUnderRealSustainedTicking": "cumulativeFrameCount reached several thousand increments during the correction session with no observed degradation",
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testQ_noArtisticKnowledge": {
+      "trackSlugEraCueLandmarkReferencesInCode": 0,
+      "zoneNamesOnlyInEvidenceDocuments": true,
+      "zoneCoordinatesReadFrom": ["src/lib/drift3dTopology.ts (pre-existing, unmodified)", "docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md (Foolfoule)"],
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    },
+    "testR_existingProbesPreserved": {
+      "allProbesConfirmedPresentAndFunctional": {
+        "__drift3dAudioClock": "object",
+        "__drift3dLifecycle": "object (read() returns real ACTIVE state)",
+        "__drift3dRender": "object (real calls/triangles)",
+        "__drift3dDebug": "object (real vehicle position)",
+        "__drift3dTeleport": "writable channel, confirmed functional (consumed and reset to null by Drift3DScene.tsx by design)",
+        "__drift3dCueResolver": "object",
+        "__drift3dSignatureArbitration": "object",
+        "__drift3dQuality": "object",
+        "__drift3dReducedMotion": "object",
+        "__drift3dNoWebGL": "object",
+        "__drift3dEvidence": "object"
+      },
+      "notARegression": "Drift3DScene.tsx untouched by this lot's diff.",
+      "classification": "MEASURED",
+      "result": "PASS"
+    },
+    "testS_lintAndBuild": {
+      "lint": "PASS",
+      "build": "PASS",
+      "nextVersion": "16.1.7",
+      "staticPagesGenerated": 38,
+      "configModifiedToForcePass": false,
+      "replayedAfterCorrection": true,
+      "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+      "result": "PASS"
+    }
+  },
+  "gitScope": {
+    "modified": ["src/components/drift-3d/Drift3DCanvas.tsx", "src/components/drift-3d/Drift3DClient.tsx"],
+    "added": ["src/lib/drift3dEvidence.ts", "src/components/drift-3d/Drift3DEvidenceProbe.tsx"],
+    "forbiddenFilesTouched": []
+  }
+}

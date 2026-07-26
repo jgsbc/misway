@@ -13,6 +13,8 @@ import type { Track } from "@/lib/tracks";
 import { getTrackBySlug } from "@/lib/tracks";
 import Drift3DScene from "@/components/drift-3d/Drift3DScene";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
+import Drift3DEvidenceProbe from "@/components/drift-3d/Drift3DEvidenceProbe";
+import type { Drift3DEvidenceRuntimeRef } from "@/lib/drift3dEvidence";
 import {
   DRIFT_3D_CAMERA_MAX_SCALE,
   DRIFT_3D_CAMERA_MIN_SCALE,
@@ -67,6 +69,7 @@ type Drift3DCanvasProps = {
   currentTrack: Track | null;
   togglePlayback: () => void;
   audioClockRef: Drift3DAudioClockRef;
+  evidenceRuntimeRef: Drift3DEvidenceRuntimeRef;
 };
 
 export default function Drift3DCanvas({
@@ -76,6 +79,7 @@ export default function Drift3DCanvas({
   currentTrack,
   togglePlayback,
   audioClockRef,
+  evidenceRuntimeRef,
 }: Drift3DCanvasProps) {
   const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(
     null
@@ -822,6 +826,9 @@ export default function Drift3DCanvas({
             audioClockRef={audioClockRef}
             sceneLifecycleRef={sceneLifecycleRef}
           />
+          {process.env.NODE_ENV !== "production" ? (
+            <Drift3DEvidenceProbe runtimeRef={evidenceRuntimeRef} />
+          ) : null}
         </Canvas>
 
         {/* post-processing sobre (bible §6) : vignette douce + grain fin,
