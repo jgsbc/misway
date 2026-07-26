@@ -1,0 +1,194 @@
+{
+  "lot": "DRIFT-IV-BY-EUX-20",
+  "date": "2026-07-26",
+  "method": "Real local Chrome session (claude-in-chrome), real SPA navigation, window.__drift3dEuxGainent (read()/validateTimeline()), direct <audio> element manipulation for seek/pause/loop tests, window.__drift3dEvidence for performance, faithful HTMLCanvasElement.prototype.getContext override for no-WebGL, real screenshots for signature peak and no-WebGL composition.",
+  "preBuildBaseline": {
+    "canvasPresent": true,
+    "drawCalls": 193,
+    "triangles": 201412,
+    "viewport": { "width": 1278, "height": 845, "dpr": 1 },
+    "visibility": "visible",
+    "validateSnapshotIssues": []
+  },
+  "pureTimelineEvidence": {
+    "validateTimelineIssues": [],
+    "classification": "MEASURED"
+  },
+  "normalIdleEvidence": [
+    {
+      "case": "outside zone, eux-gainent still playing in background",
+      "insideZone": false,
+      "sourceKind": "track",
+      "sourceSlug": "eux-gainent",
+      "realAudioCurrentTime": 25.1,
+      "resolvedAbsoluteTimeSeconds": 1.55,
+      "phaseId": "pre-cadence",
+      "dominantText": null,
+      "signatureEligible": false,
+      "signatureActive": false
+    },
+    {
+      "case": "inside zone, different track playing (a-walk-in-zeeland)",
+      "insideZone": true,
+      "sourceKind": "track",
+      "sourceSlug": "a-walk-in-zeeland",
+      "phaseId": "pre-cadence",
+      "dominantText": null,
+      "signatureEligible": false,
+      "signatureActive": false
+    },
+    {
+      "case": "inside zone, ambient only, before any track switch",
+      "insideZone": true,
+      "sourceKind": "ambient",
+      "phaseId": "pre-cadence",
+      "dominantText": null,
+      "signatureEligible": false,
+      "signatureActive": false
+    }
+  ],
+  "cueByCueEvidence": [
+    { "absoluteTimeSeconds": 35, "phaseId": "cadence-lock", "dominantText": "CADENCE", "paused": true },
+    { "absoluteTimeSeconds": 54.83, "phaseId": "measurement", "dominantText": "CADENCE", "paused": false, "note": "unpinned sample, real drift observed" },
+    { "absoluteTimeSeconds": 74, "phaseId": "deviation", "dominantText": "ÉCART", "paused": true },
+    { "absoluteTimeSeconds": 83, "phaseId": "correction-revelation", "dominantText": "CONFORMITÉ", "paused": true },
+    { "absoluteTimeSeconds": 140, "phaseId": "reference-inversion", "dominantText": "RENDEMENT", "signatureEligible": true, "signatureActive": true, "paused": true },
+    { "absoluteTimeSeconds": 147.28, "phaseId": "reference-inversion", "dominantText": "OBJECTIF DÉPLACÉ", "signatureEligible": true, "signatureActive": true, "paused": true, "note": "CUE_05 analytical peak, screenshot captured" },
+    { "absoluteTimeSeconds": 160, "phaseId": "aftermath-return", "dominantText": null, "signatureActive": false, "paused": true },
+    { "absoluteTimeSeconds": 210, "phaseId": "residue", "dominantText": null, "signatureActive": false, "paused": true }
+  ],
+  "signatureEvidence": {
+    "windowConfirmed": "reference-inversion only",
+    "screenshotAt": 147.28,
+    "glassTextVisible": "OBJECTIF DÉPLACÉ",
+    "athletesFrozenVisible": true,
+    "recalibrationStripLit": true,
+    "sharedArbitrationHarnessIndependent": true,
+    "noGlobalRegistryConsulted": true
+  },
+  "pauseSeekLoopEvidence": {
+    "pauseDuringDeviation": { "absoluteTimeSeconds": 74, "playbackState": "paused" },
+    "pauseDuringReferenceInversion": [
+      { "absoluteTimeSeconds": 140, "playbackState": "paused" },
+      { "absoluteTimeSeconds": 147.28, "playbackState": "paused" }
+    ],
+    "directSeeksWhilePlaying": [
+      { "target": 145, "observed": 145.94, "phaseId": "reference-inversion", "dominantText": "RENDEMENT", "signatureActive": true },
+      { "target": 30, "observed": 30.94, "phaseId": "cadence-lock", "dominantText": "CADENCE", "signatureActive": false },
+      { "target": 210, "observed": 210.95, "phaseId": "residue", "dominantText": null, "signatureActive": false },
+      { "target": 82, "observed": 82.96, "phaseId": "correction-revelation", "dominantText": "CONFORMITÉ", "signatureActive": false }
+    ],
+    "loop": {
+      "seekBeforeWrap": 223.9,
+      "trackDurationSeconds": 225.455,
+      "postWrapReadings": [
+        { "audioCurrentTime": 7.8, "phaseId": "pre-cadence", "dominantText": null },
+        { "audioCurrentTime": 12.8, "phaseId": "pre-cadence", "dominantText": null }
+      ]
+    }
+  },
+  "zoneTrackReset": {
+    "zoneExit": { "position": [0, 0], "insideZone": false, "sourceSlug": "eux-gainent", "note": "real audio position ignored while outside zone" },
+    "zoneReentry": {
+      "position": [-62, 42],
+      "realAudioCurrentTime": 130.27,
+      "resolvedAbsoluteTimeSeconds": 130.26,
+      "phaseId": "correction-revelation",
+      "dominantText": "CONFORMITÉ",
+      "note": "immediate match, no replay from zero"
+    },
+    "trackChangeInsideZone": {
+      "insideZone": true,
+      "sourceSlug": "a-walk-in-zeeland",
+      "phaseId": "pre-cadence",
+      "dominantText": null
+    }
+  },
+  "noWebglEvidence": {
+    "replayedAfterPreMergeAuditFixes": true,
+    "method": "HTMLCanvasElement.prototype.getContext monkeypatched to return null, real SPA navigation from /tracks/eux-gainent/ to /drift",
+    "canvasCount": 0,
+    "noWebglPanelShown": true,
+    "destinationsPreserved": ["OPEN 2D LAB", "TRACKS"],
+    "euxFallbackSceneRendered": true,
+    "athleteLabels": [],
+    "athleteLabelsNote": "removed by pre-merge audit fix; no COMPLIANT/CORRECTED/RESIDUAL text present",
+    "caption": null,
+    "captionNote": "explanatory caption removed by pre-merge audit fix",
+    "environmentLimitationEncountered": "document.visibilityState stuck 'hidden'; native 'timeupdate' did not fire automatically despite audio.currentTime genuinely changing; a manual dispatchEvent(new Event('timeupdate')) was used to verify the component without modifying its code",
+    "staticPosesConfirmed": [
+      { "absoluteTimeSeconds": 0, "phaseId": "pre-cadence", "silhouetteTranslateXPx": [-6, 0, 6], "activeStations": 0, "dominantText": null },
+      { "absoluteTimeSeconds": 74, "phaseId": "deviation", "silhouetteTranslateXPx": [0, 8.4, 2.4], "activeStations": 3, "dominantText": "ÉCART" },
+      { "absoluteTimeSeconds": 83, "phaseId": "correction-revelation", "silhouetteTranslateXPx": [0, 0.9, 2.4], "activeStations": 3, "dominantText": "CONFORMITÉ" },
+      { "absoluteTimeSeconds": 140, "phaseId": "reference-inversion", "silhouetteTranslateXPx": [0, 0.9, 2.4], "silhouettesFrozen": true, "activeStations": 3, "dominantText": "RENDEMENT" },
+      { "absoluteTimeSeconds": 147.28, "phaseId": "reference-inversion", "silhouetteTranslateXPx": [0, 0.9, 2.4], "note": "identical pose to 140s, only dominantText changed (approved discrete peak transition)", "activeStations": 3, "dominantText": "OBJECTIF DÉPLACÉ" },
+      { "absoluteTimeSeconds": 210, "phaseId": "residue", "silhouetteTranslateXPx": [0, 0.6, 4.2], "activeStations": 1, "activeStationNote": "only athlete C's station active", "dominantText": null }
+    ],
+    "withinPhaseStabilityConfirmed": "second dispatchEvent at 140s without changing currentTime reproduced a byte-identical pose",
+    "audioCount": 1,
+    "audioPausedThroughout": false,
+    "consoleErrors": 0,
+    "audioUninterrupted": true,
+    "screenshotCaptured": true,
+    "screenshotAt": 210
+  },
+  "reducedMotionEvidence": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "liveOsEmulationAvailable": false,
+    "reason": "no CDP Emulation.setEmulatedMedia tool exposed; matchMedia object captured once at mount, post-load override cannot retroactively change it",
+    "structuralProof": "EuxGainentFallbackScene is mounted for reduced-motion and no-webgl only, not for checking — corrected by pre-merge audit fix (previously incorrectly composed for every fallbackReason including checking)",
+    "plausibilityNote": "the no-WebGL replay exercises the same conditional branch reduced-motion would take (only fallbackReason differs) — this makes identical behavior plausible but does not itself constitute MEASURED evidence for reduced-motion"
+  },
+  "mobileEvidence": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "attempts": [
+      {
+        "surface": "claude-in-chrome real Chrome",
+        "resizeRequested": [390, 844],
+        "outerDimensionsChanged": true,
+        "innerDimensionsChanged": false,
+        "result": "fixed virtual framebuffer, KNOWN_ENVIRONMENT_LIMITATION"
+      },
+      {
+        "surface": "sandboxed Claude_Browser pane",
+        "viewportConfirmed": [390, 844],
+        "clickInteractionWorked": false,
+        "screenshotTimedOut": true,
+        "result": "KNOWN_ENVIRONMENT_LIMITATION, consistent with SYS-70's documented sandboxed-pane unreliability"
+      }
+    ],
+    "structuralProof": "EuxGainentFallbackScene uses text-[9px] to text-[11px] font scale and flexible gap-based layout, consistent with already mobile-tested SYS-50/SYS-60 fallback panels"
+  },
+  "performanceEvidence": {
+    "preBuild": { "drawCalls": 193, "triangles": 201412, "position": [-62, 42] },
+    "postBuildFirstCheck": { "drawCalls": 164, "triangles": 197336, "position": [-62, 42] },
+    "comparisonType": "directional real same-position measurement, not a strict controlled A/B",
+    "conclusion": "In this observed sample, draw-call and triangle counts were lower post-build than in the pre-build sample. Because camera/orientation were not strictly controlled and no fresh post-build FPS sample was obtained, this does not establish absence of an overall performance regression.",
+    "freshPostFocusLossFpsSample": {
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "cumulativeFrameCountObserved": 0,
+      "reason": "document.visibilityState stuck hidden, real Chrome window lost OS-level foreground focus"
+    }
+  },
+  "resourceCleanup": {
+    "classification": "AUTOMATED_STRUCTURAL_EVIDENCE",
+    "textureDisposeConfirmed": true,
+    "devProbeCleanupPatternConfirmed": true,
+    "realRouteCyclesPerformed": true,
+    "consoleErrorsObserved": false,
+    "deepMemoryProfilingPerformed": false
+  },
+  "audioInvariance": {
+    "classification": "MEASURED",
+    "structuralGrepMatches": 0,
+    "grepPatterns": [".play(", ".pause(", ".currentTime =", ".load("],
+    "empiricalObservation": "narrative never itself mutated audio state; only reflected real observed state"
+  },
+  "knownLimitations": [
+    "Real Chrome window lost OS-level foreground focus late in the initial test pass (document.visibilityState stuck 'hidden' despite repeated real interaction and waits up to 20s+, including in a freshly created tab in the same window); cumulativeFrameCount honestly stayed frozen at 0 rather than being fabricated.",
+    "claude-in-chrome's resize_window changes OS window bounds but not window.innerWidth/innerHeight (fixed virtual framebuffer), blocking real interactive mobile-viewport R3F verification in that surface.",
+    "Sandboxed Claude_Browser pane achieved a genuine 390x844 viewport but click interaction and screenshot capture became unreliable near the end of the mobile test attempt, consistent with SYS-70's documented finding that this pane never reliably renders/interacts with R3F content.",
+    "During the pre-merge audit replay, document.visibilityState was stuck 'hidden' again; the native 'timeupdate' event did not fire automatically despite audio.currentTime genuinely changing. A manual dispatchEvent(new Event('timeupdate')) was used to verify the fixed fallback component without modifying its code — once delivered, the component behaved exactly as expected (see noWebglEvidence.staticPosesConfirmed).",
+    "None of these limitations affected the dramaturgy/narrative evidence itself (timeline, idle, cues, signature, pause/seek/loop, zone/track reset, no-WebGL composition), all obtained successfully either directly or via the manually-dispatched timeupdate event."
+  ]
+}

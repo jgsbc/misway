@@ -69,6 +69,8 @@ import {
   type Drift3DAudioClockRef,
 } from "@/lib/drift3dAudioClock";
 import type { Drift3DSceneLifecycleRef } from "@/lib/drift3dSceneLifecycle";
+import { EUX_GAINENT_LANDMARK_ID, EUX_GAINENT_NODE_ID } from "@/lib/drift3dEuxGainent";
+import EuxGainentLivingScene from "@/components/drift-3d/EuxGainentLivingScene";
 
 const DRIFT_3D_VEHICLE_MAX_LEAN = 0.24;
 const DRIFT_3D_VEHICLE_MAX_PITCH = 0.5;
@@ -915,13 +917,27 @@ export default function Drift3DScene({
         ))
       )}
 
-      {drift3dLandmarks.map((landmark) => (
-        <Drift3DLandmark
-          key={landmark.id}
-          landmark={landmark}
-          vehicleStateRef={vehicleStateRef}
-        />
-      ))}
+      {drift3dLandmarks
+        .filter((landmark) => landmark.id !== EUX_GAINENT_LANDMARK_ID)
+        .map((landmark) => (
+          <Drift3DLandmark
+            key={landmark.id}
+            landmark={landmark}
+            vehicleStateRef={vehicleStateRef}
+          />
+        ))}
+
+      {/* DRIFT-IV-BY-EUX-20: the EUX GAINENT landmark is excluded from the
+          generic loop above and replaced by its own living scene, which
+          still reuses the landmark's static facade/strip/floor primitives
+          unchanged (see EuxGainentLivingScene.tsx). Always mounted — the
+          gym itself is never absent — only its music-driven dramaturgy
+          gates on `isInsideZone`. */}
+      <EuxGainentLivingScene
+        audioClockRef={audioClockRef}
+        isInsideZone={proximity?.activeNode?.id === EUX_GAINENT_NODE_ID}
+        vehicleStateRef={vehicleStateRef}
+      />
 
       <Drift3DScatterField />
 
