@@ -8,7 +8,7 @@ import {
   EUX_GAINENT_TRACK_DURATION_SECONDS,
   EUX_GAINENT_TRACK_SLUG,
   isEuxGainentSignatureWindow,
-  resolveEuxGainentDominantText,
+  resolveEuxGainentScreenState,
   type EuxGainentAthleteId,
   type EuxGainentPhaseId,
 } from "@/lib/drift3dEuxGainent";
@@ -111,7 +111,7 @@ export default function EuxGainentFallbackScene() {
     EUX_GAINENT_TRACK_DURATION_SECONDS
   );
   const phaseId: EuxGainentPhaseId = resolution.phaseId ?? "pre-cadence";
-  const dominantText = resolveEuxGainentDominantText(currentTime);
+  const screenState = resolveEuxGainentScreenState(currentTime, phaseId);
   const humansFrozen = isEuxGainentSignatureWindow(phaseId);
   const poses = EUX_FALLBACK_POSES[phaseId];
 
@@ -125,10 +125,19 @@ export default function EuxGainentFallbackScene() {
         machines — held here as still positions, not motion.
       </p>
 
-      {dominantText ? (
-        <p className="light-border light-card-bg mt-3 inline-block border px-3 py-1 font-mono text-[11px] uppercase tracking-[0.3em]">
-          {dominantText}
-        </p>
+      {screenState.headline || screenState.secondaryLines.length > 0 ? (
+        <div className="light-border light-card-bg mt-3 inline-block border px-3 py-2">
+          {screenState.headline ? (
+            <p className="font-mono text-[11px] uppercase tracking-[0.3em]">
+              {screenState.headline}
+            </p>
+          ) : null}
+          {screenState.secondaryLines.length > 0 ? (
+            <p className="light-text-tertiary mt-1 whitespace-pre-line font-mono text-[8px] uppercase tracking-[0.08em]">
+              {screenState.secondaryLines.join("\n")}
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <div className="light-border mt-4 border-t pt-4">

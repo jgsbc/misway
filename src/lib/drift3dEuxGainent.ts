@@ -276,6 +276,170 @@ export function resolveEuxGainentDominantText(
   return null;
 }
 
+export type EuxGainentScreenState = Readonly<{
+  /** Same value `resolveEuxGainentDominantText` would return — the one
+   * dominant message, never duplicated by a secondary line. */
+  headline: string | null;
+  /** Two to five short operational fragments, never a second sentence. */
+  secondaryLines: readonly string[];
+}>;
+
+const SCREEN_PEAK_BLANK_HALF_WINDOW_SECONDS = 0.6;
+
+/**
+ * The screen's secondary "operational fragment" grammar (owner review #2 —
+ * DRIFT-IV-BY-EUX-30 rework V3: "il manque du fond"). A pure function of
+ * absolute time and the already-resolved phase, exactly like
+ * `resolveEuxGainentDominantText` — never a second engine, never a second
+ * signature sentence. Content drifts deliberately from ordinary sport data
+ * (pre-cadence, ticking) to fixed classification readings that no longer
+ * clearly describe sport (from `cadence-lock` onward, static per phase) —
+ * the quantization itself is part of the reveal: real training metrics
+ * tick, a classification reading does not. Values are illustrative
+ * fragments (`GAIN`/`PERTE`/`RESTE`/`DESTINATION`...), never explained.
+ */
+export function resolveEuxGainentScreenState(
+  absoluteTimeSeconds: number,
+  phaseId: EuxGainentPhaseId
+): EuxGainentScreenState {
+  const headline = resolveEuxGainentDominantText(absoluteTimeSeconds);
+
+  if (phaseId === "pre-cadence") {
+    const t = Math.max(0, Math.floor(absoluteTimeSeconds));
+    const minutes = String(Math.floor(t / 60) % 100).padStart(2, "0");
+    const seconds = String(t % 60).padStart(2, "0");
+    const distanceKm = (t * 0.0032).toFixed(2);
+    const cadence = Math.round(72 + Math.sin(t * 0.31) * 4);
+    const serie = String(1 + (Math.floor(t / 40) % 3)).padStart(2, "0");
+    const gain = (0.5 + t * 0.006).toFixed(1);
+
+    return {
+      headline,
+      secondaryLines: [
+        `TEMPS       ${minutes}:${seconds}`,
+        `DIST.        ${distanceKm}`,
+        `CAD.           ${cadence}`,
+        `SÉRIE          ${serie}`,
+        `GAIN          +${gain}`,
+      ],
+    };
+  }
+
+  if (phaseId === "cadence-lock") {
+    return {
+      headline,
+      secondaryLines: [
+        "SÉRIE        03/03",
+        "TOLÉRANCE    ±0.3",
+        "GAIN           +1",
+        "VARIATION     0.2",
+      ],
+    };
+  }
+
+  if (phaseId === "measurement") {
+    return {
+      headline,
+      secondaryLines: [
+        "MESURE          03",
+        "VARIATION     0.08",
+        "FORME        03/03",
+        "GAIN          +1.4",
+        "RESTE            03",
+      ],
+    };
+  }
+
+  if (phaseId === "deviation") {
+    return {
+      headline,
+      secondaryLines: [
+        "VARIATION      +1",
+        "PLAGE         HORS",
+        "TOLÉRANCE      0.3",
+        "RECALAGE        --",
+        "RESTE            03",
+      ],
+    };
+  }
+
+  if (phaseId === "correction-revelation") {
+    return {
+      headline,
+      secondaryLines: [
+        "RECALAGE        01",
+        "FORME        03/03",
+        "GAIN            +2",
+        "VARIATION      0.0",
+        "RESTE            03",
+      ],
+    };
+  }
+
+  if (phaseId === "reference-inversion") {
+    const inversion = EUX_GAINENT_CUES[4];
+    const nearPeak =
+      Math.abs(absoluteTimeSeconds - inversion.peakSeconds) <=
+      SCREEN_PEAK_BLANK_HALF_WINDOW_SECONDS;
+
+    if (nearPeak) {
+      // The exact peak instant: everything fades except the headline
+      // itself — the single most graphically powerful moment, never
+      // competing with a secondary line.
+      return { headline, secondaryLines: [] };
+    }
+
+    if (absoluteTimeSeconds < inversion.peakSeconds) {
+      return {
+        headline,
+        secondaryLines: [
+          "EFFORT          100",
+          "GAIN            +3",
+          "PERTE            --",
+          "DÉPLACEMENT       0",
+          "RESTE            03",
+        ],
+      };
+    }
+
+    return {
+      headline,
+      secondaryLines: [
+        "GAIN            +3",
+        "DÉPLACEMENT       0",
+        "DESTINATION      --",
+        "RESTE            03",
+      ],
+    };
+  }
+
+  if (phaseId === "aftermath-return") {
+    const t = Math.max(0, Math.floor(absoluteTimeSeconds));
+    const minutes = String(Math.floor(t / 60) % 100).padStart(2, "0");
+    const seconds = String(t % 60).padStart(2, "0");
+    const distanceKm = (t * 0.0032).toFixed(2);
+    const cadence = Math.round(72 + Math.sin(t * 0.31) * 4);
+    const serie = String(1 + (Math.floor(t / 40) % 3)).padStart(2, "0");
+
+    return {
+      headline,
+      secondaryLines: [
+        `TEMPS       ${minutes}:${seconds}`,
+        `DIST.        ${distanceKm}`,
+        `CAD.           ${cadence}`,
+        `SÉRIE          ${serie}`,
+        "RESTE            01",
+      ],
+    };
+  }
+
+  // residue
+  return {
+    headline,
+    secondaryLines: ["SÉRIE     TERMINÉE", "GAIN             --", "RESTE            01"],
+  };
+}
+
 /** `true` only for the exact reference-inversion window — the sole Level 3 situation. */
 export function isEuxGainentSignatureWindow(
   phaseId: EuxGainentPhaseId

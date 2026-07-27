@@ -1,10 +1,62 @@
 # ACTIVE_LOT.md
 
 Current lot:
+DRIFT-IV-BY-EUX-30 — EUX GAINENT owner acceptance
+
+Status:
+REWORK_REQUIRED
+
+Baseline:
+main@d2a1c15 (contains DRIFT-IV-BY-EUX-20, merged, PR #31)
+
+Type:
+Owner acceptance of the EUX GAINENT proof slice built in `DRIFT-IV-BY-EUX-20`. This lot does not build or modify the runtime scene by default — it observes, gathers the owner's spontaneous reading, artistic scores, North Star readability, cue-by-cue listening verdict against the analytical Cue Map, and functional/mobile/reduced-motion/no-WebGL/performance re-confirmation, then records an explicit owner decision. Bounded cue-timestamp adjustments are permitted only if the owner requests them after listening, and only within the approved structural windows — never a new signature, dominant word, or identity decision.
+
+Owner review #1 (first pass, real local browser, spontaneous reading — see `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` for the full record):
+- Technical foundation: `ACCEPTED` — the BY-EUX-20 dramaturgical mechanism (shared services consumption, phase/cue resolution, signature arbitration, deterministic pause/seek/loop) is a valid base.
+- Artistic: `REWORK_REQUIRED` — the owner rejects the current level of motion, visual realism, graphic design, density and loufoquerie. Verbatim: *"ce n'est pas assez actif, ca ne bouge pas assez, c'est mou. hormis les textes sur l'écran qui sont une bonne idée mais pas assez travaillée. j'ai l'impression qu'on est loin de la loufoquerie et du réalisme graphique et design souhaité."* On MISWAY identity: *"l'intention mais on est loin de l'attendu."*
+- `DRIFT-IV-BY-EUX-30 = REWORK_REQUIRED`. `EUX GAINENT = NOT ACCEPTED`. `PROOF SLICE 1 = NOT YET ACCEPTED`.
+- Rework completed on this same branch/lot — no new track started, no industrialization begun. No cue timestamp touched (owner has not yet critiqued musical sync; `drift3dEuxGainent.ts` has zero lines changed). Files changed: `EuxGainentLivingScene.tsx` (modified), `EuxGainentAthlete.tsx` (new), `EuxGainentStation.tsx` (new), `src/lib/drift3dEuxGainentMaterials.ts` (new, procedural textures only, no binary asset, no licensing question). `drift3dLandmarks.ts`, `drift3dTopology.ts`, shared SYS services, `AudioPlayerProvider`, and the track audio file remain untouched.
+
+Rework candidate V2 (see `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` §6 for full detail):
+- **Realism pass** — athletes rebuilt as authored low-poly human silhouettes (pelvis/torso/head/2 arms/2 legs) posed for one of three recognizable machine archetypes (treadmill/bike/rower), replacing the previous cylinder+sphere; stations rebuilt as those three archetypes with base/mast/console/moving-part; solid colors replaced with procedural rubber-floor/brushed-metal/black-plastic textures on every dynamic part; a grime/micro-scratch overlay added in front of the existing (unchanged) storefront glass.
+- **Display rework** — vocabulary unchanged (`CADENCE`/`ÉCART`/`CONFORMITÉ`/`RENDEMENT`/`OBJECTIF DÉPLACÉ`); the plain white monospace texture replaced with a dark bezeled "commercial display" panel (dot-matrix ground, glow+crisp tracked letters); each station also shows small ordinary sport-data readouts (time/distance), secondary to the one dominant glass word.
+- **Motion pass** — athlete arms/legs/torso now driven by the existing `cycleValue`/`amplitude` outputs (no new clock, `drift3dEuxGainent.ts` untouched); each station's moving part continuously rotates/oscillates, modulated by amplitude, making B's stop/recenter/resume during `CUE_EUX_04_CORRECTION` mechanically visible; three layers of life added (athletes+machines+consoles, then two ceiling fans/a towel conveyor/a counter that ticks an unclear value, third layer relies on the existing unchanged Birth Yard surroundings — no new environment geometry, since that would require touching forbidden files).
+- **Signature amplification** — interior reference-frame shift increased (position 0.055→0.22, rotation 0.012→0.045; shell/collider/node/footprint still never move) and recalibration-strip peak intensity increased (0.85→1.05); the counter/dispenser freezes exactly during `aftermath-return`/`residue` while fans/conveyor keep moving (the "one element ends up late" ask).
+- **Technical validation** — `tsc --noEmit`, `eslint`, `next build` (38/38 pages) all `PASS`; one React Compiler immutability error (mutating a ref-bucket received as a prop) found and fixed by passing parent-owned ref callbacks instead.
+- **Performance** — a real measurement at the EUX zone position, taken just before a final draw-call simplification (fan hub+3-blades → a single disc per fan), showed `drawCalls: 292`, `triangles: 202210` — within the Realism Bible budget (`≤300`/`≤1,500,000`) with a narrow but real margin. The fan simplification removes 6 more draw calls (calculated ≈286); a fresh live re-measurement after that change could not be obtained this session (`KNOWN_ENVIRONMENT_LIMITATION` — the real Chrome tab's `document.visibilityState` stayed stuck `hidden`/render-loop-inactive across extensive real interaction, consistent with the same limitation documented in `SYS-70`/`BY-EUX-20`), so this is reported as a calculated estimate, never fabricated as a fresh `MEASURED` value.
+- Artistic scores, the North Star test, cue-by-cue listening, and mobile/reduced-motion QA remain `NOT_YET_PERFORMED` per the lot's own gate (§26) — they resume only after the owner's positive first-look pass on this V2 candidate.
+
+Owner review #2 (candidate V2, real local browser — see `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` §7 for the full record):
+- Artistic: still `REWORK_REQUIRED`. Verbatim: *"C'est encore un peu mou. on distingue un peu mieux la salle de sport mais ce n'est pas encore assez vivant. la loufoquerie est quasi invisible. il manque du fond (texte profond à l'écran pour que cela ressemble à MISWAY)"*.
+- V2 strengths kept (not rejected): gym somewhat more readable than V1; the screen/dominant-word concept remains promising.
+- V2 failures: motion still insufficient; secondary life present in code but not perceptible; loufoquerie almost invisible; insufficient screen semantic depth.
+- `DRIFT-IV-BY-EUX-30 = REWORK_REQUIRED`. `EUX GAINENT = NOT ACCEPTED`. `PROOF SLICE 1 = NOT YET ACCEPTED`. Rework continued on this same branch/lot/commit.
+
+Rework candidate V3 (see `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` §8 for full detail):
+- **Objective** — shift from "three people exercising in a conceptual installation" to "a real gym running at full tilt, whose measurement system then discreetly starts saying much stranger things about the people." The physical world must become alive before the text becomes interesting.
+- **Motion** — each archetype (treadmill/bike/rower) now uses its own, much larger and physically distinct motion range (`EUX_GAINENT_ARCHETYPE_MOTION` in `EuxGainentAthlete.tsx`) built on the same underlying `cycleValue`/`amplitude` the pure model already exposes (no new clock, `drift3dEuxGainent.ts` timing untouched) — three visually different gestures that fall into the same beat automatically once cadence locks.
+- **Secondary life made perceptible** — fans, towel conveyor and counter/dispenser enlarged and repositioned (not multiplied); speeds/sync now driven by an explicit `convergenceBlend` helper (desynced pre-cadence → converge through cadence-lock → hold through signature → drift again in aftermath/residue); dispenser freezes exactly at the start of `aftermath-return`.
+- **Console convergence** — each station shows `TEMPS`/`DIST`/`CAD`/`NIV`; three different per-archetype baselines snap to one shared value once `convergenceBlend ≥ 0.98` (measurement through signature), never naming B individually.
+- **Screen grammar V3** — new pure export `resolveEuxGainentScreenState` (`drift3dEuxGainent.ts`, the only change to that file, purely additive) returns `{headline, secondaryLines}`; secondary bureaucratic fragments (`RESTE`, `PERTE --`, `DESTINATION --`, etc.) layer under the unchanged, still-unique dominant word; one combined `CanvasTexture` per distinct screen state (never per line, never per frame), replacing the separate glass-text/grime meshes.
+- **Correction/signature contrast** — B's correction marker now ramps 0.35→0.9 during deviation then 1→0.15 during correction-revelation (was a binary threshold); the larger V3 motion amplitudes make the pure model's unchanged freeze values read as far more recognizable effort poses at the signature.
+- **Depth ("fond")** — back wall, storage-rack silhouette and a bench added as large masses (not small-prop accumulation); no city/route geometry touched.
+- **Self-found bug fixed before any browser test**: the dispenser-freeze logic first referenced `EUX_GAINENT_PHASES[5]` (raw index), which is actually `reference-inversion` (138.800s), not `aftermath-return` (152.730s) — would have frozen the dispenser at the start of the signature window. Fixed via an `id`-based lookup (`EUX_GAINENT_PHASES.find(p => p.id === "aftermath-return")`); `tsc`/`lint` re-confirmed `PASS` after the fix.
+- **Technical validation** — `tsc --noEmit`, `eslint`, `next build` (38/38 pages) all `PASS` on the complete V3 rework.
+- **Real browser QA/performance** — `KNOWN_ENVIRONMENT_LIMITATION`: multiple real attempts across two tabs and several cumulative minutes of real interaction could not unblock the render loop (`document.visibilityState` stuck `"hidden"` despite real focus); a definitive `requestAnimationFrame` counter test (0 callbacks in 2 real seconds) confirms a genuine browser/OS-level compositor block, unrelated to this lot's code (dev server independently confirmed healthy via `curl` → 200). No draw-call/triangle/FPS measurement or screenshot could be obtained for V3 this session — none is fabricated; what IS verified is full technical compilation, manual code review, no console errors, and DOM canvas presence. See `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` §8.9 and the `reworkCandidateV3` object in the sibling `.json` for the complete record.
+- Artistic scores, the North Star test, cue-by-cue listening, and mobile/reduced-motion QA remain `NOT_YET_PERFORMED` per the lot's own gate — they resume only after the owner's positive pass on this V3 candidate.
+
+Status note:
+`DRIFT-IV-BY-EUX-20 = DONE` (merged on `main`, PR #31, commit `d2a1c15`). `DRIFT-IV-BY-EUX-30` rework candidate V3 is ready for owner re-review — no artistic decision has been made yet. This file will not read `ACCEPTED`, `DONE`, or `PROOF SLICE ACCEPTED` for this lot until the owner gives an explicit verdict.
+
+---
+
+## Previous lot (context, merged)
+
 DRIFT-IV-BY-EUX-20 — EUX GAINENT proof-slice Build
 
 Status:
-DONE — PENDING MERGE
+DONE — MERGED (PR #31, commit `d2a1c15f0d22205f3cc117cdeaed35fa61ab680d`)
 
 Baseline:
 main@1ce2adb (contains DRIFT-IV-SYS-70, merged, PR #30 — SHARED PRE-GATE FOUNDATION COMPLETE)
@@ -30,10 +82,8 @@ Protected scope (this lot):
 - no Identity Contract or Cue Map artistic/timing decision reopened (status fields only)
 
 Final status:
-`DRIFT-IV-BY-EUX-20 = DONE — PENDING MERGE`.
-`PROOF SLICE 1: BUILD COMPLETE, OWNER ACCEPTANCE PENDING.`
-`DRIFT-IV-BY-EUX-30 = NEXT_AFTER_MERGE`.
-Backlog: `BY-EUX-00`/`BY-EUX-10 = SATISFIED_BY_EXISTING_AUTHORITY` (unchanged), `BY-EUX-20 = DONE`, `BY-EUX-30 = READY`.
+`DRIFT-IV-BY-EUX-20 = DONE` (merged, PR #31, commit `d2a1c15`).
+`PROOF SLICE 1: BUILD COMPLETE.` Owner acceptance now in progress under `DRIFT-IV-BY-EUX-30` — see the top of this file.
 
 ---
 
@@ -72,10 +122,6 @@ Protected scope:
 - no Identity Contract, no Cue Map, no era contract, no artistic bible touched
 - no canonical performance threshold introduced, no auto-quality selection, no runtime optimization, no track-specific logic, no timer/network/storage introduced, no telemetry
 
-End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is now `DONE — PENDING MERGE` — see the top of this file.
+End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is now `DONE` (merged, PR #31) — see the top of this file.
 
-Next lot (after this one merges):
-DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance (`PROOF SLICE 1` closes only upon explicit owner acceptance in that lot — this lot never declares acceptance)
-
-Next status:
-NEXT_AFTER_MERGE
+Next lot: this lot's own successor is `DRIFT-IV-BY-EUX-30`, now the active lot at the top of this file — see there for current status (`PENDING_OWNER_REVIEW`, no decision made yet). The lot after `DRIFT-IV-BY-EUX-30` is not resolved or guessed here; per the backlog, it depends on the owner's explicit decision in that lot.
