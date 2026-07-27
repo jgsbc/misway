@@ -7,6 +7,7 @@ import { useAudioPlayerRuntime } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
   type Drift3DFallbackReason,
 } from "@/components/drift-3d/Drift3DFallback";
+import EuxGainentFallbackScene from "@/components/drift-3d/EuxGainentFallbackScene";
 import { DRIFT_3D_WORLD_SUMMARY } from "@/components/drift-3d/Drift3DNoWebGLPath";
 import {
   getDrift3DCanonicalNoWebGLIssues,
@@ -284,8 +285,22 @@ export default function Drift3DClient() {
 
       <div className="absolute inset-0">
         {fallbackReason ? (
-          <div className="absolute inset-0 flex items-center justify-center p-4 md:p-6">
-            <Drift3DFallback reason={fallbackReason} />
+          <div className="absolute inset-0 flex items-center justify-center overflow-y-auto p-4 md:p-6">
+            <div className="w-full max-w-2xl">
+              <Drift3DFallback reason={fallbackReason} />
+              {/* DRIFT-IV-BY-EUX-20: enriches the reduced-motion/no-WebGL
+                  panels above with a static EUX GAINENT representation
+                  when it is the current track — renders nothing otherwise.
+                  Deliberately excluded from "checking" (not yet a settled
+                  fallback reason) so the gate order checking → reduced-
+                  motion → no-webgl → Canvas is preserved exactly. Never
+                  replaces the SYS-50/SYS-60 destinations or accessibility
+                  above. */}
+              {fallbackReason === "reduced-motion" ||
+              fallbackReason === "no-webgl" ? (
+                <EuxGainentFallbackScene />
+              ) : null}
+            </div>
           </div>
         ) : (
           <Drift3DCanvas

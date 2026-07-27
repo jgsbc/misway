@@ -306,3 +306,27 @@ Une session de correction, menée sur une vraie instance Chrome locale (`claude-
 - Une limitation d'environnement a été honnêtement rencontrée puis documentée lors de la session initiale (§11.2, préservée dans l'historique).
 - Une session de correction a obtenu des mesures Canvas live réelles et cohérentes avec l'historique `BASE-00` (§11.3).
 - **`DRIFT-IV-SYS-70` → `DONE — PENDING MERGE`. SHARED PRE-GATE FOUNDATION COMPLETE.**
+
+## 12. Post-SYS-70 — EUX GAINENT proof-slice Build (BY-EUX-20)
+
+Cette section est clairement séparée des mesures historiques `BASE-00`/`SYS-70` ci-dessus : elle ajoute une comparaison réelle pré/post-build spécifique au premier landmark vivant track-local, sans remplacer aucune valeur antérieure.
+
+### 12.1 Comparaison draw calls/triangles — `MEASURED`
+
+Même position de zone (`x:-62, z:42`), même session Chrome réelle :
+
+| Moment | `drawCalls` | `triangles` |
+|---|---|---|
+| PRE-BUILD (landmark statique original, 14 primitives, avant tout code `BY-EUX-20`) | `193` | `201412` |
+| POST-BUILD, premier contrôle (`EuxGainentLivingScene` montée, scène idle) | `164` | `197336` |
+
+Comparaison directionnelle réelle (pas un A/B strictement contrôlé — l'angle de caméra pouvait différer légèrement entre les deux captures) : dans cet échantillon observé, les draw calls et triangles post-build sont inférieurs à l'échantillon pré-build. L'angle de caméra/l'orientation n'étant pas strictement contrôlés et aucun nouvel échantillon FPS post-build n'ayant été obtenu, ceci n'établit pas l'absence d'une régression de performance globale.
+
+### 12.2 Limitation rencontrée en fin de session — `KNOWN_ENVIRONMENT_LIMITATION`
+
+Un second échantillon FPS frais n'a pas pu être obtenu après le premier contrôle : la fenêtre Chrome réelle a perdu le focus au premier plan du système d'exploitation (`document.visibilityState` resté `"hidden"` malgré interaction réelle soutenue et attentes cumulées de plusieurs dizaines de secondes, y compris dans un nouvel onglet fraîchement créé). `cumulativeFrameCount` est resté honnêtement gelé à `0` pendant cette période — comportement cohérent avec le contrat du harness (`SYS-70`), pas un défaut de ce lot. Détail complet : `docs/evidence/DRIFT-IV-BY-EUX-20/eux-gainent-build-evidence.md` §12, §15.
+
+### 12.3 Conclusion `BY-EUX-20`
+
+- Le premier landmark vivant track-local (`EuxGainentLivingScene`) est livré, consomme les services partagés `SYS-00`/`SYS-20`/`SYS-30` sans en réintroduire une seconde version. Dans l'échantillon observé, le coût de rendu réel (draw calls/triangles) à la même position de zone est inférieur au pré-build ; ceci ne constitue pas une preuve d'absence de régression globale (voir §12.1).
+- **`DRIFT-IV-BY-EUX-20` → `DONE — PENDING MERGE`. `PROOF SLICE 1: BUILD COMPLETE, OWNER ACCEPTANCE PENDING.`**

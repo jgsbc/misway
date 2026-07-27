@@ -158,7 +158,7 @@ Interdictions absolues :
 
 ---
 
-# 7. Effective state upon merge of DRIFT-IV-SYS-70
+# 7. Effective state upon merge of DRIFT-IV-BY-EUX-20
 
 | Lot | Statut |
 |---|---|
@@ -177,6 +177,8 @@ Interdictions absolues :
 | `DRIFT-IV-SYS-50` | `DONE` |
 | `DRIFT-IV-SYS-60` | `DONE` |
 | `DRIFT-IV-SYS-70` | `DONE` |
+| `DRIFT-IV-BY-EUX-20` | `DONE` |
+| `DRIFT-IV-BY-EUX-30` | `READY` (owner acceptance — next lot) |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -198,7 +200,7 @@ Interdictions absolues :
 
 `DRIFT-IV-SYS-70` livre le harness de preuve/performance générique (`src/lib/drift3dEvidence.ts` : quatre classifications canoniques frozen, snapshot de performance `canvasPresent`/`cumulativeFrameCount`/`render`/`viewport`/`visibility` avec la règle stricte `canvasPresent: false ⟹ render/viewport: null`, calcul FPS pur `computeDrift3DFps` sans arrondi ni coercition, échantillonnage `begin`/`end` sans minuteur interne, référence runtime stable sans historique non borné, validateurs structurels ne vérifiant jamais un seuil de performance), alimenté par un frame probe R3F dev-only zéro-allocation (`Drift3DEvidenceProbe.tsx`, lisant `gl.info.render` indépendamment de `__drift3dRender` préexistant sans jamais le modifier), intégré minimalement dans `Drift3DCanvas.tsx` (montage dev-only du probe) et `Drift3DClient.tsx` (ref possédée au niveau shell via l'initialiseur paresseux de `useState`, harness dev `window.__drift3dEvidence`) — comportement vérifié : classifications, calcul FPS et validateurs structurels (**15 fixtures de snapshot — 1 valide + 14 invalides, couvrant les 12 types d'issue**, 12 fixtures d'échantillon FPS) tous `MEASURED`/`PASS` ; immutabilité confirmée y compris un cas limite `begin`/`end` réel ET un échantillon FPS non-null réel ; les deux fallbacks (reduced-motion, no-WebGL) confirmés avec `canvasPresent: false` honnête. Une limitation d'environnement rencontrée lors de la session de preuve initiale (`requestAnimationFrame` ne se déclenchant jamais dans l'onglet utilisé à ce moment-là) a été honnêtement documentée puis dépassée par une session de correction sur une vraie instance Chrome locale : snapshot Canvas actif réel, échantillon FPS de premier plan réel (`fps≈70.17`), mesure cross-zone réelle sur les quatre zones BASE-00 (chaque valeur correspondant exactement à l'historique), cycle de remontage Canvas réel (`cumulativeFrameCount` remis à `0` puis augmentant), et les onze globals dev historiques confirmés présents et fonctionnels — tous désormais `MEASURED`. Voir `docs/evidence/DRIFT-IV-SYS-70/evidence-performance-harness-evidence.md` pour le détail complet des deux sessions. Aucun seuil de performance canonique, aucune auto-sélection de Quality Tier, aucune télémétrie n'est livré par ce lot.
 
-**`BASE-00` à `SYS-70` sont désormais tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** Le prochain lot résolu sans ambiguïté est `DRIFT-IV-BY-EUX-20` (§9 ci-dessous — `BY-EUX-00`/`BY-EUX-10` déjà `SATISFIED_BY_EXISTING_AUTHORITY`).
+**`BASE-00` à `SYS-70` sont tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-BY-EUX-20` est désormais `DONE` — voir §7.1. Le prochain lot résolu sans ambiguïté est `DRIFT-IV-BY-EUX-30` (owner acceptance — la seule autorité habilitée à déclarer la proof slice acceptée).
 
 ## 7.1 Détail EUX GAINENT
 
@@ -213,9 +215,21 @@ DRIFT-IV-BY-EUX-10
   (docs/DRIFT_3D_EUX_GAINENT_CUE_MAP.md — OWNER-APPROVED INITIAL TEMPORAL BASELINE).
   L'écoute humaine et les ajustements bornés restent une exigence
   de l'acceptation DRIFT-IV-BY-EUX-30.
-```
 
-Aucun runtime EUX n'est déclaré livré. `DRIFT-IV-BY-EUX-20` et `DRIFT-IV-BY-EUX-30` restent `PLANNED`/`BLOCKED_BY_DEPENDENCY` jusqu'à leur exécution effective.
+DRIFT-IV-BY-EUX-20 — DONE — PENDING MERGE
+  Proof-slice Build livré : src/lib/drift3dEuxGainent.ts (modèle pur track-local,
+  huit phases/sept cues exactes, consommant les services partagés SYS-00/20/30
+  sans second moteur), EuxGainentLivingScene.tsx (réutilise la structure statique
+  du landmark existant, R3F, harness dev window.__drift3dEuxGainent),
+  EuxGainentFallbackScene.tsx (enrichissement statique reduced-motion/no-WebGL),
+  intégration minimale dans Drift3DScene.tsx et Drift3DClient.tsx.
+  Preuve comportementale réelle : docs/evidence/DRIFT-IV-BY-EUX-20/.
+  PROOF SLICE 1: BUILD COMPLETE, OWNER ACCEPTANCE PENDING.
+
+DRIFT-IV-BY-EUX-30 — READY (next lot)
+  Owner acceptance de la proof slice — seule autorité habilitée à déclarer
+  « EUX GAINENT ACCEPTED » / « PROOF SLICE ACCEPTED ». Non commencé.
+```
 
 ---
 
@@ -335,7 +349,7 @@ Si `IND-10` conclut qu'aucune extraction n'est justifiée : `IND-20 = SKIPPED_BY
 | FOOLFOULE | `DRIFT-IV-BY-FOOL-00` | `DRIFT-IV-BY-FOOL-10` | `DRIFT-IV-BY-FOOL-20` | `DRIFT-IV-BY-FOOL-30` |
 | JAZZYPLING | `DRIFT-IV-BY-JAZZ-00` | `DRIFT-IV-BY-JAZZ-10` | `DRIFT-IV-BY-JAZZ-20` | `DRIFT-IV-BY-JAZZ-30` |
 | PLAY IT | `DRIFT-IV-BY-PLAY-00` | `DRIFT-IV-BY-PLAY-10` | `DRIFT-IV-BY-PLAY-20` | `DRIFT-IV-BY-PLAY-30` |
-| EUX GAINENT | `DRIFT-IV-BY-EUX-00` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-10` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-20` (proof-slice build, next after systems) | `DRIFT-IV-BY-EUX-30` (proof-slice owner acceptance) |
+| EUX GAINENT | `DRIFT-IV-BY-EUX-00` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-10` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-20` (`DONE — PENDING MERGE`) | `DRIFT-IV-BY-EUX-30` (proof-slice owner acceptance, `READY`) |
 
 ## 11.3 Older Shadows
 

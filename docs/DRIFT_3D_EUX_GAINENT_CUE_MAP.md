@@ -14,8 +14,12 @@ The analytical timestamps below are authorized as the baseline for the first imp
 
 **Runtime status:**
 CUE MAP ACTIVE AS INITIAL TEMPORAL AUTHORITY.
-CUES IMPLEMENTATION NOT YET INTEGRATED ON MAIN.
-An approved Cue Map does not prove its runtime is delivered — see `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
+The eight phases and seven cues below are implemented verbatim (no timestamp
+altered) by implementation lot `DRIFT-IV-BY-EUX-20` (`src/lib/drift3dEuxGainent.ts`,
+PR #31 — see `docs/evidence/DRIFT-IV-BY-EUX-20/`). Repository/PR state remains
+authoritative for whether that build has been merged to `main`. Human listening
+and bounded adjustments remain a requirement of `DRIFT-IV-BY-EUX-30` (owner
+acceptance).
 
 ## 1. Canonical audio source
 

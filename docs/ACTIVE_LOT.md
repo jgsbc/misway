@@ -1,10 +1,48 @@
 # ACTIVE_LOT.md
 
 Current lot:
-DRIFT-IV-SYS-70 — Evidence/performance harness
+DRIFT-IV-BY-EUX-20 — EUX GAINENT proof-slice Build
 
 Status:
 DONE — PENDING MERGE
+
+Baseline:
+main@1ce2adb (contains DRIFT-IV-SYS-70, merged, PR #30 — SHARED PRE-GATE FOUNDATION COMPLETE)
+
+Type:
+First track-local living scene (EUX GAINENT proof slice) — track-local pure dramaturgy model, R3F living scene consuming shared services (AudioClock, Cue Resolver, Signature Arbitration) without introducing any second engine, static-shell reuse of the existing landmark, static reduced-motion/no-WebGL enrichment scene, dev-only read-only harness, minimal integration, documentation. No artistic/timing decision reopened.
+
+Completed (BY-EUX-20):
+- `src/lib/drift3dEuxGainent.ts` created — track-local pure model, consumes `drift3dCueResolver.ts`/`drift3dSignatureArbitration.ts`/`drift3dAudioClock.ts` without ever reintroducing a second cue/dramaturgy engine. Exports the eight canonical phases (`pre-cadence` → `residue`) and seven canonical cues exactly as approved in the Cue Map (never modified), the three athlete role ids (`A`/`B`/`C`, never labeled/colored/costumed in UI), and a single pure entry point `resolveEuxGainentVisualState(absoluteTimeSeconds, phaseId, phaseProgress)` computing per-athlete offset/amplitude/freeze state, the closed vocabulary order (`CADENCE` → `ÉCART` → `CONFORMITÉ` → `RENDEMENT` → `OBJECTIF DÉPLACÉ` → none), the signature window gate (`reference-inversion` only), and the interior reference-frame shift ramping to/from zero around CUE_05's own peak. No memory, no storage, no timer of its own;
+- `EuxGainentLivingScene.tsx` created — reuses the existing, byte-for-byte unmodified `birth-eux-gainent-glass-gym` landmark for its static facade/strip/floor slice (`{...sourceLandmark, primitives: sourceLandmark.primitives.slice(0,3)}` rendered through the existing `Drift3DLandmark` component), rebuilds the three station/athlete/bar primitives as ref-driven animated meshes reading their geometry directly from the source primitives (never duplicated numbers), a fixed set of five glass-surface `CanvasTexture`s (one per dominant word), created once at component mount and swapped on one glass surface, disposed on unmount, resolves its narrative from the shared `AudioClock`/`Cue Resolver`/`Signature Arbitration` when inside the zone with EUX GAINENT active, and from a modulo-wrapped idle loop (bounded strictly inside `pre-cadence`, never leaking vocabulary/signature) otherwise. Installs the dev-only, read-only `window.__drift3dEuxGainent` (`read()`, `validateTimeline()`) from inside itself;
+- `EuxGainentFallbackScene.tsx` created — static/discrete reduced-motion and no-WebGL enrichment, reads `useAudioPlayer()` locally (never causes `Drift3DClient` to re-render on `timeupdate`), renders nothing unless EUX GAINENT is the current track, never replaces the SYS-50/60 destinations;
+- `Drift3DScene.tsx` minimally modified — excludes the EUX GAINENT landmark from the generic per-landmark render loop and mounts `<EuxGainentLivingScene>` unconditionally alongside it, passing only `audioClockRef`/`isInsideZone`/`vehicleStateRef` (never `currentTime`/`duration`/`progress` as a fast prop);
+- `Drift3DClient.tsx` minimally modified — composes `EuxGainentFallbackScene` alongside the existing, untouched `Drift3DFallback`, but **only** when `fallbackReason` is `"reduced-motion"` or `"no-webgl"` — explicitly excluded from `"checking"` so the gate order `checking → reduced-motion → no-webgl → Canvas` is preserved exactly;
+- `EuxGainentFallbackScene.tsx`'s positions are a fixed lookup table keyed by `phaseId` alone (`EUX_FALLBACK_POSES`) — never derived from `currentTime`/`cycleValue`/`phaseProgress` — so two `timeupdate` events landing in the same phase are provably pose-identical; no role is named anywhere in this file (no `COMPLIANT`/`CORRECTED`/`RESIDUAL`, no explanatory caption) — the three athletes are legible only through relative offset and station-activity state, per the Identity Contract's "never labeled" requirement;
+- real behavioral evidence captured in a real local Chrome session (`docs/evidence/DRIFT-IV-BY-EUX-20/`): pre-build baseline, pure timeline validation (`[]`), idle-without-EUX in both the outside-zone and inside-zone-without-EUX cases (no vocabulary/signature leak), all eight phases and seven cues confirmed via pause+seek (`CADENCE`/`ÉCART`/`CONFORMITÉ`/`RENDEMENT`/`OBJECTIF DÉPLACÉ`/none in the correct windows), the signature window confirmed with a real screenshot at CUE_05's peak (glass text, frozen silhouettes, lit recalibration strip), pause during deviation and reference-inversion, four direct seeks while playing (no replay, no stuck state), a real loop wrap with no residual phase/signature leak, zone exit/re-entry (immediate correct resumption from real absolute time, no replay from zero), track change inside the zone (idle fallback), and the no-WebGL fallback composition **rejoué après l'audit pré-merge** with a fresh real screenshot (destinations preserved, no role labels, fixed poses confirmed stable per phase across `pre-cadence`/`deviation`/`correction-revelation`/`reference-inversion`/`residue`). `tsc --noEmit`, `eslint` and `next build` all `PASS`. Reduced-motion (live OS emulation) and true interactive mobile-viewport R3F rendering remain `KNOWN_ENVIRONMENT_LIMITATION` — mitigated by structural code-review evidence (see the evidence package §10-§11, §15) — and a second post-build FPS sample could not be freshly captured after the real Chrome window lost OS-level foreground focus late in the session; the pre/post-build draw-call/triangle comparison obtained earlier in the same session shows lower counts post-build but, since camera/orientation were not strictly controlled and no fresh FPS sample was obtained, this does **not** establish absence of an overall performance regression (see §12).
+
+Protected scope (this lot):
+- no `public/audio/**`, no `public/images/**`
+- no `src/components/audio/**`
+- no `src/lib/tracks.ts`, no `src/lib/drift3dTopology.ts`, no `src/lib/drift3dLandmarks.ts`
+- no `src/lib/drift3dAudioClock.ts`, no `drift3dSceneLifecycle.ts`, no `drift3dCueResolver.ts`, no `drift3dSignatureArbitration.ts`, no `drift3dQuality.ts`, no `drift3dReducedMotion.ts`, no `drift3dNoWebGL.ts`, no `drift3dEvidence.ts`
+- no `package.json`/`package-lock.json`, no `next.config.*`/`tsconfig.json`, no new dependency
+- no Identity Contract or Cue Map artistic/timing decision reopened (status fields only)
+
+Final status:
+`DRIFT-IV-BY-EUX-20 = DONE — PENDING MERGE`.
+`PROOF SLICE 1: BUILD COMPLETE, OWNER ACCEPTANCE PENDING.`
+`DRIFT-IV-BY-EUX-30 = NEXT_AFTER_MERGE`.
+Backlog: `BY-EUX-00`/`BY-EUX-10 = SATISFIED_BY_EXISTING_AUTHORITY` (unchanged), `BY-EUX-20 = DONE`, `BY-EUX-30 = READY`.
+
+---
+
+## Previous lot (context, merged)
+
+DRIFT-IV-SYS-70 — Evidence/performance harness
+
+Status:
+DONE — MERGED (PR #30, commit `1ce2adb1bcadee4b4c425fc188bdab1e56db303d`)
 
 Baseline:
 main@2dd27ab (contains DRIFT-IV-SYS-60, merged, PR #29)
@@ -34,10 +72,10 @@ Protected scope:
 - no Identity Contract, no Cue Map, no era contract, no artistic bible touched
 - no canonical performance threshold introduced, no auto-quality selection, no runtime optimization, no track-specific logic, no timer/network/storage introduced, no telemetry
 
-End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.**
+End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is now `DONE — PENDING MERGE` — see the top of this file.
 
-Next lot:
-DRIFT-IV-BY-EUX-20 (per `DRIFT_3D_INTEGRAL_BACKLOG.md` §9 — `BY-EUX-00`/`BY-EUX-10` already `SATISFIED_BY_EXISTING_AUTHORITY`; this is the unambiguous first lot of "PROOF SLICE 1 — EUX GAINENT")
+Next lot (after this one merges):
+DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance (`PROOF SLICE 1` closes only upon explicit owner acceptance in that lot — this lot never declares acceptance)
 
 Next status:
 NEXT_AFTER_MERGE
