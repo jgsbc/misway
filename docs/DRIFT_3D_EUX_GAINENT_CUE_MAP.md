@@ -15,11 +15,13 @@ The analytical timestamps below are authorized as the baseline for the first imp
 **Runtime status:**
 CUE MAP ACTIVE AS INITIAL TEMPORAL AUTHORITY.
 The eight phases and seven cues below are implemented verbatim (no timestamp
-altered) by implementation lot `DRIFT-IV-BY-EUX-20` (`src/lib/drift3dEuxGainent.ts`,
-PR #31 — see `docs/evidence/DRIFT-IV-BY-EUX-20/`). Repository/PR state remains
-authoritative for whether that build has been merged to `main`. Human listening
-and bounded adjustments remain a requirement of `DRIFT-IV-BY-EUX-30` (owner
-acceptance).
+altered) by implementation lot `DRIFT-IV-BY-EUX-20` — `DONE`, merged `main`,
+PR #31, commit `d2a1c15` (`src/lib/drift3dEuxGainent.ts` — see
+`docs/evidence/DRIFT-IV-BY-EUX-20/`). Human listening and bounded adjustments
+were closed out under `DRIFT-IV-BY-EUX-30` — `DONE`, merged `main`, PR #32,
+commit `b069d09` (owner acceptance; corrected, `DRIFT-IV-PRE-00`, superseding
+the prior "remain a requirement" note left un-updated after the merge). No
+cue timestamp in this map was altered by that acceptance.
 
 ## 1. Canonical audio source
 

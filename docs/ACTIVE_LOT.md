@@ -1,10 +1,33 @@
 # ACTIVE_LOT.md
 
 Current lot:
+DRIFT-IV-PRE-00 — Canonical artistic reconciliation and owner acceptance
+
+Status:
+DONE_PENDING_MERGE (documentation and evidence only) — formal acceptance/evidence lot verifying that the owner-approved holistic direction from `DRIFT-IV-GOV-40` is completely, consistently and canonically represented in the merged repository. No artistic direction reopened or redesigned; no visual masterframe produced (that is `DRIFT-IV-PRE-10`'s own scope). See `docs/evidence/DRIFT-IV-PRE-00/canonical-artistic-acceptance.md` for the full gate record.
+
+Baseline:
+main@99eacbe (contains `DRIFT-IV-GOV-40`, merged PR #33, and `DRIFT-IV-BY-EUX-30`, merged PR #32 at `b069d09` — both delivered)
+
+Type:
+Documentation/evidence-only acceptance lot. Verifies coverage, field completeness and authority consistency of the merged GOV-40 artistic direction; records the formal gate decision. No runtime, asset, image, audio, cue, node, collider, camera or geography change; no new artistic invention; no visual frame rendered.
+
+Completed (PRE-00): see `docs/evidence/DRIFT-IV-PRE-00/canonical-artistic-acceptance.md` for the full verification record (27-segment coverage, Atlas field-completeness audit, five-masterframe-brief audit, authority-consistency sweep, gate result).
+
+Final status:
+`DRIFT-IV-PRE-00 = DONE_PENDING_MERGE`. **Corrected, this pass:** an earlier pass of this status line reported Gate `PASS` while treating the Masterframe Briefs' 15-item checklist gaps (viewpoint/foreground/middle-ground/horizon/movement folded into prose; lambda treatment explicit for New Signal only; reusable kits and mobile fallback documented only at the Atlas's per-track level) as a non-blocking waiver, on the reasoning that the owner had already accepted the underlying prose. **The owner rejected that waiver: PRE-00's gate does not authorize waiving an explicit-field requirement merely because the underlying artistic content was already accepted.** `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` was corrected in place: each of the five briefs now carries an explicit, numbered **Canonical field block (15/15)** extracting and normalizing — never redesigning — the already-accepted prose plus `docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md`, `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` and `docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md`. Deterministic result: **5 masterframes × 15 required fields = 75/75 field instances present, zero invented artistic decisions** (two honestly-named, non-blocking kit-sourcing gaps recorded — Lighting/Material Kit not yet threaded into any Older Shadows Atlas entry; Human/Crowd Kit and Animation Kit not yet threaded into any Vegetative Field Atlas entry — both fields remain populated, neither is empty). All 27 segments verified present exactly once with every mandatory Atlas field populated; no active authority conflict remains; backlog total confirmed at 153; single active backlog confirmed; no runtime/asset/image/audio/cue file touched. Gate: **PASS** (corrected).
+
+Next lot:
+`DRIFT-IV-PRE-10` — production and owner acceptance of five real visual masterframes. `READY_AFTER_MERGE` (blocked only on this lot's own merge). Not started.
+
+---
+
+## Previous lot (context, merged)
+
 DRIFT-IV-GOV-40 — Holistic art direction & reuse-first reconciliation
 
 Status:
-DONE_PENDING_MERGE (documentation-only) — final owner acceptance recorded across two decision sessions; rebased onto the new main (`DRIFT-IV-BY-EUX-30` now merged) as a third pass. `ACCEPTED` for the artistic checkpoint it defines (the Track Atlas, all five Masterframe Briefs — New Signal `ACCEPT WITH GUARDRAIL` — global direction, the three hybrid conflicts, Panthere's `P3` reclassification, and the lambda doctrine all carry a final owner `ACCEPT`). No remaining owner decision blocks this lot. Rebase conflicts resolved; ready to continue the rebase and commit — not yet merged, not yet delivered.
+DONE — MERGED (PR #33, commit `99eacbe7cb47ecefaee31fee74faff058b9badd8`)
 
 Baseline:
 main@b069d09 (contains DRIFT-IV-BY-EUX-20, merged PR #31, AND DRIFT-IV-BY-EUX-30, merged PR #32 — EUX GAINENT proof-slice Build + owner-accepted V3 rework, both now delivered on `main`)
@@ -64,10 +87,10 @@ Explicit non-negotiable from this lot: **no implementation lot (`DRIFT-IV-PRE-20
 Protected scope (this lot): no runtime code, no `public/**`, no audio, no cue timestamp, no node/collider/camera, no push, no PR. `docs/DRIFT_3D_LIVING_WORLD_BIBLE.md`, `docs/DRIFT_3D_REALISM_BIBLE.md`, every Era Contract, and the approved EUX GAINENT Identity Contract/Cue Map were read but not edited — none of their decisions are reopened. `docs/DRIFT_3D_LIVING_TRACK_MATRIX.md` is the one exception, edited in the final correction above under explicit, narrow owner authorization (PANTHERE's own row and the "Vague 2" list only) — no other content in that document was touched. The rebase resolution above additionally touched `docs/DRIFT_3D_INTEGRAL_BACKLOG.md`, `docs/DRIFT_3D_PRODUCT_SPEC.md`, `docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md`, `docs/DRIFT_3D_GOV40_RECONCILIATION.md`, `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, and `AGENTS.md` — all documentation-only, correcting stale BY-EUX-30 branch/merge references, never runtime.
 
 Final status:
-`DRIFT-IV-GOV-40 = DONE_PENDING_MERGE` (documentation only), all owner decisions final, rebase conflicts resolved onto `main@b069d09`. The Track Atlas and all five Masterframe Briefs are owner-`ACCEPT`ed (New Signal `ACCEPT WITH GUARDRAIL`); the three hybrid conflicts, Panthere's `P3` reclassification, and the lambda doctrine are all owner-`ACCEPT`ed. No remaining owner decision blocks this lot. `GOV-40` is ready to continue its rebase and commit — not yet merged, not yet delivered. `DRIFT-IV-BY-EUX-30` (EUX GAINENT owner acceptance) is now `DONE — MERGED` (PR #32, `b069d09`) — no longer a separate ongoing effort; its full V1/V2/V3 evidence is preserved below as its own "Previous lot" section.
+`DRIFT-IV-GOV-40 = DONE — MERGED` (PR #33, commit `99eacbe`), all owner decisions final. The Track Atlas and all five Masterframe Briefs are owner-`ACCEPT`ed (New Signal `ACCEPT WITH GUARDRAIL`); the three hybrid conflicts, Panthere's `P3` reclassification, and the lambda doctrine are all owner-`ACCEPT`ed. `DRIFT-IV-BY-EUX-30` (EUX GAINENT owner acceptance) is `DONE — MERGED` (PR #32, `b069d09`) — its full V1/V2/V3 evidence is preserved below as its own "Previous lot" section. Corrected, `DRIFT-IV-PRE-00`: this entry previously read `DONE_PENDING_MERGE`/"ready to continue its rebase," un-updated between the rebase's completion and its actual merge.
 
 Next lot:
-`DRIFT-IV-PRE-00` — Reference-frame ratification. `BLOCKED_BY_DEPENDENCY` on `DRIFT-IV-GOV-40` merging (the one remaining dependency, now that `DRIFT-IV-BY-EUX-30` is merged and satisfied). Not started.
+`DRIFT-IV-PRE-00` — Canonical artistic reconciliation and owner acceptance, now the active lot at the top of this file — see there for current status.
 
 ---
 
@@ -198,7 +221,7 @@ Protected scope:
 End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is `DONE — MERGED` (PR #31, corrected retroactively by `DRIFT-IV-GOV-40`) — see the top of this file.
 
 Next lot after this one:
-DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance, now `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full evidence. The next lot is `DRIFT-IV-PRE-00` (`DRIFT-IV-GOV-40` resequencing), `BLOCKED_BY_DEPENDENCY` until `GOV-40` itself merges — see the top of this file.
+DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance, `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full evidence. `DRIFT-IV-GOV-40` followed, now also `DONE — MERGED` (PR #33, `main@99eacbe`). The current lot is `DRIFT-IV-PRE-00` — see the top of this file.
 
 Next status:
-DRIFT-IV-BY-EUX-30 DONE — MERGED -> DRIFT-IV-GOV-40 (this rebase, ready to continue) -> DRIFT-IV-PRE-00 (blocked until GOV-40 merges)
+DRIFT-IV-BY-EUX-30 DONE — MERGED -> DRIFT-IV-GOV-40 DONE — MERGED -> DRIFT-IV-PRE-00 (current lot, this file's top)
