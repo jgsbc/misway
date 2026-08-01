@@ -1,15 +1,15 @@
 # DRIFT 3D — Backlog directeur intégral (finalisé)
 
-- **Version :** 3.0
-- **Date :** 2026-07-16
-- **Status :** `ACTIVE` — `FINALIZED BY DRIFT-IV-GOV-30`
+- **Version :** 4.0
+- **Date :** 2026-07-16 (v3.0, `GOV-30`) ; resequenced 2026-07-31 (v4.0, `GOV-40`)
+- **Status :** `ACTIVE` — `FINALIZED BY DRIFT-IV-GOV-30`, resequenced by `DRIFT-IV-GOV-40`
 - **Coverage :**
   - 27 segments
   - 26 tracks
-  - 147 canonical executable lots
+  - 153 canonical executable lots (147 from `GOV-30`, +1 for `GOV-40` itself counted in the `Governance` group, +5 new `PRE-*` reuse-first gates — see §4/§8.2; this number is **not** a return to the pre-`GOV-30` v2.0 total of 152, which counted duplicated `VS*` aliases; composition differs entirely, see §4)
   - 5 retired aliases
 
-Ce document est la **seule séquence directrice active** de la production Drift. Il remplace intégralement la version 2.0 et absorbe les décisions de `DRIFT-IV-GOV-30`.
+Ce document est la **seule séquence directrice active** de la production Drift. Il remplace intégralement la version 2.0 et absorbe les décisions de `DRIFT-IV-GOV-30`. **`DRIFT-IV-GOV-40` (2026-07-31) resequences it further** — inserting the `PRE-*` reuse-first gate group ahead of continued track-by-track work — without reopening any artistic decision already accepted by `GOV-00` through `GOV-30` or any Era/Identity Contract. See `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.1 for the exact authority this resequencing supersedes.
 
 ---
 
@@ -19,7 +19,7 @@ Ce document est la **seule séquence directrice active** de la production Drift.
 - aucun code track sans Identity Contract accepté ;
 - aucune cue runtime sans Cue Map approuvée (ou, pour Entry, sans temporal map acceptée) ;
 - aucun `PASS` sans owner review ;
-- aucune abstraction partagée avant le gate de trois vertical slices (rôle de preuve, jamais un lot) ;
+- **`SUPERSEDED BY DRIFT-IV-GOV-40` (sequencing only, 2026-07-31) :** ~~aucune abstraction partagée avant le gate de trois vertical slices~~ — un ensemble de kits monde partagés (asset/contenu, jamais comportemental/temporel) est désormais défini et priorisé **avant** la poursuite des Builds track par track, via le groupe de gates `PRE-*` (§8.2). Le rôle de preuve des trois vertical slices (§9) n'est pas retiré ; seul son ordre relatif aux kits change. Aucune décision artistique n'est réouverte par ce changement — voir `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.1 ;
 - tous les lots définissent scope, fichiers, budgets, fallbacks, tests et stop conditions ;
 - l'exhaustivité désigne la couverture du monde, pas l'obligation de produire chaque idée au coût maximal ;
 - un seul identifiant canonique de ce backlog peut devenir `ACTIVE_LOT` à la fois ;
@@ -74,22 +74,25 @@ Interdiction absolue : aucun `PASS` ou `DONE` pour une track sans décision prop
 
 ---
 
-# 4. Calcul des 147 lots canoniques
+# 4. Calcul des lots canoniques
 
 ```text
-Governance:            4   (GOV-00, GOV-10, GOV-20, GOV-30)
+Governance:            5   (GOV-00, GOV-10, GOV-20, GOV-30, GOV-40)
 Baseline:               1   (BASE-00)
 Thin pre-gate systems:  8   (SYS-00 à SYS-70)
+Reuse-first gates:      5   (PRE-00 à PRE-40 — new in GOV-40, see §8.2)
 Segment cycle:        108   (27 segments × 4 lots)
 Industrialization:      3   (IND-00 à IND-20)
 World continuity:      10   (CONT-00 à CONT-90)
 Global harmonization:  10   (GLOB-00 à GLOB-90)
 Release:                3   (RC-00 à RC-20)
 
-TOTAL: 4 + 1 + 8 + 108 + 3 + 10 + 10 + 3 = 147
+TOTAL: 5 + 1 + 8 + 5 + 108 + 3 + 10 + 10 + 3 = 153
 ```
 
-Le passage de 152 à 147 identifiants **n'est pas une réduction du programme artistique**. Il retire uniquement cinq identifiants (`DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10`) qui dupliquaient déjà des lots existants du cycle standard à quatre lots par segment (§6). Aucun livrable artistique n'est retiré : chaque intention portée par un ancien alias est déjà couverte par un lot canonique.
+(`GOV-40` itself, the lot performing this resequencing, is documentation-only and is counted in `Governance` above like `GOV-00`–`GOV-30`, bringing that group from 4 to 5 — it is not part of the new `PRE-*` group, which are the *future* lots it authorizes.)
+
+Le passage de 152 (v2.0, VS aliases dupliqués) à 147 (v3.0, `GOV-30`) **n'était pas une réduction du programme artistique** — il retirait cinq identifiants dupliqués (`DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10`), sans retirer aucun livrable. Le passage de 147 à 153 (v4.0, `GOV-40`) **est un ajout réel** : cinq nouveaux lots `PRE-*` (§8.2), plus `GOV-40` lui-même comptabilisé dans le groupe `Governance`. Ce nombre ne doit jamais être confondu avec l'ancien total v2.0 de 152 — la composition est entièrement différente (voir l'en-tête du document).
 
 ---
 
@@ -166,6 +169,7 @@ Interdictions absolues :
 | `DRIFT-IV-GOV-10` | `DONE` |
 | `DRIFT-IV-GOV-20` | `DONE` |
 | `DRIFT-IV-GOV-30` | `DONE` |
+| `DRIFT-IV-GOV-40` | `DONE_PENDING_MERGE` (this rebase resolution — ready to continue and commit) |
 | `DRIFT-IV-BY-EUX-00` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BY-EUX-10` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BASE-00` | `DONE` |
@@ -178,7 +182,8 @@ Interdictions absolues :
 | `DRIFT-IV-SYS-60` | `DONE` |
 | `DRIFT-IV-SYS-70` | `DONE` |
 | `DRIFT-IV-BY-EUX-20` | `DONE` |
-| `DRIFT-IV-BY-EUX-30` | `PENDING_OWNER_REVIEW` (lot actif) |
+| `DRIFT-IV-BY-EUX-30` | `DONE` (owner-accepted, merged PR #32 at `b069d09`) |
+| `DRIFT-IV-PRE-00` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-GOV-40` merging — not started) |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -200,7 +205,7 @@ Interdictions absolues :
 
 `DRIFT-IV-SYS-70` livre le harness de preuve/performance générique (`src/lib/drift3dEvidence.ts` : quatre classifications canoniques frozen, snapshot de performance `canvasPresent`/`cumulativeFrameCount`/`render`/`viewport`/`visibility` avec la règle stricte `canvasPresent: false ⟹ render/viewport: null`, calcul FPS pur `computeDrift3DFps` sans arrondi ni coercition, échantillonnage `begin`/`end` sans minuteur interne, référence runtime stable sans historique non borné, validateurs structurels ne vérifiant jamais un seuil de performance), alimenté par un frame probe R3F dev-only zéro-allocation (`Drift3DEvidenceProbe.tsx`, lisant `gl.info.render` indépendamment de `__drift3dRender` préexistant sans jamais le modifier), intégré minimalement dans `Drift3DCanvas.tsx` (montage dev-only du probe) et `Drift3DClient.tsx` (ref possédée au niveau shell via l'initialiseur paresseux de `useState`, harness dev `window.__drift3dEvidence`) — comportement vérifié : classifications, calcul FPS et validateurs structurels (**15 fixtures de snapshot — 1 valide + 14 invalides, couvrant les 12 types d'issue**, 12 fixtures d'échantillon FPS) tous `MEASURED`/`PASS` ; immutabilité confirmée y compris un cas limite `begin`/`end` réel ET un échantillon FPS non-null réel ; les deux fallbacks (reduced-motion, no-WebGL) confirmés avec `canvasPresent: false` honnête. Une limitation d'environnement rencontrée lors de la session de preuve initiale (`requestAnimationFrame` ne se déclenchant jamais dans l'onglet utilisé à ce moment-là) a été honnêtement documentée puis dépassée par une session de correction sur une vraie instance Chrome locale : snapshot Canvas actif réel, échantillon FPS de premier plan réel (`fps≈70.17`), mesure cross-zone réelle sur les quatre zones BASE-00 (chaque valeur correspondant exactement à l'historique), cycle de remontage Canvas réel (`cumulativeFrameCount` remis à `0` puis augmentant), et les onze globals dev historiques confirmés présents et fonctionnels — tous désormais `MEASURED`. Voir `docs/evidence/DRIFT-IV-SYS-70/evidence-performance-harness-evidence.md` pour le détail complet des deux sessions. Aucun seuil de performance canonique, aucune auto-sélection de Quality Tier, aucune télémétrie n'est livré par ce lot.
 
-**`BASE-00` à `SYS-70` sont tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-BY-EUX-20` est `DONE` (mergé sur `main`, PR #31, commit `d2a1c15`) — voir §7.1. Le lot actif est désormais `DRIFT-IV-BY-EUX-30` (`PENDING_OWNER_REVIEW`) — owner acceptance, la seule autorité habilitée à déclarer la proof slice acceptée.
+**`BASE-00` à `SYS-70` sont tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-BY-EUX-20` **et** `DRIFT-IV-BY-EUX-30` sont désormais tous deux `DONE` — voir §7.1 (`BY-EUX-20` mergé PR #31 à `d2a1c15` ; `BY-EUX-30` owner-accepted et mergé PR #32 à `b069d09`, superseding l'état `PENDING_OWNER_REVIEW` précédemment enregistré ici). **`DRIFT-IV-GOV-40` lui-même est `DONE_PENDING_MERGE`** (cette résolution de rebase, prête à continuer et committer) — une fois mergé, le lot suivant devient `DRIFT-IV-PRE-00` (§8.2), non plus directement `DRIFT-IV-VF-MORNE-00`. `DRIFT-IV-PRE-00` reste `BLOCKED_BY_DEPENDENCY` sur le merge de `GOV-40` et n'est pas commencé.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -224,12 +229,14 @@ DRIFT-IV-BY-EUX-20 — DONE
   EuxGainentFallbackScene.tsx (enrichissement statique reduced-motion/no-WebGL),
   intégration minimale dans Drift3DScene.tsx et Drift3DClient.tsx.
   Preuve comportementale réelle : docs/evidence/DRIFT-IV-BY-EUX-20/.
-  PROOF SLICE 1: BUILD COMPLETE. OWNER ACCEPTANCE now in progress under DRIFT-IV-BY-EUX-30.
+  PROOF SLICE 1: BUILD COMPLETE.
 
-DRIFT-IV-BY-EUX-30 — PENDING_OWNER_REVIEW (lot actif)
-  Owner acceptance de la proof slice — seule autorité habilitée à déclarer
-  « EUX GAINENT ACCEPTED » / « PROOF SLICE ACCEPTED ». En cours ; aucune décision
-  propriétaire n'a encore été rendue.
+DRIFT-IV-BY-EUX-30 — DONE — MERGED (PR #32, commit b069d09d636318bb711694d4c948af851143b947)
+  Owner acceptance de la proof slice rendue après trois candidats de rework (V1/V2/V3 —
+  realism pass, display rework, motion pass, signature amplification ; voir
+  docs/evidence/DRIFT-IV-BY-EUX-30/ et docs/ACTIVE_LOT.md pour l'historique complet
+  des deux revues propriétaire). Mergé sur main. « EUX GAINENT ACCEPTED ».
+  « PROOF SLICE 1 ACCEPTED ».
 ```
 
 ---
@@ -277,6 +284,47 @@ Avant le gate d'industrialisation restent interdites :
 - tout moteur de transition d'ères ;
 - toute continuité mondiale partagée ;
 - toute extraction seulement motivée par une architecture cible.
+
+**Amendé par `DRIFT-IV-GOV-40` (2026-07-31) :** cette interdiction reste pleinement en vigueur pour les abstractions **comportementales/temporelles/narratives** ci-dessus (dramaturgie, population, résidus, transitions, continuité). Elle ne s'applique plus, à compter de `GOV-40`, aux **kits d'actifs/contenu** définis par `docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md` (terrain, végétation, humains/foule, animation, véhicules/trafic, matériaux, signalétique, etc.) — ceux-ci suivent désormais le nouveau groupe de gates `PRE-*` (§8.2), qui précède la poursuite des Builds track par track. Voir `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.1 pour la justification complète de cette supersession de séquencement.
+
+## 8.2 Gates de préproduction réutilisation-d'abord (`PRE-*`, nouveau — `DRIFT-IV-GOV-40`)
+
+Ordre directeur, inséré immédiatement après `DRIFT-IV-BY-EUX-30` et avant tout autre lot track (y compris les proof slices 2 et 3, §9) :
+
+```text
+DRIFT-IV-BY-EUX-30
+→ DRIFT-IV-PRE-00   Canonical artistic reconciliation and owner acceptance
+→ DRIFT-IV-PRE-10   Five real visual masterframes, produced and accepted
+→ DRIFT-IV-PRE-20   Licensed asset/provenance registry and import evaluation
+→ DRIFT-IV-PRE-30   Representative shared-kit pilots (urban/human, nature/movement, water/weather/light)
+→ DRIFT-IV-PRE-40   Five-macro-world greybox and formal readiness gate
+→ DRIFT-IV-VF-MORNE-00 (proof slice 2, resumes track-by-track work)
+```
+
+*(Redefined by the `DRIFT-IV-GOV-40` owner decision session — see the table below for the full scope of each; the names above match that table exactly, not the lot's original first-pass definitions.)*
+
+**Redefined by the `DRIFT-IV-GOV-40` owner decision session (second correction) — total stays 5 lots / 153 overall; content and scope below supersede the original definitions.**
+
+| Lot | Gate produit | Type |
+|---|---|---|
+| `PRE-00` | **Canonical artistic reconciliation and owner acceptance** — the Track Atlas (27 segments), the Global Art Direction doctrine (including the density, human-presence, transition-principles, gold/silver and lambda-progression additions), all five Masterframe Briefs (New Signal `ACCEPT WITH GUARDRAIL`), the three owner-resolved artistic conflicts (Blossoming/Daymason/Hold The Light), Panthere's `P2`→`P3` reclassification, and this 153-lot resequencing itself — all owner-`ACCEPT`ed, final. **The owner's explicit final sign-off on the four newly-authored masterframe details is now given — no artistic content blocks this lot. The sole remaining dependency is `DRIFT-IV-GOV-40`'s own merge (see Dépendances below).** | Documentation / owner review only |
+| `PRE-10` | **Redefined:** production and owner acceptance of **five real visual masterframes** — actual rendered or concept-art reference images for Entry/Birth Yard/Older Shadows/Vegetative Field/New Signal. The text briefs in `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` are this lot's own input spec, not its deliverable. | **Real visual-production lot** (a meaningful scope change from the prior text-only review) |
+| `PRE-20` | Licensed asset/provenance registry and import evaluation: evaluates the `REFERENCE` candidates in `docs/DRIFT_3D_ASSET_REUSE_MATRIX.md`, obtains and records real licence/provenance evidence, promotes confirmed items to `ADOPT`/`PILOT`. No asset adopted without recorded licence/provenance (standing rule, `DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md` §8.2) | **Real runtime/asset lot** |
+| `PRE-30` | **Redefined:** representative shared-kit pilots across three domain groups — **urban/human** (Urban, Human/Crowd, Animation, Interior Kits), **nature/movement** (Terrain/Road, Mountain, Vegetation, Vehicle/Traffic Kits), **water/weather/light** (Water, Weather, Lighting/Material Kits) — proven by migrating EUX GAINENT's own existing one-offs onto whichever pilot each touches, per the migration map's `GENERALIZE`/`REWORK` classifications. Machine/Prop, Signage/Screen, Secondary-Life and Transition Kits are built opportunistically within these three pilots, not as a separate fourth group. Does not touch EUX GAINENT's approved cue/audio/signature identity | **Real runtime lot** (broadened from the prior two-kit-only definition) |
+| `PRE-40` | **Redefined:** a **five-macro-world greybox** — one buildable, walkable/driveable low-fidelity representative space per era, using the pilots proven in `PRE-30` — plus a **formal readiness dossier** (what's proven, what's still missing, explicit go/no-go per era) and the readiness gate itself. **Must produce this concrete dossier and greybox — it is no longer authorized to be a lot that "produces nothing new"** (explicit owner correction to the prior pure-confirmation definition). Formally reopens `DRIFT-IV-VF-MORNE-00` as the next lot once the gate passes | **Real runtime lot + gate / owner review** (a meaningful scope change from the prior pure-confirmation definition) |
+
+Dépendances :
+
+```text
+PRE-00 depends on: GOV-40 merged (the one remaining dependency — DRIFT-IV-BY-EUX-30's owner decision is now satisfied: DONE, merged PR #32 at b069d09; this correction's decision-session outcomes and the owner's final sign-off on the four flagged masterframe details are both incorporated and done)
+PRE-10 depends on: PRE-00 (redefined: now requires producing the five real visual masterframes, not only accepting the text briefs)
+PRE-20 depends on: PRE-10
+PRE-30 depends on: PRE-20 (needs real, licence-verified candidate assets across all three domain groups, not only Human/Crowd and Signage/Screen)
+PRE-40 depends on: PRE-30 (needs the three domain-group pilots proven before a five-era greybox can be attempted)
+VF-MORNE-00 (proof slice 2) depends on: PRE-40
+```
+
+Ce groupe ne réouvre aucun Identity Contract, Cue Map ou décision artistique déjà approuvée — y compris celle d'EUX GAINENT, dont l'audio/cue/lifecycle/signature restent explicitement `KEEP` (`docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md` §4). `IND-00`/`10`/`20` (§10) restent inchangés dans leur mécanisme et leurs dépendances ; leur rôle devient une confirmation/raffinement une fois les trois proof slices livrées avec les kits déjà disponibles, plutôt qu'une première décision d'extraction.
 
 ---
 
@@ -350,7 +398,7 @@ Si `IND-10` conclut qu'aucune extraction n'est justifiée : `IND-20 = SKIPPED_BY
 | FOOLFOULE | `DRIFT-IV-BY-FOOL-00` | `DRIFT-IV-BY-FOOL-10` | `DRIFT-IV-BY-FOOL-20` | `DRIFT-IV-BY-FOOL-30` |
 | JAZZYPLING | `DRIFT-IV-BY-JAZZ-00` | `DRIFT-IV-BY-JAZZ-10` | `DRIFT-IV-BY-JAZZ-20` | `DRIFT-IV-BY-JAZZ-30` |
 | PLAY IT | `DRIFT-IV-BY-PLAY-00` | `DRIFT-IV-BY-PLAY-10` | `DRIFT-IV-BY-PLAY-20` | `DRIFT-IV-BY-PLAY-30` |
-| EUX GAINENT | `DRIFT-IV-BY-EUX-00` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-10` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-20` (`DONE`) | `DRIFT-IV-BY-EUX-30` (proof-slice owner acceptance, `PENDING_OWNER_REVIEW`) |
+| EUX GAINENT | `DRIFT-IV-BY-EUX-00` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-10` (`SATISFIED_BY_EXISTING_AUTHORITY`) | `DRIFT-IV-BY-EUX-20` (`DONE`, PR #31) | `DRIFT-IV-BY-EUX-30` (proof-slice owner acceptance, `DONE`, PR #32) |
 
 ## 11.3 Older Shadows
 
@@ -635,8 +683,14 @@ Aucun autre document actif ne déclare une autre « première séquence » comme
 
 # 20. Prochain lot unique
 
+**Historique (stale depuis `GOV-30`, conservé pour mémoire) :** ce paragraphe indiquait `DRIFT-IV-BASE-00` comme prochain lot à la clôture de `GOV-30`. `BASE-00`, `SYS-00` à `SYS-70`, et `DRIFT-IV-BY-EUX-20` sont depuis tous `DONE` (§7) — ce pointeur n'avait pas été mis à jour avant `GOV-40`.
+
+**État actuel (`DRIFT-IV-GOV-40` rebase resolution, 2026-08-01) :**
+
 ```text
-DRIFT-IV-BASE-00 — Capture runtime baseline
+DRIFT-IV-BY-EUX-30 — DONE — MERGED (PR #32, main@b069d09), owner-accepted
+→ DRIFT-IV-GOV-40 — DONE_PENDING_MERGE (this rebase resolution, ready to continue and commit)
+→ DRIFT-IV-PRE-00 — Reference-frame ratification, BLOCKED_BY_DEPENDENCY on GOV-40 merging (not started)
 ```
 
-Documentation seulement pour ce lot `GOV-30`. Aucun runtime n'est modifié.
+Documentation seulement pour `DRIFT-IV-GOV-40`, y compris cette résolution de rebase. Aucun runtime, asset, audio, cue, node, collider ou caméra n'est modifié par ce lot. `PRE-20`/`PRE-30` (§8.2) seront les premiers lots de ce nouveau groupe à toucher le runtime, et seulement après ratification propriétaire de `PRE-00`/`PRE-10`, elles-mêmes bloquées jusqu'au merge de `GOV-40`.

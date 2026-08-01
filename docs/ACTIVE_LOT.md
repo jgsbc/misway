@@ -1,10 +1,82 @@
 # ACTIVE_LOT.md
 
 Current lot:
+DRIFT-IV-GOV-40 — Holistic art direction & reuse-first reconciliation
+
+Status:
+DONE_PENDING_MERGE (documentation-only) — final owner acceptance recorded across two decision sessions; rebased onto the new main (`DRIFT-IV-BY-EUX-30` now merged) as a third pass. `ACCEPTED` for the artistic checkpoint it defines (the Track Atlas, all five Masterframe Briefs — New Signal `ACCEPT WITH GUARDRAIL` — global direction, the three hybrid conflicts, Panthere's `P3` reclassification, and the lambda doctrine all carry a final owner `ACCEPT`). No remaining owner decision blocks this lot. Rebase conflicts resolved; ready to continue the rebase and commit — not yet merged, not yet delivered.
+
+Baseline:
+main@b069d09 (contains DRIFT-IV-BY-EUX-20, merged PR #31, AND DRIFT-IV-BY-EUX-30, merged PR #32 — EUX GAINENT proof-slice Build + owner-accepted V3 rework, both now delivered on `main`)
+
+Type:
+Documentation-only governance lot. Pauses track-by-track runtime work; reconciles the complete artistic direction and implementation strategy across all 27 segments; defines a reuse-first shared-world kit architecture; resequences the single authoritative Integral Backlog to insert preproduction gates ahead of continued track builds. No runtime, asset, audio, cue, node, collider, or camera change. No push, no PR opened by this lot itself.
+
+Completed (GOV-40):
+- `docs/DRIFT_3D_GOV40_RECONCILIATION.md` created — CONFIRMED/CONFLICTING/UNDER-SPECIFIED/SUPERSEDED ledger for every claim in the deliverables below; records the one deliberate sequencing supersession (GOV-30's "no shared abstraction before 3 proof slices" → reuse-first, superseded for sequencing only, no artistic decision reopened) and 6 other authority conflicts/gaps found;
+- `docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md` created — holistic cross-cutting doctrine (the 70/20/10 reality/distortion/impossible ratio and its five per-era variants, humor/absurdity families, scale, color, lighting, materials, world activity, λ usage, transitions, music/world relationship, a consolidated anti-pattern index, and the surviving gameplay rules from the two historical visual-doctrine docs) — indexes and never contradicts the Realism Bible or Living World Bible;
+- `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` created — all 27 segments (1 Entry + 26 catalogue tracks), 15 fields each, reconciling `DRIFT_3D_LIVING_TRACK_MATRIX.md` and `DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md` (3 real content disagreements found and flagged, not silently resolved: DAYMASON's central anomaly, BLOSSOMING's and HOLD THE LIGHT's signature moments);
+- `docs/DRIFT_3D_ASSET_REUSE_MATRIX.md` created — inventories confirmed existing reusable systems (terrain, vegetation/scatter, atmosphere, texture factory, ambience — all real, in production) and names candidate source categories for what doesn't exist yet (rigged humans, buildings, vehicles, additional materials), every candidate marked `REFERENCE` (taxonomy revised by the authorial reconciliation correction below) since no asset was downloaded to produce this document;
+- `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` created — one concrete, specific frame per era (not a moodboard), `PENDING OWNER REVIEW`;
+- `docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md` created — 15 kits (terrain/road, urban, interior, mountain, vegetation, water, weather, human/crowd, animation, vehicle/traffic, machine/prop, lighting/material, signage/screen, secondary-life, transition), global conventions (coordinate/scale, asset pipeline/glTF/Draco/Meshopt/KTX2 policy — the first formal statement of this, previously absent), ownership and current-reuse status per kit, all `TARGET_ARCHITECTURE — NOT RUNTIME TRUTH`;
+- `docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md` created — KEEP/GENERALIZE/REWORK/REPLACE/REMOVE-AFTER-MIGRATION classification of the actual current runtime (confirmed: zero glTF models exist anywhere, fully procedural today), EUX GAINENT explicitly addressed (audio/cue/lifecycle/signature = KEEP; the now-validated dynamic screen pipeline = KEEP the pattern/GENERALIZE the implementation; procedural athletes/machines = REWORK; opaque-glass facade treatment = flagged for a future artistic pass, not decided here); explicitly notes it classifies against the richer, unmerged `by-eux-30` branch candidate, not `main`'s simpler proof-slice build, and declares no runtime `ACCEPTED`;
+- `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` resequenced (v3.0 → v4.0, 147 → 153 canonical lots) — new `DRIFT-IV-PRE-00` through `PRE-40` gate group inserted between `DRIFT-IV-BY-EUX-30` and the next track lot (`DRIFT-IV-VF-MORNE-00`, proof slice 2); `§8.1`'s pre-gate exception rule amended (still forbids sharing *behavioral/temporal* abstractions early, no longer forbids the new *asset/content* kits); two pre-existing stale forward-pointers (§7, §20 — both un-updated since `GOV-30` despite `BASE-00`/`SYS-*`/`BY-EUX-20` all completing afterward) corrected as a byproduct;
+- `AGENTS.md` and `docs/DRIFT_DOCUMENTATION_MAP.md` updated with the seven new documents' authority/status and the `PRE-*` sequencing rule;
+- Full canonical track cross-check against `src/lib/tracks.ts` (RUNTIME TRUTH) — exact 27-segment/26-track coverage confirmed, no duplicate, no omission, exact casing/punctuation/slugs preserved (including `MORNE, ET ?`'s comma and `LE MONDE S'ENDORT`'s typographic apostrophe).
+
+Correction (authorial reconciliation, same lot, same branch):
+The initial GOV-40 pass above reconciled repository documents only and concluded "personal/lived source" was absent from all sources for all 26 tracks — **invalid**: the repository is not the only artistic source, and the owner had already supplied real thematic/emotional material across project conversations. Corrected:
+- `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` — all 27 entries' "Personal/lived source" field updated from `UNDER-SPECIFIED` to `OWNER_DIRECT` (owner conversation material) or `OWNER_DIRECT` + `REPOSITORY_AUTHORITY` where runtime text independently agrees; new "Source traceability" field added to all 27 entries using the six-value taxonomy (`OWNER_DIRECT`/`OWNER_APPROVED_SYNTHESIS`/`REPOSITORY_AUTHORITY`/`INFERENCE_REQUIRING_OWNER_REVIEW`/`MISSING`/`CONFLICTING`); two entries received genuinely new content (DAYMASON's "hate," RENEE's raw-then-polished light), one received a new artistic device with no repository precedent (PANTHERE's phonetic wordplay);
+- `docs/DRIFT_3D_GOV40_RECONCILIATION.md` — new §1.7 records the owner-provided brief verbatim as this Atlas's citation source; §2's "personal/lived source" under-specified row removed (resolved), three new rows added for what genuinely remains open;
+- `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` — all five briefs sharpened so owner material determines geography/activity/material/light/anomaly, not only mood (Entry: MISWAY hero-image continuity; Birth Yard: dirt/traffic friction; Older Shadows: a literal "freedom becoming memory" cairn detail; Vegetative Field: confirmed as-is; New Signal: silver added alongside gold, λ-as-ordinary noted);
+- `docs/DRIFT_3D_ASSET_REUSE_MATRIX.md` — status taxonomy changed to `ADOPT`/`PILOT`/`REFERENCE`/`REJECT`; new §0 honestly states, backed by a repo-wide grep, that no prior project-specific asset-source research exists beyond the 5 already-confirmed Poly Haven texture sets — every category candidate is this lot's own first-time suggestion, never recovered research;
+- `docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md` — §0 now states the EUX GAINENT candidate's exact classification, `UNMERGED OWNER-VALIDATED CANDIDATE`, with branch `drift-iv-by-eux-30-owner-acceptance` and commit `c5ca4da847e2dab24f39b50025384f80fe6ca857` recorded explicitly, reinforcing it must never be read as delivered on `main`;
+- `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md` created — new owner-facing summary (narrative arc, era summaries, 27 segment cards, masterframe capsules, kit families, unresolved questions, authority conflicts, the 153-lot calculation, `PRE-00`–`PRE-40` definitions);
+- `docs/DRIFT_DOCUMENTATION_MAP.md` updated — Atlas/Reuse-Matrix rows corrected to reflect the new taxonomy and traceability field; new row added for the owner review pack.
+No runtime, asset, audio, cue, node, collider, or camera change. No commit, no push, no PR opened by this correction.
+
+Correction (owner decision session, same lot, same branch):
+The owner reviewed the authorial-reconciliation correction above and issued explicit ACCEPT/REWORK/HYBRID/RECLASSIFY decisions across global direction, all five masterframes, the three artistic conflicts, Panthere's priority flag, the lambda doctrine, and the `PRE-*` resequencing. Applied:
+- `docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md` — reworked: §4 adds a global density doctrine (per-era target bands, four axes); §9 adds a unified human-presence doctrine (five rules; the twelve archetypes' remaining nine names stay honestly open); §12 adds five era-transition principles (the specific missing transition texts stay open); §6 adds the New Signal gold/silver color pairing; §11 replaces the lambda section with the owner-decided four-stage progression (exceptional threshold → rare/embedded → increasingly recognizable → ordinary world-form), explicitly withdrawing the prior draft's unsupported "world not ready to recognize its own door" interpretation;
+- `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` — Entry `ACCEPT`ed with one clarification (strict compositional continuity with the MISWAY hero image, not a literal pixel/color match); Birth Yard, Older Shadows, Vegetative Field and New Signal `REWORK`ed (visible crowd/traffic/dirt/one deadpan absurdity; visible human/extreme-sport activity plus a distributed cairn-age-gradient memory device; one credible human routine; a convergence-overlook frame replacing Étééaooété's own literal beach terminus, flagged against that track's own anti-checklist guardrail);
+- `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` — BLOSSOMING, DAYMASON and HOLD THE LIGHT signature/anomaly fields changed from `CONFLICTING` to `RESOLVED — OWNER-DECIDED HYBRID` with the owner's exact adopted wording; PANTHERE's outstanding Living-Track-Matrix validation flag reclassified from a hybrid "`P2`, validation artistique requise" to a clean `P3`, scoped to two named questions (shadow as presence not mascot; phonetic device as environmental rhythm, never signage) — the source vocabulary document itself still needs its own follow-up edit, flagged not performed;
+- `docs/DRIFT_3D_GOV40_RECONCILIATION.md` — §1.6 records all three hybrid resolutions as an explicit, recorded owner exception (not a silent reinterpretation); §2 removes the now-resolved density/human-presence/lambda-vs-doctrine rows, updates the transition-rules row (principles now exist, specific content still doesn't), and adds a new row naming the four newly-authored masterframe details as first proposals pending quick owner confirmation;
+- `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` §8.2 — `PRE-00`–`PRE-40` redefined per the owner's own wording (canonical reconciliation/acceptance; five real visual masterframes; licensed asset registry; three-domain-group kit pilots; five-macro-world greybox + concrete readiness dossier, no longer "produces nothing new"); total stays 153, only `PRE-*` content changes;
+- `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md`, `docs/DRIFT_DOCUMENTATION_MAP.md` — updated for consistency with all of the above.
+No runtime, asset, audio, cue, node, collider, or camera change. No commit, no push, no PR opened by this correction. `PRE-00` not started.
+
+Final correction (final authority-reconciliation pass, same lot, same branch): the owner accepted every remaining decision — global direction; all five masterframes (New Signal `ACCEPT WITH GUARDRAIL`); the three hybrid conflicts; Panthere's `P3` reclassification; the lambda doctrine; the 153-lot resequencing — and directed one last reconciliation pass before commit:
+- `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` — the New Signal guardrail recorded canonically (one dominant geography; other worlds only as reflection/light/signal/silhouette/weather/material/trace/memory; no accumulation; no checklist; no museum panorama; Étééaooété stays radically simple), with the convergence-overlook frame shown to comply by construction; Birth Yard's gag confirmed as one example of an allowed humor family, not a mandatory repeat; Older Shadows' memory device expanded to four distributed registers (cairns, worn equipment, an eroding route, footprint traces); Vegetative Field's resident gained one load-bearing desynchronization beat, confirming they are human, not a robot. All five briefs now `ACCEPT`ed, final;
+- `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` — the New Signal guardrail added to the era's own identity paragraph and cross-referenced from Étééaooété's prohibited interpretations; Panthere's entry updated to record that the source vocabulary edit (below) is now performed, not merely flagged;
+- `docs/DRIFT_3D_LIVING_TRACK_MATRIX.md` §5.10 — **edited directly** (with explicit owner authorization, superseding this lot's earlier "flag, don't touch" scope discipline for this one document): PANTHERE's priority row changed from the inconsistent hybrid "`P2`, validation artistique requise" to a clean `P3`, a GOV-40 reconciliation note added recording the two required validations, and PANTHERE removed from the "Vague 2" list. No unrelated historical content touched;
+- `docs/DRIFT_3D_PRODUCT_SPEC.md` — "Current boundaries" corrected in place: `BY-EUX-20` stated as merged/shipped at `d2a1c15`; the richer candidate classified `UNMERGED OWNER-VALIDATED CANDIDATE` at its own exact branch (`drift-iv-by-eux-30-owner-acceptance`) and commit (`c5ca4da847e2dab24f39b50025384f80fe6ca857`), superseding the stale historical `ad21600` reference; the prerequisite chain updated to match the accepted `PRE-00`–`PRE-40` sequence;
+- `docs/DRIFT_3D_GOV40_RECONCILIATION.md`, `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md` — updated to record that all requested artistic decisions are accepted, no remaining owner decision blocks `GOV-40`, and remaining TBDs (twelve archetypes, two specific transition texts, `GLOB-00`–`90`, TIME/RELATIVE motifs) belong to future segment Identity Contracts or future `PRE-*` lots, not to this lot.
+No runtime, asset, audio, cue, node, collider, or camera change. No push, no PR. `PRE-00` not started. **Not committed by this pass** — this correction prepares GOV-40 to be committed, it does not commit it.
+
+Rebase correction (onto new main, same lot, same branch): this branch was rebased onto `main@b069d09`, which now contains `DRIFT-IV-BY-EUX-30` merged via PR #32 (EUX GAINENT's owner-accepted V3 rework — realism pass, display rework, motion pass, signature amplification — delivered on `main`, superseding the simpler `BY-EUX-20` proof slice this lot was originally baselined against). Resolved semantically, combining both histories, not a blanket ours/theirs:
+- `docs/ACTIVE_LOT.md` (this file) — baseline updated to `main@b069d09`; a new "Previous lot" section inserted below recording `DRIFT-IV-BY-EUX-30`'s full owner-review history (V1/V2/V3, both owner reviews), preserved verbatim from `main`, with its final status corrected to `DONE — MERGED` (PR #32, `b069d09`); every reference to BY-EUX-30 as "in progress"/"unmerged"/"a separate branch" elsewhere in this file corrected to reflect the merge;
+- `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` — `DRIFT-IV-BY-EUX-30` marked `DONE`, merged PR #32 at `b069d09`; `DRIFT-IV-GOV-40` marked `DONE_PENDING_MERGE`; `DRIFT-IV-PRE-00` explicitly `BLOCKED_BY_DEPENDENCY` on `GOV-40` merging (no longer on `BY-EUX-30`, now satisfied) — total stays 153, the owner-approved `PRE-00`–`PRE-40` definitions unchanged;
+- `docs/DRIFT_3D_PRODUCT_SPEC.md`, `docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md`, `docs/DRIFT_3D_GOV40_RECONCILIATION.md`, `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, `AGENTS.md` — every `UNMERGED OWNER-VALIDATED CANDIDATE` / unmerged-branch reference updated to state BY-EUX-30 as merged via PR #32 at `b069d09`; the historical branch-head commit (`c5ca4da`) and the older `ad21600` reference kept only as explicit historical context, never as current state.
+No runtime, asset, audio, cue, node, collider, or camera change in this resolution. No push, no PR opened. `PRE-00` still not started. **`GOV-40` itself is not yet merged** — this rebase resolution prepares it to continue and be committed; it does not merge or commit it.
+
+Explicit non-negotiable from this lot: **no implementation lot (`DRIFT-IV-PRE-20` onward) may begin before the owner accepts the five era Masterframe Briefs and the complete Track Atlas** (`DRIFT-IV-PRE-00`/`PRE-10`) — satisfied: both are now owner-`ACCEPT`ed. This correction still does not start `PRE-00` itself.
+
+Protected scope (this lot): no runtime code, no `public/**`, no audio, no cue timestamp, no node/collider/camera, no push, no PR. `docs/DRIFT_3D_LIVING_WORLD_BIBLE.md`, `docs/DRIFT_3D_REALISM_BIBLE.md`, every Era Contract, and the approved EUX GAINENT Identity Contract/Cue Map were read but not edited — none of their decisions are reopened. `docs/DRIFT_3D_LIVING_TRACK_MATRIX.md` is the one exception, edited in the final correction above under explicit, narrow owner authorization (PANTHERE's own row and the "Vague 2" list only) — no other content in that document was touched. The rebase resolution above additionally touched `docs/DRIFT_3D_INTEGRAL_BACKLOG.md`, `docs/DRIFT_3D_PRODUCT_SPEC.md`, `docs/DRIFT_3D_RUNTIME_MIGRATION_MAP.md`, `docs/DRIFT_3D_GOV40_RECONCILIATION.md`, `docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md`, `docs/DRIFT_DOCUMENTATION_MAP.md`, and `AGENTS.md` — all documentation-only, correcting stale BY-EUX-30 branch/merge references, never runtime.
+
+Final status:
+`DRIFT-IV-GOV-40 = DONE_PENDING_MERGE` (documentation only), all owner decisions final, rebase conflicts resolved onto `main@b069d09`. The Track Atlas and all five Masterframe Briefs are owner-`ACCEPT`ed (New Signal `ACCEPT WITH GUARDRAIL`); the three hybrid conflicts, Panthere's `P3` reclassification, and the lambda doctrine are all owner-`ACCEPT`ed. No remaining owner decision blocks this lot. `GOV-40` is ready to continue its rebase and commit — not yet merged, not yet delivered. `DRIFT-IV-BY-EUX-30` (EUX GAINENT owner acceptance) is now `DONE — MERGED` (PR #32, `b069d09`) — no longer a separate ongoing effort; its full V1/V2/V3 evidence is preserved below as its own "Previous lot" section.
+
+Next lot:
+`DRIFT-IV-PRE-00` — Reference-frame ratification. `BLOCKED_BY_DEPENDENCY` on `DRIFT-IV-GOV-40` merging (the one remaining dependency, now that `DRIFT-IV-BY-EUX-30` is merged and satisfied). Not started.
+
+---
+
+## Previous lot (context, merged)
+
 DRIFT-IV-BY-EUX-30 — EUX GAINENT owner acceptance
 
 Status:
-REWORK_REQUIRED
+DONE — MERGED (PR #32, commit `b069d09d636318bb711694d4c948af851143b947`)
 
 Baseline:
 main@d2a1c15 (contains DRIFT-IV-BY-EUX-20, merged, PR #31)
@@ -46,8 +118,8 @@ Rework candidate V3 (see `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acc
 - **Real browser QA/performance** — `KNOWN_ENVIRONMENT_LIMITATION`: multiple real attempts across two tabs and several cumulative minutes of real interaction could not unblock the render loop (`document.visibilityState` stuck `"hidden"` despite real focus); a definitive `requestAnimationFrame` counter test (0 callbacks in 2 real seconds) confirms a genuine browser/OS-level compositor block, unrelated to this lot's code (dev server independently confirmed healthy via `curl` → 200). No draw-call/triangle/FPS measurement or screenshot could be obtained for V3 this session — none is fabricated; what IS verified is full technical compilation, manual code review, no console errors, and DOM canvas presence. See `docs/evidence/DRIFT-IV-BY-EUX-30/eux-gainent-owner-acceptance.md` §8.9 and the `reworkCandidateV3` object in the sibling `.json` for the complete record.
 - Artistic scores, the North Star test, cue-by-cue listening, and mobile/reduced-motion QA remain `NOT_YET_PERFORMED` per the lot's own gate — they resume only after the owner's positive pass on this V3 candidate.
 
-Status note:
-`DRIFT-IV-BY-EUX-20 = DONE` (merged on `main`, PR #31, commit `d2a1c15`). `DRIFT-IV-BY-EUX-30` rework candidate V3 is ready for owner re-review — no artistic decision has been made yet. This file will not read `ACCEPTED`, `DONE`, or `PROOF SLICE ACCEPTED` for this lot until the owner gives an explicit verdict.
+Final status (resolved, recorded during `DRIFT-IV-GOV-40`'s rebase onto `main@b069d09`):
+`DRIFT-IV-BY-EUX-20 = DONE` (merged on `main`, PR #31, commit `d2a1c15`). `DRIFT-IV-BY-EUX-30`'s V3 rework candidate above received the owner's explicit final acceptance and merged to `main` via PR #32 at commit `b069d09` — `EUX GAINENT = ACCEPTED`, `PROOF SLICE 1 = ACCEPTED`. (The "Status note" as originally recorded at the moment V3's evidence was captured read "no artistic decision has been made yet" — that was accurate at that moment, before the owner's own verdict; this paragraph is the resolution, appended once, here — the V1/V2/V3 evidence above it is unchanged, verbatim from `main`.)
 
 ---
 
@@ -56,7 +128,7 @@ Status note:
 DRIFT-IV-BY-EUX-20 — EUX GAINENT proof-slice Build
 
 Status:
-DONE — MERGED (PR #31, commit `d2a1c15f0d22205f3cc117cdeaed35fa61ab680d`)
+DONE — MERGED (PR #31, contained in `main@d2a1c15`)
 
 Baseline:
 main@1ce2adb (contains DRIFT-IV-SYS-70, merged, PR #30 — SHARED PRE-GATE FOUNDATION COMPLETE)
@@ -82,8 +154,9 @@ Protected scope (this lot):
 - no Identity Contract or Cue Map artistic/timing decision reopened (status fields only)
 
 Final status:
-`DRIFT-IV-BY-EUX-20 = DONE` (merged, PR #31, commit `d2a1c15`).
-`PROOF SLICE 1: BUILD COMPLETE.` Owner acceptance now in progress under `DRIFT-IV-BY-EUX-30` — see the top of this file.
+`DRIFT-IV-BY-EUX-20 = DONE — MERGED` (PR #31, `main@d2a1c15`). Corrected retroactively by `DRIFT-IV-GOV-40`: this entry previously read `DONE — PENDING MERGE`, un-updated since the merge actually happened.
+`PROOF SLICE 1: BUILD COMPLETE.` Owner acceptance (`DRIFT-IV-BY-EUX-30`) is `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full V1/V2/V3 evidence.
+Backlog: `BY-EUX-00`/`BY-EUX-10 = SATISFIED_BY_EXISTING_AUTHORITY` (unchanged), `BY-EUX-20 = DONE`, `BY-EUX-30 = DONE` (both merged, corrected during `DRIFT-IV-GOV-40`'s rebase onto `main@b069d09`).
 
 ---
 
@@ -122,6 +195,10 @@ Protected scope:
 - no Identity Contract, no Cue Map, no era contract, no artistic bible touched
 - no canonical performance threshold introduced, no auto-quality selection, no runtime optimization, no track-specific logic, no timer/network/storage introduced, no telemetry
 
-End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is now `DONE` (merged, PR #31) — see the top of this file.
+End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is `DONE — MERGED` (PR #31, corrected retroactively by `DRIFT-IV-GOV-40`) — see the top of this file.
 
-Next lot: this lot's own successor is `DRIFT-IV-BY-EUX-30`, now the active lot at the top of this file — see there for current status (`PENDING_OWNER_REVIEW`, no decision made yet). The lot after `DRIFT-IV-BY-EUX-30` is not resolved or guessed here; per the backlog, it depends on the owner's explicit decision in that lot.
+Next lot after this one:
+DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance, now `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full evidence. The next lot is `DRIFT-IV-PRE-00` (`DRIFT-IV-GOV-40` resequencing), `BLOCKED_BY_DEPENDENCY` until `GOV-40` itself merges — see the top of this file.
+
+Next status:
+DRIFT-IV-BY-EUX-30 DONE — MERGED -> DRIFT-IV-GOV-40 (this rebase, ready to continue) -> DRIFT-IV-PRE-00 (blocked until GOV-40 merges)
