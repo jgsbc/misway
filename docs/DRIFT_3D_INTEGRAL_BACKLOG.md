@@ -169,7 +169,7 @@ Interdictions absolues :
 | `DRIFT-IV-GOV-10` | `DONE` |
 | `DRIFT-IV-GOV-20` | `DONE` |
 | `DRIFT-IV-GOV-30` | `DONE` |
-| `DRIFT-IV-GOV-40` | `DONE_PENDING_MERGE` (this rebase resolution — ready to continue and commit) |
+| `DRIFT-IV-GOV-40` | `DONE` (merged, PR #33, commit `99eacbe`) |
 | `DRIFT-IV-BY-EUX-00` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BY-EUX-10` | `SATISFIED_BY_EXISTING_AUTHORITY` |
 | `DRIFT-IV-BASE-00` | `DONE` |
@@ -183,7 +183,11 @@ Interdictions absolues :
 | `DRIFT-IV-SYS-70` | `DONE` |
 | `DRIFT-IV-BY-EUX-20` | `DONE` |
 | `DRIFT-IV-BY-EUX-30` | `DONE` (owner-accepted, merged PR #32 at `b069d09`) |
-| `DRIFT-IV-PRE-00` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-GOV-40` merging — not started) |
+| `DRIFT-IV-PRE-00` | `DONE_PENDING_MERGE` (active lot — canonical artistic reconciliation and owner acceptance, see `docs/evidence/DRIFT-IV-PRE-00/`) |
+| `DRIFT-IV-PRE-10` | `READY_AFTER_MERGE` (blocked only on `DRIFT-IV-PRE-00`'s own merge) |
+| `DRIFT-IV-PRE-20` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-PRE-10`) |
+| `DRIFT-IV-PRE-30` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-PRE-20`) |
+| `DRIFT-IV-PRE-40` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-PRE-30`) |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -205,7 +209,7 @@ Interdictions absolues :
 
 `DRIFT-IV-SYS-70` livre le harness de preuve/performance générique (`src/lib/drift3dEvidence.ts` : quatre classifications canoniques frozen, snapshot de performance `canvasPresent`/`cumulativeFrameCount`/`render`/`viewport`/`visibility` avec la règle stricte `canvasPresent: false ⟹ render/viewport: null`, calcul FPS pur `computeDrift3DFps` sans arrondi ni coercition, échantillonnage `begin`/`end` sans minuteur interne, référence runtime stable sans historique non borné, validateurs structurels ne vérifiant jamais un seuil de performance), alimenté par un frame probe R3F dev-only zéro-allocation (`Drift3DEvidenceProbe.tsx`, lisant `gl.info.render` indépendamment de `__drift3dRender` préexistant sans jamais le modifier), intégré minimalement dans `Drift3DCanvas.tsx` (montage dev-only du probe) et `Drift3DClient.tsx` (ref possédée au niveau shell via l'initialiseur paresseux de `useState`, harness dev `window.__drift3dEvidence`) — comportement vérifié : classifications, calcul FPS et validateurs structurels (**15 fixtures de snapshot — 1 valide + 14 invalides, couvrant les 12 types d'issue**, 12 fixtures d'échantillon FPS) tous `MEASURED`/`PASS` ; immutabilité confirmée y compris un cas limite `begin`/`end` réel ET un échantillon FPS non-null réel ; les deux fallbacks (reduced-motion, no-WebGL) confirmés avec `canvasPresent: false` honnête. Une limitation d'environnement rencontrée lors de la session de preuve initiale (`requestAnimationFrame` ne se déclenchant jamais dans l'onglet utilisé à ce moment-là) a été honnêtement documentée puis dépassée par une session de correction sur une vraie instance Chrome locale : snapshot Canvas actif réel, échantillon FPS de premier plan réel (`fps≈70.17`), mesure cross-zone réelle sur les quatre zones BASE-00 (chaque valeur correspondant exactement à l'historique), cycle de remontage Canvas réel (`cumulativeFrameCount` remis à `0` puis augmentant), et les onze globals dev historiques confirmés présents et fonctionnels — tous désormais `MEASURED`. Voir `docs/evidence/DRIFT-IV-SYS-70/evidence-performance-harness-evidence.md` pour le détail complet des deux sessions. Aucun seuil de performance canonique, aucune auto-sélection de Quality Tier, aucune télémétrie n'est livré par ce lot.
 
-**`BASE-00` à `SYS-70` sont tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-BY-EUX-20` **et** `DRIFT-IV-BY-EUX-30` sont désormais tous deux `DONE` — voir §7.1 (`BY-EUX-20` mergé PR #31 à `d2a1c15` ; `BY-EUX-30` owner-accepted et mergé PR #32 à `b069d09`, superseding l'état `PENDING_OWNER_REVIEW` précédemment enregistré ici). **`DRIFT-IV-GOV-40` lui-même est `DONE_PENDING_MERGE`** (cette résolution de rebase, prête à continuer et committer) — une fois mergé, le lot suivant devient `DRIFT-IV-PRE-00` (§8.2), non plus directement `DRIFT-IV-VF-MORNE-00`. `DRIFT-IV-PRE-00` reste `BLOCKED_BY_DEPENDENCY` sur le merge de `GOV-40` et n'est pas commencé.
+**`BASE-00` à `SYS-70` sont tous `DONE`. SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-BY-EUX-20`, `DRIFT-IV-BY-EUX-30` **et `DRIFT-IV-GOV-40`** sont désormais tous `DONE` — voir §7.1 (`BY-EUX-20` mergé PR #31 à `d2a1c15` ; `BY-EUX-30` owner-accepted et mergé PR #32 à `b069d09` ; `GOV-40` mergé PR #33 à `99eacbe`, corrigé `DRIFT-IV-PRE-00`, superseding l'état `DONE_PENDING_MERGE` précédemment enregistré ici). Le lot actif est désormais `DRIFT-IV-PRE-00` (§8.2) — réconciliation artistique canonique et acceptation propriétaire — non plus directement `DRIFT-IV-VF-MORNE-00`.
 
 ## 7.1 Détail EUX GAINENT
 
@@ -307,7 +311,7 @@ DRIFT-IV-BY-EUX-30
 
 | Lot | Gate produit | Type |
 |---|---|---|
-| `PRE-00` | **Canonical artistic reconciliation and owner acceptance** — the Track Atlas (27 segments), the Global Art Direction doctrine (including the density, human-presence, transition-principles, gold/silver and lambda-progression additions), all five Masterframe Briefs (New Signal `ACCEPT WITH GUARDRAIL`), the three owner-resolved artistic conflicts (Blossoming/Daymason/Hold The Light), Panthere's `P2`→`P3` reclassification, and this 153-lot resequencing itself — all owner-`ACCEPT`ed, final. **The owner's explicit final sign-off on the four newly-authored masterframe details is now given — no artistic content blocks this lot. The sole remaining dependency is `DRIFT-IV-GOV-40`'s own merge (see Dépendances below).** | Documentation / owner review only |
+| `PRE-00` | **Canonical artistic reconciliation and owner acceptance** — the Track Atlas (27 segments), the Global Art Direction doctrine (including the density, human-presence, transition-principles, gold/silver and lambda-progression additions), all five Masterframe Briefs (New Signal `ACCEPT WITH GUARDRAIL`), the three owner-resolved artistic conflicts (Blossoming/Daymason/Hold The Light), Panthere's `P2`→`P3` reclassification, and this 153-lot resequencing itself — all owner-`ACCEPT`ed, final. **`DRIFT-IV-GOV-40` has since merged (PR #33, `99eacbe`, corrected — this row previously read "the sole remaining dependency is GOV-40's own merge"); all dependencies are now satisfied and `PRE-00` is itself the active lot recording its own gate result (see Dépendances below and `docs/evidence/DRIFT-IV-PRE-00/`).** | Documentation / owner review only |
 | `PRE-10` | **Redefined:** production and owner acceptance of **five real visual masterframes** — actual rendered or concept-art reference images for Entry/Birth Yard/Older Shadows/Vegetative Field/New Signal. The text briefs in `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md` are this lot's own input spec, not its deliverable. | **Real visual-production lot** (a meaningful scope change from the prior text-only review) |
 | `PRE-20` | Licensed asset/provenance registry and import evaluation: evaluates the `REFERENCE` candidates in `docs/DRIFT_3D_ASSET_REUSE_MATRIX.md`, obtains and records real licence/provenance evidence, promotes confirmed items to `ADOPT`/`PILOT`. No asset adopted without recorded licence/provenance (standing rule, `DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md` §8.2) | **Real runtime/asset lot** |
 | `PRE-30` | **Redefined:** representative shared-kit pilots across three domain groups — **urban/human** (Urban, Human/Crowd, Animation, Interior Kits), **nature/movement** (Terrain/Road, Mountain, Vegetation, Vehicle/Traffic Kits), **water/weather/light** (Water, Weather, Lighting/Material Kits) — proven by migrating EUX GAINENT's own existing one-offs onto whichever pilot each touches, per the migration map's `GENERALIZE`/`REWORK` classifications. Machine/Prop, Signage/Screen, Secondary-Life and Transition Kits are built opportunistically within these three pilots, not as a separate fourth group. Does not touch EUX GAINENT's approved cue/audio/signature identity | **Real runtime lot** (broadened from the prior two-kit-only definition) |
@@ -316,7 +320,7 @@ DRIFT-IV-BY-EUX-30
 Dépendances :
 
 ```text
-PRE-00 depends on: GOV-40 merged (the one remaining dependency — DRIFT-IV-BY-EUX-30's owner decision is now satisfied: DONE, merged PR #32 at b069d09; this correction's decision-session outcomes and the owner's final sign-off on the four flagged masterframe details are both incorporated and done)
+PRE-00 depends on: GOV-40 merged (satisfied — DONE, PR #33 at 99eacbe) and DRIFT-IV-BY-EUX-30's owner decision (satisfied — DONE, merged PR #32 at b069d09); this correction's decision-session outcomes and the owner's final sign-off on the four flagged masterframe details are both incorporated and done. All dependencies satisfied; PRE-00 itself is the active lot recording its own gate result (see docs/evidence/DRIFT-IV-PRE-00/).
 PRE-10 depends on: PRE-00 (redefined: now requires producing the five real visual masterframes, not only accepting the text briefs)
 PRE-20 depends on: PRE-10
 PRE-30 depends on: PRE-20 (needs real, licence-verified candidate assets across all three domain groups, not only Human/Crowd and Signage/Screen)
@@ -618,7 +622,7 @@ Arrêter une vague si :
 - régressions audio ;
 - reworks ;
 - dette artistique ;
-- lots canoniques exécutés / 147 ;
+- lots canoniques exécutés / 153 (corrigé, `DRIFT-IV-PRE-00` : ce dénominateur lisait encore `147`, la valeur pré-`GOV-40`, non mise à jour après le resequencing v4.0 — voir §4) ;
 - aliases retirés référencés par erreur / 0 attendu.
 
 ---
@@ -689,8 +693,9 @@ Aucun autre document actif ne déclare une autre « première séquence » comme
 
 ```text
 DRIFT-IV-BY-EUX-30 — DONE — MERGED (PR #32, main@b069d09), owner-accepted
-→ DRIFT-IV-GOV-40 — DONE_PENDING_MERGE (this rebase resolution, ready to continue and commit)
-→ DRIFT-IV-PRE-00 — Reference-frame ratification, BLOCKED_BY_DEPENDENCY on GOV-40 merging (not started)
+→ DRIFT-IV-GOV-40 — DONE, MERGED (PR #33, main@99eacbe)
+→ DRIFT-IV-PRE-00 — Canonical artistic reconciliation and owner acceptance, DONE_PENDING_MERGE (active lot, see docs/evidence/DRIFT-IV-PRE-00/)
+→ DRIFT-IV-PRE-10 — READY_AFTER_MERGE, blocked only on PRE-00's own merge
 ```
 
 Documentation seulement pour `DRIFT-IV-GOV-40`, y compris cette résolution de rebase. Aucun runtime, asset, audio, cue, node, collider ou caméra n'est modifié par ce lot. `PRE-20`/`PRE-30` (§8.2) seront les premiers lots de ce nouveau groupe à toucher le runtime, et seulement après ratification propriétaire de `PRE-00`/`PRE-10`, elles-mêmes bloquées jusqu'au merge de `GOV-40`.

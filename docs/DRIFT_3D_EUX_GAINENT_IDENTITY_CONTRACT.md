@@ -11,13 +11,15 @@
 This contract specializes the Living Track Matrix for EUX GAINENT. It dominates older generic descriptions of the scene while remaining subordinate to the Product Spec, Living World Bible and Living Track Matrix. It defines intent and acceptance, not delivered runtime behavior.
 
 **Runtime status:**
-Implementation lot: `DRIFT-IV-BY-EUX-20` (PR #31)
+Implementation lot: `DRIFT-IV-BY-EUX-20` — `DONE`, merged `main`, PR #31, commit `d2a1c15`
 (`src/lib/drift3dEuxGainent.ts`, `EuxGainentLivingScene.tsx`,
 `EuxGainentFallbackScene.tsx` — see `docs/evidence/DRIFT-IV-BY-EUX-20/`).
-Build implementation exists; repository/PR state remains authoritative
-for whether that build has been merged to `main`. Owner acceptance
-remains pending in `DRIFT-IV-BY-EUX-30`.
-No decision in this contract was reopened or altered by the build.
+Owner acceptance lot: `DRIFT-IV-BY-EUX-30` — `DONE`, merged `main`, PR #32, commit
+`b069d09` (`docs/evidence/DRIFT-IV-BY-EUX-30/`, `docs/ACTIVE_LOT.md`). The owner's
+final verdict: `EUX GAINENT = ACCEPTED`, `PROOF SLICE 1 = ACCEPTED` (corrected,
+`DRIFT-IV-PRE-00`, superseding the prior "acceptance remains pending" note left
+un-updated after the merge).
+No decision in this contract was reopened or altered by the build or its acceptance.
 
 ## 1. North Star
 

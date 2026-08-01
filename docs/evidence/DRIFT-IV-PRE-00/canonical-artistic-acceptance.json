@@ -1,0 +1,180 @@
+{
+  "lot": "DRIFT-IV-PRE-00",
+  "title": "Canonical artistic reconciliation and owner acceptance",
+  "branch": "drift-iv-pre-00-canonical-artistic-acceptance",
+  "type": "DOCUMENTATION_AND_EVIDENCE_ONLY",
+  "no_runtime_asset_image_audio_or_cue_file_changed": true,
+  "no_visual_masterframe_produced": true,
+  "baseline": {
+    "head": "99eacbe7cb47ecefaee31fee74faff058b9badd8",
+    "main": "99eacbe7cb47ecefaee31fee74faff058b9badd8",
+    "merge_base_equals_head_and_main": true
+  },
+  "merged_commits": [
+    { "lot": "DRIFT-IV-GOV-40", "pr": 33, "commit": "99eacbe7cb47ecefaee31fee74faff058b9badd8" },
+    { "lot": "DRIFT-IV-BY-EUX-30", "pr": 32, "commit": "b069d09d636318bb711694d4c948af851143b947" },
+    { "lot": "DRIFT-IV-BY-EUX-20", "pr": 31, "commit": "d2a1c15f0d22205f3cc117cdeaed35fa61ab680d" }
+  ],
+  "owner_decisions": [
+    { "decision": "Global artistic direction", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md" },
+    { "decision": "Entry masterframe brief", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#1" },
+    { "decision": "Birth Yard masterframe brief", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#2" },
+    { "decision": "Older Shadows masterframe brief", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#3" },
+    { "decision": "Vegetative Field masterframe brief", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#4" },
+    { "decision": "New Signal masterframe brief", "verdict": "ACCEPTED_WITH_GUARDRAIL", "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#5" },
+    { "decision": "Blossoming conflict", "verdict": "HYBRID_ACCEPTED", "source": "docs/DRIFT_3D_ERA_TRACK_ATLAS.md" },
+    { "decision": "Daymason conflict", "verdict": "HYBRID_ACCEPTED", "source": "docs/DRIFT_3D_ERA_TRACK_ATLAS.md" },
+    { "decision": "Hold The Light conflict", "verdict": "HYBRID_ACCEPTED", "source": "docs/DRIFT_3D_ERA_TRACK_ATLAS.md" },
+    { "decision": "Panthere reclassification", "verdict": "P2_TO_P3", "source": "docs/DRIFT_3D_LIVING_TRACK_MATRIX.md#5.10" },
+    { "decision": "Progressive lambda doctrine", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md#11" },
+    { "decision": "153-lot resequencing", "verdict": "ACCEPTED", "source": "docs/DRIFT_3D_INTEGRAL_BACKLOG.md#4" }
+  ],
+  "new_signal_guardrail": {
+    "verified_present_verbatim_in": [
+      "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md#5",
+      "docs/DRIFT_3D_ERA_TRACK_ATLAS.md"
+    ],
+    "rules": [
+      "One real geography dominates each frame",
+      "Other worlds appear only as reflection, light, signal, distant silhouette, weather, material, trace or brief memory",
+      "No literal accumulation of landmarks",
+      "No checklist or museum panorama",
+      "Étééaooété remains radically simple in perception"
+    ]
+  },
+  "segment_coverage": {
+    "entry_ambient": 1,
+    "birth_yard": 5,
+    "older_shadows": 5,
+    "vegetative_field": 5,
+    "new_signal": 11,
+    "catalogue_tracks_total": 26,
+    "segments_total": 27,
+    "each_segment_appears_exactly_once": true
+  },
+  "atlas_field_completeness": {
+    "entries_audited": 27,
+    "required_fields": [
+      "personal_meaning", "spatial_anchor", "normal_activity", "anomaly", "signature",
+      "source_traceability", "shared_versus_unique_needs", "prohibited_interpretation",
+      "fallback_identity", "acceptance_criteria"
+    ],
+    "missing_fields_found": 0,
+    "gate_failures": 0,
+    "note": "Owner acceptance frame (acceptance criteria) is a process-status field; only Eux Gainent, Morne Et? and Étééaooété carry a full vertical-slice spec, the other 24 correctly read 'not yet started' — not a missing field, not invented here.",
+    "conflict_fields_resolved": {
+      "blossoming": "RESOLVED — OWNER-DECIDED HYBRID",
+      "daymason": "RESOLVED — OWNER-DECIDED HYBRID",
+      "hold_the_light": "RESOLVED — OWNER-DECIDED HYBRID"
+    }
+  },
+  "masterframe_brief_audit": {
+    "status": "CORRECTED — waiver withdrawn, 75/75 achieved",
+    "checklist_source": "DRIFT-IV-PRE-00 scope letter, 15 items",
+    "prior_waiver_withdrawn": true,
+    "prior_waiver_reason_rejected_by_owner": "PRE-00's gate does not authorize waiving an explicit-field requirement merely because the underlying artistic content was already accepted.",
+    "correction_applied": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md now carries an explicit numbered Canonical field block (15/15) per masterframe, extracted/normalized from already-accepted prose plus DRIFT_3D_GLOBAL_ART_DIRECTION.md, DRIFT_3D_ERA_TRACK_ATLAS.md and DRIFT_3D_SHARED_KIT_ARCHITECTURE.md. No frame redesigned, no new artistic decision made.",
+    "deterministic_count": {
+      "masterframes": 5,
+      "required_fields_per_masterframe": 15,
+      "total_required": 75,
+      "total_present": 75,
+      "verification_method": "grep for numbered pattern 'N. **<Field>:**' in docs/DRIFT_3D_MASTERFRAME_BRIEFS.md, once per field per masterframe (1-15 x 5 = 75, each count = 5)"
+    },
+    "field_list_in_order": [
+      "player_viewpoint", "foreground", "middle_ground", "horizon", "geography_architecture",
+      "human_activity", "materials", "light", "weather", "movement", "anomaly",
+      "lambda_treatment", "reusable_kits", "density", "mobile_fallback"
+    ],
+    "invented_artistic_decisions": 0,
+    "honest_non_blocking_sourcing_gaps": [
+      {
+        "frame": "Older Shadows",
+        "field": "reusable_kits",
+        "gap": "Lighting/Material Kit confirmed only at Shared Kit Architecture level (§2.12), not yet threaded into any Older Shadows Atlas entry.",
+        "field_still_populated": true
+      },
+      {
+        "frame": "Vegetative Field",
+        "field": "reusable_kits",
+        "gap": "Human/Crowd Kit and Animation Kit confirmed only at Shared Kit Architecture level (§2.8/§2.9), not yet threaded into any Vegetative Field Atlas entry.",
+        "field_still_populated": true
+      }
+    ],
+    "treated_as_gate_failure": false,
+    "reasoning": "Both gaps name a missing per-track Atlas citation for one additional kit, not an empty or invented field; the reusable_kits field itself is populated with real, cited kit names in both frames. Assigned as non-blocking follow-up, not resolved here."
+  },
+  "authority_consistency_sweep": {
+    "panthere_p2_contradiction": "NONE_FOUND",
+    "blossoming_daymason_holdthelight_unresolved_conflict": "NONE_FOUND",
+    "by_eux_30_unmerged_statements": {
+      "result": "FOUND_AND_CORRECTED",
+      "files_corrected": [
+        "docs/DRIFT_3D_EUX_GAINENT_IDENTITY_CONTRACT.md",
+        "docs/DRIFT_3D_EUX_GAINENT_CUE_MAP.md"
+      ]
+    },
+    "gov_40_unmerged_statements": {
+      "result": "FOUND_AND_CORRECTED",
+      "files_corrected": [
+        "docs/ACTIVE_LOT.md",
+        "docs/DRIFT_3D_INTEGRAL_BACKLOG.md",
+        "docs/DRIFT_3D_GOV40_RECONCILIATION.md",
+        "docs/DRIFT_3D_GOV40_OWNER_REVIEW_PACK.md",
+        "docs/DRIFT_3D_PRODUCT_SPEC.md",
+        "AGENTS.md",
+        "docs/DRIFT_DOCUMENTATION_MAP.md"
+      ]
+    },
+    "one_active_backlog_confirmed": true,
+    "canonical_total_lots": 153,
+    "next_lot_after_pre_00_merge": "DRIFT-IV-PRE-10",
+    "additional_staleness_found_during_validation_sweep_and_corrected": [
+      {
+        "file": "docs/DRIFT_3D_INTEGRAL_BACKLOG.md",
+        "location": "§8.2 PRE-00 row",
+        "issue": "Stated 'the sole remaining dependency is DRIFT-IV-GOV-40's own merge', written before that merge, contradicting the same document's own Dependances section which already said the dependency was satisfied.",
+        "corrected_to": "States the dependency is satisfied and PRE-00 is itself the active lot recording its own gate result."
+      },
+      {
+        "file": "docs/DRIFT_3D_INTEGRAL_BACKLOG.md",
+        "location": "§17 Metriques, 'lots canoniques executes' denominator",
+        "issue": "Denominator still read /147, the pre-GOV-40 total, not updated after the v4.0 resequencing to 153.",
+        "corrected_to": "/153, with an inline note explaining the correction."
+      }
+    ]
+  },
+  "remaining_non_blocking_tbds": [
+    { "tbd": "Nine unnamed silent archetypes (of twelve)", "assigned_to": "Future segment Identity Contract or PRE-* lot" },
+    { "tbd": "TIME and RELATIVE motif/population candidates", "assigned_to": "Each track's own future Identity Contract" },
+    { "tbd": "Detailed visual production choices", "assigned_to": "DRIFT-IV-PRE-10" },
+    { "tbd": "Exact external asset adoption and licence evidence", "assigned_to": "DRIFT-IV-PRE-20" },
+    { "tbd": "Runtime kit implementation", "assigned_to": "DRIFT-IV-PRE-30" },
+    { "tbd": "Five real visual masterframes", "assigned_to": "DRIFT-IV-PRE-10" },
+    { "tbd": "Macro-world greybox", "assigned_to": "DRIFT-IV-PRE-40" },
+    { "tbd": "Lighting/Material Kit not threaded into any Older Shadows Atlas entry; Human/Crowd Kit and Animation Kit not threaded into any Vegetative Field Atlas entry", "assigned_to": "A future track Identity Contract, or the relevant kit's own DRIFT-IV-PRE-30 pilot" }
+  ],
+  "masterframe_checklist_no_longer_a_tbd": true,
+  "gate_result": {
+    "decision": "PASS",
+    "corrected": true,
+    "prior_gate_withheld_reason": "First pass reported PASS while waiving the masterframe 15-field checklist's gaps; owner rejected the waiver.",
+    "conditions": {
+      "all_27_segments_present_exactly_once": true,
+      "all_mandatory_atlas_fields_present": true,
+      "all_five_briefs_carry_explicit_15_of_15_field_block_75_of_75": true,
+      "all_explicit_owner_decisions_represented_canonically": true,
+      "no_active_authority_conflict_remains": true,
+      "backlog_total_exactly_153": true,
+      "no_second_active_backlog_exists": true,
+      "no_runtime_asset_image_audio_or_cue_file_changed": true,
+      "no_visual_masterframe_image_produced": true,
+      "no_new_artistic_decision_made_to_reach_75_of_75": true
+    },
+    "final_status": "DRIFT-IV-PRE-00 = DONE_PENDING_MERGE",
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false,
+    "pre_10_started": false
+  }
+}

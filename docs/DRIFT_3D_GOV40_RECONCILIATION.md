@@ -1,7 +1,7 @@
 # DRIFT-IV-GOV-40 — Reconciliation Ledger
 
 **Status:** `GOVERNANCE RECONCILIATION RECORD` — `ALL OWNER DECISIONS FINAL, READY TO COMMIT` — supports `DRIFT_3D_GLOBAL_ART_DIRECTION.md`, `DRIFT_3D_ERA_TRACK_ATLAS.md`, `DRIFT_3D_ASSET_REUSE_MATRIX.md`, `DRIFT_3D_MASTERFRAME_BRIEFS.md`, `DRIFT_3D_SHARED_KIT_ARCHITECTURE.md`, `DRIFT_3D_RUNTIME_MIGRATION_MAP.md`, the `DRIFT_3D_INTEGRAL_BACKLOG.md` v4.0 resequencing (`PRE-*` redefined), and this final pass's corrections to `DRIFT_3D_LIVING_TRACK_MATRIX.md` (PANTHERE `P3`) and `DRIFT_3D_PRODUCT_SPEC.md` (EUX GAINENT branch/commit state).
-**Not an execution sequence.** Documentation-only. No runtime, asset, audio, cue, node, collider, or camera change. `PRE-00` not started; this lot is ready to commit, not merged, not delivered.
+**Not an execution sequence.** Documentation-only. No runtime, asset, audio, cue, node, collider, or camera change. `DRIFT-IV-GOV-40` is `DONE — MERGED` (PR #33, commit `99eacbe`, corrected `DRIFT-IV-PRE-00`). `DRIFT-IV-PRE-00` is the active lot verifying this document's own claims against the merged repository — see `docs/evidence/DRIFT-IV-PRE-00/canonical-artistic-acceptance.md`.
 
 Every statement in the GOV-40 deliverables is tagged here:
 
