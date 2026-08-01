@@ -34,25 +34,34 @@ DRIFT 3D LIVING WORLD BIBLE
 DRIFT 3D LIVING TRACK MATRIX
   vision track par track — active, reconciled on main 2026-07-16
 
+DRIFT 3D GLOBAL ART DIRECTION
+  doctrine transversale (ratio réalisme/contamination/impossible, densité, λ, anti-patterns) — active, reconciled in GOV-40 ; index/synthèse, ne contredit jamais la Realism Bible ou la Living World Bible
+
+DRIFT 3D ERA TRACK ATLAS
+  atlas complet des 27 segments (15 champs) — active preliminary matrix, GOV-40 ; à lire avant DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md pour tout futur Identity Contract
+
 APPROVED TRACK IDENTITY CONTRACTS
   autorité artistique locale
-  EUX GAINENT contract: APPROVED LOCAL ARTISTIC AUTHORITY — runtime build: DRIFT-IV-BY-EUX-20 ; owner acceptance: DRIFT-IV-BY-EUX-30
+  EUX GAINENT contract: APPROVED LOCAL ARTISTIC AUTHORITY — runtime build: DRIFT-IV-BY-EUX-20 (DONE, merged PR #31) ; owner acceptance: DRIFT-IV-BY-EUX-30 (DONE, merged PR #32 at b069d09)
 
 DRIFT 3D INTEGRAL WORLD PROGRAM
   programme directeur de production
 
 DRIFT 3D INTEGRAL SYSTEMS ARCHITECTURE
-  architecture cible, jamais vérité runtime automatique
+  architecture cible (couche comportementale/temporelle), jamais vérité runtime automatique
+
+DRIFT 3D SHARED KIT ARCHITECTURE
+  architecture cible (couche actifs/contenu : 15 kits), jamais vérité runtime automatique — GOV-40, complémentaire de l'Integral Systems Architecture
 
 ERA / TRANSITION CONTRACTS
   active era-level authorities created in GOV-20
 
 APPROVED CUE MAPS
   autorité temporelle et musicale
-  EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up required — runtime build: DRIFT-IV-BY-EUX-20 ; owner acceptance: DRIFT-IV-BY-EUX-30
+  EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up closed out under BY-EUX-30's acceptance — runtime build: DRIFT-IV-BY-EUX-20 (DONE, merged PR #31) ; owner acceptance: DRIFT-IV-BY-EUX-30 (DONE, merged PR #32 at b069d09)
 
 DRIFT 3D INTEGRAL BACKLOG
-  FINALIZED ACTIVE DIRECTOR BACKLOG — 147 canonical executable lots, 5 retired VS aliases
+  FINALIZED ACTIVE DIRECTOR BACKLOG, resequenced by GOV-40 — 153 canonical executable lots (147 + GOV-40 + 5 new PRE-* reuse-first gates), 5 retired VS aliases
 
 ACTIVE LOT
   unique périmètre exécutable immédiat
@@ -61,6 +70,7 @@ ACTIVE LOT
 Le programme organise la livraison. Il ne réinterprète jamais un contrat artistique déjà accepté.
 Le code reste l'autorité de l'état réellement livré.
 Une autorité artistique ou temporelle approuvée (Living World Bible, Living Track Matrix, Identity Contract, Cue Map) ne prouve jamais que son runtime est livré sur `main` — voir `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
+Depuis `DRIFT-IV-GOV-40` : un ensemble de kits d'actifs/contenu partagés (`docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md`) est désormais défini et priorisé **avant** la reprise du travail track par track, via le groupe de gates `DRIFT-IV-PRE-00` à `PRE-40` — voir `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` §8.2 et `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.1. Aucune décision artistique déjà approuvée n'est réouverte par ce changement de séquencement.
 
 Voir `docs/DRIFT_DOCUMENTATION_MAP.md` pour le rôle, le statut et l'autorité de chaque document.
 
@@ -130,9 +140,10 @@ Règles de lecture :
 - Un seul identifiant canonique de `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` peut devenir `ACTIVE_LOT` à la fois.
 - `VS1` / `VS2` / `VS3` (« vertical slice ») désignent des rôles de preuve, jamais des lots exécutables.
 - Les anciens identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` sont `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne peuvent plus nommer une branche, une PR ni un commit.
-- `DRIFT-IV-BASE-00`, `DRIFT-IV-SYS-00`, `DRIFT-IV-SYS-10`, `DRIFT-IV-SYS-20`, `DRIFT-IV-SYS-30`, `DRIFT-IV-SYS-40`, `DRIFT-IV-SYS-50`, `DRIFT-IV-SYS-60` et `DRIFT-IV-SYS-70` sont `DONE` — **SHARED PRE-GATE FOUNDATION COMPLETE**. `DRIFT-IV-BY-EUX-20` est le seul prochain lot résolu sans ambiguïté (`DRIFT_3D_INTEGRAL_BACKLOG.md` §9).
+- `DRIFT-IV-BASE-00`, `DRIFT-IV-SYS-00`, `DRIFT-IV-SYS-10`, `DRIFT-IV-SYS-20`, `DRIFT-IV-SYS-30`, `DRIFT-IV-SYS-40`, `DRIFT-IV-SYS-50`, `DRIFT-IV-SYS-60`, `DRIFT-IV-SYS-70`, `DRIFT-IV-BY-EUX-20` **et `DRIFT-IV-BY-EUX-30`** sont `DONE` (`BY-EUX-30` mergé PR #32 à `b069d09`, owner-accepted) — **SHARED PRE-GATE FOUNDATION COMPLETE.** `DRIFT-IV-GOV-40` est `DONE_PENDING_MERGE` (rebase resolution) ; **une fois `GOV-40` mergé, le lot suivant devient `DRIFT-IV-PRE-00`** (`BLOCKED_BY_DEPENDENCY` jusque-là, pas commencé), pas directement une nouvelle track (`DRIFT_3D_INTEGRAL_BACKLOG.md` §8.2/§20).
 - Pour comprendre l'origine et le mapping des aliases retirés, lire conditionnellement `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` (rapport de réconciliation de gouvernance, pas un backlog).
 - `docs/DRIFT_3D_RUNTIME_BASELINE.md` fait autorité comme baseline runtime jusqu'à révision par la preuve propre d'un lot Build ; il distingue explicitement ce qui est `MEASURED` de ce qui est `INFERRED_FROM_REPRESENTATIVE_SAMPLE` — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le détail.
+- **Aucun lot d'implémentation de track ne peut commencer avant l'acceptation propriétaire de `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` et `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md`** (`DRIFT-IV-PRE-00`) — règle explicite de `DRIFT-IV-GOV-40`.
 
 ---
 

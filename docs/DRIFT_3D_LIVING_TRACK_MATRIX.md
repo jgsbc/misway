@@ -428,7 +428,9 @@ Une track ne doit pas recevoir plusieurs anomalies concurrentes.
 | réaction musicale | consonnes et attaques = griffures ; basses = déplacement de l’ombre ; silence = disparition |
 | boucles de vie | herbes ; reflets ; poussière courte |
 | folie | 3 |
-| priorité | P2, validation artistique requise |
+| priorité | P3 |
+
+> **GOV-40 reconciliation note (`DRIFT-IV-GOV-40`, owner decision session, 2026-08-01):** this row previously read "P2, validation artistique requise" — an internally inconsistent hybrid of two vocabulary values (§0's own legend defines `P2` as "deuxième vague" only; the validation clause belongs to `P3`'s own existing definition). Reclassified to a clean `P3` by explicit owner decision. Required validation, owner-scoped: (1) the feline shadow remains a possible presence, never a mascot; (2) the *en*/*r* phonetic material (panthère, enterre, qu'en faire, enchaîne, entraîne) surfaces as environmental rhythm — an ambient, cadence-level quality of the track's world — never as explained or readable wordplay. PANTHERE is removed from the "Vague 2" list below accordingly (§ "Vague 2 — systèmes plus spécifiques"), consistent with `P3`'s own existing scope (compare DAYMASON, similarly `P3` and similarly absent from both wave lists). No other content on this page is altered by this note — see `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` and `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.6/§2 for the full reconciliation.
 
 ## 5.11 ÉTÉÉAOOÉTÉ
 
@@ -637,8 +639,9 @@ Prouver océan, vagues, écume, traces, mémoire, rituel et spectacle retenu.
 6. TIME ;
 7. NEEKTAREUM ;
 8. RELATIVE ;
-9. TELATELABA ;
-10. PANTHERE.
+9. TELATELABA.
+
+*(PANTHERE retirée de cette liste — `DRIFT-IV-GOV-40`, reclassifiée `P3`, voir la note de réconciliation §5.10 ; comme DAYMASON, également `P3`, elle ne figure dans aucune des deux listes de vagues.)*
 
 ## Vague 3 — harmonisation
 
