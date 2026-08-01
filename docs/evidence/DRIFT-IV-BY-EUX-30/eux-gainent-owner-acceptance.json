@@ -1,0 +1,236 @@
+{
+  "lot": "DRIFT-IV-BY-EUX-30",
+  "baselineSha": "d2a1c15f0d22205f3cc117cdeaed35fa61ab680d",
+  "ownerReviewDate": "2026-07-27",
+  "method": "Owner opened /drift in their own real local browser, explicitly launched the EUX GAINENT track from the player, watched a full pass without opening dev probes, then gave a spontaneous reading in their own words.",
+  "reviews": [
+    {
+      "reviewNumber": 1,
+      "type": "first-pass spontaneous reading",
+      "ownerQuote": {
+        "firstImpression": "ce n'est pas assez actif, ca ne bouge pas assez, c'est mou. hormis les textes sur l'écran qui sont une bonne idée mais pas assez travaillée. j'ai l'impression qu'on est loin de la loufoquerie et du réalisme graphique et design souhaité.",
+        "reallyMISWAY": "l'intention mais on est loin de l'attendu"
+      },
+      "otherProtocolFieldsCompleted": false,
+      "note": "Other first-pass fields (strongest/weakest moment, unclear points, too explicit/too subtle) were not filled by the owner at this stage — not fabricated here.",
+      "derivedObservations": {
+        "activityMotion": "insufficient",
+        "graphicRealism": "insufficient",
+        "designFinish": "insufficient",
+        "loufoquerie": "insufficient",
+        "textDisplayConcept": "promising but under-designed",
+        "miswayIdentity": "intention perceived, execution insufficient"
+      },
+      "artisticScores0to4": null,
+      "artisticScoresNote": "Not requested/given at this stage — no scores fabricated.",
+      "northStarTest": "not yet performed",
+      "cueByCueListening": "not yet performed",
+      "functionalQA": "not yet performed",
+      "mobileQA": "not yet performed",
+      "reducedMotionQA": "not yet performed",
+      "noWebglQA": "not re-tested this round (unchanged from BY-EUX-20 unless rework touches the fallback)",
+      "performanceQA": "not yet performed",
+      "ownerDecision": {
+        "technicalFoundation": "ACCEPTED",
+        "artistic": "REWORK_REQUIRED"
+      }
+    },
+    {
+      "reviewNumber": 2,
+      "type": "candidate V2 review",
+      "ownerQuote": "C'est encore un peu mou. on distingue un peu mieux la salle de sport mais ce n'est pas encore assez vivant. la loufoquerie est quasi invisible. il manque du fond (texte profond à l'écran pour que cela ressemble à MISWAY)",
+      "derivedObservations": {
+        "motion": "still insufficient",
+        "gymReadability": "improved but insufficient",
+        "livingDensity": "insufficient",
+        "loufoquerie": "almost absent",
+        "screenConcept": "still promising",
+        "screenSemanticDepth": "insufficient",
+        "miswayPersonality": "insufficient"
+      },
+      "v2Strengths": [
+        "gym somewhat more readable than V1",
+        "screen (dominant word) concept remains promising, not rejected"
+      ],
+      "v2Failures": [
+        "still too soft/motion insufficient",
+        "insufficient living density (secondary life present in code but not perceptible)",
+        "loufoquerie almost invisible",
+        "insufficient screen semantic depth"
+      ],
+      "artisticScores0to4": null,
+      "artisticScoresNote": "Not requested/given at this stage — no scores fabricated.",
+      "ownerDecision": {
+        "technicalFoundation": "ACCEPTED",
+        "artistic": "REWORK_REQUIRED"
+      }
+    }
+  ],
+  "cueTimestampAdjustments": [],
+  "lotStatus": {
+    "byEux30": "REWORK_REQUIRED",
+    "euxGainent": "NOT_ACCEPTED",
+    "proofSlice1": "NOT_YET_ACCEPTED"
+  },
+  "requiredFollowUp": [
+    "Realism pass: athletes, gym equipment, materials, glass storefront",
+    "Rework glass display language (vocabulary unchanged, materialization redesigned)",
+    "Motion pass: idle life, three layers of life, physical CADENCE/ÉCART/CORRECTION",
+    "Amplify signature perceptual contrast and interior reference-frame shift",
+    "Livelier aftermath/residue",
+    "No cue timestamp changed at this stage"
+  ],
+  "knownLimitations": [
+    "This first pass only covered the spontaneous reading. Artistic scores, North Star test, cue-by-cue listening, and functional/mobile/reduced-motion/no-WebGL/performance QA remain NOT_YET_PERFORMED and will resume only after a V2 candidate the owner judges positively on the §26 gate questions."
+  ],
+  "reworkCandidateV2": {
+    "filesChanged": [
+      "src/components/drift-3d/EuxGainentLivingScene.tsx",
+      "src/components/drift-3d/EuxGainentAthlete.tsx (new)",
+      "src/components/drift-3d/EuxGainentStation.tsx (new)",
+      "src/lib/drift3dEuxGainentMaterials.ts (new)"
+    ],
+    "filesUnchanged": ["src/lib/drift3dEuxGainent.ts (zero lines changed)"],
+    "noCueTimestampChanged": true,
+    "realismPass": {
+      "athletes": "cylinder+sphere replaced with authored low-poly human silhouette (pelvis/torso/head/2 arms/2 legs), posed per machine archetype; A/B/C legible only via posture/timing, no labels/colors/faces",
+      "stations": "three recognizable archetypes (treadmill/bike/rower) with base+mast+console+moving part, shared material family",
+      "materials": "solid colors replaced with procedural textures (rubber floor, brushed metal, black plastic) on all dynamic parts; static shell (facade/strip/floor) already used shared textured materials, unchanged",
+      "glass": "grime/micro-scratch overlay added in front of the existing facade, never replacing it"
+    },
+    "displayRework": {
+      "vocabularyUnchanged": ["CADENCE", "ÉCART", "CONFORMITÉ", "RENDEMENT", "OBJECTIF DÉPLACÉ"],
+      "newLook": "dark bezeled panel, low-contrast dot-matrix ground, glow+crisp tracked letters, replacing plain white monospace",
+      "consoleReadouts": "each station also shows small ordinary sport data (time/distance) derived deterministically from absoluteTimeSeconds, secondary to the one dominant glass word"
+    },
+    "motionPass": {
+      "athleteJoints": "arms/legs/torso driven by existing cycleValue*amplitude outputs, no new clock",
+      "machineMovingParts": "continuous rotation/oscillation modulated by amplitude, visibly slows/resumes for B during CUE_EUX_04_CORRECTION by reusing the existing amplitude dip",
+      "secondaryLifeLayers": [
+        "two ceiling fans (one syncs toward the other during cadence-lock through reference-inversion, then drifts again in aftermath/residue)",
+        "small towel conveyor (continuous, never a gag)",
+        "counter/dispenser ticking an unclear value, freezes exactly during aftermath-return/residue while fans/conveyor keep moving"
+      ],
+      "environmentIntegration": "deliberately not attempted this round (would require touching forbidden drift3dLandmarks.ts/drift3dTopology.ts) — relies on existing unchanged Birth Yard surroundings"
+    },
+    "signatureAmplification": {
+      "interiorShiftMaxPositionOldNew": [0.055, 0.22],
+      "interiorShiftMaxRotationOldNew": [0.012, 0.045],
+      "stripEmissiveIntensityAtSignatureOldNew": [0.85, 1.05],
+      "shellColliderNodeFootprintUnchanged": true
+    },
+    "technicalValidation": {
+      "tscNoEmit": "PASS",
+      "eslint": "PASS",
+      "nextBuild": "PASS (38/38 static pages)",
+      "compilerFixApplied": "props/ref-bucket mutation disallowed by React Compiler immutability rule — fixed by passing parent-owned ref callbacks instead of a shared bucket object"
+    },
+    "performance": {
+      "measuredBeforeFanSimplification": {
+        "canvasPresent": true,
+        "drawCalls": 292,
+        "triangles": 202210,
+        "viewport": { "width": 1278, "height": 854, "dpr": 1 },
+        "visibility": "hidden",
+        "position": [-62, 42]
+      },
+      "budgets": { "maxDrawCalls": 300, "maxTriangles": 1500000 },
+      "budgetStatus": "within budget (292/300 draw calls, 202210/1500000 triangles) before the further fan simplification",
+      "fanSimplification": "2 fans x (4 meshes -> 1 mesh) = -6 draw calls",
+      "calculatedPostSimplificationDrawCalls": 286,
+      "calculatedValueClassification": "CALCULATED_FROM_MEASUREMENT_PLUS_CODE_DELTA — not itself a fresh MEASURED value",
+      "freshLiveRemeasurementAttempted": true,
+      "freshLiveRemeasurementResult": "KNOWN_ENVIRONMENT_LIMITATION — document.visibilityState stuck hidden (or forced visible via test override without unblocking the real R3F render loop) across repeated real interaction spanning several minutes, multiple tabs; canvas mounted but cumulativeFrameCount/drawCalls stayed 0, screenshot showed a black canvas",
+      "foregroundFpsSampleDuringSignature": "not obtained this session (same limitation)"
+    },
+    "notYetPerformed": [
+      "artistic scores",
+      "North Star test",
+      "cue-by-cue listening",
+      "mobile QA",
+      "reduced-motion QA",
+      "fresh foreground FPS sample"
+    ]
+  },
+  "reworkCandidateV3": {
+    "objective": "Owner-formulated shift from 'three people exercising in a conceptual installation' to 'a real gym running at full tilt, whose measurement system then discreetly starts saying much stranger things about the people' — the physical world must become alive before the text becomes interesting.",
+    "filesChanged": [
+      "src/lib/drift3dEuxGainent.ts (one pure addition: resolveEuxGainentScreenState, zero lines changed in EUX_GAINENT_PHASES/EUX_GAINENT_CUES)",
+      "src/components/drift-3d/EuxGainentAthlete.tsx (added EUX_GAINENT_ARCHETYPE_MOTION export)",
+      "src/components/drift-3d/EuxGainentLivingScene.tsx (full V3 orchestration rewrite)",
+      "src/lib/drift3dEuxGainentMaterials.ts (getEuxGainentDisplayTexture replaced by getEuxGainentScreenTexture; getEuxGainentConsoleReadoutTexture extended to variable line count)",
+      "src/components/drift-3d/EuxGainentFallbackScene.tsx (renders headline + secondaryLines statically, no continuous motion added)"
+    ],
+    "noCueTimestampChanged": true,
+    "motionPass": {
+      "principle": "Three physically distinct archetypes driven by the same underlying cycleValue x amplitude already exposed by the pure model — no new clock, no second engine.",
+      "treadmillA": "large alternating contralateral arm/leg amplitude, shoulder/pelvis torsion, pronounced vertical bob",
+      "bikeB": "largest leg amplitude (pedaling), near-still arms (gripping handlebars), slight vertical knee-lift simulating the pedal's circular path",
+      "rowerC": "whole-body fore-aft seat slide (root group Z translation), large torso lean, arm pull, leg extension/retraction",
+      "convergenceMechanism": "all three archetypes share the same cycleValue frequency/phase-lock targets during cadence-lock, so very different gestures land on the same beat automatically once cadence locks — the 'three sports, one rhythm' loufoquerie effect, with no second motion engine"
+    },
+    "secondaryLifeVisibility": {
+      "fans": "enlarged/repositioned; different speeds pre-cadence, explicit convergenceBlend-driven convergence during cadence-lock, synchronized through the full signature window, slight desync recreated in aftermath/residue",
+      "towelConveyor": "track and towels enlarged, speed also driven by convergenceBlend (slower/irregular pre-cadence, steady after) — continues during signature",
+      "counterDispenser": "enlarged, repositioned for road visibility; freezes exactly at the start of aftermath-return while fans/conveyor keep moving",
+      "selfFoundBug": "dispenser freeze originally referenced EUX_GAINENT_PHASES[5] (a raw numeric index), which actually points to reference-inversion (138.800s) rather than aftermath-return (152.730s) — would have frozen the dispenser at the start of the signature window instead of its aftermath. Found and fixed during V3 authorship itself, before any browser testing, by replacing the raw index with a safe id-based lookup: EUX_GAINENT_PHASES.find(p => p.id === \"aftermath-return\"). tsc/lint re-run and PASS after the fix."
+    },
+    "consoleConvergence": {
+      "fields": ["TEMPS", "DIST", "CAD", "NIV"],
+      "preConvergence": "each archetype has its own base rate/level (e.g. treadmill 74, bike 86, rower 23) and its own time offset, convergenceBlend < 0.98",
+      "postConvergence": "once convergenceBlend >= 0.98 (measurement/deviation/correction/signature) all three consoles snap to the same shared rate/level and the same TEMPS/DIST — three different exercises suddenly producing identical output, B never individually named"
+    },
+    "screenGrammar": {
+      "function": "resolveEuxGainentScreenState(absoluteTimeSeconds, phaseId) — pure, additive, co-located with resolveEuxGainentDominantText",
+      "progression": "credible varying sport data pre-cadence (TEMPS/DIST./CAD./SÉRIE/GAIN, ~1/s) -> near-plausible bureaucratic fragments during cadence-lock/measurement (SÉRIE, TOLÉRANCE, RESTE) -> first explicit semantic anomaly (RESTE, never explained) -> PERTE --/DESTINATION -- during rendement/signature peak, where secondary lines briefly clear (+/-0.6s window around the analytical peak) leaving only OBJECTIF DÉPLACÉ alone -> hypocritically-normal aftermath with a residual micro-anomaly (RESTE 01) -> SÉRIE TERMINÉE / RESTE 01 in residue",
+      "dominantWordRule": "unchanged and unique — one dominant message maximum, secondary fragments never form a second signature phrase",
+      "performanceDiscipline": "one combined CanvasTexture (headline + grid + fragments + grime + alignment marks + refresh artifacts) per distinct state, built once and cached — never per text line, never per frame"
+    },
+    "correctionAndSignatureContrast": {
+      "correctionMarkerIntensity": "rising during deviation (0.35->0.9) then falling during correction-revelation (1->0.15), replacing V2's simple binary threshold with a readable notice/correct/release arc",
+      "signaturePoses": "larger V3 motion amplitudes make the pure model's existing freeze values (FREEZE_CYCLE_VALUE, unchanged) read as markedly more recognizable effort postures (e.g. C at 0.42 now reads as pronounced rower flexion) without any pure-model value changing",
+      "machinesVsHumans": "stations moving parts, fans, conveyor and consoles all continue visibly while bodies freeze — the frozen-humans/living-machines contrast now rests on much larger amplitudes on both sides"
+    },
+    "depthProps": {
+      "added": ["back wall treatment", "storage-rack silhouette", "bench"],
+      "principle": "large masses/silhouettes prioritized over small-prop accumulation, per owner instruction",
+      "excluded": "no city/route geometry added (would require touching forbidden drift3dLandmarks.ts/drift3dTopology.ts)"
+    },
+    "technicalValidation": {
+      "tscNoEmit": "PASS",
+      "eslint": "PASS",
+      "nextBuild": "PASS (38/38 static pages)"
+    },
+    "realBrowserQaAndPerformance": {
+      "attempted": true,
+      "attempts": "multiple real attempts across two distinct tabs and several cumulative minutes of real interaction (clicks, double-clicks, repeated WASD key presses, 8-10s waits at each step)",
+      "result": "KNOWN_ENVIRONMENT_LIMITATION — window.__drift3dEvidence.snapshot() stayed canvasPresent:false/cumulativeFrameCount:0; document.visibilityState stuck 'hidden' despite document.hasFocus()===true",
+      "definitiveDiagnostic": {
+        "method": "raw requestAnimationFrame counter over 2 real seconds",
+        "result": { "rafCount": 0, "visibility": "hidden" },
+        "conclusion": "confirms a real browser/OS-level compositor block (background/unfocused window at the OS level), not specific to React Three Fiber or this lot's code",
+        "devServerHealthCheck": "curl -> 200 on /drift/, confirmed healthy"
+      },
+      "consistentWith": "same limitation already encountered and documented for candidate V2 (see reworkCandidateV2.performance) and in SYS-70/BY-EUX-20",
+      "verifiedForV3": [
+        "full technical compilation (tsc/lint/build)",
+        "manual code review of convergence formulas, signature-peak blank-window bounds, dispenser freeze phase-id gating",
+        "no console errors observed on either tested tab",
+        "canvas DOM element confirmed present (no mount crash)"
+      ],
+      "notVisuallyVerifiedForV3": [
+        "real rendering of the new, larger motion amplitudes",
+        "real legibility of the screen grammar",
+        "real post-V3 draw-call/triangle measurement (depth props add a calculable but not re-measured delta)",
+        "idle/signature FPS sample"
+      ],
+      "rule": "Ne pas déclarer une mesure qui n'a pas été obtenue — no unobtained measurement is declared as obtained anywhere in this record."
+    },
+    "statusAfterV3": {
+      "technicalFoundation": "ACCEPTED",
+      "artistic": "REWORK_REQUIRED (pending review #3)",
+      "euxGainent": "NOT_ACCEPTED",
+      "proofSlice1": "NOT_YET_ACCEPTED"
+    }
+  }
+}
