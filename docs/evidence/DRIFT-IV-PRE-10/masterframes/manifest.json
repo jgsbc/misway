@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "filename": "new-signal.webp",
+      "source": "ChatGPT Image 2 août 2026, 11_23_37.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "acc0d3a4bf161370934cb69df8103021be63050168513cfe62cd1ac2a278876f",
+      "size_bytes": 316384
+    },
+    {
+      "filename": "vegetative-field.webp",
+      "source": "ChatGPT Image 2 août 2026, 11_23_16.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "8cb93fe3422096bc40fdf4dbf40a4b05f40fe9031bb3ac0e07a2a3f7ea24ab31",
+      "size_bytes": 397928
+    },
+    {
+      "filename": "older-shadows.webp",
+      "source": "ChatGPT Image 2 août 2026, 11_22_57.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "c48d3918ad053d67a97b91a191c2a2f4489785ddb87c7948559545318b3484f0",
+      "size_bytes": 554490
+    },
+    {
+      "filename": "birth-yard.webp",
+      "source": "ChatGPT Image 2 août 2026, 11_22_51.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "4ef1fafdff2a1983d1567c59830d0d32b42bad178f74968f1d5969c1aec980dd",
+      "size_bytes": 442222
+    },
+    {
+      "filename": "entry.webp",
+      "source": "ChatGPT Image 2 août 2026, 11_19_22.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "89041738365e6cd618d044b903bd2aa6c11343d68a4024a3af508ea8d9ef583a",
+      "size_bytes": 270892
+    }
+  ]
+}

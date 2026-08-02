@@ -1,0 +1,567 @@
+{
+  "lot": "DRIFT-IV-PRE-10",
+  "title": "Five real visual masterframes",
+  "branch": "drift-iv-pre-10-five-visual-masterframes",
+  "type": "CANDIDATES_INGESTED_TECHNICALLY_VALIDATED_VISUALLY_AUDITED",
+  "images_produced": 5,
+  "images_required": 5,
+  "images_produced_by": "external, outside this session (per accompanying manifest.json: ChatGPT image generation)",
+  "no_status_marked_done": true,
+  "no_placeholder_or_fake_image_created": true,
+  "no_replacement_imagery_generated_this_pass": true,
+  "no_image_auto_accepted": true,
+  "prior_blocking_reason_superseded": {
+    "summary": "The previous pass found no image-generation capability in this session and stopped with a production contract only. This pass ingests five candidates that were produced externally and placed under docs/evidence/DRIFT-IV-PRE-10/masterframes/ before this pass began.",
+    "capabilities_checked_previously": [
+      { "tool": "mcp__visualize__show_widget", "produces": "SVG or HTML/CSS", "verdict": "vector/DOM content, not photorealistic rendering; explicitly disallowed as a masterframe substitute" },
+      { "tool": "DesignSync", "produces": "HTML/CSS component library sync to claude.ai/design", "verdict": "not an image-generation tool" },
+      { "tool": "Bash/PowerShell", "produces": "n/a", "verdict": "no image-generation CLI or model installed in this repository or environment; package.json contains no render/AI-image dependency" },
+      { "tool": "Browser (Claude_Browser)", "produces": "n/a", "verdict": "could only reach a third-party external image-generation website; inappropriate to use unsupervised in place of a real, owner-directed production pipeline given this lot's own external-asset constraints" }
+    ]
+  },
+  "baseline": {
+    "branch": "drift-iv-pre-10-five-visual-masterframes",
+    "head": "8a74a3170712d00274fe8d6b596875f829170f06",
+    "main": "8a74a3170712d00274fe8d6b596875f829170f06",
+    "clean_working_tree_confirmed": true,
+    "merged_prerequisite_lots": [
+      { "lot": "DRIFT-IV-PRE-00", "pr": 34, "commit": "8a74a3170712d00274fe8d6b596875f829170f06" },
+      { "lot": "DRIFT-IV-GOV-40", "pr": 33, "commit": "99eacbe7cb47ecefaee31fee74faff058b9badd8" },
+      { "lot": "DRIFT-IV-BY-EUX-30", "pr": 32, "commit": "b069d09d636318bb711694d4c948af851143b947" }
+    ],
+    "masterframe_briefs_75_of_75_reverified_on_main": true,
+    "existing_five_masterframe_deliverable_found": false
+  },
+  "canonical_authorities_read": [
+    "AGENTS.md",
+    "docs/DRIFT_3D_PRODUCT_SPEC.md",
+    "docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md",
+    "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md",
+    "docs/DRIFT_3D_ERA_TRACK_ATLAS.md",
+    "docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md",
+    "docs/DRIFT_3D_ASSET_REUSE_MATRIX.md",
+    "docs/DRIFT_3D_REALISM_BIBLE.md",
+    "docs/DRIFT_3D_INTEGRAL_BACKLOG.md",
+    "docs/evidence/DRIFT-IV-PRE-00/canonical-artistic-acceptance.md",
+    "docs/DRIFT_3D_ERA_ENTRY_CONTRACT.md",
+    "docs/DRIFT_3D_ERA_BIRTH_YARD_CONTRACT.md",
+    "docs/DRIFT_3D_ERA_OLDER_SHADOWS_CONTRACT.md",
+    "docs/DRIFT_3D_ERA_VEGETATIVE_FIELD_CONTRACT.md",
+    "docs/DRIFT_3D_ERA_NEW_SIGNAL_CONTRACT.md"
+  ],
+  "repository_owned_visual_inputs": {
+    "hero_image": {
+      "desktop_path": "public/images/tracks-hero-1920x1080-v3.jpg",
+      "desktop_webp_path": "public/images/tracks-hero-1920x1080-v3.webp",
+      "desktop_dimensions": "1920x1080",
+      "mobile_path": "public/images/tracks-hero-mobile-1080x1920.jpg",
+      "mobile_dimensions": "1080x1920",
+      "rendered_by": "src/components/Hero.tsx",
+      "used_on": "src/app/page.tsx (site home page)",
+      "alt_text": "Visuel lumineux centré sur le symbole lambda",
+      "composition_description": "Dark smooth poured-concrete corridor in one-point perspective converging toward a tall upward-pointing triangular (lambda) opening at the far end, apex near top of frame, base near mid-frame, flanked by two low concrete blocks at its base, warm-white light flooding through into thin haze, near-black elsewhere.",
+      "role_in_entry_prompt": "composition/silhouette/framing reference only, not an image-to-image input"
+    },
+    "canonical_vehicle": {
+      "rendered_in": "src/components/drift-3d/Drift3DVehicle.tsx",
+      "lines": "158-386",
+      "physics_only_file": "src/lib/drift3dVehiclePhysics.ts",
+      "shape": "detailed procedural safari-style 4x4 (Defender-like), NOT a capsule primitive",
+      "colors": {
+        "body_sand": "#ab9464",
+        "roof_white": "#d8d2c2",
+        "glass": "#22303c",
+        "dark_metal": "#3a3833",
+        "tire": "#17181a"
+      },
+      "group_scale": 1.34,
+      "doctrine_discrepancy": {
+        "found": true,
+        "resolved": false,
+        "doctrine_sources": ["docs/DRIFT_3D_GLOBAL_ART_DIRECTION.md §15", "docs/DRIFT_3D_ART_DIRECTION.md §14.2"],
+        "doctrine_claim": "the vehicle stays a small capsule, never a literal car model",
+        "runtime_fact": "Drift3DVehicle.tsx renders a detailed literal safari 4x4, not a capsule",
+        "resolution_used_for_this_lot": "RUNTIME TRUTH precedence (docs/DRIFT_DOCUMENTATION_MAP.md) — prompts depict the shipped safari 4x4",
+        "follow_up": "non-blocking, assigned to a future documentation lot; not resolved by DRIFT-IV-PRE-10"
+      }
+    },
+    "documentation_image_convention": "none pre-existing; this lot establishes the first one at docs/evidence/DRIFT-IV-PRE-10/masterframes/"
+  },
+  "canonical_output_structure": {
+    "planned": [
+      "docs/evidence/DRIFT-IV-PRE-10/visual-masterframe-production.md",
+      "docs/evidence/DRIFT-IV-PRE-10/visual-masterframe-production.json",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/entry.webp",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/birth-yard.webp",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/older-shadows.webp",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/vegetative-field.webp",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/new-signal.webp",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/masterframes-contact-sheet.webp"
+    ],
+    "actually_created": [
+      "docs/evidence/DRIFT-IV-PRE-10/visual-masterframe-production.md",
+      "docs/evidence/DRIFT-IV-PRE-10/visual-masterframe-production.json",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/entry.webp (ingested, external)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/birth-yard.webp (ingested, external)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/older-shadows.webp (ingested, external)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/vegetative-field.webp (ingested, external)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/new-signal.webp (ingested, external)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/masterframes-contact-sheet.webp (generated this pass from the five ingested files)",
+      "docs/evidence/DRIFT-IV-PRE-10/masterframes/manifest.json (external, accompanied the candidates; cross-checked in technical_validation below)"
+    ],
+    "masterframes_directory_created": true
+  },
+  "technical_specification": {
+    "aspect_ratio": "16:9",
+    "min_resolution": "1536x864",
+    "recommended_generation_target": "1920x1080 or higher, downsampled for final storage",
+    "color_space": "sRGB",
+    "format": "WebP preferred, PNG acceptable",
+    "no_embedded_text_or_watermark": true,
+    "contact_sheet_rule": "generated only from the five final owner-accepted images; never a substitute for an individual masterframe"
+  },
+  "shared_prompt_scaffolding": {
+    "style_suffix": "physically-based rendering, cinematic real-time game-engine quality (Unreal Engine 5 / Unity HDRP look), photoreal PBR materials, volumetric atmosphere, global illumination, filmic tone mapping, medium depth of field, 35mm cinematic lens, one dominant scripted light source per scene, grounded realistic proportions, credible human scale, production-quality concept art for a driving/exploration game, no stylization, no cel-shading, no anime, no cartoon rendering",
+    "vehicle_description": "a sand-tan (#ab9464) procedural safari-style 4x4 SUV with Land Rover Defender-like proportions, white roof (#d8d2c2), dark tinted windows (#22303c), dark metal bull bar and roof rack (#3a3833), black tires (#17181a), no visible brand badges or logos, small and compact in scale, viewed from a low-to-medium camera height close to the vehicle",
+    "shared_negative": "no text, no captions, no title cards, no HUD, no UI overlay, no watermark, no signature, no logo, no third-party brand, no cyberpunk aesthetic, no neon, no synthwave, no glowing outlines, no anime style, no cartoon shading, no low-poly primitive look, no wireframe, no placeholder gray boxes, no photo collage, no multiple panels, no diagram arrows, no icon checklist, no miniature/diorama/tilt-shift effect, no fisheye distortion, no exaggerated motion blur, no lens-flare spam, no oversaturated colors, no minimap or game HUD, no caricatured faces, no exaggerated cartoon expression, no punchline staging, no comic speech bubble"
+  },
+  "masterframe_prompts": [
+    {
+      "id": "entry",
+      "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md §1 (15/15 fields) + hero image",
+      "positive_prompt": "Interior of a narrow, unbranching dark mineral cave corridor, walls of raw rock close enough that individual rock texture and grain are readable, converging in one-point perspective toward a tall triangular (lambda-shaped) glowing exit sculpted directly into the rock silhouette at the far end — the same silhouette, proportion and framing relationship as a soaring triangular light shape centered in frame, apex near the top, reaching down toward the floor, flanked by two low waist-height rock blocks at its base, warm-white light spilling from the opening into thin haze, near-total darkness everywhere else. [VEHICLE] parked motionless at the exact midpoint of the corridor, facing the distant glow, occupying the full width of the drivable path. In the immediate foreground beside the corridor wall: a low mechanical relay housing built into the rock, a thin metal stamp arm caught mid-stroke, a small screen showing a glowing rejection glyph, and a stamped \"NON CONFORME\" mark on a nearby rock surface, unattended. One single visible water drip caught mid-fall from the ceiling, a faint ripple on the wet stone floor below it. No people anywhere in frame. [STYLE_SUFFIX]",
+      "negative_prompt": "[SHARED_NEGATIVE] + no side tunnels or branching passages, no statues or carvings, no fantasy-temple aesthetic, no glowing runes or magic symbols, no crystals, no lava, no bioluminescent fungus, no floating detached triangle icon (must be carved into rock, not overlaid), no more than one light source, no daylight",
+      "aspect_ratio": "16:9",
+      "target_resolution": "1920x1080",
+      "repository_owned_input_used": true,
+      "input_path": "public/images/tracks-hero-1920x1080-v3.jpg",
+      "generation_tool": "ChatGPT image generation (external, outside this session; as claimed by accompanying manifest.json)",
+      "generation_date": "2026-08-02 (per accompanying manifest.json filename)",
+      "iteration_id": "1 (single candidate supplied; source file 'ChatGPT Image 2 août 2026, 11_19_22.png')",
+      "status": "PRODUCED_EXTERNALLY_INGESTED"
+    },
+    {
+      "id": "birth-yard",
+      "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md §2 (15/15 fields)",
+      "positive_prompt": "Dusk in a dense port city at water level, viewed low from a canal. [VEHICLE] driving mid-canal close to the water, its own reflection breaking the surface. In the near foreground on one bank: a glass-fronted gym façade catching the last warm horizontal dusk light, three athlete silhouettes visible exercising through the glass, backlit by cold blue-white fluorescent interior light contrasting the warm exterior, a towel conveyor belt visibly moving inside. At the water's edge: a lifting bridge open mid-cycle holding a small queue of four to six waiting pedestrian and cyclist silhouettes and one delivery van, one cyclist and a delivery vehicle caught in a near-miss moment of traffic friction. Rising behind and above: dense vertical concrete-and-glass commercial towers receding into blue dusk haze, several lit office windows on late, one rooftop crane still working under its own light, one delivery hoist mid-lift on another rooftop. The quay's concrete surface is worn and real — oil stains, a torn poster corner, standing puddles, a cracked curb — except the gym façade itself, which stays clean and pristine. Hidden in the scene, not staged for attention: a parking-enforcement figure calmly ticketing a bicycle that is properly chained to a \"no parking\" sign post. Very high density of people, traffic, and working machinery throughout foreground and background. [STYLE_SUFFIX]",
+      "negative_prompt": "[SHARED_NEGATIVE] + no futuristic skyline, no flying vehicles, no neon signage, no crowd larger than the described small loose cluster at the bridge, no visible injury or aggression, no slapstick posing or exaggerated joke framing around the ticketing detail, no gore",
+      "aspect_ratio": "16:9",
+      "target_resolution": "1920x1080",
+      "repository_owned_input_used": false,
+      "input_path": null,
+      "generation_tool": "ChatGPT image generation (external, outside this session; as claimed by accompanying manifest.json)",
+      "generation_date": "2026-08-02 (per accompanying manifest.json filename)",
+      "iteration_id": "1 (single candidate supplied; source file 'ChatGPT Image 2 août 2026, 11_22_51.png')",
+      "status": "PRODUCED_EXTERNALLY_INGESTED"
+    },
+    {
+      "id": "older-shadows",
+      "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md §3 (15/15 fields)",
+      "positive_prompt": "Mid-morning on a wide open mountain plateau traverse between a distant forest line and an exposed rocky ridge, clear high-altitude air, one hard coherent sun casting crisp cool shadows. [VEHICLE] small in the wide frame, driving along a worn dirt trail. Directly ahead: a long cairn trail of stacked stones spanning multiple visible generations — some fresh and pale, roughly a third older, weathered and lightly lichen-covered, standing in loose uneven clusters — with one stone caught mid-motion settling into a new position by itself. Beside the trail: one faded, worn equipment strap left on the ground; a short distance away, a second older parallel path visibly eroding and half-reclaimed by the mountainside; faint half-filled footprint impressions in a patch of softer ground nearby. Taut fabric flags moving in real wind. Along the distant ridgeline: one small paraglider silhouette, just a colored canopy shape, mid-descent; closer but still small, one hiking figure on foot crossing the trail well ahead of the vehicle. One raptor bird circling at altitude. One small, distant refuge structure on the horizon. Exposed granite and rock-boulder texture, patches of snow near the tree line. [STYLE_SUFFIX]",
+      "negative_prompt": "[SHARED_NEGATIVE] + no heroic close-up of any human figure, no visible faces, no extreme-sport action-shot framing, no single glowing sentimental object, no fantasy-adventure poster composition, no figures beyond the ones described, no dense crowd",
+      "aspect_ratio": "16:9",
+      "target_resolution": "1920x1080",
+      "repository_owned_input_used": false,
+      "input_path": null,
+      "generation_tool": "ChatGPT image generation (external, outside this session; as claimed by accompanying manifest.json)",
+      "generation_date": "2026-08-02 (per accompanying manifest.json filename)",
+      "iteration_id": "1 (single candidate supplied; source file 'ChatGPT Image 2 août 2026, 11_22_57.png')",
+      "status": "PRODUCED_EXTERNALLY_INGESTED"
+    },
+    {
+      "id": "vegetative-field",
+      "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md §4 (15/15 fields)",
+      "positive_prompt": "Flat, slightly overcast midday light over a repetitive suburban housing grid street, ordinary residential viewpoint at vehicle height. [VEHICLE] driving through at ordinary residential speed down the middle of the street. Two nearly identical houses side by side, same massing, same clean rendered stucco and fresh asphalt driveway, differing only in trivial details like a garage-door color or hedge height — everything looks freshly maintained, nothing worn or decayed. On one driveway: a single resident, shown from a distance with no facial detail, mid-routine — coiling a garden hose or wheeling a bin to the curb — caught in one small human hesitation, a half-finished coil or a beat's pause, a tiny imperfection distinguishing them from a machine. Nearby: a robot vacuum crossing the driveway on its own path, an automatic sprinkler mid-cycle throwing a fan of water droplets, and through one house window, a small screen glowing with a plain green satisfaction indicator, facing an empty room. Manicured lawns, clean hedges, no visible decay or damage anywhere. [STYLE_SUFFIX]",
+      "negative_prompt": "[SHARED_NEGATIVE] + no dramatic or moody lighting, no dystopian visual cues, no barbed wire, no emphasized surveillance cameras, no literal humanoid-robot standing in for the resident, no visible contamination, glitch, decay, or damage of any kind, no horror framing",
+      "aspect_ratio": "16:9",
+      "target_resolution": "1920x1080",
+      "repository_owned_input_used": false,
+      "input_path": null,
+      "generation_tool": "ChatGPT image generation (external, outside this session; as claimed by accompanying manifest.json)",
+      "generation_date": "2026-08-02 (per accompanying manifest.json filename)",
+      "iteration_id": "1 (single candidate supplied; source file 'ChatGPT Image 2 août 2026, 11_23_16.png')",
+      "status": "PRODUCED_EXTERNALLY_INGESTED"
+    },
+    {
+      "id": "new-signal",
+      "source": "docs/DRIFT_3D_MASTERFRAME_BRIEFS.md §5 (15/15 fields) + canonical New Signal guardrail",
+      "positive_prompt": "Dawn just after a passing storm, a coastal overlook partway along a curving headland road — not the final beach arrival, which stays small and distant. [VEHICLE] stopped at the overlook, facing the view. The wet asphalt road surface in the foreground holds a brief unstable reflection showing both the retreating cool grey-blue storm-light behind and warm gold dawn light opening ahead, side by side in the same puddle without blending. Weathered stone at the road's edge carries a restrained silver, cool-toned material register. Far below and ahead, the final beach is visible only as a small distant strip, not yet reached. Along the far curve of the shoreline, barely legible at that distance: the last few lights of a sleeping city, with exactly one window burning distinctly warmer than the rest. Behind the vehicle, the storm is visibly retreating out to sea under a cool grey sky; ahead, the first gold sunlight catches the headland. Onshore wind. No people anywhere in frame. One single dominant real coastal geography — the distant city, the storm, and the reflection read only as distant silhouette, weather, light or material, never as a second competing place. [STYLE_SUFFIX]",
+      "negative_prompt": "[SHARED_NEGATIVE] + no literal accumulation of separate landmark objects, no multiple competing focal geographies, no museum-panorama wide-establishing collage, no oversized or stylized sun graphic, no glowing logo or final spectacle, no close-up of the beach itself, no checklist-like arrangement of symbolic objects, no crowd, no visible human figures",
+      "aspect_ratio": "16:9",
+      "target_resolution": "1920x1080",
+      "repository_owned_input_used": false,
+      "input_path": null,
+      "generation_tool": "ChatGPT image generation (external, outside this session; as claimed by accompanying manifest.json)",
+      "generation_date": "2026-08-02 (per accompanying manifest.json filename)",
+      "iteration_id": "1 (single candidate supplied; source file 'ChatGPT Image 2 août 2026, 11_23_37.png')",
+      "status": "PRODUCED_EXTERNALLY_INGESTED"
+    }
+  ],
+  "technical_validation": {
+    "method": "SHA-256 computed from raw bytes; decode verified via Pillow Image.load(); width/height/format/mode/icc read directly; no resize/crop/recolor/recompression applied to any of the five candidate files",
+    "results": [
+      { "frame_id": "entry", "filename": "entry.webp", "decodes": true, "width": 1672, "height": 941, "measured_aspect_ratio": 1.776833, "deviation_from_exact_16_9_pct": -0.053, "meets_min_1536x864": true, "format": "WEBP", "color_mode": "RGB", "embedded_icc_profile": false, "file_size_bytes": 270892, "sha256": "89041738365e6cd618d044b903bd2aa6c11343d68a4024a3af508ea8d9ef583a", "technical_status": "PASS" },
+      { "frame_id": "birth-yard", "filename": "birth-yard.webp", "decodes": true, "width": 1672, "height": 941, "measured_aspect_ratio": 1.776833, "deviation_from_exact_16_9_pct": -0.053, "meets_min_1536x864": true, "format": "WEBP", "color_mode": "RGB", "embedded_icc_profile": false, "file_size_bytes": 442222, "sha256": "4ef1fafdff2a1983d1567c59830d0d32b42bad178f74968f1d5969c1aec980dd", "technical_status": "PASS" },
+      { "frame_id": "older-shadows", "filename": "older-shadows.webp", "decodes": true, "width": 1672, "height": 941, "measured_aspect_ratio": 1.776833, "deviation_from_exact_16_9_pct": -0.053, "meets_min_1536x864": true, "format": "WEBP", "color_mode": "RGB", "embedded_icc_profile": false, "file_size_bytes": 554490, "sha256": "c48d3918ad053d67a97b91a191c2a2f4489785ddb87c7948559545318b3484f0", "technical_status": "PASS" },
+      { "frame_id": "vegetative-field", "filename": "vegetative-field.webp", "decodes": true, "width": 1672, "height": 941, "measured_aspect_ratio": 1.776833, "deviation_from_exact_16_9_pct": -0.053, "meets_min_1536x864": true, "format": "WEBP", "color_mode": "RGB", "embedded_icc_profile": false, "file_size_bytes": 397928, "sha256": "8cb93fe3422096bc40fdf4dbf40a4b05f40fe9031bb3ac0e07a2a3f7ea24ab31", "technical_status": "PASS" },
+      { "frame_id": "new-signal", "filename": "new-signal.webp", "decodes": true, "width": 1672, "height": 941, "measured_aspect_ratio": 1.776833, "deviation_from_exact_16_9_pct": -0.053, "meets_min_1536x864": true, "format": "WEBP", "color_mode": "RGB", "embedded_icc_profile": false, "file_size_bytes": 316384, "sha256": "acc0d3a4bf161370934cb69df8103021be63050168513cfe62cd1ac2a278876f", "technical_status": "PASS" }
+    ],
+    "contact_sheet": { "filename": "masterframes-contact-sheet.webp", "width": 1968, "height": 844, "format": "WEBP", "color_mode": "RGB", "file_size_bytes": 336630, "sha256": "5a77159cda0e4b22e6e0428cf2a59f2d8ae6b1dedd2d916c0f10f8b8d215927b", "generated_by": "this pass, from the five already-final candidate files, resized to 640x360 thumbnails in a 3x2 grid; labels exist only in this file" },
+    "five_hashes_distinct": true,
+    "any_zero_byte_file": false,
+    "external_manifest_cross_check": "docs/evidence/DRIFT-IV-PRE-10/masterframes/manifest.json's claimed width/height/sha256/size for all five files matched this pass's independent computation exactly; corroborated, not blindly trusted",
+    "aspect_ratio_note": "1672x941 is not mathematically exact 16:9 (exact would require 940.5px height at this width) — a 0.053% deviation, imperceptible and not treated as a technical failure; stated precisely rather than rounded to a false 'exact' claim",
+    "technical_rework_required_for_any_frame": false
+  },
+  "visual_audit": [
+    {
+      "frame_id": "entry",
+      "composition_fidelity": "strong — hero-image triangular silhouette/proportion/framing closely echoed",
+      "findings": [
+        "Required foreground control apparatus (relay housing, stamp arm, screen with glyph, 'NON CONFORME' stamp) is entirely absent, confirmed on magnified inspection",
+        "Ambient light level exceeds the brief's 'near-total darkness' — corridor reads as atmospherically lit throughout rather than near-black outside the relay indicator and lambda glow",
+        "No humans (correct)", "Vehicle consistent", "No embedded text/caption", "No decorative floating lambda — the triangular light is carved into rock, matching the lambda-construction doctrine"
+      ],
+      "rule_violation": false,
+      "content_completeness_gap": true
+    },
+    {
+      "frame_id": "birth-yard",
+      "composition_fidelity": "strong",
+      "findings": [
+        "Gym storefront signage reads 'EUX GAINENT' — exact correct in-world venue name, diegetic not a caption",
+        "Deadpan ticketing gag precisely staged: bicycle chained directly to a no-stopping sign post, officer ticketing it, discoverable not announced",
+        "Minor cosmetic defect: illegible AI-generated glyph noise on a second line of the officer's jacket text (not a coherent caption)",
+        "No cyberpunk substitution; dense working port city reads credible", "Vehicle and human-presence consistency strong"
+      ],
+      "rule_violation": false,
+      "content_completeness_gap": false,
+      "overall": "strongest of the five candidates"
+    },
+    {
+      "frame_id": "older-shadows",
+      "composition_fidelity": "strong — vehicle small in wide alpine frame, correct scale contrast",
+      "findings": [
+        "Paraglider, hiker, raptor all present, correctly sparse/silhouette-scale/distant",
+        "One small distant refuge structure present and correctly scaled",
+        "Cairn-trail memory device under-represented: only one or two cairns visible, fairly uniform age, not a whole trail spanning mixed generations; no visible second eroding path; no visible footprint traces",
+        "A backpack stands in for 'worn equipment' reasonably but reads as a full modern pack rather than a faded strap/buckle",
+        "No heroic close-up, no fantasy-poster treatment, no visible faces"
+      ],
+      "rule_violation": false,
+      "content_completeness_gap": true
+    },
+    {
+      "frame_id": "vegetative-field",
+      "composition_fidelity": "strong",
+      "findings": [
+        "Resident coiling a hose at driveway, shown at a distance, no facial emphasis — matches",
+        "Satisfaction indicator realized as a glowing green smiley-face icon in an upstairs window facing an empty room — excellent unambiguous diegetic match",
+        "'Robot vacuum crossing a driveway' realized instead as a small robotic mower/rover on the curb-side lawn — functionally analogous, literal location/object deviation",
+        "Faint, mostly illegible logo-like mark on the robot's housing — flagged for owner judgment on third-party-branding criterion, likely generic/fabricated not a real brand",
+        "No dystopian iconography, no literal humanoid robot"
+      ],
+      "rule_violation": false,
+      "content_completeness_gap": true
+    },
+    {
+      "frame_id": "new-signal",
+      "composition_fidelity": "strong atmosphere/light — storm retreating, gold light opening, distant city lights, wet-road reflection all present",
+      "findings": [
+        "BLOCKING: a stone monument in the immediate foreground carries a plaque engraved with a literal lambda glyph above the words 'MISWAY REGISTER' and 'SILVER', confirmed on magnified inspection",
+        "Violates 'no frame may contain an embedded title, number, caption or explanatory text' — the plaque text is exactly that",
+        "Violates 'no decorative floating lambda' and this exact frame's own canonical field 12 ('Lambda treatment: not staged in this frame at all') — the lambda is rendered as a mounted engraved logo/icon",
+        "Violates 'no collage/checklist/museum panorama in New Signal' (guardrail rule 5) — the plaque functions as a museum-placard label naming the era's own motif for the viewer",
+        "No humans (correct); one dominant coastal geography maintained elsewhere in frame; vehicle consistent"
+      ],
+      "rule_violation": true,
+      "content_completeness_gap": false,
+      "overall": "blocking defect — fabricated plaque must be removed or the frame regenerated without it"
+    }
+  ],
+  "owner_review_table": {
+    "criteria": [
+      "composition_fidelity", "geography_credibility", "material_realism", "light_weather_fidelity",
+      "human_presence_fidelity", "density_fidelity", "anomaly_lambda_fidelity", "misway_identity",
+      "canonical_vehicle_consistency", "cross_frame_coherence", "prohibited_interpretation_check",
+      "visible_text_title_border_watermark_branding", "known_defects"
+    ],
+    "frames": ["entry", "birth-yard", "older-shadows", "vegetative-field", "new-signal"],
+    "summary": {
+      "entry": "Strong hero-continuity composition; missing foreground control-apparatus/anomaly content; light brighter than 'near-total darkness'. No embedded text, no decorative lambda.",
+      "birth-yard": "Strongest candidate; 'EUX GAINENT' signage exact match; ticketing gag precisely staged; one minor cosmetic illegible-text artifact only.",
+      "older-shadows": "Strong scale/human/wildlife elements; cairn-trail memory device under-represented (1-2 cairns, not a whole aged trail); no second eroding path or footprint traces visible.",
+      "vegetative-field": "Strong; satisfaction-indicator realized excellently; 'robot vacuum' realized as curb-side mower-rover instead of driveway vacuum; faint illegible mark on housing to review.",
+      "new-signal": "Strong atmosphere/light; BLOCKING defect: fabricated 'MISWAY REGISTER / SILVER' plaque with engraved lambda logo violates no-embedded-text, no-decorative-lambda, and no-museum-panorama rules simultaneously."
+    },
+    "verdicts": { "entry": "PENDING", "birth-yard": "PENDING", "older-shadows": "PENDING", "vegetative-field": "PENDING", "new-signal": "PENDING" },
+    "note": "All five verdicts are PENDING. This pass sets none of them — only the owner may set ACCEPT / REWORK / REJECT."
+  },
+  "unresolved_defects": [
+    {
+      "defect": "Entry: required foreground control-apparatus/anomaly content (relay housing, stamp arm, screen, 'NON CONFORME' stamp) absent from frame",
+      "status": "found this pass, not resolved",
+      "severity": "moderate content-completeness gap, not a rule violation",
+      "assigned_to": "owner review / rework iteration if requested"
+    },
+    {
+      "defect": "Entry: ambient light level exceeds brief's 'near-total darkness' requirement",
+      "status": "found this pass, not resolved",
+      "severity": "moderate, cinematic-choice deviation",
+      "assigned_to": "owner review / rework iteration if requested"
+    },
+    {
+      "defect": "Birth Yard: illegible AI-generated glyph noise on enforcement officer's jacket (second text line)",
+      "status": "found this pass, not resolved",
+      "severity": "minor, cosmetic only",
+      "assigned_to": "owner review / rework iteration if requested"
+    },
+    {
+      "defect": "Older Shadows: cairn-trail memory device under-represented (1-2 cairns instead of a whole trail spanning mixed generations); no second eroding path or footprint traces visible",
+      "status": "found this pass, not resolved",
+      "severity": "moderate content-completeness gap on a named, load-bearing owner requirement",
+      "assigned_to": "owner review / rework iteration if requested"
+    },
+    {
+      "defect": "Vegetative Field: 'robot vacuum crossing a driveway' realized as a mower-style rover on the curb-side lawn; faint illegible mark on its housing",
+      "status": "found this pass, not resolved",
+      "severity": "minor, functionally analogous substitution",
+      "assigned_to": "owner review / rework iteration if requested"
+    },
+    {
+      "defect": "New Signal: fabricated 'MISWAY REGISTER / SILVER' stone plaque with engraved lambda logo embedded directly in frame",
+      "status": "found this pass, not resolved — BLOCKING",
+      "severity": "objective, explicit-rule violation (embedded text + decorative lambda + museum-panorama framing)",
+      "assigned_to": "must be removed or the frame regenerated without it before an ACCEPT verdict is reasonable"
+    },
+    {
+      "defect": "Vehicle-as-capsule doctrine text does not match shipped runtime vehicle",
+      "status": "recorded, not resolved by this lot (carried over from previous pass)",
+      "severity": "non-blocking, repository-level documentation discrepancy",
+      "assigned_to": "future documentation lot"
+    }
+  ],
+  "gate_result": {
+    "decision": "REWORK_REQUIRED",
+    "decision_text": "REWORK_REQUIRED — one obvious explicit-rule visual violation found (New Signal); no image has received an owner verdict",
+    "conditions": {
+      "preflight_complete": true,
+      "production_contract_complete": true,
+      "five_prompts_produced": true,
+      "five_candidates_ingested": true,
+      "technical_validation_complete": true,
+      "visual_audit_complete": true,
+      "contact_sheet_generated": true,
+      "deterministic_manifest_generated": true,
+      "any_technical_failure_found": false,
+      "any_obvious_visual_failure_found": true,
+      "obvious_visual_failure_frame": "new-signal",
+      "any_status_marked_done": false,
+      "any_image_auto_accepted": false
+    },
+    "final_status": "DRIFT-IV-PRE-10 = REWORK_REQUIRED",
+    "pre_20_status": "BLOCKED_BY_DEPENDENCY",
+    "required_action": "Owner reviews the five candidates and the findings in visual_audit above using docs/evidence/DRIFT-IV-PRE-10/masterframes/masterframes-contact-sheet.webp and the individual files; sets an explicit ACCEPT / REWORK / REJECT verdict per frame. New Signal requires rework (remove the fabricated plaque) before it can reasonably be accepted. Entry, Older Shadows and Vegetative Field carry named content-completeness gaps for the owner's own judgment. Birth Yard is ready for ACCEPT consideration with one cosmetic note. Per this lot's own rule, accepted frames must be preserved and only rejected/rework frames iterated — do not restart all five.",
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false,
+    "pre_20_started": false
+  },
+  "owner_review_round_1": {
+    "note": "This entire section is new; nothing in the fields above (technical_validation, visual_audit, owner_review_table, unresolved_defects, gate_result) was edited or deleted. This section is the authoritative, current state; the fields above remain as the accurate first-round record.",
+    "verdicts": {
+      "entry": {
+        "verdict": "REWORK",
+        "owner_requirements": [
+          "Foreground relay housing, stamp arm and unmanned screen are missing",
+          "Frame too bright for the accepted near-total-darkness register",
+          "Preserve the sand safari 4x4 and the rock-sculpted lambda exit",
+          "Regenerate Entry only"
+        ]
+      },
+      "birth-yard": {
+        "verdict": "ACCEPT_WITH_TECHNICAL_NORMALIZATION",
+        "owner_requirements": [
+          "Artistic composition accepted",
+          "Preserve the current image; do not regenerate unless the visible AI-text artifact cannot be removed without damaging the scene",
+          "Normalize only after explicit technical processing (see birth_yard_technical_normalization below)"
+        ]
+      },
+      "older-shadows": {
+        "verdict": "REWORK",
+        "owner_requirements": [
+          "Distributed memory system is insufficient",
+          "Final image must show a real multi-generation cairn trail: fresh, weathered and lichen-covered stones",
+          "Include the older eroding route, faded equipment, and half-filled traces",
+          "Preserve the current landscape scale, vehicle, hiker, paraglider and raptor",
+          "Regenerate Older Shadows only"
+        ]
+      },
+      "vegetative-field": {
+        "verdict": "REWORK",
+        "owner_requirements": [
+          "Replace the curb-side mower with a credible small autonomous robot vacuum/cleaning robot moving through the driveway",
+          "Preserve the two near-identical houses, resident routine, sprinkler and satisfaction indicator",
+          "Preserve the slight human desynchronization",
+          "Regenerate Vegetative Field only"
+        ]
+      },
+      "new-signal": {
+        "verdict": "REJECT",
+        "owner_requirements": [
+          "Remove the fabricated plaque",
+          "Remove all embedded explanatory text",
+          "Remove the engraved/decorative lambda",
+          "No MISWAY REGISTER, SILVER label or museum-marker object",
+          "Preserve one believable coastal road geography",
+          "Preserve retreating storm behind, gold opening ahead, restrained silver material in the roadside stone, distant city lights and tiny distant beach",
+          "Regenerate New Signal only"
+        ]
+      }
+    },
+    "frames_requiring_regeneration": ["entry", "older-shadows", "new-signal", "vegetative-field"],
+    "frames_retained": ["birth-yard"],
+    "technical_contract_correction": {
+      "prior_claim_withdrawn": "1672x941 (ratio 1.776833) previously described as 'not a technical failure' against exact 16:9 (a -0.053% deviation)",
+      "owner_correction": "The PRE-10 contract requires exact 16:9. 1672x941 is not exact 16:9 and must no longer be described as technically compliant.",
+      "required_final_dimensions": "1664x936 (exact 16:9: 1664/16=104, 104*9=936)",
+      "exceeds_minimum": "1536x864",
+      "additional_requirements": [
+        "WebP format",
+        "must decode successfully",
+        "must carry or be explicitly converted to sRGB",
+        "no title, number, frame label, caption, watermark or border",
+        "five distinct SHA-256 hashes across the five final images"
+      ]
+    },
+    "birth_yard_technical_normalization": {
+      "source_preserved_at": "docs/evidence/DRIFT-IV-PRE-10/masterframes/source/birth-yard.round1-source.webp",
+      "source_hash_sha256": "4ef1fafdff2a1983d1567c59830d0d32b42bad178f74968f1d5969c1aec980dd",
+      "source_dimensions": "1672x941",
+      "source_file_size_bytes": 442222,
+      "final_path": "docs/evidence/DRIFT-IV-PRE-10/masterframes/birth-yard.webp",
+      "final_hash_sha256": "77f207548a3faef1e04d3a4ed9d3ffb48d77dfa32681f0b0cb4b5008459c9e38",
+      "final_dimensions": "1664x936",
+      "final_aspect_ratio_exact_16_9": true,
+      "final_file_size_bytes": 461966,
+      "processing": {
+        "library": "Python 3.14 / Pillow 12.2.0",
+        "resample_filter": "PIL.Image.LANCZOS",
+        "scale_factor_x": 0.995215,
+        "scale_factor_y": 0.994687,
+        "non_uniform_scale_deviation_pct": 0.05,
+        "crop_applied": false,
+        "color_profile": "explicit sRGB ICC profile embedded (588 bytes), created via PIL.ImageCms.createProfile('sRGB')",
+        "output_format": "WEBP",
+        "output_quality": 95,
+        "output_method": 6,
+        "exact_command": "img = Image.open('source/birth-yard.round1-source.webp').convert('RGB'); resized = img.resize((1664,936), Image.LANCZOS); icc = ImageCms.ImageCmsProfile(ImageCms.createProfile('sRGB')).tobytes(); resized.save('birth-yard.webp', format='WEBP', quality=95, method=6, icc_profile=icc)"
+      },
+      "visual_comparison": "Performed by direct inspection of both files; no meaningful crop or composition change occurred; every scene element (gym signage, athletes, bridge queue, crane, skyline, enforcement figure/bicycle, canal reflection) remains in the same relative position and fully legible; the 0.05% non-uniform scale is not visually perceptible",
+      "cosmetic_defect_carried_over_unchanged": "illegible AI-generated glyph noise on the enforcement officer's jacket — not addressed, per owner's own instruction not to regenerate unless the artifact damages the scene"
+    },
+    "frames_awaiting_regeneration": [
+      { "frame_id": "entry", "round1_file": "entry.webp", "round1_sha256": "89041738365e6cd618d044b903bd2aa6c11343d68a4024a3af508ea8d9ef583a", "status": "SUPERSEDED_AWAITING_REGENERATION", "left_in_place_for_reference_only": true },
+      { "frame_id": "older-shadows", "round1_file": "older-shadows.webp", "round1_sha256": "c48d3918ad053d67a97b91a191c2a2f4489785ddb87c7948559545318b3484f0", "status": "SUPERSEDED_AWAITING_REGENERATION", "left_in_place_for_reference_only": true },
+      { "frame_id": "vegetative-field", "round1_file": "vegetative-field.webp", "round1_sha256": "8cb93fe3422096bc40fdf4dbf40a4b05f40fe9031bb3ac0e07a2a3f7ea24ab31", "status": "SUPERSEDED_AWAITING_REGENERATION", "left_in_place_for_reference_only": true },
+      { "frame_id": "new-signal", "round1_file": "new-signal.webp", "round1_sha256": "acc0d3a4bf161370934cb69df8103021be63050168513cfe62cd1ac2a278876f", "status": "SUPERSEDED_AWAITING_REGENERATION_REJECTED", "left_in_place_for_reference_only": true }
+    ],
+    "unresolved_defects_updated": [
+      { "frame": "entry", "status": "awaiting regeneration", "defect": "missing foreground apparatus; light too bright" },
+      { "frame": "birth-yard", "status": "technically normalized this pass", "defect": "cosmetic AI-text artifact remains, not addressed per owner instruction" },
+      { "frame": "older-shadows", "status": "awaiting regeneration", "defect": "cairn-trail memory device insufficient" },
+      { "frame": "vegetative-field", "status": "awaiting regeneration", "defect": "mower/location substitution for robot vacuum" },
+      { "frame": "new-signal", "status": "awaiting regeneration, REJECTED", "defect": "fabricated plaque/embedded text/decorative lambda" },
+      { "frame": "repository-level", "status": "non-blocking, carried over", "defect": "vehicle-as-capsule doctrine text vs shipped safari-4x4 runtime" },
+      { "frame": "contract", "status": "corrected this pass", "defect": "prior leniency on exact-16:9 requirement withdrawn by owner; 1672x941 no longer describable as compliant" }
+    ],
+    "gate_result_round_1": {
+      "decision": "REWORK_REQUIRED",
+      "final_status": "DRIFT-IV-PRE-10 = REWORK_REQUIRED",
+      "pre_20_status": "BLOCKED_BY_DEPENDENCY",
+      "owner_review_required_may_not_be_set_again_until": [
+        "Entry corrected",
+        "Older Shadows corrected",
+        "Vegetative Field corrected",
+        "New Signal corrected",
+        "all five final files are exact 16:9",
+        "all five are explicitly sRGB",
+        "all five pass a fresh visual audit"
+      ],
+      "committed": false,
+      "pushed": false,
+      "pr_opened": false,
+      "pre_20_started": false
+    }
+  },
+  "final_owner_decision": {
+    "note": "New top-level section. Nothing in gate_result, owner_review_round_1, or any earlier field was edited or deleted. This section is the current, authoritative, final state.",
+    "supersedes": "owner_review_round_1.verdicts (REWORK/REJECT) — those remain in this record as accurate history of what was recorded at the time, not as still-active blocking status",
+    "final_verdicts": {
+      "entry": "ACCEPT",
+      "birth-yard": "ACCEPT",
+      "older-shadows": "ACCEPT",
+      "vegetative-field": "ACCEPT",
+      "new-signal": "ACCEPT"
+    },
+    "no_image_regenerated": true,
+    "no_visual_content_retouched": true,
+    "no_scene_element_removed_added_or_replaced": true,
+    "owner_acceptance_not_reinterpreted": true,
+    "distinctions_recorded": {
+      "automated_visual_audit_observations": "Preserved in visual_audit and owner_review_round_1 above as accurate descriptive findings; explicitly NOT blocking defects per the owner's final decision.",
+      "final_owner_artistic_acceptance": "All five images accepted as produced, including New Signal's plaque/lambda treatment as part of the accepted concept-art reference (this specific point directly supersedes the prior 'blocking' characterization).",
+      "technical_normalization": "A separate, purely technical operation (exact resize, explicit sRGB, WebP re-encode) applied identically to all five files; changes no artistic content.",
+      "runtime_implementation_requirements": "Out of scope here. These five images are accepted visual-reference concept art, not literal runtime implementation contracts. A future runtime/Build lot is not obligated to reproduce every incidental AI-generated detail."
+    },
+    "technical_normalization_entry_older_shadows_vegetative_field_new_signal": {
+      "method": "identical to birth-yard's own normalization in owner_review_round_1.birth_yard_technical_normalization: PIL.Image.LANCZOS resize to 1664x936, explicit sRGB ICC profile via PIL.ImageCms.createProfile('sRGB'), WEBP quality=95 method=6, no crop",
+      "results": [
+        { "frame_id": "entry", "source_path": "masterframes/source/entry.round1-source.webp", "source_sha256": "89041738365e6cd618d044b903bd2aa6c11343d68a4024a3af508ea8d9ef583a", "source_dimensions": "1672x941", "final_sha256": "5c5d9dd56b67e951daeb206353f676436a6c0bd9f571d2f66896a7024f82b5f9", "final_dimensions": "1664x936", "final_file_size_bytes": 275566 },
+        { "frame_id": "older-shadows", "source_path": "masterframes/source/older-shadows.round1-source.webp", "source_sha256": "c48d3918ad053d67a97b91a191c2a2f4489785ddb87c7948559545318b3484f0", "source_dimensions": "1672x941", "final_sha256": "17a8494e88231862c9265af62ad9d7ea1d6674bda590d525f2c9eabf1c30eb41", "final_dimensions": "1664x936", "final_file_size_bytes": 563760 },
+        { "frame_id": "vegetative-field", "source_path": "masterframes/source/vegetative-field.round1-source.webp", "source_sha256": "8cb93fe3422096bc40fdf4dbf40a4b05f40fe9031bb3ac0e07a2a3f7ea24ab31", "source_dimensions": "1672x941", "final_sha256": "67ee3ecaeed31a13551b4e213750c5408a91e4670bb9f6927ddfe5045ce7ce18", "final_dimensions": "1664x936", "final_file_size_bytes": 417684 },
+        { "frame_id": "new-signal", "source_path": "masterframes/source/new-signal.round1-source.webp", "source_sha256": "acc0d3a4bf161370934cb69df8103021be63050168513cfe62cd1ac2a278876f", "source_dimensions": "1672x941", "final_sha256": "b1447c54b6b78f8f83dce209111bc2b557afa298dc9a9df4d6b4c60d80d8651e", "final_dimensions": "1664x936", "final_file_size_bytes": 326132 }
+      ],
+      "visual_comparison": "Performed by direct inspection of each source against its normalized final for all four frames; identical composition, framing and content confirmed; no element added, removed, or altered"
+    },
+    "birth_yard_carried_over_unchanged": {
+      "final_sha256": "77f207548a3faef1e04d3a4ed9d3ffb48d77dfa32681f0b0cb4b5008459c9e38",
+      "final_dimensions": "1664x936",
+      "note": "Already normalized in owner_review_round_1.birth_yard_technical_normalization; not reprocessed this pass"
+    },
+    "final_technical_validation": {
+      "all_five_decode": true,
+      "all_five_exact_1664x936": true,
+      "all_five_exact_16_9": true,
+      "all_five_webp_rgb": true,
+      "all_five_explicit_srgb_icc": true,
+      "all_five_non_zero": true,
+      "five_distinct_sha256": true,
+      "hashes": [
+        "5c5d9dd56b67e951daeb206353f676436a6c0bd9f571d2f66896a7024f82b5f9",
+        "77f207548a3faef1e04d3a4ed9d3ffb48d77dfa32681f0b0cb4b5008459c9e38",
+        "17a8494e88231862c9265af62ad9d7ea1d6674bda590d525f2c9eabf1c30eb41",
+        "67ee3ecaeed31a13551b4e213750c5408a91e4670bb9f6927ddfe5045ce7ce18",
+        "b1447c54b6b78f8f83dce209111bc2b557afa298dc9a9df4d6b4c60d80d8651e"
+      ]
+    },
+    "contact_sheet_regenerated": {
+      "path": "docs/evidence/DRIFT-IV-PRE-10/masterframes/masterframes-contact-sheet.webp",
+      "dimensions": "1968x844",
+      "format": "WEBP",
+      "mode": "RGB",
+      "sha256": "27ed5a6d689ed4dbf39637126d43e3bfb9b6cc490ef2a667e988ab980029dafd",
+      "built_from": "the five final owner-accepted normalized files",
+      "labels_only_in_contact_sheet": true
+    },
+    "gate_result_final": {
+      "decision": "DONE_PENDING_MERGE",
+      "final_status": "DRIFT-IV-PRE-10 = DONE_PENDING_MERGE",
+      "pre_20_status": "READY_AFTER_MERGE",
+      "pre_20_started": false,
+      "committed": false,
+      "pushed": false,
+      "pr_opened": false
+    }
+  }
+}
