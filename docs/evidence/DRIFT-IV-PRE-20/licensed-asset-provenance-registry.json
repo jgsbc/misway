@@ -1,0 +1,644 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-20",
+  "title": "Licensed asset / provenance registry and import evaluation",
+  "branch": "drift-iv-pre-20-licensed-asset-provenance-registry",
+  "status": "OWNER_REVIEW_REQUIRED",
+  "baseline": {
+    "head": "e212c056cbb06d0c1bd973b16c7d1000e4052209",
+    "main": "e212c056cbb06d0c1bd973b16c7d1000e4052209",
+    "merged_prerequisite_lots": [
+      { "lot": "DRIFT-IV-PRE-10", "pr": 35, "commit": "e212c056cbb06d0c1bd973b16c7d1000e4052209" },
+      { "lot": "DRIFT-IV-PRE-00", "pr": 34, "commit": "8a74a3170712d00274fe8d6b596875f829170f06" },
+      { "lot": "DRIFT-IV-GOV-40", "pr": 33, "commit": "99eacbe7cb47ecefaee31fee74faff058b9badd8" },
+      { "lot": "DRIFT-IV-BY-EUX-30", "pr": 32, "commit": "b069d09d636318bb711694d4c948af851143b947" }
+    ]
+  },
+  "retrieval_date": "2026-08-03",
+  "tool_versions": {
+    "python": "3.14.0",
+    "pillow": "12.2.0",
+    "hashing": "PowerShell 7 Get-FileHash -Algorithm SHA256",
+    "glb_parser": "inline Python script using only stdlib struct+json, parses GLB 12-byte header plus chunked JSON/BIN per glTF 2.0 binary spec, no third-party library, no npm dependency added"
+  },
+  "environment_confirmed": {
+    "three_installed_version": "0.185.0",
+    "three_declared_range": "^0.185.0",
+    "react_three_fiber_version": "^9.6.1",
+    "react_three_drei_present": false,
+    "next_config_output": "export",
+    "next_config_images_unoptimized": true,
+    "existing_public_textures_count": 10,
+    "existing_public_textures_sets": ["aerial_beach_01", "brown_planks_07", "concrete_wall_008", "red_brick_03", "rock_boulder_dry"],
+    "glb_or_gltf_in_tracked_repo_before_this_lot": 0,
+    "gitattributes_exists": false,
+    "git_lfs_installed_on_system": true,
+    "git_lfs_configured_for_repo": false,
+    "third_party_licence_file_in_repo_before_this_lot": false
+  },
+  "scope_limits": {
+    "longlist_cap": 12,
+    "longlist_actual": 11,
+    "deep_eval_cap": 6,
+    "deep_eval_actual": 6,
+    "max_competing_per_need": 2,
+    "download_budget_mb_cap": 250,
+    "download_budget_mb_actual": 101,
+    "real_downloads_performed": 5,
+    "raw_binary_committed_to_tracked_repo": 0
+  },
+  "longlist": [
+    { "id": "PRE20-A04", "name": "Mixamo (Adobe)", "category": "Rigged humanoid + mocap clips", "domain_group": "A", "deep_evaluated": false, "note": "Terms researched directly, dispositive, no download needed", "status": "REJECT" },
+    { "id": "PRE20-A03", "name": "Quaternius Ultimate Modular Men Pack", "category": "Rigged humanoid + 24 clips", "domain_group": "A", "deep_evaluated": false, "note": "Licence confirmed, technical access blocked by Drive quota", "status": "REFERENCE" },
+    { "id": "PRE20-A05", "name": "Quaternius Background Posed Humans Pack", "category": "Posed (non-animated) humans", "domain_group": "A", "deep_evaluated": false, "note": "Same Drive-quota obstacle confirmed on a second folder", "status": "REFERENCE" },
+    { "id": "PRE20-A06", "name": "Kenney Animated Characters Protagonists", "category": "Themed animated characters", "domain_group": "A", "deep_evaluated": false, "note": "Passed over, too thematically specific", "status": "REFERENCE" },
+    { "id": "PRE20-A07", "name": "Kenney Animated Characters Survivors", "category": "Themed animated characters", "domain_group": "A", "deep_evaluated": false, "note": "Passed over, too thematically specific", "status": "REFERENCE" },
+    { "id": "PRE20-A01", "name": "Kenney Mini Characters", "category": "Rigged generic people + 32 clips", "domain_group": "A", "deep_evaluated": true, "status": "PILOT" },
+    { "id": "PRE20-A02", "name": "Kenney City Kit (Commercial)", "category": "Modular buildings/towers", "domain_group": "A", "deep_evaluated": true, "status": "PILOT" },
+    { "id": "PRE20-B01", "name": "Kenney Car Kit", "category": "Background vehicles", "domain_group": "B", "deep_evaluated": true, "status": "PILOT" },
+    { "id": "PRE20-B02", "name": "Kenney Nature Kit", "category": "Rocks/trees/foliage", "domain_group": "B", "deep_evaluated": true, "status": "REJECT" },
+    { "id": "PRE20-C01", "name": "Poly Haven snow_02", "category": "PBR photo material", "domain_group": "C", "deep_evaluated": true, "status": "ADOPT" },
+    { "id": "PRE20-C02", "name": "three.js Water.js / Sky.js (bundled)", "category": "Upstream procedural water/sky mechanism", "domain_group": "C", "deep_evaluated": true, "status": "PILOT" }
+  ],
+  "domain_group_coverage": {
+    "A_urban_human": {
+      "kit_families": ["Urban Kit", "Human/Crowd Kit", "Animation Kit", "Interior Kit", "Machine/Prop Kit", "Signage/Screen Kit", "Secondary-Life Kit"],
+      "deep_eval_target": "1 rigged human/crowd + 1 urban/interior/prop",
+      "result": "MET",
+      "candidates": ["PRE20-A01", "PRE20-A02"]
+    },
+    "B_nature_movement": {
+      "kit_families": ["Terrain/Road Kit", "Mountain Kit", "Vegetation Kit", "Vehicle/Traffic Kit", "Animation Kit"],
+      "deep_eval_target": "1 nature/vegetation/terrain/mountain + 1 vehicle",
+      "result": "MET_PARTIALLY_VIA_EXISTING_SYSTEM",
+      "candidates": ["PRE20-B01"],
+      "existing_system_relied_on": "in-repo Vegetation/Terrain system, already ADOPT per DRIFT_3D_ASSET_REUSE_MATRIX.md §1",
+      "rejected_external_candidate": "PRE20-B02 (Kenney Nature Kit, unlit/untextured materials conflict with Realism Bible PBR mandate)"
+    },
+    "C_water_weather_light": {
+      "kit_families": ["Water Kit", "Weather Kit", "Lighting/Material Kit", "Transition Kit"],
+      "deep_eval_target": "1 PBR material/HDRI + 1 water/weather/light (external or verified existing mechanism)",
+      "result": "MET",
+      "candidates": ["PRE20-C01", "PRE20-C02"]
+    }
+  },
+  "shared_kit_coverage": {
+    "Urban Kit": ["PRE20-A02"],
+    "Human/Crowd Kit": ["PRE20-A01"],
+    "Animation Kit": ["PRE20-A01"],
+    "Vehicle/Traffic Kit": ["PRE20-B01"],
+    "Vegetation Kit": ["existing ADOPT system, no external candidate promoted"],
+    "Mountain Kit": ["unresolved, no candidate evaluated this lot"],
+    "Lighting/Material Kit": ["PRE20-C01"],
+    "Water Kit": ["PRE20-C02"],
+    "Weather Kit": ["PRE20-C02 (Sky.js only; no rain/fog candidate evaluated this lot)"],
+    "Interior Kit": ["not evaluated this lot"],
+    "Machine/Prop Kit": ["not evaluated this lot"],
+    "Signage/Screen Kit": ["not evaluated this lot"],
+    "Secondary-Life Kit": ["not evaluated this lot"],
+    "Terrain/Road Kit": ["existing ADOPT system, no external candidate evaluated"],
+    "Transition Kit": ["not evaluated this lot"]
+  },
+  "deep_evaluation": [
+    {
+      "id": "PRE20-A01",
+      "name": "Kenney Mini Characters",
+      "publisher": "Kenney",
+      "asset_page": "https://kenney.nl/assets/mini-characters",
+      "version": "1.0",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "Creative Commons Zero",
+        "spdx": "CC0-1.0",
+        "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence_file_in_archive": "License.txt",
+        "licence_file_preserved_at": "docs/evidence/DRIFT-IV-PRE-20/licences/kenney-mini-characters-License.txt",
+        "redistribution_conclusion": "PERMITTED (raw source files, no restriction)",
+        "attribution_conclusion": "APPRECIATED_NOT_REQUIRED",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": "https://kenney.nl/media/pages/assets/mini-characters/bfc7e272b4-1774770718/kenney_mini-characters.zip",
+      "source_archive_sha256": "9E1D48E6D7B8479EBBE84DF71EB5BD8E1B3F0DA546DEA641890DCCC8A02D0999",
+      "source_archive_size_bytes": 2403059,
+      "technical_import": {
+        "representative_file": "character-male-a.glb",
+        "file_size_bytes": 246916,
+        "gltf_version": "2.0",
+        "generator": "UnityGLTF",
+        "mesh_count": 2,
+        "material_count": 1,
+        "node_count": 10,
+        "animation_clip_count": 32,
+        "clip_names": ["static","idle","walk","sprint","jump","fall","crouch","sit","drive","die","pick-up","emote-yes","emote-no","holding-right","holding-left","holding-both","holding-right-shoot","holding-left-shoot","holding-both-shoot","attack-melee-right","attack-melee-left","attack-kick-right","attack-kick-left","interact-right","interact-left","wheelchair-sit","wheelchair-look-left","wheelchair-look-right","wheelchair-move-forward","wheelchair-move-back","wheelchair-move-left","wheelchair-move-right"],
+        "skin_count": 2,
+        "joints_per_skin": 7,
+        "texture_count": 1,
+        "extensions_used": ["KHR_texture_transform"],
+        "extensions_required": [],
+        "estimated_triangle_count": 723,
+        "parser_warnings": []
+      },
+      "visual_evaluation": {
+        "preview_path": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-mini-characters-preview.png",
+        "preview_source": "official Kenney asset-page preview image",
+        "realism_level": "LOW — low-poly, flat-shaded",
+        "stylization_level": "HIGH — chunky proportions, saturated flat colors",
+        "compatibility_with_masterframes": "MISMATCH at foreground distance; PLAUSIBLE at silhouette/background distance per the Human/Crowd Kit's own silhouette-first doctrine",
+        "compatibility_with_canonical_vehicle": "n/a (no vehicle in this candidate)",
+        "generic_asset_store_risk": "MODERATE — recognizable Kenney low-poly style",
+        "beneficiary_eras_tracks": ["Birth Yard (bridge queue, Foolfoule crowd density)", "background human presence world-wide"]
+      },
+      "adaptation_cost": "MEDIUM — retexturing/style-harmonization pass, or restriction to background/silhouette-distance use only",
+      "decision_status": "PILOT",
+      "confidence": "HIGH",
+      "rejection_reason": null,
+      "unresolved_risk": "7-joint skeleton not yet tested against an actual retargeting/IK workflow in this repository",
+      "recommended_pre30_usage": "Group A pilot: test skeleton against Shared Kit Architecture §1.4 convention; test silhouette-distance visual read; do not use at foreground distance without a style pass"
+    },
+    {
+      "id": "PRE20-A02",
+      "name": "Kenney City Kit (Commercial)",
+      "publisher": "Kenney",
+      "asset_page": "https://kenney.nl/assets/city-kit-commercial",
+      "version": "2.1",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "Creative Commons Zero",
+        "spdx": "CC0-1.0",
+        "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence_file_in_archive": "License.txt",
+        "licence_file_preserved_at": "docs/evidence/DRIFT-IV-PRE-20/licences/kenney-city-kit-commercial-License.txt",
+        "redistribution_conclusion": "PERMITTED",
+        "attribution_conclusion": "APPRECIATED_NOT_REQUIRED",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": "https://kenney.nl/media/pages/assets/city-kit-commercial/a742d900eb-1753115042/kenney_city-kit-commercial_2.1.zip",
+      "source_archive_sha256": "F8B09B081C2BB88BCC126E2DEC1CB40FD0DAD7E7E591B6C26AAEFE96FB35276B",
+      "source_archive_size_bytes": 4096974,
+      "technical_import": {
+        "representative_file": "building-a.glb",
+        "file_size_bytes": 108936,
+        "gltf_version": "2.0",
+        "generator": "UnityGLTF",
+        "mesh_count": 1,
+        "material_count": 1,
+        "node_count": 1,
+        "animation_clip_count": 0,
+        "skin_count": 0,
+        "texture_count": 1,
+        "texture_dimensions": "512x512",
+        "texture_mode": "RGBA",
+        "extensions_used": ["KHR_texture_transform"],
+        "extensions_required": [],
+        "estimated_triangle_count": 1252,
+        "glb_format_total_files": 41,
+        "glb_format_total_bytes": 3739924,
+        "parser_warnings": []
+      },
+      "visual_evaluation": {
+        "preview_path": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-city-kit-commercial-preview.png",
+        "preview_source": "official Kenney asset-page preview image",
+        "realism_level": "LOW — low-poly, flat-shaded",
+        "stylization_level": "HIGH",
+        "compatibility_with_masterframes": "MISMATCH at foreground (Birth Yard's own PBR glass/concrete towers); PLAUSIBLE as background/distant massing only",
+        "compatibility_with_canonical_vehicle": "n/a",
+        "generic_asset_store_risk": "MODERATE",
+        "beneficiary_eras_tracks": ["Birth Yard (background tower massing)", "New Signal (Le Monde S'endort distant skyline)"]
+      },
+      "adaptation_cost": "MEDIUM — background/distant-massing use only, or a full retexturing pass",
+      "decision_status": "PILOT",
+      "confidence": "HIGH",
+      "rejection_reason": null,
+      "unresolved_risk": "none beyond the general Kenney visual-register gap",
+      "recommended_pre30_usage": "Group A pilot: background/distant massing only; confirm draw-call cost with the shared 512x512 colormap at realistic instance counts"
+    },
+    {
+      "id": "PRE20-B01",
+      "name": "Kenney Car Kit",
+      "publisher": "Kenney",
+      "asset_page": "https://kenney.nl/assets/car-kit",
+      "version": "3.1",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "Creative Commons Zero",
+        "spdx": "CC0-1.0",
+        "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence_file_in_archive": "License.txt",
+        "licence_file_preserved_at": "docs/evidence/DRIFT-IV-PRE-20/licences/kenney-car-kit-License.txt",
+        "redistribution_conclusion": "PERMITTED",
+        "attribution_conclusion": "APPRECIATED_NOT_REQUIRED",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": "https://kenney.nl/media/pages/assets/car-kit/1a312ec241-1775131960/kenney_car-kit.zip",
+      "source_archive_sha256": "FAC7DACAC5C7874348CF19729AF3EF205F3D366493EDAF0A827D93F4FDF3D0C4",
+      "source_archive_size_bytes": 4814237,
+      "technical_import": {
+        "representative_file": "sedan.glb",
+        "file_size_bytes": 172216,
+        "gltf_version": "2.0",
+        "generator": "UnityGLTF",
+        "mesh_count": 5,
+        "material_count": 1,
+        "node_count": 5,
+        "node_names": ["wheel-front-right", "body", "wheel-back-left", "wheel-back-right", "wheel-front-left"],
+        "animation_clip_count": 0,
+        "skin_count": 0,
+        "texture_count": 1,
+        "extensions_used": ["KHR_texture_transform"],
+        "extensions_required": [],
+        "estimated_triangle_count": 2032,
+        "total_glb_files_in_pack": 45,
+        "parser_warnings": []
+      },
+      "visual_evaluation": {
+        "preview_path": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-car-kit-preview.png",
+        "preview_source": "official Kenney asset-page preview image",
+        "realism_level": "LOW — low-poly, flat-shaded",
+        "stylization_level": "HIGH",
+        "compatibility_with_masterframes": "MISMATCH as a hero vehicle; PLAUSIBLE as background-only traffic",
+        "compatibility_with_canonical_vehicle": "does not compete with or replace the sand safari 4x4; background-only",
+        "generic_asset_store_risk": "MODERATE",
+        "beneficiary_eras_tracks": ["Birth Yard (canal-side traffic)", "background transit world-wide"]
+      },
+      "adaptation_cost": "LOW — separate wheel nodes make wheel-rotation trivial; background-only use avoids the visual-register mismatch",
+      "decision_status": "PILOT",
+      "confidence": "HIGH",
+      "rejection_reason": null,
+      "unresolved_risk": "none beyond the general Kenney visual-register gap",
+      "recommended_pre30_usage": "Group B pilot: background traffic only; wire the 4 separate wheel nodes to a simple procedural Y-rotation"
+    },
+    {
+      "id": "PRE20-B02",
+      "name": "Kenney Nature Kit",
+      "publisher": "Kenney",
+      "asset_page": "https://kenney.nl/assets/nature-kit",
+      "version": "1.0",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "Creative Commons Zero",
+        "spdx": "CC0-1.0",
+        "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence_file_in_archive": "License.txt",
+        "licence_file_preserved_at": "docs/evidence/DRIFT-IV-PRE-20/licences/kenney-nature-kit-License.txt",
+        "redistribution_conclusion": "PERMITTED",
+        "attribution_conclusion": "APPRECIATED_NOT_REQUIRED",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+      "source_archive_sha256": "FA7974A0D342BFE63C38664BA9F8EC1A4AAB8EA25F099BDC56870E33588C4D9D",
+      "source_archive_size_bytes": 10537521,
+      "technical_import": {
+        "representative_files": ["rock_tallA.glb", "tree_default.glb"],
+        "rock_tallA_size_bytes": 12072,
+        "tree_default_size_bytes": 9428,
+        "mesh_counts": [1, 1],
+        "material_counts": [3, 2],
+        "image_counts": [0, 0],
+        "extensions_used": ["KHR_materials_unlit"],
+        "generator": "UniGLTF-1.27",
+        "estimated_triangle_counts": [136, 114],
+        "total_glb_files_in_pack": 329,
+        "total_glb_bytes": 3034380,
+        "folder_naming_note": "archive's own 'GLTF format' subfolder contains binary .glb files, not text .gltf — recorded as found, not corrected",
+        "parser_warnings": ["KHR_materials_unlit + zero image references on every inspected mesh — flat/untextured shading, not PBR"]
+      },
+      "visual_evaluation": {
+        "preview_path": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-nature-kit-preview.png",
+        "preview_source": "official Kenney asset-page preview image",
+        "realism_level": "LOW",
+        "stylization_level": "HIGH",
+        "compatibility_with_masterframes": "MISMATCH — no PBR texture on any inspected mesh",
+        "generic_asset_store_risk": "HIGH",
+        "beneficiary_eras_tracks": []
+      },
+      "adaptation_cost": "HIGH — would require a full re-texturing pass to meet the Realism Bible's PBR mandate",
+      "decision_status": "REJECT",
+      "confidence": "HIGH",
+      "rejection_reason": "Technical/artistic mismatch: KHR_materials_unlit with zero texture references on every inspected mesh directly conflicts with docs/DRIFT_3D_REALISM_BIBLE.md's non-negotiable 'no mesh ships without a textured PBR material' rule. Not a licence problem. Existing in-repo Vegetation/Terrain ADOPT system already serves this need.",
+      "unresolved_risk": null,
+      "recommended_pre30_usage": null
+    },
+    {
+      "id": "PRE20-C01",
+      "name": "Poly Haven snow_02",
+      "publisher": "Poly Haven",
+      "author": "Rob Tuytel",
+      "asset_page": "https://polyhaven.com/a/snow_02",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "Creative Commons Zero",
+        "spdx": "CC0-1.0",
+        "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "licence_evidence_type": "web_terms_note",
+        "licence_evidence_path": "docs/evidence/DRIFT-IV-PRE-20/licences/polyhaven-terms-note.md",
+        "redistribution_conclusion": "PERMITTED",
+        "attribution_conclusion": "NOT_REQUIRED",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": "https://api.polyhaven.com/files/snow_02 (official API); files served from dl.polyhaven.org",
+      "source_files": [
+        { "file": "snow_02_diff_1k.jpg", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_diff_1k.jpg", "size_bytes": 325497, "sha256": "523A4E69C90B96D787DD69B897F29A2B3761A017024405C60AA630D1E8E9009A" },
+        { "file": "snow_02_nor_gl_1k.jpg", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_nor_gl_1k.jpg", "size_bytes": 1081858, "sha256": "9495EC680616B8340E2CBECBD151BFF84C690CFAD4209E90CC98D2D0BA81F810" },
+        { "file": "snow_02_rough_1k.jpg", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_rough_1k.jpg", "size_bytes": 146089, "sha256": "B6DEA8039AC2A5BEAED6FD41834FB55540CC76B492EDD1D48BA2DA2F30F1CB75" }
+      ],
+      "technical_import": {
+        "diffuse_dimensions": "1024x1024", "diffuse_mode": "RGB", "diffuse_format": "JPEG",
+        "normal_gl_dimensions": "1024x1024", "normal_gl_mode": "RGB", "normal_gl_format": "JPEG",
+        "roughness_dimensions": "1024x1024", "roughness_mode": "L", "roughness_format": "JPEG",
+        "channel_roles": ["diffuse/albedo", "normal (OpenGL convention, +Y up)", "roughness"],
+        "note": "offers a genuine roughness channel the 5 pre-existing adopted sets do not currently ship"
+      },
+      "visual_evaluation": {
+        "preview_path": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/polyhaven-snow_02-diff-preview.jpg",
+        "preview_source": "the diffuse texture file itself",
+        "realism_level": "HIGH — photo-sourced",
+        "stylization_level": "NONE",
+        "compatibility_with_masterframes": "DIRECT MATCH — Older Shadows' own accepted masterframe names 'patches of snow at the tree line'",
+        "generic_asset_store_risk": "NONE — identical source/convention to the 5 already-adopted sets",
+        "beneficiary_eras_tracks": ["Older Shadows (Rise's snow-line, the mountain plateau masterframe)"]
+      },
+      "adaptation_cost": "ZERO — identical integration path to the 5 existing adopted sets",
+      "decision_status": "ADOPT",
+      "confidence": "HIGH",
+      "rejection_reason": null,
+      "unresolved_risk": null,
+      "recommended_pre30_usage": "Integrate immediately alongside the existing 5 sets for Older Shadows' snow-line material"
+    },
+    {
+      "id": "PRE20-C02",
+      "name": "three.js Water.js / Sky.js (bundled)",
+      "publisher": "three.js authors (upstream, MIT)",
+      "asset_page": "node_modules/three/examples/jsm/objects/Water.js and Sky.js (installed dependency, no separate asset page)",
+      "version": "0.185.0 (matching installed three package)",
+      "retrieved_at": "2026-08-03",
+      "licence": {
+        "name": "MIT License",
+        "spdx": "MIT",
+        "licence_file_preserved_at": "docs/evidence/DRIFT-IV-PRE-20/licences/threejs-LICENSE.txt",
+        "redistribution_conclusion": "PERMITTED",
+        "attribution_conclusion": "REQUIRED_COPYRIGHT_NOTICE_PRESERVATION (standard MIT)",
+        "modification_conclusion": "PERMITTED",
+        "commercial_use_conclusion": "PERMITTED",
+        "public_repository_conclusion": "PERMITTED",
+        "confidence": "HIGH",
+        "unresolved_caveats": []
+      },
+      "download_source": null,
+      "source_archive_sha256": null,
+      "note_no_download": "already an installed dependency; no new npm package added",
+      "technical_import": {
+        "water_js_lines": 374,
+        "water_js_exports": "class Water extends Mesh",
+        "water_js_renderer_requirement": "WebGLRenderer only (WaterMesh.js is the WebGPURenderer equivalent, not used here)",
+        "sky_js_lines": 321,
+        "extensions_used": [],
+        "already_in_dependency_graph": true,
+        "new_npm_dependency_required": false
+      },
+      "visual_evaluation": {
+        "note": "mechanism, not imagery; no preview image applicable"
+      },
+      "relationship_to_existing_matrix_row": "upgrades the existing PILOT row for three/examples/jsm/objects/Reflector.js in DRIFT_3D_ASSET_REUSE_MATRIX.md §2, which already named 'the Water Kit's wave/erasure extension' as the missing piece Water.js now supplies",
+      "adaptation_cost": "MEDIUM — wave parameters and Étééaooété's own erasure mechanic still need real integration work",
+      "decision_status": "PILOT",
+      "confidence": "HIGH",
+      "rejection_reason": null,
+      "unresolved_risk": "not yet tested in an actual R3F scene in this repository",
+      "recommended_pre30_usage": "Group C pilot: prototype the Birth Yard canal upgrade first (lower risk); defer Étééaooété's full wave/erasure mechanic to its own future Identity Contract"
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "id": "PRE20-A04",
+      "name": "Mixamo (Adobe)",
+      "reason": "Adobe General Terms of Use §3.6 'Content Files' forbids stand-alone redistribution of raw asset files outside an embedded End Use — incompatible with committing source files to a public GitHub repository.",
+      "evidence_path": "docs/evidence/DRIFT-IV-PRE-20/licences/mixamo-adobe-terms-note.md",
+      "genuinely_open_alternative_evaluated": "Kenney Mini Characters (PRE20-A01), CC0-1.0"
+    },
+    {
+      "id": "PRE20-B02",
+      "name": "Kenney Nature Kit",
+      "reason": "Technical/artistic mismatch (unlit/untextured materials vs. Realism Bible PBR mandate), not a licence problem.",
+      "evidence_path": "see deep_evaluation array above"
+    }
+  ],
+  "unresolved_reference_candidates": [
+    { "id": "PRE20-A03", "name": "Quaternius Ultimate Modular Men Pack", "reason": "licence confirmed CC0-1.0, technical access blocked by Google Drive shared-folder quota, reproduced via 2 independent methods" },
+    { "id": "PRE20-A05", "name": "Quaternius Background Posed Humans Pack", "reason": "same Drive-quota obstacle, also lacks animation" },
+    { "id": "PRE20-A06", "name": "Kenney Animated Characters Protagonists", "reason": "not deep-evaluated, too thematically specific" },
+    { "id": "PRE20-A07", "name": "Kenney Animated Characters Survivors", "reason": "not deep-evaluated, too thematically specific" },
+    { "id": "mountain-kit-rock-cliff-dressing", "name": "Mountain Kit rock/cliff PBR dressing", "reason": "no specific candidate evaluated this lot beyond snow_02 (which serves the snow-line, not general rock/cliff dressing)" }
+  ],
+  "promoted_set": {
+    "cap": 6,
+    "actual": 5,
+    "candidates": [
+      { "id": "PRE20-C01", "status": "ADOPT", "domain_group": "C" },
+      { "id": "PRE20-A01", "status": "PILOT", "domain_group": "A" },
+      { "id": "PRE20-A02", "status": "PILOT", "domain_group": "A" },
+      { "id": "PRE20-B01", "status": "PILOT", "domain_group": "B" },
+      { "id": "PRE20-C02", "status": "PILOT", "domain_group": "C" }
+    ],
+    "group_b_second_slot_note": "deliberately not filled by a new external candidate; existing in-repo Vegetation/Terrain ADOPT system confirmed sufficient"
+  },
+  "deterministic_counts": {
+    "longlisted_candidates": 11,
+    "deeply_evaluated_candidates": 6,
+    "candidates_by_status": { "ADOPT": 1, "PILOT": 4, "REFERENCE": 5, "REJECT": 2 },
+    "candidates_by_domain_group": { "A": 7, "B": 2, "C": 2 },
+    "source_archives_downloaded": 5,
+    "source_archives_with_hash": 5,
+    "licence_evidence_records": 8,
+    "rejected_candidates": 2,
+    "unresolved_reference_candidates": 5
+  },
+  "gate_result": {
+    "decision": "OWNER_REVIEW_REQUIRED",
+    "completion_gate_checklist_15_points_passed": 15,
+    "pre_30_status": "BLOCKED_BY_DEPENDENCY",
+    "pre_30_started": false,
+    "committed": false,
+    "pushed": false,
+    "pr_opened": false
+  },
+  "owner_decision_final": {
+    "note": "New top-level section. Nothing in the fields above (longlist, deep_evaluation, rejected_candidates, unresolved_reference_candidates, promoted_set, deterministic_counts, gate_result) was edited or deleted. This section is the current, authoritative, final state.",
+    "quaternius_evidence_correction": {
+      "supersedes": "unresolved_reference_candidates entries for PRE20-A03/PRE20-A05, and the markdown registry's §11 point 1 overgeneralized phrasing",
+      "corrected_claim": "Quaternius's own official website (quaternius.com) remained fully accessible throughout this lot; only its Google Drive-hosted binary distribution endpoint was blocked, confirmed on 2 of its packs via 2 independent access methods; not tested against the rest of the catalogue.",
+      "file_successfully_downloaded": {
+        "url": "https://quaternius.com/assets/images/fullres/modularcharacters.jpg",
+        "host": "quaternius.com (self-hosted, NOT Google Drive)",
+        "type": "official marketing preview image (2D JPG), not a 3D asset",
+        "size_bytes": 360869,
+        "sha256": "CCF065362F4035D5A62A7A18DCB092365670D1E0877E55C1DE0B5CC184652E4B",
+        "dimensions": "1920x1080",
+        "mode": "RGB",
+        "format": "JPEG",
+        "retrieved": "2026-08-03",
+        "http_result": "successful retrieval, HTTP 200 OK",
+        "tracked_repository_path": null,
+        "tracking_decision": "NOT_TRACKED",
+        "reason": "standalone promotional-preview redistribution was not independently established and the image is unnecessary for reproducible licence or import evidence."
+      },
+      "endpoints_tested_and_blocked": [
+        { "pack": "Ultimate Modular Men Pack", "folder_id": "1USAAquX2JJWuA2m6zol0KUkFe3UkZ8zX", "file": "License.txt", "file_id": "1TTvylHa1CsiJuHFWWiv6PFGhLM-aAH5z", "method": "PowerShell Invoke-WebRequest" },
+        { "pack": "Ultimate Modular Men Pack", "folder_id": "1USAAquX2JJWuA2m6zol0KUkFe3UkZ8zX", "file": "Worker.gltf", "file_id": "14d8n7IDnnlnGt_uiATnNg3uvi_4dyd9V", "method": "PowerShell Invoke-WebRequest" },
+        { "pack": "Ultimate Modular Men Pack", "folder_id": "1USAAquX2JJWuA2m6zol0KUkFe3UkZ8zX", "file": "Adventurer.gltf", "file_id": "1fzSq1Rr037f7QkfXPWEAzmbLMNx-FpPA", "method": "PowerShell Invoke-WebRequest" },
+        { "pack": "Background Posed Humans Pack", "folder_id": "18dWyZlA53euzsc1WobITqFYLcT5sFULz", "file": "License.txt", "file_id": "1K6M5kb7ugqrPROrSx6O6dUBJA366xq-j", "method": "full authenticated browser session navigation (redirected to drive.usercontent.google.com)" }
+      ],
+      "failure_mechanism": {
+        "http_status": "200 OK on every attempt (no exception thrown, no redirect loop)",
+        "response_body": "Google's own static HTML page, title 'Google Drive - Quota exceeded' / 'Le quota autorisé a été atteint'",
+        "message": "Sorry, you can't view or download this file at this time. Too many users have viewed or downloaded this file recently... it may take up to 24 hours.",
+        "classification": "application-level anonymous-download rate limit on Google Drive's own endpoint",
+        "not_an_auth_requirement": true,
+        "not_a_transport_failure": true,
+        "not_a_permissions_problem": "folder contents list without authentication, confirming the share itself is valid",
+        "response_bodies_near_identical_not_byte_identical": "each exactly 2009 bytes, identical error text, but each embeds a different per-response CSP nonce, confirming 4 independently-generated server responses, not one cached error"
+      },
+      "technical_inspection_performed_on_quaternius_3d_assets": "NONE — zero glTF/GLB/FBX bytes were ever received for any Quaternius file; only the 2D preview JPG above was decoded (dimensions/mode/format only)",
+      "why_insufficient_for_adopt_or_pilot": "This lot's promotion rule requires real download, deterministic hash, and real technical inspection of the candidate asset itself. A marketing preview image is not the candidate asset and contains no mesh/rig/material/animation data.",
+      "why_remaining_candidates_stay_reference": "The Google Drive quota mechanism was confirmed identically on 2 independently-tested packs. This plausibly generalizes to the rest of the Quaternius catalogue (every product page uses the same Drive-folder download pattern) but was not tested beyond these 2 packs, per this lot's own bounded-scope rule. Precise claim: '2 packs tested, both blocked by the same mechanism' — not 'entire catalogue confirmed inaccessible.'"
+    },
+    "final_verdicts": [
+      { "id": "PRE20-C01", "name": "Poly Haven snow_02", "owner_verdict": "ACCEPT", "registry_status": "ADOPT", "guardrail": "ADOPT means licence-verified and approved as an available material asset. It does not mean the texture has already been integrated into the Drift runtime. Runtime integration remains PRE-30 work." },
+      { "id": "PRE20-A01", "name": "Kenney Mini Characters", "owner_verdict": "ACCEPT", "registry_status": "PILOT", "guardrail": "Authorized for skeleton, clip, retargeting, crowd-instancing and animation-architecture experiments. Not accepted as the final visual appearance of foreground Drift humans. No accepted masterframe or realism doctrine may be weakened to match its low-poly visual style." },
+      { "id": "PRE20-A02", "name": "Kenney City Kit (Commercial)", "owner_verdict": "ACCEPT", "registry_status": "PILOT", "guardrail": "Authorized for greybox, urban massing, background silhouettes and modular-assembly evaluation. Not automatically authorized as final foreground architecture. Generic asset-store recognizability must be removed or transformed before any final artistic adoption." },
+      { "id": "PRE20-B01", "name": "Kenney Car Kit", "owner_verdict": "ACCEPT", "registry_status": "PILOT", "guardrail": "Authorized for traffic hierarchy, wheel-node mechanics, background vehicles and secondary-motion evaluation. Never replaces or redefines the canonical sand safari 4x4. Not accepted as final foreground vehicle art." },
+      { "id": "PRE20-C02", "name": "three.js Water.js / Sky.js", "owner_verdict": "ACCEPT", "registry_status": "PILOT", "guardrail": "Technical seed only. Does not satisfy Drift's final ocean, wave, splash, weather or sky direction. Any copied or substantially adapted MIT source must preserve the applicable three.js copyright and permission notice." }
+    ],
+    "accepted_rejections": [
+      { "id": "PRE20-A04", "name": "Mixamo / Adobe", "owner_verdict": "ACCEPT_REJECTION", "exact_scope": "Rejected specifically for repository-bundled use where raw or converted character/animation content would be redistributed through the public GitHub repo (Adobe General Terms of Use §3.6). Not a claim that Mixamo is forbidden for every possible end-use project — scoped to MISWAY's own public-repository asset workflow." },
+      { "id": "PRE20-B02", "name": "Kenney Nature Kit", "owner_verdict": "ACCEPT_REJECTION", "exact_scope": "Rejected as a final visual/PBR nature source for Drift — unlit, textureless, low-poly register conflicts with the accepted masterframes and Realism Bible. Must not silently return during PRE-30 as final environment art; existing in-repo Vegetation/Terrain ADOPT system remains the actual answer." }
+    ],
+    "retroactive_licence_closure_accepted": {
+      "scope": "Poly Haven licence/provenance record for the 5 pre-existing public/textures/ sets",
+      "nature": "provenance/governance closure only",
+      "makes_no_new_artistic_decision": true,
+      "does_not_claim_pre20_created_existing_assets": true
+    },
+    "mit_notice_obligation": {
+      "candidate": "PRE20-C02",
+      "installed_package": "three@0.185.0",
+      "upstream_module_paths": ["node_modules/three/examples/jsm/objects/Water.js", "node_modules/three/examples/jsm/objects/Sky.js"],
+      "licence": "MIT",
+      "licence_file": "docs/evidence/DRIFT-IV-PRE-20/licences/threejs-LICENSE.txt",
+      "obligation": "Any code that copies or substantially adapts these modules' source (as opposed to importing unmodified from the installed package) must preserve the applicable three.js copyright and permission notice. Currently proposed as an unmodified import, so no additional notice file is required today; recorded for a future fork/rewrite scenario."
+    },
+    "pre_30_authorization_boundaries": {
+      "may_test": [
+        "Poly Haven snow_02 material integration",
+        "Kenney Mini Characters skeleton and animation architecture",
+        "Kenney City Kit modular urban assembly and background massing",
+        "Kenney Car Kit traffic and wheel-node mechanics",
+        "Water.js / Sky.js as technical mechanisms",
+        "existing in-repository ADOPT/PILOT procedural systems"
+      ],
+      "must_not_assume": [
+        "Kenney visual styles are accepted final art",
+        "the canonical vehicle may be replaced",
+        "Water.js alone satisfies the Étééaooété ocean requirement",
+        "Sky.js alone satisfies the accepted weather/light direction",
+        "Quaternius assets are available or approved",
+        "any unresolved REFERENCE candidate may be downloaded or adopted without its own dedicated evaluation",
+        "any shared kit has already been built"
+      ]
+    },
+    "gate_result_final": {
+      "decision": "DONE_PENDING_MERGE",
+      "final_status": "DRIFT-IV-PRE-20 = DONE_PENDING_MERGE",
+      "pre_30_status": "READY_AFTER_MERGE",
+      "pre_30_started": false,
+      "seventh_candidate_added": false,
+      "new_broad_search_performed": false,
+      "committed": false,
+      "pushed": false,
+      "pr_opened": false
+    }
+  },
+  "pre_commit_evidence_corrections": {
+    "note": "New top-level section, applied before this lot's already-created local commit is published. Nothing in owner_decision_final or any earlier section was edited or deleted except the two narrowly-scoped factual fixes named below (the stale preserved_at claim in owner_decision_final.quaternius_evidence_correction.file_successfully_downloaded, corrected in place since it was a factual file-location claim, not an owner decision). No owner decision, candidate status, ADOPT/PILOT/REJECT/REFERENCE verdict, or count in promoted_set/deterministic_counts was changed by this section.",
+    "kenney_licence_whitespace_exception": {
+      "mechanism": "repository-root .gitattributes entry",
+      "exact_rule": "docs/evidence/DRIFT-IV-PRE-20/licences/kenney-*-License.txt whitespace=-trailing-space,cr-at-eol",
+      "scope": "applies only to the 4 exact verbatim Kenney licence-evidence files named by that glob; no other path in the repository is affected",
+      "purpose": "these are verbatim third-party licence evidence; their original upstream bytes (including CRLF line endings and any trailing whitespace) must be preserved exactly, since the recorded hash is itself the evidence of unmodification",
+      "no_file_rewritten_or_normalized": true,
+      "source_hashes_remain_valid": true,
+      "normal_whitespace_validation_remains_enabled_everywhere_else": true,
+      "kenney_licence_file_sha256": {
+        "kenney-mini-characters-License.txt": "28358ae5accc85b572eb42507956afc8beae05acb4648bb9026a5714d421b785",
+        "kenney-city-kit-commercial-License.txt": "c38cee408d022e57e44e49f1cd655c2fe0dc881a07b881276b795215cdc0de69",
+        "kenney-car-kit-License.txt": "c33b7f6453d134deae7b1b8493717d9ccfa754c25ab97f6de89b88f8fda19b00",
+        "kenney-nature-kit-License.txt": "cb96b75e3560ac78d7a53ce6f083f4cdb5c53faea6141b62d63458dcfe1e4b9d"
+      }
+    },
+    "quaternius_preview_untracked": {
+      "removed_repository_file": "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/quaternius-ultimate-modular-men-preview.jpg",
+      "reason_for_removal": "the preview was successfully retrieved and hashed, but the evidence does not independently establish redistribution rights for that standalone promotional website image",
+      "external_evidence_retained": {
+        "url": "https://quaternius.com/assets/images/fullres/modularcharacters.jpg",
+        "host": "quaternius.com (self-hosted, official)",
+        "retrieved": "2026-08-03",
+        "http_result": "successful retrieval, HTTP 200 OK",
+        "size_bytes": 360869,
+        "dimensions": "1920x1080",
+        "mode": "RGB",
+        "format": "JPEG",
+        "sha256": "CCF065362F4035D5A62A7A18DCB092365670D1E0877E55C1DE0B5CC184652E4B"
+      },
+      "tracked_repository_path": null,
+      "tracking_decision": "NOT_TRACKED",
+      "reason": "standalone promotional-preview redistribution was not independently established and the image is unnecessary for reproducible licence or import evidence.",
+      "does_not_affect": "the CC0-1.0 licence conclusion for the Quaternius model packs themselves (confirmed via the packs' own official page licence badge, independent of this preview image) or the REFERENCE status of PRE20-A03/PRE20-A05, which remains REFERENCE for the pre-existing reason that no downloadable 3D asset bytes were ever obtained or technically inspected"
+    },
+    "tracked_preview_count_correction": {
+      "previously_stated": 6,
+      "corrected": 5,
+      "remaining_tracked_previews": [
+        "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-mini-characters-preview.png",
+        "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-city-kit-commercial-preview.png",
+        "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-car-kit-preview.png",
+        "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/kenney-nature-kit-preview.png",
+        "docs/evidence/DRIFT-IV-PRE-20/candidate-previews/polyhaven-snow_02-diff-preview.jpg"
+      ]
+    },
+    "candidate_counts_unchanged": {
+      "longlisted_candidates": 11,
+      "deeply_evaluated_candidates": 6,
+      "promoted_candidates": 5,
+      "adopt": 1,
+      "pilot": 4,
+      "accepted_rejections": 2
+    },
+    "gate_status_unchanged": {
+      "drift_iv_pre_20": "DONE_PENDING_MERGE",
+      "drift_iv_pre_30": "READY_AFTER_MERGE",
+      "pre_30_started": false,
+      "committed": false,
+      "pushed": false,
+      "pr_opened": false
+    }
+  }
+}

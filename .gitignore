@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# temporary asset-research downloads (DRIFT-IV-PRE-20 and future acquisition lots)
+/.tmp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
