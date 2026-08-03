@@ -1,0 +1,14 @@
+# Quaternius — licence terms note ("Ultimate Modular Men Pack" and "Background Posed Humans Pack")
+
+**Official source page:** https://quaternius.com/packs/ultimatemodularcharacters.html
+**Retrieved:** 2026-08-03, this session, via direct browser navigation.
+**On-page licence badge:** "License: CC0", linking directly to the canonical deed https://creativecommons.org/publicdomain/zero/1.0/.
+**Page text (verbatim, short):** "Ultimate Modular Men Pack February 2022. 11 Different characters with 24 animations! Each character is divided into 4 models that can be swapped to create new combinations. In FBX, OBJ, glTF and Blend formats, free to use in personal and commercial projects."
+
+**SPDX identifier:** `CC0-1.0`.
+
+**Official distribution channel:** a Google Drive folder linked directly from Quaternius's own official page (`drive.google.com/drive/folders/1USAAquX2JJWuA2m6zol0KUkFe3UkZ8zX`) — this is the publisher's own designated channel, not an unofficial third-party mirror. Folder listing (visible without authentication) confirms an internal `License.txt` (372 bytes) exists inside the official folder itself.
+
+**Access obstacle, honestly recorded — NOT a licence problem:** this session was unable to actually download any file from that Drive folder. Two independent methods were tried (a direct HTTP request via PowerShell, and full in-browser navigation to the same URL with an active session) and both returned Google's own `"Quota exceeded" / "Le quota autorisé a été atteint"` page: *"Too many users have viewed or downloaded this file recently... it may take up to 24 hours."* This was reproduced on two different files inside two different Quaternius Drive folders (Ultimate Modular Men, Background Posed Humans), indicating a session/IP-level rate limit on Google's anonymous-download endpoint from this environment, not a problem specific to one file. The publisher's own page preview image (self-hosted, not on Drive) downloaded successfully — 1920×1080 JPEG, SHA-256 `CCF065362F4035D5A62A7A18DCB092365670D1E0877E55C1DE0B5CC184652E4B`. Per `licensed-asset-provenance-registry.md` §15.2, this image is **not tracked in the repository** (redistribution rights for this standalone promotional image were not independently established); the URL, timestamp, size, dimensions and hash above are retained as external evidence only.
+
+**Consequence for this lot's registry:** licence is confirmed (`CC0-1.0`, primary source), but no source archive hash, no technical import inspection, and no direct-file visual evaluation could be produced this session. Per this lot's own promotion rule ("Promotion requires: ...real download; deterministic hash; real technical inspection..."), this candidate **cannot be promoted to `ADOPT` or `PILOT` this lot** and remains `REFERENCE`, with this exact, reproducible obstacle named as the reason — not a vague "unresolved," and not a licence concern.

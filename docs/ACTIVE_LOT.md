@@ -1,10 +1,35 @@
 # ACTIVE_LOT.md
 
 Current lot:
+DRIFT-IV-PRE-20 — Licensed asset / provenance registry and import evaluation
+
+Status:
+`DONE_PENDING_MERGE`. **Final owner decision recorded: 5-candidate promoted set ACCEPTED with bounded PILOT roles** — Poly Haven `snow_02` `ADOPT`, Kenney Mini Characters/City Kit (Commercial)/Car Kit and three.js `Water.js`/`Sky.js` all `PILOT`, each with an explicit owner-stated guardrail scoping exactly what `PRE-30` may test and what it must not assume (e.g. Kenney's low-poly style is never accepted final art; the canonical sand safari 4x4 is never replaced; `Water.js`/`Sky.js` are technical seeds only, not the final ocean/weather/sky direction). Both rejections (Mixamo, Kenney Nature Kit) explicitly accepted with precisely scoped reasoning. The retroactive Poly Haven licence closure for the 5 pre-existing textures is accepted as governance-only. **Quaternius's evidence account was corrected** at the owner's request: only the Google Drive-hosted binary distribution endpoint (tested on 2 packs, 4 file IDs, 2 independent methods, all returning HTTP 200 with Google's own quota-exceeded HTML body) was blocked — Quaternius's own official website remained fully accessible throughout, and one official preview image (not a 3D asset) was successfully downloaded and hashed. See `docs/evidence/DRIFT-IV-PRE-20/licensed-asset-provenance-registry.md` §14 for the full final record (§0–13 preserved unchanged as the research record).
+
+Baseline:
+main@e212c056cbb06d0c1bd973b16c7d1000e4052209 (contains `DRIFT-IV-PRE-10`, merged PR #35, `DRIFT-IV-PRE-00`, merged PR #34, `DRIFT-IV-GOV-40`, merged PR #33, and `DRIFT-IV-BY-EUX-30`, merged PR #32 — all delivered)
+
+Type:
+Research/evidence and bounded real-download lot. Turns the Asset Reuse Matrix's `REFERENCE`-only candidate categories into a licence-verified, technically-tested registry. No production Drift runtime change; no `public/audio` change; no asset adopted without exact licence/provenance evidence; no raw third-party binary committed unless tiny, explicitly redistribution-permitted, and strictly necessary for reproducible evidence.
+
+Completed (PRE-20, research pass): preflight (branch/baseline/PR merges/environment confirmed — three@0.185.0, no `.glb`/`.gltf` in repo, no `.gitattributes`, Git LFS installed but unconfigured, no prior licence-evidence file anywhere); primary-source licence research for 11 longlisted candidates; 5 real downloads, SHA-256-hashed, real GLB/glTF structural inspection via a standard-library-only Python parser; visual evaluation against official preview images and the 5 owner-accepted `DRIFT-IV-PRE-10` masterframes; full evidence package written; `docs/DRIFT_3D_ASSET_REUSE_MATRIX.md` and `docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md` updated with dated `DRIFT-IV-PRE-20` sections.
+
+Completed (PRE-20, owner decision pass, this pass): recorded the owner's 5 final `ACCEPT` verdicts with their exact bounded `PILOT`/`ADOPT` guardrails; recorded both accepted rejections with their precisely scoped reasoning; recorded the retroactive Poly Haven licence closure as governance-only; corrected the Quaternius evidence account (exact downloaded file/hash, exact 4 blocked endpoints across 2 packs, exact HTTP-200-with-quota-error-body mechanism, exact reasoning for why remaining Quaternius candidates stay `REFERENCE`) — no new research performed, no seventh candidate added; recorded the MIT notice obligation for `Water.js`/`Sky.js`; recorded the exact `PRE-30` authorization boundaries (what it may test, what it must not assume).
+
+Final status:
+`DRIFT-IV-PRE-20 = DONE_PENDING_MERGE`. All owner verdicts recorded with bounded guardrails; both rejections accepted; Quaternius evidence corrected and internally consistent; MIT notice obligation recorded; no raw third-party archive/model tracked; no runtime/public asset changed. `DRIFT-IV-PRE-30 = READY_AFTER_MERGE`, not started.
+
+Next lot:
+`DRIFT-IV-PRE-30` — representative shared-kit pilots (urban/human, nature/movement, water/weather/light), bounded by the exact authorization boundaries recorded in `docs/evidence/DRIFT-IV-PRE-20/licensed-asset-provenance-registry.md` §14.4. `READY_AFTER_MERGE` (blocked only on this lot's own merge). Not started.
+
+---
+
+## Previous lot (context, merged)
+
 DRIFT-IV-PRE-10 — Five real visual masterframes
 
 Status:
-`DONE_PENDING_MERGE`. **Final owner decision recorded: all five masterframes ACCEPTED** — Entry `ACCEPT`, Birth Yard `ACCEPT`, Older Shadows `ACCEPT`, Vegetative Field `ACCEPT`, New Signal `ACCEPT`. This explicit final decision supersedes the round-1 `REWORK`/`REJECT` verdicts below (preserved as history, not reopened): the owner confirmed the automated visual-audit observations (missing foreground apparatus in Entry, under-represented cairn trail in Older Shadows, mower-not-vacuum in Vegetative Field, the plaque in New Signal) are descriptive, not blocking — including explicitly accepting "New Signal's current plaque/λ treatment as part of this accepted concept-art reference." These are accepted **visual-reference** images, not literal runtime implementation contracts; a future Build lot is not obligated to reproduce every incidental AI-generated detail. All five final files were technically normalized (no artistic change) to exactly **1664×936** (exact 16:9), WebP, explicit sRGB ICC profile, source bytes preserved separately for all five, five distinct SHA-256 hashes confirmed. The contact sheet was regenerated from the five final accepted files. See `docs/evidence/DRIFT-IV-PRE-10/visual-masterframe-production.md` §16 for the full final record (§0–15 preserved unchanged as history).
+DONE — MERGED (PR #35, commit `e212c056cbb06d0c1bd973b16c7d1000e4052209`)
 
 Baseline:
 main@8a74a31 (contains `DRIFT-IV-PRE-00`, merged PR #34, `DRIFT-IV-GOV-40`, merged PR #33, and `DRIFT-IV-BY-EUX-30`, merged PR #32 at `b069d09` — all delivered)
@@ -19,10 +44,10 @@ Completed (PRE-10, owner-review round 1 pass): recorded the owner's five explici
 Completed (PRE-10, final owner decision pass, this pass): recorded the owner's explicit final override — all five `ACCEPT` — superseding the round-1 `REWORK`/`REJECT` verdicts; technically normalized the remaining four files (Entry, Older Shadows, Vegetative Field, New Signal) to exactly 1664×936 with an explicit sRGB ICC profile each, source bytes preserved separately for each (`masterframes/source/<frame>.round1-source.webp`), no artistic change, confirmed by direct visual comparison; independently re-verified all five final files (decode, exact 1664×936, exact 16:9, WEBP/RGB, explicit sRGB, non-zero, five distinct hashes); regenerated the contact sheet from the five final accepted files; updated `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md`'s five candidate-image lines to `ACCEPT`.
 
 Final status:
-`DRIFT-IV-PRE-10 = DONE_PENDING_MERGE`. All five masterframes owner-accepted; all five final files exactly 1664×936, exact 16:9, WebP/RGB, explicit sRGB ICC, five distinct SHA-256 hashes; contact sheet regenerated; no runtime/asset/audio/cue file touched; no image regenerated or retouched. `DRIFT-IV-PRE-20 = READY_AFTER_MERGE`, not started.
+`DRIFT-IV-PRE-10 = DONE — MERGED` (PR #35, commit `e212c056cbb06d0c1bd973b16c7d1000e4052209`, corrected — this entry previously read `DONE_PENDING_MERGE`, un-updated between that pass's completion and its actual merge). All five masterframes owner-accepted; all five final files exactly 1664×936, exact 16:9, WebP/RGB, explicit sRGB ICC, five distinct SHA-256 hashes; contact sheet regenerated; no runtime/asset/audio/cue file touched; no image regenerated or retouched.
 
 Next lot:
-`DRIFT-IV-PRE-20` — licensed asset/provenance registry and import evaluation. `READY_AFTER_MERGE` (blocked only on this lot's own merge — `DRIFT-IV-PRE-10` has reached `DONE_PENDING_MERGE` with all five owner `ACCEPT` verdicts recorded). Not started.
+`DRIFT-IV-PRE-20` — licensed asset/provenance registry and import evaluation, now the current lot at the top of this file — see there for current status.
 
 ---
 
@@ -248,7 +273,7 @@ Protected scope:
 End-of-SYS-phase status: BASE-00 through SYS-70 all DONE. **SHARED PRE-GATE FOUNDATION COMPLETE.** This lot (`DRIFT-IV-BY-EUX-20`) is `DONE — MERGED` (PR #31, corrected retroactively by `DRIFT-IV-GOV-40`) — see the top of this file.
 
 Next lot after this one:
-DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance, `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full evidence. `DRIFT-IV-GOV-40` followed, now also `DONE — MERGED` (PR #33, `main@99eacbe`), then `DRIFT-IV-PRE-00`, now also `DONE — MERGED` (PR #34, `main@8a74a31`). The current lot is `DRIFT-IV-PRE-10` — see the top of this file.
+DRIFT-IV-BY-EUX-30 — EUX GAINENT proof-slice owner acceptance, `DONE — MERGED` (PR #32, `main@b069d09`) — see the "Previous lot" section above for its full evidence. `DRIFT-IV-GOV-40` followed, now also `DONE — MERGED` (PR #33, `main@99eacbe`), then `DRIFT-IV-PRE-00`, now also `DONE — MERGED` (PR #34, `main@8a74a31`), then `DRIFT-IV-PRE-10`, now also `DONE — MERGED` (PR #35, `main@e212c05`). The current lot is `DRIFT-IV-PRE-20` — see the top of this file.
 
 Next status:
-DRIFT-IV-BY-EUX-30 DONE — MERGED -> DRIFT-IV-GOV-40 DONE — MERGED -> DRIFT-IV-PRE-00 DONE — MERGED -> DRIFT-IV-PRE-10 (current lot, this file's top, BLOCKED — REAL IMAGE GENERATION REQUIRED)
+DRIFT-IV-BY-EUX-30 DONE — MERGED -> DRIFT-IV-GOV-40 DONE — MERGED -> DRIFT-IV-PRE-00 DONE — MERGED -> DRIFT-IV-PRE-10 DONE — MERGED -> DRIFT-IV-PRE-20 (current lot, this file's top, IN_PROGRESS)
