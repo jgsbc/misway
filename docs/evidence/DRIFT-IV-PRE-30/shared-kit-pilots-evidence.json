@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-30",
+  "title": "Representative shared-kit pilots",
+  "branch": "drift-iv-pre-30-representative-shared-kit-pilots",
+  "status": "DONE_PENDING_MERGE",
+  "baseline": {
+    "head": "d935144e6cb8a512ede6d72149fa4ead87ce4beb",
+    "main": "d935144e6cb8a512ede6d72149fa4ead87ce4beb",
+    "merged_prerequisite_lots": [
+      { "lot": "DRIFT-IV-PRE-20", "pr": 36 },
+      { "lot": "DRIFT-IV-PRE-10", "pr": 35 },
+      { "lot": "DRIFT-IV-PRE-00", "pr": 34 },
+      { "lot": "DRIFT-IV-GOV-40", "pr": 33 },
+      { "lot": "DRIFT-IV-BY-EUX-30", "pr": 32 }
+    ]
+  },
+  "environment": {
+    "node": "v24.14.0",
+    "npm": "11.16.0",
+    "next": "16.1.7",
+    "react": "19.2.3",
+    "three": "^0.185.0",
+    "react_three_fiber": "^9.6.1",
+    "react_three_drei_installed": false,
+    "test_framework_added": "none — node:test via a project-local module-resolution hook (scripts/drift3d-test-alias-hook.mjs), zero new npm dependency",
+    "basepath_production": "/misway"
+  },
+  "candidates_used": ["PRE20-A01", "PRE20-A02", "PRE20-B01", "PRE20-C01", "PRE20-C02"],
+  "candidates_excluded": ["PRE20-A03", "PRE20-A04", "PRE20-A05", "PRE20-B02"],
+  "scope_boundary_confirmed": {
+    "exactly_three_pilots": true,
+    "no_track_scene_built": true,
+    "no_cue_or_timestamp_touched": true,
+    "public_audio_untouched": true,
+    "public_audio_pre_existing_dirty_state_noted_not_touched": "entry-ambient.mp3 (modified) and gasnine.mp3 (new, untracked) were already present in the working tree before this lot began, on a branch with zero commits ahead of main — left exactly as found",
+    "topology_colliders_geography_unchanged": true,
+    "canonical_vehicle_unchanged": true,
+    "not_integrated_into_production_drift": true,
+    "not_linked_from_public_navigation": true
+  },
+  "route": {
+    "path": "/drift-kit-lab",
+    "file": "src/app/drift-kit-lab/page.tsx",
+    "robots": "noindex, nofollow",
+    "reused_existing_lab_pattern": false,
+    "reused_existing_lab_pattern_reason": "src/app/drift-3d-lab/page.tsx is a retired redirect shim to /drift (not a lab); src/app/drift-lab/page.tsx is an older, unrelated 2D map shell (DriftMapClient). Neither is a reusable technical-inspection pattern, so a new isolated route was built following the repository's real src/app/<route>/page.tsx convention."
+  },
+  "pilots": [
+    {
+      "id": "urban-human",
+      "component": "src/components/drift-3d/kits/UrbanHumanPilot.tsx",
+      "purpose": "Prove the Urban, Human/Crowd and Animation Kit foundations can work together without establishing Kenney's visual style as final Drift art.",
+      "assets": [
+        { "registry_id": "PRE20-A01", "path": "public/models/human-crowd/character-male-a.glb", "sha256": "77572792bfe2773b715b8cd8e18644b52b3e1f155fe10450254b50f9c364382a" },
+        { "registry_id": "PRE20-A01", "path": "public/models/human-crowd/Textures/colormap.png", "sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e" },
+        { "registry_id": "PRE20-A02", "path": "public/models/urban/building-a.glb", "sha256": "5cf220f90ee3f21e7abe38055ca409a48aa8ef1d5ffab6e2deb99e5a5e1ed5e0" },
+        { "registry_id": "PRE20-A02", "path": "public/models/urban/building-b.glb", "sha256": "3b5d3ac0799c024781d92bb15971d42f4f8e380554dc5cf6a40c2f07d948947a" },
+        { "registry_id": "PRE20-A02", "path": "public/models/urban/Textures/colormap.png", "sha256": "191bec3889aaaca5018380038fecc129ebb5c2182879a099b7b538b3fa050b5d" }
+      ],
+      "shared_services_reused": ["drift3dQuality.ts (SYS-40)", "Drift3DEvidenceProbe/drift3dEvidence.ts (SYS-70)"],
+      "new_infrastructure_this_lot": ["src/lib/drift3dKitGltfLoader.ts (GLTFLoader + disposal helper)", "src/lib/drift3dKitAssets.ts", "src/lib/drift3dKitPilotConfig.ts"],
+      "technical_behavior_implemented": [
+        "GLTFLoader.loadAsync via three/examples/jsm, one load per mount, no module-level GPU-resource cache (see disposal rationale)",
+        "SkeletonUtils.clone (three/examples/jsm/utils/SkeletonUtils.js) creates N independent skinned character instances from one loaded GLB — plain Object3D cloning would share bind skeletons across instances",
+        "one THREE.AnimationMixer per character instance; a per-character Map<clipName, AnimationAction> cache guarantees clipAction is never re-created for an already-used clip — deterministic switching without accumulation by construction, not by trusting three.js's own internal cache alone",
+        "idle -> walk -> interact-right cycle, 3.2s hold, 0.4s crossfade",
+        "City Kit background massing: one InstancedMesh per building form (2 forms), deterministic seeded placement (same hash() pattern as drift3dScatter.ts), one shared material per form",
+        "hybrid distance: N real skinned characters (base 3) + a silhouette-only InstancedMesh capsule crowd (base 24), both Quality-Tier-scaled",
+        "no React component per crowd/building instance"
+      ],
+      "quality_tier_behavior": "getDrift3DUrbanHumanCounts(tier) scales animatedCharacterCount, silhouetteCrowdCount and backgroundBuildingCount via the existing scaleDrift3DQualityCount, monotonic low<=medium<=high (unit-tested)",
+      "fallback_behavior": "reducedMotion prop freezes mixer.update(0) and silhouette bob; pilot itself renders nothing when no-WebGL (handled at the shell level, see DriftKitLab.tsx)",
+      "disposal_result": "on unmount: mixer.stopAllAction()+uncacheRoot per character, full geometry/material/texture traversal-dispose (disposeDrift3DKitObject3D) per character root, InstancedMesh geometry dispose + removal per building form, cached geometry/material Maps disposed and cleared, disposalCount incremented — implemented and type-checked; live confirmation blocked, see known limitation",
+      "known_limitations": ["live render, screenshots, FPS, draw-call/triangle counts, disposal-count-stays-bounded-across-switches all KNOWN_ENVIRONMENT_LIMITATION this session"],
+      "prohibited_claims": ["Kenney's low-poly appearance is not final human or foreground architectural art; City Kit stays background/distant massing only"],
+      "owner_verdict": "ACCEPT",
+      "owner_verdict_scope": "technical/architectural",
+      "owner_verdict_source": "OWNER_LIVE_REVIEW — owner's own local session, not this agent's",
+      "artistic_status": "TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART"
+    },
+    {
+      "id": "nature-movement",
+      "component": "src/components/drift-3d/kits/NatureMovementPilot.tsx",
+      "purpose": "Prove the existing Vegetation Kit and a new background Vehicle/Traffic Kit path can coexist as reusable world infrastructure.",
+      "assets": [
+        { "registry_id": "PRE20-B01", "path": "public/models/vehicle-traffic/sedan.glb", "sha256": "b532ea7d2c59f7f6b22b138cf1955218a2c1898f1cea932af4d3fd563c3959b7" },
+        { "registry_id": "PRE20-B01", "path": "public/models/vehicle-traffic/Textures/colormap.png", "sha256": "f3622a03a20c6696065cae9cbe391351be873508af190c2ebd1d420c055787a5" }
+      ],
+      "shared_services_reused": ["Drift3DScatterField/drift3dScatter.ts (existing Vegetation Kit, unmodified, mounted as-is)", "drift3dQuality.ts (SYS-40)", "Drift3DEvidenceProbe/drift3dEvidence.ts (SYS-70)"],
+      "new_infrastructure_this_lot": ["traffic path/wheel math in drift3dKitPilotConfig.ts (sampleDrift3DTrafficPath, getDrift3DTrafficLoopProgress, computeDrift3DWheelRotationDelta — all pure, unit-tested)"],
+      "technical_behavior_implemented": [
+        "one real sedan.glb load; named nodes resolved by exact string (body, wheel-front-left, wheel-front-right, wheel-back-left, wheel-back-right) — re-confirmed this lot via an independent standard-library-only glTF parser, matching DRIFT-IV-PRE-20's own recorded structure exactly",
+        "one InstancedMesh per named part (5 total), instances = Quality-Tier-scaled vehicle count, geometry/material shared across all vehicle instances",
+        "deterministic closed elliptical path (sampleDrift3DTrafficPath), staggered per-vehicle start offset so N vehicles distribute around the loop",
+        "wheel rotation = distance/radius (computeDrift3DWheelRotationDelta) accumulated from a nominal constant speed also used to derive the loop duration from the path's approximate circumference, so 'path speed' and 'wheel speed' are the same number",
+        "vehicle body orientation = path tangent heading (atan2), wheel world position = vehicle position + heading-rotated local wheel offset",
+        "no rigid-body/collision simulation, no interaction with the player's vehicle physics",
+        "Drift3DScatterField mounted completely unmodified — real reuse, not a rebuild"
+      ],
+      "quality_tier_behavior": "getDrift3DNatureMovementCounts(tier) scales trafficVehicleCount (monotonic, unit-tested) and exposes vegetationScatterScale (read from the same canonical profile Drift3DScatterField's own consumers would use, informational — the mounted Drift3DScatterField scales itself via its own existing, already-proven mechanism, not overridden here)",
+      "fallback_behavior": "reducedMotion prop freezes elapsed-time accumulation and wheel-angle accumulation (vehicles hold their last position/pose)",
+      "disposal_result": "on unmount: all 5 InstancedMeshes removed and their geometries disposed, cached geometry Map disposed+cleared, shared material (+its texture) disposed, disposalCount incremented — implemented and type-checked; live confirmation blocked, see known limitation",
+      "known_limitations": ["live render, screenshots, FPS, draw-call/triangle counts, disposal-count-stays-bounded-across-switches all KNOWN_ENVIRONMENT_LIMITATION this session"],
+      "prohibited_claims": ["not Older Shadows or Vegetative Field final art; not the canonical sand safari 4x4; no Kenney Nature Kit used; no player vehicle"],
+      "owner_verdict": "ACCEPT",
+      "owner_verdict_scope": "technical/architectural",
+      "owner_verdict_source": "OWNER_LIVE_REVIEW — owner's own local session, not this agent's",
+      "artistic_status": "TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART"
+    },
+    {
+      "id": "water-weather-light",
+      "component": "src/components/drift-3d/kits/WaterWeatherLightPilot.tsx",
+      "purpose": "Prove three.js Water/Sky, the existing atmosphere/effects foundations and the accepted Poly Haven snow material can coexist in a reusable technical substrate.",
+      "assets": [
+        { "registry_id": "PRE20-C01", "path": "public/textures/snow_02_diff_1k.jpg", "sha256": "523a4e69c90b96d787dd69b897f29a2b3761a017024405c60aa630d1e8e9009a" },
+        { "registry_id": "PRE20-C01", "path": "public/textures/snow_02_nor_gl_1k.jpg", "sha256": "9495ec680616b8340e2cbecbd151bff84c690cfad4209e90cc98d2d0ba81f810" },
+        { "registry_id": "PRE20-C01", "path": "public/textures/snow_02_rough_1k.jpg", "sha256": "b6dea8039ac2a5beaed6fd41834fb55540cc76b492edd1d48ba2da2f30f1cb75" },
+        { "registry_id": "PRE20-C02", "path": "three/examples/jsm/objects/Water.js (installed package, no copy)", "sha256": null },
+        { "registry_id": "PRE20-C02", "path": "three/examples/jsm/objects/Sky.js (installed package, no copy)", "sha256": null }
+      ],
+      "shared_services_reused": ["drift3dQuality.ts (SYS-40, reflectionResolutionScale/renderProbeScale)", "Drift3DEvidenceProbe/drift3dEvidence.ts (SYS-70)"],
+      "new_infrastructure_this_lot": ["water preset config/validation in drift3dKitPilotConfig.ts (unit-tested)", "a small procedural water-normal CanvasTexture generator, matching the existing drift3dTextureFactory.ts procedural-canvas convention — avoids introducing a new third-party normal-map asset just to satisfy Water.js's required option"],
+      "technical_behavior_implemented": [
+        "direct `import { Water } from 'three/examples/jsm/objects/Water.js'` and `import { Sky } from 'three/examples/jsm/objects/Sky.js'` — no source copied, no new npm dependency, no second three.js version, no second renderer",
+        "one PlaneGeometry water mesh + one Sky mesh built once per mount",
+        "two bounded presets (calm-canal-seed, rough-open-water-seed) toggle distortionScale/waveSpeed/sunElevationDegrees on the existing Water/Sky material uniforms — no rebuild",
+        "snow_02 diffuse (sRGB)/normal-GL (linear)/roughness (linear) wired into a MeshStandardMaterial via the same TextureLoader + colorSpace/wrap convention drift3dTextureFactory.ts already uses for the 5 existing Poly Haven sets",
+        "reduced motion freezes water.material.uniforms.time",
+        "textureWidth/textureHeight for Water's reflection render target scaled via scaleDrift3DQualityDimension(reflectionResolutionScale)"
+      ],
+      "quality_tier_behavior": "getDrift3DWaterWeatherLightCapabilities(tier) exposes reflectionResolutionScale/renderProbeScale from the existing canonical profile, monotonic and capped at 1 on high (unit-tested)",
+      "fallback_behavior": "reducedMotion prop stops the water time uniform from advancing (visually frozen surface); pilot itself renders nothing when no-WebGL",
+      "disposal_result": "on unmount: water/sky/snow meshes removed from the scene graph; water geometry+material, procedural normal texture, sky geometry+material, snow geometry+material+3 textures all explicitly .dispose()d — implemented and type-checked. KNOWN UPSTREAM LIMITATION: Water.js's internal reflection WebGLRenderTarget is a private constructor-closure variable with no public accessor or dispose() method anywhere in three/examples/jsm/objects/Water.js (confirmed by reading the installed source) — this pilot cannot call .dispose() on a render target it was never given a reference to. This is a three.js addon limitation, not a gap in this pilot's own disposal code.",
+      "known_limitations": [
+        "live render, screenshots, FPS, draw-call/triangle counts, disposal-count-stays-bounded-across-switches all KNOWN_ENVIRONMENT_LIMITATION this session",
+        "Water.js internal render-target disposal is architecturally unavailable via public API (see disposal_result) — real GPU-memory-growth-across-repeated-mounts could not be measured this session either way"
+      ],
+      "prohibited_claims": ["does not implement Étééaooété or its erasure mechanic; does not complete the Water Kit; does not establish final ocean/weather/snow-line art; Water.js/Sky.js remain technical seeds only; no giant symbolic sun"],
+      "owner_verdict": "ACCEPT",
+      "owner_verdict_scope": "technical/architectural",
+      "owner_verdict_source": "OWNER_LIVE_REVIEW — owner's own local session, not this agent's",
+      "artistic_status": "TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART"
+    }
+  ],
+  "quality_tier_scaling_monotonic": {
+    "verified_by": "src/lib/drift3dKitPilotConfig.test.mts",
+    "result": "PASS — low <= medium <= high confirmed for all three pilots' own count/scale outputs, built entirely on the existing SYS-40 getDrift3DQualityProfile/scaleDrift3DQualityCount"
+  },
+  "no_webgl_and_reduced_motion": {
+    "no_webgl": {
+      "representation": "three static cards (DriftKitLabNoWebGL in DriftKitLab.tsx), no Canvas mounted, sourced from the same pure getDrift3DKitPilotFallbackCards() data validated by getDrift3DCanonicalKitPilotFallbackIssues() (0 issues)",
+      "verification": "logic + data validated by automated tests; live render of this specific branch not observed this session (KNOWN_ENVIRONMENT_LIMITATION)"
+    },
+    "reduced_motion": {
+      "decision": "Canvas remains mounted (unlike the main /drift route's own reduced-motion path, which drops the Canvas entirely) — every pilot instead freezes its own motion via a reducedMotion prop, per this lot's own explicit brief ('Canvas may remain if the existing product policy permits it'). This is a deliberate, bounded decision scoped to this internal technical-inspection route only; the main product's DRIFT_3D_REDUCED_MOTION_CONTRACT.md and Drift3DClient.tsx's own reduced-motion behavior are untouched.",
+      "verification": "logic implemented and type-checked (reducedMotion prop threaded through all three pilots); live confirmation of the frozen-vs-moving visual difference not observed this session (KNOWN_ENVIRONMENT_LIMITATION)"
+    }
+  },
+  "bundle_and_network": {
+    "see": "docs/evidence/DRIFT-IV-PRE-30/asset-runtime-manifest.json — bundle_isolation and basepath_verification sections",
+    "summary": "production /drift does not fetch pilot assets (MEASURED, both via static-export chunk analysis and live network capture); all pilot assets and routes resolve correctly under the GitHub Pages basePath (MEASURED)"
+  },
+  "tests_and_build": {
+    "tsc": "PASS",
+    "lint": "PASS",
+    "build": "PASS, 39/39 pages",
+    "unit_tests": "PASS, 22/22",
+    "git_diff_check": "clean"
+  },
+  "gate_status_provisional_pre_owner_review": {
+    "decision": "IN_PROGRESS — not yet OWNER_REVIEW_REQUIRED",
+    "reason": "Completion-gate criteria requiring a live browser render (pilots actually running in a real browser; real screenshots; live disposal/resource-accumulation confirmation) could not be met this session due to a confirmed browser-pane compositor block (0 requestAnimationFrame callbacks in 57.7s) and an unreachable Claude-in-Chrome fallback. Every criterion checkable without live rendering (asset provenance/bounding, tracked-size limit, bundle isolation, basePath resolution, TypeScript/lint/build/tests, no unapproved candidate, canonical vehicle/topology/audio untouched, PRE-40 not started, owner verdicts PENDING) is satisfied and documented. The user was informed and chose to proceed with honest documentation rather than block on browser access.",
+    "next_step_as_understood_at_the_time": "Re-run the real-browser validation pass (desktop+mobile screenshots of all 3 pilots, switch cycle, reduced-motion, no-WebGL, console/network) in a session where the Browser pane can composite frames or Claude in Chrome is connected, then re-evaluate against the 25-point completion gate.",
+    "superseded_by": "owner_live_review — the owner closed this gap directly via their own local session, see below"
+  },
+  "owner_live_review": {
+    "note": "New top-level section. Nothing in the fields above (pilots, quality_tier_scaling_monotonic, no_webgl_and_reduced_motion, bundle_and_network, tests_and_build, gate_status_provisional_pre_owner_review) was edited or deleted. This section is the current, authoritative, final state.",
+    "review_conducted_by": "owner, on their own local machine, in a session this agent did not run or observe",
+    "verbatim_statement": "Everything is OK in Drift Kit Lab, although it is severely lacking in realistic graphics.",
+    "verdicts": [
+      { "pilot_id": "urban-human", "verdict": "ACCEPT", "scope": "technical/architectural" },
+      { "pilot_id": "nature-movement", "verdict": "ACCEPT", "scope": "technical/architectural" },
+      { "pilot_id": "water-weather-light", "verdict": "ACCEPT", "scope": "technical/architectural" }
+    ],
+    "artistic_reservation": {
+      "status": "TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART",
+      "is_a_rework_request": false,
+      "meaning": [
+        "no Kenney visual style is accepted as final Drift art",
+        "no low-poly human, vehicle or building is approved for foreground final use",
+        "the pilots prove architecture and reusable mechanisms only",
+        "current models and scenes remain technical references, placeholders, background-massing candidates, or transformation inputs",
+        "future production lots must replace, retexture, transform or substantially enrich them to meet the Realism Bible and accepted masterframes",
+        "DRIFT-IV-PRE-40 must not present these pilot scenes as the final artistic direction",
+        "no accepted artistic authority is weakened by this technical acceptance"
+      ],
+      "remaining_realism_gap": "every tracked pilot asset (character-male-a.glb, building-a.glb/building-b.glb, sedan.glb, their shared colormaps) is Kenney's own low-poly flat-shaded CC0 register, already flagged as a foreground/hero mismatch throughout DRIFT-IV-PRE-20 and now confirmed visually insufficient by direct owner inspection; snow_02 (Poly Haven, photo-sourced) already matches the Realism Bible's photoreal register and is not part of this gap."
+    },
+    "screenshots": {
+      "supplied_with_this_decision": false,
+      "statement": "The owner's review was performed live, locally. No screenshot files were supplied alongside this final decision, and none are fabricated to stand in for them. docs/evidence/DRIFT-IV-PRE-30/screenshots/ remains exactly as recorded during the implementation session — empty of images, with the prior honest diagnostic preserved in screenshots/README.md."
+    },
+    "pilot_visuals_modified_this_pass": false,
+    "pre_40_boundaries_added": "PRE-40 must not present these pilot scenes as final artistic direction; all current Kenney-sourced pilot assets remain technical/background/placeholder/transformation-input only, in addition to the technical authorization boundaries already recorded in docs/evidence/DRIFT-IV-PRE-20/licensed-asset-provenance-registry.md §14.4",
+    "gate_result_final": {
+      "decision": "DONE_PENDING_MERGE",
+      "final_status": "DRIFT-IV-PRE-30 = DONE_PENDING_MERGE",
+      "pre_40_status": "READY_AFTER_MERGE",
+      "pre_40_started": false,
+      "pilot_visuals_reworked": false,
+      "new_candidate_introduced": false,
+      "committed": false,
+      "pushed": false,
+      "pr_opened": false
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-30",
+  "purpose": "Deterministic runtime asset manifest for the three shared-kit pilots: exact tracked file paths, source-to-final hash mapping, and bundle-isolation facts. Cross-references docs/evidence/DRIFT-IV-PRE-30/shared-kit-pilots-evidence.md/.json.",
+  "candidate_bound": [
+    "PRE20-A01",
+    "PRE20-A02",
+    "PRE20-B01",
+    "PRE20-C01",
+    "PRE20-C02"
+  ],
+  "candidate_bound_note": "Exact DRIFT-IV-PRE-20 owner-accepted set only. PRE20-C02 (three.js Water.js/Sky.js) contributes zero tracked bytes: direct imports from the installed three@0.185.0 package, no source copied. No Quaternius/Mixamo/Kenney Nature Kit introduced.",
+  "tracked_assets": [
+    {
+      "registry_id": "PRE20-A01",
+      "runtime_path": "public/models/human-crowd/character-male-a.glb",
+      "source_archive": "https://kenney.nl/media/pages/assets/mini-characters/bfc7e272b4-1774770718/kenney_mini-characters.zip",
+      "source_archive_sha256": "9e1d48e6d7b8479ebbe84df71eb5bd8e1b3f0da546dea641890dccc8a02d0999",
+      "selected_path_in_archive": "Models/GLB format/character-male-a.glb",
+      "selected_file_sha256_before_transform": "77572792bfe2773b715b8cd8e18644b52b3e1f155fe10450254b50f9c364382a",
+      "final_tracked_sha256": "77572792bfe2773b715b8cd8e18644b52b3e1f155fe10450254b50f9c364382a",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 246916
+    },
+    {
+      "registry_id": "PRE20-A01",
+      "runtime_path": "public/models/human-crowd/Textures/colormap.png",
+      "source_archive": "https://kenney.nl/media/pages/assets/mini-characters/bfc7e272b4-1774770718/kenney_mini-characters.zip",
+      "source_archive_sha256": "9e1d48e6d7b8479ebbe84df71eb5bd8e1b3f0da546dea641890dccc8a02d0999",
+      "selected_path_in_archive": "Models/GLB format/Textures/colormap.png",
+      "selected_file_sha256_before_transform": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+      "final_tracked_sha256": "0d4947d34ff32acf4a359c7f22ca784e057e7e72f622170a9a77b6fc88fdb70e",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 8706
+    },
+    {
+      "registry_id": "PRE20-A02",
+      "runtime_path": "public/models/urban/building-a.glb",
+      "source_archive": "https://kenney.nl/media/pages/assets/city-kit-commercial/a742d900eb-1753115042/kenney_city-kit-commercial_2.1.zip",
+      "source_archive_sha256": "f8b09b081c2bb88bcc126e2dec1cb40fd0dad7e7e591b6c26aaefe96fb35276b",
+      "selected_path_in_archive": "Models/GLB format/building-a.glb",
+      "selected_file_sha256_before_transform": "5cf220f90ee3f21e7abe38055ca409a48aa8ef1d5ffab6e2deb99e5a5e1ed5e0",
+      "final_tracked_sha256": "5cf220f90ee3f21e7abe38055ca409a48aa8ef1d5ffab6e2deb99e5a5e1ed5e0",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 108936
+    },
+    {
+      "registry_id": "PRE20-A02",
+      "runtime_path": "public/models/urban/building-b.glb",
+      "source_archive": "https://kenney.nl/media/pages/assets/city-kit-commercial/a742d900eb-1753115042/kenney_city-kit-commercial_2.1.zip",
+      "source_archive_sha256": "f8b09b081c2bb88bcc126e2dec1cb40fd0dad7e7e591b6c26aaefe96fb35276b",
+      "selected_path_in_archive": "Models/GLB format/building-b.glb",
+      "selected_file_sha256_before_transform": "3b5d3ac0799c024781d92bb15971d42f4f8e380554dc5cf6a40c2f07d948947a",
+      "final_tracked_sha256": "3b5d3ac0799c024781d92bb15971d42f4f8e380554dc5cf6a40c2f07d948947a",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 106408
+    },
+    {
+      "registry_id": "PRE20-A02",
+      "runtime_path": "public/models/urban/Textures/colormap.png",
+      "source_archive": "https://kenney.nl/media/pages/assets/city-kit-commercial/a742d900eb-1753115042/kenney_city-kit-commercial_2.1.zip",
+      "source_archive_sha256": "f8b09b081c2bb88bcc126e2dec1cb40fd0dad7e7e591b6c26aaefe96fb35276b",
+      "selected_path_in_archive": "Models/GLB format/Textures/colormap.png",
+      "selected_file_sha256_before_transform": "191bec3889aaaca5018380038fecc129ebb5c2182879a099b7b538b3fa050b5d",
+      "final_tracked_sha256": "191bec3889aaaca5018380038fecc129ebb5c2182879a099b7b538b3fa050b5d",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 11002
+    },
+    {
+      "registry_id": "PRE20-B01",
+      "runtime_path": "public/models/vehicle-traffic/sedan.glb",
+      "source_archive": "https://kenney.nl/media/pages/assets/car-kit/1a312ec241-1775131960/kenney_car-kit.zip",
+      "source_archive_sha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "selected_path_in_archive": "Models/GLB format/sedan.glb",
+      "selected_file_sha256_before_transform": "b532ea7d2c59f7f6b22b138cf1955218a2c1898f1cea932af4d3fd563c3959b7",
+      "final_tracked_sha256": "b532ea7d2c59f7f6b22b138cf1955218a2c1898f1cea932af4d3fd563c3959b7",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 172216
+    },
+    {
+      "registry_id": "PRE20-B01",
+      "runtime_path": "public/models/vehicle-traffic/Textures/colormap.png",
+      "source_archive": "https://kenney.nl/media/pages/assets/car-kit/1a312ec241-1775131960/kenney_car-kit.zip",
+      "source_archive_sha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4",
+      "selected_path_in_archive": "Models/GLB format/Textures/colormap.png",
+      "selected_file_sha256_before_transform": "f3622a03a20c6696065cae9cbe391351be873508af190c2ebd1d420c055787a5",
+      "final_tracked_sha256": "f3622a03a20c6696065cae9cbe391351be873508af190c2ebd1d420c055787a5",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 12371
+    },
+    {
+      "registry_id": "PRE20-C01",
+      "runtime_path": "public/textures/snow_02_diff_1k.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_diff_1k.jpg",
+      "selected_file_sha256_before_transform": "523a4e69c90b96d787dd69b897f29a2b3761a017024405c60aa630d1e8e9009a",
+      "final_tracked_sha256": "523a4e69c90b96d787dd69b897f29a2b3761a017024405c60aa630d1e8e9009a",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 325497
+    },
+    {
+      "registry_id": "PRE20-C01",
+      "runtime_path": "public/textures/snow_02_nor_gl_1k.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_nor_gl_1k.jpg",
+      "selected_file_sha256_before_transform": "9495ec680616b8340e2cbecbd151bff84c690cfad4209e90cc98d2d0ba81f810",
+      "final_tracked_sha256": "9495ec680616b8340e2cbecbd151bff84c690cfad4209e90cc98d2d0ba81f810",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 1081858
+    },
+    {
+      "registry_id": "PRE20-C01",
+      "runtime_path": "public/textures/snow_02_rough_1k.jpg",
+      "source_url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/snow_02/snow_02_rough_1k.jpg",
+      "selected_file_sha256_before_transform": "b6dea8039ac2a5beaed6fd41834fb55540cc76b492edd1d48ba2da2f30f1cb75",
+      "final_tracked_sha256": "b6dea8039ac2a5beaed6fd41834fb55540cc76b492edd1d48ba2da2f30f1cb75",
+      "transformation": "none — byte-identical copy",
+      "size_bytes": 146089
+    }
+  ],
+  "total_tracked_bytes": 2219999,
+  "total_tracked_megabytes_approx": 2.12,
+  "tracked_size_limit_bytes": 31457280,
+  "under_limit": true,
+  "no_source_zip_tracked": true,
+  "no_fbx_or_blend_tracked": true,
+  "no_redundant_format_variants": true,
+  "no_2k_4k_textures": true,
+  "provenance_readmes": [
+    "public/models/human-crowd/README.md",
+    "public/models/urban/README.md",
+    "public/models/vehicle-traffic/README.md"
+  ],
+  "provenance_note_textures": "snow_02_*.jpg follow the repository's existing flat public/textures/ convention (matching the 5 pre-existing Poly Haven sets, which carry no per-file README either) — full provenance recorded here and in shared-kit-pilots-evidence.md instead.",
+  "bundle_isolation": {
+    "method": "static export inspection (npm run build, output: export) plus live network capture on /drift and /tracks against the dev server",
+    "findings": [
+      "out/drift-kit-lab/index.html references chunk 26b67ae0df744e1c.js, which contains the pilot asset manifest (verified via grep for 'human-crowd'/'snow_02_diff' inside out/_next/static/chunks/*.js)",
+      "out/drift/index.html and out/index.html do not reference that chunk or any chunk containing pilot asset paths",
+      "live network capture while browsing /drift (dev server) shows only the 5 pre-existing Poly Haven texture requests — zero requests to /models/** or /textures/snow_02_*",
+      "the pilot Canvas view is loaded via next/dynamic(..., { ssr: false }) exactly like the production Drift3DCanvas, so its own chunk (and everything it imports, including the three GLTFLoader/Water/Sky addons) is fetched only when /drift-kit-lab itself is visited"
+    ],
+    "conclusion": "production /drift does not fetch PRE-30 pilot assets; pilot assets and pilot-specific code are lazy-loaded only on /drift-kit-lab",
+    "classification": "MEASURED"
+  },
+  "basepath_verification": {
+    "method": "static export served from a local HTTP server that strips a /misway prefix (matching next.config.ts's production basePath exactly), then curl-checked",
+    "results": [
+      { "path": "/misway/models/human-crowd/character-male-a.glb", "http_status": 200, "bytes": 246916 },
+      { "path": "/misway/models/human-crowd/Textures/colormap.png", "http_status": 200, "bytes": 8706 },
+      { "path": "/misway/models/urban/building-b.glb", "http_status": 200, "bytes": 106408 },
+      { "path": "/misway/models/urban/Textures/colormap.png", "http_status": 200, "bytes": 11002 },
+      { "path": "/misway/models/vehicle-traffic/sedan.glb", "http_status": 200, "bytes": 172216 },
+      { "path": "/misway/models/vehicle-traffic/Textures/colormap.png", "http_status": 200, "bytes": 12371 },
+      { "path": "/misway/textures/snow_02_diff_1k.jpg", "http_status": 200, "bytes": 325497 },
+      { "path": "/misway/drift-kit-lab/", "http_status": 200 },
+      { "path": "/misway/drift/", "http_status": 200 },
+      { "path": "/misway/tracks/", "http_status": 200 },
+      { "path": "/misway/models/does-not-exist.glb", "http_status": 404, "note": "sanity check — server correctly 404s a genuinely missing path" }
+    ],
+    "conclusion": "every tracked asset and every relevant route resolves correctly under the exact GitHub Pages basePath prefix, with byte-exact sizes matching the recorded hashes; GLTFLoader's relative Textures/colormap.png resolution also confirmed correct under the prefixed path",
+    "classification": "MEASURED"
+  }
+}

@@ -84,6 +84,8 @@ No current file occupies these roles, so there is nothing to KEEP/GENERALIZE/REW
 - A background traffic/World Transit layer (Vehicle/Traffic Kit 2.10) — the Integral Systems Architecture names "trains, télécabines, cargos, trafic, oiseaux, avions, météo" (§6.3) but none of it is implemented.
 - A KTX2/Meshopt/Draco compression pipeline (all kits, via `DRIFT_3D_SHARED_KIT_ARCHITECTURE.md` §1.2) — confirmed absent from tooling and dependencies entirely.
 
+**`DRIFT-IV-PRE-30` addendum (2026-08-03):** the first three gaps above (a skeleton/`AnimationMixer` path, a real `Water`/`Sky` module, a background traffic layer) now each have a real, owner-`ACCEPT`ed pilot at `/drift-kit-lab` (`UrbanHumanPilot.tsx`, `WaterWeatherLightPilot.tsx`, `NatureMovementPilot.tsx` — see `docs/evidence/DRIFT-IV-PRE-30/`). **This is still not a migration** — none of the three pilots is wired into any track's own scene, none replaces `FoolfouleCrowd`/the bare `Reflector` flag/any EUX GAINENT one-off in production `/drift`, and the owner's own acceptance is explicitly bounded to technical/architectural viability, not final art (`TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART`). The KTX2/Meshopt/Draco compression pipeline gap remains fully open — none of the three pilots needed it at this scale (≤2.12MB tracked). §6's own standing rule is unchanged: nothing shared is extracted into a track's production scene without proof on that consuming scene itself, which `PRE-30` deliberately did not attempt.
+
 ---
 
 ## 6. REMOVE AFTER MIGRATION — none yet

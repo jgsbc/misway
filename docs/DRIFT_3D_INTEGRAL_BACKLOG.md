@@ -184,10 +184,10 @@ Interdictions absolues :
 | `DRIFT-IV-BY-EUX-20` | `DONE` |
 | `DRIFT-IV-BY-EUX-30` | `DONE` (owner-accepted, merged PR #32 at `b069d09`) |
 | `DRIFT-IV-PRE-00` | `DONE` (merged, PR #34, commit `8a74a31`) |
-| `DRIFT-IV-PRE-10` | `DONE_PENDING_MERGE` (final owner decision: all five masterframes `ACCEPT` — Entry, Birth Yard, Older Shadows, Vegetative Field, New Signal; all five technically normalized to exact 1664×936 sRGB WebP; see `docs/evidence/DRIFT-IV-PRE-10/`) |
-| `DRIFT-IV-PRE-20` | `DONE_PENDING_MERGE` (owner accepted the 5-candidate promoted set with bounded PILOT/ADOPT guardrails; both rejections accepted; Quaternius evidence corrected; see `docs/evidence/DRIFT-IV-PRE-20/`) |
-| `DRIFT-IV-PRE-30` | `READY_AFTER_MERGE` (blocked only on `DRIFT-IV-PRE-20`'s own merge; not started) |
-| `DRIFT-IV-PRE-40` | `BLOCKED_BY_DEPENDENCY` (on `DRIFT-IV-PRE-30`) |
+| `DRIFT-IV-PRE-10` | `DONE` (merged, PR #35, commit `e212c05`) |
+| `DRIFT-IV-PRE-20` | `DONE` (merged, PR #36) |
+| `DRIFT-IV-PRE-30` | `DONE_PENDING_MERGE` (owner live review: all three pilots `ACCEPT` on exact technical/architectural scope; formal guardrail recorded — `TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART`; see `docs/evidence/DRIFT-IV-PRE-30/`) |
+| `DRIFT-IV-PRE-40` | `READY_AFTER_MERGE` (blocked only on `DRIFT-IV-PRE-30`'s own merge; not started; bounded by `DRIFT-IV-PRE-30`'s artistic-reservation guardrail in addition to `DRIFT-IV-PRE-20` §14.4) |
 | Tous les autres lots canoniques | `PLANNED` ou `BLOCKED_BY_DEPENDENCY` selon §8–§16 |
 | `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` | `RETIRED_ALIAS` |
 
@@ -323,8 +323,8 @@ Dépendances :
 PRE-00 depends on: GOV-40 merged (satisfied — DONE, PR #33 at 99eacbe) and DRIFT-IV-BY-EUX-30's owner decision (satisfied — DONE, merged PR #32 at b069d09). All dependencies satisfied; PRE-00 is itself DONE, merged PR #34 at 8a74a31.
 PRE-10 depends on: PRE-00 (satisfied — DONE, merged PR #34 at 8a74a31; redefined: now requires producing the five real visual masterframes, not only accepting the text briefs). PRE-10 itself has reached DONE_PENDING_MERGE (see docs/evidence/DRIFT-IV-PRE-10/): final owner decision — all five masterframes ACCEPT, superseding the round-1 REWORK/REJECT verdicts; all five files technically normalized to exact 1664x936 sRGB WebP.
 PRE-20 depends on: PRE-10 reaching DONE_PENDING_MERGE (satisfied — PRE-10 is DONE, merged PR #35 at e212c05). PRE-20 itself has reached DONE_PENDING_MERGE (see docs/evidence/DRIFT-IV-PRE-20/): 5-candidate promoted set accepted by the owner with bounded guardrails across all three domain groups.
-PRE-30 depends on: PRE-20 reaching DONE_PENDING_MERGE (satisfied). PRE-30 itself is READY_AFTER_MERGE, blocked only on PRE-20's own merge, not started — bounded by the exact authorization boundaries recorded in docs/evidence/DRIFT-IV-PRE-20/licensed-asset-provenance-registry.md §14.4.
-PRE-40 depends on: PRE-30 (needs the three domain-group pilots proven before a five-era greybox can be attempted)
+PRE-30 depends on: PRE-20 reaching DONE (satisfied — merged PR #36). PRE-30 itself is DONE_PENDING_MERGE: three bounded pilots (urban/human, nature/movement, water/weather/light) implemented, tested, build-clean at /drift-kit-lab, and owner-live-reviewed — all three ACCEPT on exact technical/architectural scope, with an explicit, formal, non-final-art guardrail on visual realism (Kenney-sourced pilot assets remain technical/background/placeholder/transformation-input only) — see docs/evidence/DRIFT-IV-PRE-30/.
+PRE-40 depends on: PRE-30 reaching DONE_PENDING_MERGE (satisfied). PRE-40 itself is READY_AFTER_MERGE, blocked only on PRE-30's own merge, not started — bounded by both PRE-20's own §14.4 authorization boundaries and PRE-30's own artistic-reservation guardrail (no pilot scene may be presented as final artistic direction).
 VF-MORNE-00 (proof slice 2) depends on: PRE-40
 ```
 
