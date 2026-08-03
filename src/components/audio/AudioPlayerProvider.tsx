@@ -100,7 +100,13 @@ const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
 const AudioPlayerRuntimeContext =
   createContext<AudioPlayerRuntimeContextValue | null>(null);
 
-const DRIFT_LAB_ROUTES = ["/drift", "/drift-lab", "/drift-3d-lab"] as const;
+const DRIFT_LAB_ROUTES = [
+  "/drift",
+  "/drift-lab",
+  "/drift-3d-lab",
+  "/drift-kit-lab",
+  "/drift-greybox-lab",
+] as const;
 
 function toPlayerTrack(track: Track): PlayerTrack {
   return { ...track, kind: "track" };

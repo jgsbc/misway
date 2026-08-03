@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-40",
+  "status": "PROVISIONAL — this pass, matching DRIFT-IV-PRE-30's own §11 precedent; defers final closure to a follow-up pass once live-render verification occurs",
+  "per_world_readiness": [
+    {
+      "worldId": "entry",
+      "masterframeReference": "Entry Era Contract; Global Art Direction §2/§12 principle 1",
+      "recommendedStatus": "GO_WITH_GAPS",
+      "blockingRisks": [],
+      "nonBlockingRisks": [
+        "live-render verification not yet performed (KNOWN_ENVIRONMENT_LIMITATION, shared across all 5 worlds)"
+      ],
+      "realismGap": "raw primitive geometry, no track-specific bureaucracy dramaturgy (deliberately out of scope)",
+      "missingAssets": [],
+      "missingBehaviors": [],
+      "excludedTrackSpecificWork": ["it-authorizes bureaucracy-register handoff into Birth Yard"],
+      "ownerVerdict": "PENDING"
+    },
+    {
+      "worldId": "birth-yard",
+      "masterframeReference": "Birth Yard Era Contract; Global Art Direction §4 density table",
+      "recommendedStatus": "GO_WITH_GAPS",
+      "blockingRisks": [],
+      "nonBlockingRisks": [
+        "live-render verification not yet performed (KNOWN_ENVIRONMENT_LIMITATION, shared)",
+        "inherited Kenney-geometry realism gap (already accepted non-blocking by owner for PRE-30's identical assets)"
+      ],
+      "realismGap": "Kenney low-poly City Kit/Car Kit geometry — same PRE-30 §12.4 reservation, inherited not re-litigated",
+      "missingAssets": [],
+      "missingBehaviors": [],
+      "excludedTrackSpecificWork": ["it-organizes bureaucracy-register handoff", "EUX GAINENT untouched"],
+      "ownerVerdict": "PENDING"
+    },
+    {
+      "worldId": "older-shadows",
+      "masterframeReference": "Older Shadows Era Contract; masterframe §3",
+      "recommendedStatus": "GO_WITH_GAPS",
+      "blockingRisks": [],
+      "nonBlockingRisks": [
+        "live-render verification not yet performed (KNOWN_ENVIRONMENT_LIMITATION, shared)"
+      ],
+      "realismGap": "primitive-geometry refuge/equipment props (deliberate low-fidelity per greybox definition)",
+      "missingAssets": [],
+      "missingBehaviors": [],
+      "excludedTrackSpecificWork": ["it-marks-flags bureaucracy-register handoff"],
+      "ownerVerdict": "PENDING"
+    },
+    {
+      "worldId": "vegetative-field",
+      "masterframeReference": "Vegetative Field Era Contract",
+      "recommendedStatus": "GO_WITH_GAPS",
+      "blockingRisks": [],
+      "nonBlockingRisks": [
+        "live-render verification not yet performed (KNOWN_ENVIRONMENT_LIMITATION, shared)",
+        "contamination-state realism ratio (up to 55%) not modeled in this greybox, by design"
+      ],
+      "realismGap": "primitive-geometry housing; resident reuses PRE-30 §12.4-reserved character-male-a.glb (not final human art)",
+      "missingAssets": [],
+      "missingBehaviors": ["contamination-state realism ratio, out of this lot's own scope"],
+      "excludedTrackSpecificWork": ["it-anesthetizes bureaucracy-register handoff", "no MORNE Identity Contract/Cue Map/final-scene content"],
+      "ownerVerdict": "PENDING"
+    },
+    {
+      "worldId": "new-signal",
+      "masterframeReference": "New Signal Era Contract's dominant-geography guardrail, ratified GOV-40",
+      "recommendedStatus": "GO_WITH_GAPS",
+      "blockingRisks": [],
+      "nonBlockingRisks": [
+        "live-render verification not yet performed (KNOWN_ENVIRONMENT_LIMITATION, shared) — named with particular emphasis here since this world's core spatial-credibility judgment ('one dominant geography, not a collage') most depends on an actual visual observation",
+        "Water.js upstream disposal limitation (no public accessor for its internal reflection render target), same as PRE-30 §5, architectural, not fixable without forking three.js's own addon"
+      ],
+      "realismGap": "no claim that final Étééaooété/erasure/weather/ocean art is complete",
+      "missingAssets": [],
+      "missingBehaviors": [],
+      "excludedTrackSpecificWork": [
+        "literal landmark accumulation", "checklist panorama", "museum-of-previous-worlds collage",
+        "theme-park portal lineup", "generic cyberpunk city", "giant symbolic sun", "floating lambda"
+      ],
+      "dominantGeographyGuardrailConfirmed": true,
+      "ownerVerdict": "PENDING"
+    }
+  ],
+  "global_dossier": {
+    "continuityProven": "structural only (transition graph connected end-to-end, unit-tested) — not confirmed by an actual observed drive-through",
+    "allFiveDriveable": "structurally plausible, not confirmed by an actual observed drive",
+    "allFourTransitionsProven": "structurally defined and config-validated, not confirmed by actual observed traversal",
+    "productionIsolation": "MEASURED",
+    "technicalArchitectureReadiness": "MEASURED",
+    "assetReadiness": "MEASURED — zero new tracked assets",
+    "artisticReadiness": "NOT_ASSESSABLE_THIS_SESSION — blocked by the same live-render limitation; PRE-30's own artistic reservation inherited unchanged",
+    "realismDebt": "unchanged from PRE-30's own recorded debt; this lot adds none beyond it and does not claim to have reduced it",
+    "performanceReadiness": "KNOWN_ENVIRONMENT_LIMITATION",
+    "mobileReadiness": "NOT_ASSESSABLE_THIS_SESSION",
+    "fallbackReadiness": "MEASURED at config/metadata level; not visually confirmed",
+    "vfMorne00Implications": "remains BLOCKED_BY_DEPENDENCY; becomes READY_AFTER_MERGE once this lot closes via owner review",
+    "globalRecommendation": "READY_WITH_NON_BLOCKING_GAPS",
+    "globalRecommendationCaveat": "PROVISIONAL — presupposes an actual observed render, which does not exist yet this pass; matches DRIFT-IV-PRE-30's own §11 precedent of a provisional gate deferred to a follow-up pass",
+    "ownerGlobalVerdict": "PENDING"
+  }
+}

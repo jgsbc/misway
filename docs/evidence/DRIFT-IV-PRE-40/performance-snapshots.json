@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-40",
+  "purpose": "Performance/render-cost evidence for the five-macro-world greybox, using the existing DRIFT-IV-SYS-70 evidence/performance harness classifications exclusively (MEASURED, INFERRED_FROM_REPRESENTATIVE_SAMPLE, AUTOMATED_STRUCTURAL_EVIDENCE, KNOWN_ENVIRONMENT_LIMITATION). No fabricated FPS/draw-call/triangle value appears anywhere in this file.",
+  "environment_limitation": {
+    "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+    "summary": "Live WebGL rendering could not be observed this session, so per-world draw calls, triangles, geometry/texture counts, FPS samples, resource-growth-across-cycles, and real screenshots are not available.",
+    "diagnostic_evidence": [
+      "computer{action:'screenshot'} failed with 'the Browser pane is not displayed, so the page is not compositing frames' on the greybox lab tab AND on control tabs (production /drift, PRE-30's /drift-kit-lab) — confirming a pane-wide session limitation, not something specific to this lot's own Canvas content",
+      "a direct requestAnimationFrame counter probe recorded 0 callbacks in 1.5 real seconds in the greybox lab tab",
+      "canvas.width/height stayed at the browser's un-set default (300x150)",
+      "the diagnostics panel's world/route-progress/position/speed fields (polled by a window.setInterval independent of requestAnimationFrame) stayed pinned at their initial values after a QA teleport click, because the useFrame callback responsible for consuming the teleport request and recomputing those fields never ran — confirmed by source inspection that the click handler itself (a synchronous ref mutation) fires correctly"
+    ],
+    "not_a_code_defect": "Same class of sandboxed-automation-browser compositor block already documented in DRIFT-IV-PRE-30, DRIFT-IV-SYS-70, DRIFT-IV-BY-EUX-20/30 — a background/non-composited tab throttles requestAnimationFrame (and ResizeObserver-driven Canvas sizing) to zero, independent of any application code."
+  },
+  "what_was_actually_measured_this_session": [
+    { "check": "TypeScript compilation", "command": "npx tsc --noEmit", "result": "PASS, zero errors", "classification": "MEASURED" },
+    { "check": "Lint", "command": "npm run lint", "result": "PASS, zero errors/warnings", "classification": "MEASURED" },
+    { "check": "Pure-logic test suite", "command": "npm test (node --test, 52 tests total: 22 pre-existing PRE-30 + 30 new macro-world config/route/readiness/population)", "result": "PASS, 52/52", "classification": "MEASURED" },
+    { "check": "Production static build", "command": "npm run build", "result": "PASS, 40/40 pages generated including /drift-greybox-lab (was 39/39 before this lot)", "classification": "MEASURED" },
+    { "check": "git diff --check", "result": "clean, no whitespace defects", "classification": "MEASURED" },
+    { "check": "Dev harness mount and pure-function correctness, live in-browser (independent of Canvas/rAF)", "result": "window.__drift3dMacroWorldGreybox mounted with all 13 expected methods; routeProjectionAt(-88,12) returned routeProgress:0 exactly; routeProjectionAt(66,-12) returned routeProgress:1 exactly; validateConfig()/validateTransitions()/validateFallbackCards() all returned []", "classification": "MEASURED" },
+    { "check": "QA control presence in the DOM", "result": "all 5 teleport buttons (data-testid drift-greybox-teleport-<worldId>) + Reset + 3 Quality Tier buttons present with correct labels", "classification": "MEASURED" },
+    { "check": "Console errors on load and after QA interaction", "result": "zero console errors/warnings recorded", "classification": "MEASURED" },
+    { "check": "Network requests on /drift-greybox-lab, /drift, /drift-kit-lab (dev server, live, fresh tabs)", "result": "greybox route requests only its own chunks + reused PRE-30-tracked assets; zero greybox-specific requests observed on /drift; zero cross-contamination in either direction", "classification": "MEASURED" },
+    { "check": "Static export bundle isolation (grep of out/_next/static/chunks/*.js referenced from out/drift/index.html)", "result": "zero occurrences of drift-greybox-lab / DriftMacroWorldGreybox / drift3dMacroWorld in any chunk /drift's own HTML references", "classification": "MEASURED" },
+    { "check": "basePath-prefixed asset/route resolution (local server stripping a /misway prefix, matching next.config.ts's production basePath)", "result": "/misway/drift-greybox-lab/, /misway/drift/, /misway/drift-kit-lab/, /misway/tracks/ all HTTP 200; a reused PRE-30 asset (/misway/models/human-crowd/character-male-a.glb) HTTP 200, 246916 bytes, byte-exact with PRE-30's own recorded size", "classification": "MEASURED" },
+    { "check": "Global ambient-audio autoplay defect", "result": "found autoplaying on /drift-greybox-lab and on PRE-30's own /drift-kit-lab (both, before the fix); root-caused to a stale route allow-list predating both labs; fixed in AudioPlayerProvider.tsx and GlobalAudioPlayer.tsx; re-verified paused on both labs after the fix; re-verified production /drift unaffected", "classification": "MEASURED" }
+  ],
+  "per_world_render_metrics": {
+    "entry": { "draw_calls": null, "triangles": null, "geometries": null, "textures": null, "fps_sample": null, "classification": "KNOWN_ENVIRONMENT_LIMITATION" },
+    "birth_yard": { "draw_calls": null, "triangles": null, "geometries": null, "textures": null, "fps_sample": null, "classification": "KNOWN_ENVIRONMENT_LIMITATION" },
+    "older_shadows": { "draw_calls": null, "triangles": null, "geometries": null, "textures": null, "fps_sample": null, "classification": "KNOWN_ENVIRONMENT_LIMITATION" },
+    "vegetative_field": { "draw_calls": null, "triangles": null, "geometries": null, "textures": null, "fps_sample": null, "classification": "KNOWN_ENVIRONMENT_LIMITATION" },
+    "new_signal": { "draw_calls": null, "triangles": null, "geometries": null, "textures": null, "fps_sample": null, "classification": "KNOWN_ENVIRONMENT_LIMITATION" }
+  },
+  "full_traversal_and_repeated_cycles": {
+    "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+    "note": "Two-full-cycle resource-accumulation confirmation, leave-and-return behavior, and full-route traversal timing could not be measured this session — the render loop never started, so no frame was ever produced to measure across."
+  },
+  "quality_tier_counts_computed": {
+    "classification": "MEASURED (pure-function computation + unit test, independent of rendering)",
+    "birth_yard_towers": { "low": 8, "medium": 12, "high": 16 },
+    "birth_yard_crowd": { "low": 16, "medium": 28, "high": 40 },
+    "birth_yard_traffic": { "low": 1, "medium": 2, "high": 4 },
+    "older_shadows_cairns": { "low": 7, "medium": 10, "high": 14 },
+    "vegetative_field_houses": { "low": 6, "medium": 9, "high": 12 }
+  }
+}

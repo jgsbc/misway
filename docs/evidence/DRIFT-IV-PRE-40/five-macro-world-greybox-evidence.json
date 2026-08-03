@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-40",
+  "status": "IN_PROGRESS",
+  "branch": "drift-iv-pre-40-five-macro-world-greybox-readiness-gate",
+  "baseline": "main@46fff24b088f47c123b4b4feeaeacdaa66e1f1e9",
+  "baseline_note": "feat(drift): build and accept PRE-30 shared-kit pilots (PR #37, merged)",
+  "environment": {
+    "node": "v24.14.0",
+    "npm": "11.16.0",
+    "next": "16.1.7",
+    "react": "19.2.3",
+    "three": "^0.185.0",
+    "react_three_fiber": "^9.6.1",
+    "static_export": true,
+    "base_path": "/misway"
+  },
+  "architectural_decision": {
+    "summary": "Macro-world local origins reuse the exact existing production topology coordinates (drift3dTopology.ts) rather than a new, disconnected coordinate space, so the already-authored production heightfield/atmosphere content applies for free.",
+    "local_origins": {
+      "entry": { "x": -88, "z": 12, "source": "drift3dThresholdNode.position" },
+      "birth-yard": { "x": -74, "z": 22, "source": "drift3dEras[0].center" },
+      "older-shadows": { "x": -32, "z": -52, "source": "drift3dEras[1].center" },
+      "vegetative-field": { "x": 0, "z": 8, "source": "drift3dEras[2].center" },
+      "new-signal": { "x": 66, "z": -12, "source": "drift3dEras[3].center" }
+    }
+  },
+  "route_order": ["entry", "birth-yard", "older-shadows", "vegetative-field", "new-signal"],
+  "transitions": [
+    { "id": "entry-to-birth-yard", "from": "entry", "to": "birth-yard", "approx_travel_length_meters": 17.2 },
+    { "id": "birth-yard-to-older-shadows", "from": "birth-yard", "to": "older-shadows", "approx_travel_length_meters": 85.09 },
+    { "id": "older-shadows-to-vegetative-field", "from": "older-shadows", "to": "vegetative-field", "approx_travel_length_meters": 68.0 },
+    { "id": "vegetative-field-to-new-signal", "from": "vegetative-field", "to": "new-signal", "approx_travel_length_meters": 68.96 }
+  ],
+  "total_route_length_meters": 239.26,
+  "new_files": [
+    "src/lib/drift3dMacroWorldConfig.ts",
+    "src/lib/drift3dMacroWorldRoute.ts",
+    "src/lib/drift3dMacroWorldReadiness.ts",
+    "src/lib/drift3dMacroWorldGreyboxHarness.ts",
+    "src/lib/drift3dMacroWorldPopulation.ts",
+    "src/lib/drift3dMacroWorldConfig.test.mts",
+    "src/lib/drift3dMacroWorldRoute.test.mts",
+    "src/lib/drift3dMacroWorldReadiness.test.mts",
+    "src/lib/drift3dMacroWorldPopulation.test.mts",
+    "src/components/drift-3d/greybox/DriftMacroWorldScene.tsx",
+    "src/components/drift-3d/greybox/DriftMacroWorldGreybox.tsx",
+    "src/components/drift-3d/greybox/DriftMacroWorldGreyboxCanvasView.tsx",
+    "src/components/drift-3d/greybox/EntryGreybox.tsx",
+    "src/components/drift-3d/greybox/BirthYardGreybox.tsx",
+    "src/components/drift-3d/greybox/OlderShadowsGreybox.tsx",
+    "src/components/drift-3d/greybox/VegetativeFieldGreybox.tsx",
+    "src/components/drift-3d/greybox/NewSignalGreybox.tsx",
+    "src/app/drift-greybox-lab/page.tsx"
+  ],
+  "modified_files": [
+    { "path": "docs/ACTIVE_LOT.md", "reason": "governance status updates" },
+    { "path": "src/components/audio/AudioPlayerProvider.tsx", "reason": "add /drift-kit-lab and /drift-greybox-lab to the ambient-audio route-suppression allow-list (see known_defects_found_and_fixed)" },
+    { "path": "src/components/audio/GlobalAudioPlayer.tsx", "reason": "same fix, mirrored list, replacing an incomplete regex" }
+  ],
+  "new_tracked_public_assets": [],
+  "reused_pre30_assets": [
+    "public/models/human-crowd/character-male-a.glb",
+    "public/models/urban/building-a.glb",
+    "public/models/urban/building-b.glb",
+    "public/models/vehicle-traffic/sedan.glb",
+    "public/textures/snow_02_diff_1k.jpg",
+    "public/textures/snow_02_nor_gl_1k.jpg",
+    "public/textures/snow_02_rough_1k.jpg"
+  ],
+  "quality_tier_counts": {
+    "scale_function": "floor-based: min(max(floor(base*scale), minimum), base) via drift3dQuality.ts scaleDrift3DQualityCount",
+    "birth_yard_towers": { "low": 8, "medium": 12, "high": 16, "base": 16, "minimum": 6 },
+    "birth_yard_crowd": { "low": 16, "medium": 28, "high": 40, "base": 40, "minimum": 8 },
+    "birth_yard_traffic": { "low": 1, "medium": 2, "high": 4, "base": 4, "minimum": 1 },
+    "older_shadows_cairns": { "low": 7, "medium": 10, "high": 14, "base": 14, "minimum": 5 },
+    "vegetative_field_houses": { "low": 6, "medium": 9, "high": 12, "base": 12, "minimum": 4 }
+  },
+  "tests_and_build": {
+    "tsc": "PASS, 0 errors",
+    "lint": "PASS, 0 errors/warnings",
+    "unit_tests": "PASS, 52/52 (22 pre-existing from PRE-30 + 30 new this lot)",
+    "build": "PASS, 40/40 static pages (39/39 before this lot; +1 = /drift-greybox-lab)",
+    "git_diff_check": "clean"
+  },
+  "validation_scans": {
+    "conflict_markers": "clean",
+    "forbidden_audio_cue_change": "clean (only the route-suppression allow-list fix, no cue/dramaturgy change)",
+    "production_route_scope": "clean, no src/app/drift/** or Drift3DScene/Client/Canvas.tsx change",
+    "external_asset_candidates": "clean, only historical rejected-candidate references in docs",
+    "tracked_archive_executable": "clean",
+    "new_tracked_public_assets": "none (git status --short -- public/ empty)",
+    "static_export_bundle_isolation": "greybox-specific chunk referenced only by out/drift-greybox-lab/index.html, not by out/drift/index.html",
+    "live_network_capture_on_drift": "zero greybox-specific requests",
+    "base_path_resolution": "all routes + a reused PRE-30 asset HTTP 200 under /misway prefix, byte-exact size"
+  },
+  "known_defects_found_and_fixed": [
+    {
+      "id": "PRE40-DEFECT-01",
+      "summary": "Global ambient audio (entry-ambient.mp3) autoplayed on /drift-greybox-lab, violating this lot's own 'no audio autoplay' requirement.",
+      "root_cause": "AudioPlayerProvider.tsx's DRIFT_LAB_ROUTES allow-list and GlobalAudioPlayer.tsx's isDrift3DLabPath regex only recognized /drift, /drift-lab, /drift-3d-lab as routes requiring ambient-audio suppression; neither PRE-30's /drift-kit-lab nor this lot's own /drift-greybox-lab had ever been added.",
+      "also_affected": "/drift-kit-lab (DRIFT-IV-PRE-30, already owner-accepted) — confirmed live before the fix, autoplaying identically.",
+      "fix": "Added /drift-kit-lab and /drift-greybox-lab to both files' route lists; replaced GlobalAudioPlayer.tsx's regex with the same array/startsWith check AudioPlayerProvider.tsx already used.",
+      "verification": "Re-checked live in fresh browser tabs on both /drift-greybox-lab and /drift-kit-lab post-fix: audio.paused === true, currentTime === 0 on load. Re-checked production /drift unaffected (still correctly suppressed). tsc/lint/npm test (52/52)/npm run build (40/40) all re-run clean after the fix.",
+      "classification": "MEASURED — reproduced, root-caused, fixed, and re-verified live, not inferred."
+    }
+  ],
+  "browser_validation": {
+    "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+    "summary": "Live WebGL rendering (actual driving, transition observation, visual quality-tier/reduced-motion/no-WebGL confirmation, screenshots) could not be observed this session.",
+    "diagnostic_evidence": [
+      "computer{action:'screenshot'} failed on the greybox lab tab AND on a control /drift tab AND on a control /drift-kit-lab tab with 'the Browser pane is not displayed, so the page is not compositing frames' — confirming a pane-wide session limitation, not something specific to this lot's own Canvas content",
+      "a direct requestAnimationFrame counter probe recorded 0 callbacks in 1.5 real seconds in the greybox lab tab",
+      "canvas.width/height stayed at the browser default (300x150); the diagnostics panel's world/route-progress/position fields stayed pinned at their initial values after a QA teleport click, because the useFrame callback that would consume the teleport request and recompute those fields never ran (confirmed by source inspection: the teleport button's onClick is a synchronous ref mutation that does fire correctly; only its render-loop-gated consumption could not be observed)"
+    ],
+    "what_was_measured_without_a_live_render": [
+      "window.__drift3dMacroWorldGreybox mounts with all 13 expected methods",
+      "routeProjectionAt(-88, 12) (Entry's own origin) returns routeProgress: 0 exactly, live, matching the unit test",
+      "routeProjectionAt(66, -12) (New Signal's own origin) returns routeProgress: 1 exactly, live, matching the unit test",
+      "validateConfig() / validateTransitions() / validateFallbackCards() all return [] live",
+      "all 5 teleport buttons + Reset + 3 Quality Tier buttons present in the DOM with correct labels",
+      "zero console errors on load",
+      "the ambient-audio autoplay defect (see known_defects_found_and_fixed)"
+    ],
+    "not_a_code_defect": "Same class of sandboxed-automation-browser compositor block documented in DRIFT-IV-PRE-30/SYS-70/BY-EUX-20/BY-EUX-30."
+  },
+  "gate_status": {
+    "DRIFT-IV-PRE-40": "IN_PROGRESS",
+    "DRIFT-IV-VF-MORNE-00": "BLOCKED_BY_DEPENDENCY",
+    "owner_verdicts": "all PENDING",
+    "commit_push_pr_performed": false
+  }
+}

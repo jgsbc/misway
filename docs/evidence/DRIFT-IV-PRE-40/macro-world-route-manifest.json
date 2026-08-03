@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-40",
+  "route_order": ["entry", "birth-yard", "older-shadows", "vegetative-field", "new-signal"],
+  "macro_worlds": [
+    {
+      "id": "entry",
+      "order": 1,
+      "label": "Entry",
+      "localOrigin": { "x": -88, "z": 12 },
+      "localOriginSource": "drift3dThresholdNode.position (drift3dTopology.ts)",
+      "dressingRadius": 14,
+      "spawnOffset": { "x": -8.1, "z": -5.8 },
+      "densityTargets": { "foreground": "SPARSE", "background": "SPARSE", "human": "SPARSE", "behavioralLoops": "SPARSE" },
+      "realismRatio": "90% reality / 10% impossible (Global Art Direction §2)",
+      "dominantGeographyGuardrail": false
+    },
+    {
+      "id": "birth-yard",
+      "order": 2,
+      "label": "Birth Yard",
+      "localOrigin": { "x": -74, "z": 22 },
+      "localOriginSource": "drift3dEras[0].center (drift3dTopology.ts)",
+      "dressingRadius": 36,
+      "spawnOffset": { "x": 0, "z": 0 },
+      "densityTargets": { "foreground": "HIGH", "background": "VERY_HIGH", "human": "VERY_HIGH", "behavioralLoops": "MEDIUM" },
+      "realismRatio": "70% reality / 20% distortion / 10% impossible (reference ratio)",
+      "dominantGeographyGuardrail": false
+    },
+    {
+      "id": "older-shadows",
+      "order": 3,
+      "label": "Older Shadows",
+      "localOrigin": { "x": -32, "z": -52 },
+      "localOriginSource": "drift3dEras[1].center (drift3dTopology.ts)",
+      "dressingRadius": 40,
+      "spawnOffset": { "x": 0, "z": 0 },
+      "densityTargets": { "foreground": "MEDIUM", "background": "HIGH", "human": "LOW", "behavioralLoops": "LOW" },
+      "realismRatio": "75% reality / 15% distortion / 10% impossible",
+      "dominantGeographyGuardrail": false
+    },
+    {
+      "id": "vegetative-field",
+      "order": 4,
+      "label": "Vegetative Field",
+      "localOrigin": { "x": 0, "z": 8 },
+      "localOriginSource": "drift3dEras[2].center (drift3dTopology.ts)",
+      "dressingRadius": 42,
+      "spawnOffset": { "x": 0, "z": 0 },
+      "densityTargets": { "foreground": "MEDIUM", "background": "MEDIUM", "human": "LOW", "behavioralLoops": "HIGH" },
+      "realismRatio": "85% baseline reality (up to 55% after contamination, not modeled in this greybox)",
+      "dominantGeographyGuardrail": false
+    },
+    {
+      "id": "new-signal",
+      "order": 5,
+      "label": "New Signal",
+      "localOrigin": { "x": 66, "z": -12 },
+      "localOriginSource": "drift3dEras[3].center (drift3dTopology.ts)",
+      "dressingRadius": 56,
+      "spawnOffset": { "x": 10, "z": -6 },
+      "densityTargets": { "foreground": "VARIABLE", "background": "VARIABLE", "human": "SPARSE", "behavioralLoops": "LOW" },
+      "realismRatio": "45-65% reality / 25-40% distortion / 10-20% impossible (varies by sub-arc)",
+      "dominantGeographyGuardrail": true
+    }
+  ],
+  "transitions": [
+    {
+      "id": "entry-to-birth-yard",
+      "fromWorld": "entry",
+      "toWorld": "birth-yard",
+      "approxTravelLengthMeters": 17.2,
+      "densityChange": "SPARSE -> VERY_HIGH, growing continuously along the exit corridor",
+      "atmosphereProgression": "explicit 2-3s eye-adaptation burn: near-black cave -> milky urban daylight",
+      "materialProgression": "wet basaltic rock -> concrete/brick urban infrastructure",
+      "loadingStrategy": "one continuous scene, both worlds mounted simultaneously",
+      "fallbackBehavior": "reduced motion: no forced camera travel, direct cut between atmosphere states"
+    },
+    {
+      "id": "birth-yard-to-older-shadows",
+      "fromWorld": "birth-yard",
+      "toWorld": "older-shadows",
+      "approxTravelLengthMeters": 85.09,
+      "densityChange": "VERY_HIGH -> MEDIUM open; towers become cliffs, canals become rivers/valley lines",
+      "atmosphereProgression": "gradual register change via the existing continuous atmosphere blend",
+      "materialProgression": "concrete/brick -> granite, glacier blue, snow white",
+      "loadingStrategy": "one continuous scene, no streaming boundary",
+      "fallbackBehavior": "reduced motion: no camera-shake on grade change; Birth Yard traffic/crowd freeze before the transition band"
+    },
+    {
+      "id": "older-shadows-to-vegetative-field",
+      "fromWorld": "older-shadows",
+      "toWorld": "vegetative-field",
+      "approxTravelLengthMeters": 68.0,
+      "densityChange": "MEDIUM open -> MEDIUM repetitive/ordered; station becomes residence, refuge becomes lotissement",
+      "atmosphereProgression": "clear contrasty altitude light -> flat, overcast, shadow-less midday light",
+      "materialProgression": "granite/ochre -> desaturated green-yellow, beige, off-white",
+      "loadingStrategy": "one continuous scene, no streaming boundary",
+      "fallbackBehavior": "reduced motion: no forced descent camera movement"
+    },
+    {
+      "id": "vegetative-field-to-new-signal",
+      "fromWorld": "vegetative-field",
+      "toWorld": "new-signal",
+      "approxTravelLengthMeters": 68.96,
+      "densityChange": "MEDIUM repetitive -> VARIABLE, sharp perceptible break ('une rupture nette mais brève'), not a fade",
+      "atmosphereProgression": "flat overcast daylight -> New Signal's silver night state (existing drift3dAtmosphere.ts newSignalState)",
+      "materialProgression": "desaturated suburban palette -> cold silver/moonlit tones",
+      "loadingStrategy": "one continuous scene, no streaming boundary",
+      "fallbackBehavior": "reduced motion: density-break moment uses no camera shake; New Signal water motion frozen"
+    }
+  ],
+  "totalRouteLengthMeters": 239.26,
+  "movementBounds": { "minX": -125, "maxX": 110, "minZ": -90, "maxZ": 45 },
+  "routeCorridorHalfWidthMeters": 24,
+  "canonicalVehicle": "Drift3DVehicle (unmodified, production sand-safari 4x4)",
+  "kennyCarKitRole": "non-collidable, non-player background traffic in Birth Yard only",
+  "configValidation": {
+    "getDrift3DCanonicalMacroWorldConfigIssues": [],
+    "getDrift3DCanonicalMacroWorldTransitionIssues": [],
+    "getDrift3DCanonicalMacroWorldFallbackIssues": []
+  }
+}
