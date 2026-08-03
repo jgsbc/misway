@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --import ./scripts/drift3d-register-test-hooks.mjs --test \"src/lib/**/*.test.mts\""
   },
   "dependencies": {
     "@react-three/fiber": "^9.6.1",

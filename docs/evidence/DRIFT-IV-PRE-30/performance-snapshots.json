@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0.0",
+  "lot": "DRIFT-IV-PRE-30",
+  "purpose": "Performance/render-cost evidence for the three shared-kit pilots, using the existing DRIFT-IV-SYS-70 evidence/performance harness classifications exclusively (MEASURED, INFERRED_FROM_REPRESENTATIVE_SAMPLE, AUTOMATED_STRUCTURAL_EVIDENCE, KNOWN_ENVIRONMENT_LIMITATION). No fabricated FPS/draw-call/triangle value appears anywhere in this file.",
+  "environment_limitation": {
+    "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+    "summary": "Live WebGL rendering could not be observed this session for any of the three pilots, so per-pilot draw calls, triangles, geometry/texture counts, FPS samples and real screenshots are not available.",
+    "diagnostic_evidence": [
+      "computer{action:'screenshot'} failed with 'the Browser pane is not displayed, so the page is not compositing frames' on every attempt, including after resize_window and after a real ref-based click that gained document.hasFocus()=true",
+      "a direct requestAnimationFrame counter probe recorded 0 callbacks over 57.7 real seconds in the same tab, confirming the render loop itself never ran (not merely a screenshot-tool issue)",
+      "consequently canvas.width/height stayed at the browser's un-set default (300x150) and window.__drift3dEvidence-equivalent snapshot reported canvasPresent:false throughout",
+      "Claude in Chrome (the real-Chrome fallback that obtained genuine measurements for this same class of problem during DRIFT-IV-SYS-70/DRIFT-IV-BY-EUX-20/30) reported 'extension isn't reachable' on two separate connection attempts this session",
+      "the user was asked how to proceed (open the Browser pane / connect Claude in Chrome / proceed with honest limitation) and explicitly chose to proceed with honest limitation documentation"
+    ],
+    "not_a_code_defect": "This is the same class of sandboxed-automation-browser compositor block this project has documented multiple times before (DRIFT-IV-SYS-70, DRIFT-IV-BY-EUX-20, DRIFT-IV-BY-EUX-30) — a background/non-composited tab throttles requestAnimationFrame and (by extension) ResizeObserver-driven Canvas sizing to zero, independent of any application code. It is not evidence of a pilot defect."
+  },
+  "what_was_actually_measured_this_session": [
+    {
+      "check": "TypeScript compilation",
+      "command": "npx tsc --noEmit",
+      "result": "PASS, zero errors",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Lint",
+      "command": "npm run lint",
+      "result": "PASS, zero errors/warnings",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Pure-logic test suite",
+      "command": "npm test (node --test, 22 tests: asset manifest, pilot ids, monotonic Quality Tier counts for all three pilots, traffic-path position/tangent, wheel-rotation math, water-preset bounds/membership, fallback-card metadata)",
+      "result": "PASS, 22/22",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Production static build",
+      "command": "npm run build",
+      "result": "PASS, 39/39 pages generated including /drift-kit-lab (was 38/38 before this lot)",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "git diff --check",
+      "result": "clean, no whitespace defects",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "React/DOM state layer (pilot switching, quality-tier selection, water-preset selection) via native DOM .click() and aria-pressed inspection — independent of Canvas/rAF",
+      "result": "activePilot switched urban-human -> nature-movement -> water-weather-light correctly via window.__drift3dKitPilots.activePilot(); quality tier switched to 'high' correctly; water preset button aria-pressed correctly reflected 'rough-open-water-seed' after click (confirmed via DOM inspection, not the harness read, which raced ahead of the effect that rebuilds it in the same script tick)",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Console errors across pilot switches, quality-tier changes, and /drift + /tracks smoke visits",
+      "result": "zero console errors/warnings recorded",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Network requests on /drift and /tracks (dev server, live)",
+      "result": "zero requests to /models/** or /textures/snow_02_* — only the 5 pre-existing Poly Haven sets requested on /drift, confirming no pilot-asset leak into production routes at runtime",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Static export bundle isolation (grep of out/_next/static/chunks/*.js)",
+      "result": "the chunk containing pilot asset manifest strings is referenced only by out/drift-kit-lab/index.html, not by out/drift/index.html or out/index.html",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "basePath-prefixed asset/route resolution (local server stripping a /misway prefix, matching next.config.ts's production basePath)",
+      "result": "all 3 GLBs, all 3 colormap textures, all 3 snow_02 textures, and the /drift-kit-lab, /drift, /tracks routes all returned HTTP 200 with byte-exact sizes; a genuinely missing path correctly 404s",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Mobile viewport structural layout (375x812)",
+      "result": "main element fills viewport exactly (375.2 x 812); 0 of 8 visible buttons overflow the viewport horizontally",
+      "classification": "MEASURED"
+    },
+    {
+      "check": "Global audio autoplay",
+      "result": "entry-ambient.mp3 plays on page load — confirmed identical on /about (a route this lot never touched), so this is pre-existing site-wide entry-audio behavior, not something the /drift-kit-lab route or any pilot triggers. No Drift catalogue track is played by this lot's code.",
+      "classification": "MEASURED"
+    }
+  ],
+  "per_pilot_render_metrics": {
+    "urban_human": {
+      "draw_calls": null,
+      "triangles": null,
+      "geometries": null,
+      "textures": null,
+      "fps_sample": null,
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "code_review_note": "GLTFLoader load path, SkeletonUtils.clone-per-instance, AnimationMixer clip-switch-with-own-action-cache, InstancedMesh building massing and disposal logic are implemented and type-checked; not exercised under a live render this session."
+    },
+    "nature_movement": {
+      "draw_calls": null,
+      "triangles": null,
+      "geometries": null,
+      "textures": null,
+      "fps_sample": null,
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "code_review_note": "Drift3DScatterField reuse, sedan.glb named-node resolution, per-part InstancedMesh construction, path/wheel math (independently unit-tested as pure functions) are implemented and type-checked; not exercised under a live render this session."
+    },
+    "water_weather_light": {
+      "draw_calls": null,
+      "triangles": null,
+      "geometries": null,
+      "textures": null,
+      "fps_sample": null,
+      "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+      "code_review_note": "Water/Sky construction, snow_02 material wiring, and disposal are implemented and type-checked; not exercised under a live render this session. See the known upstream Water.js render-target disposal limitation documented in WaterWeatherLightPilot.tsx's own header comment and in shared-kit-pilots-evidence.md."
+    }
+  },
+  "resource_disposal_across_switches": {
+    "classification": "KNOWN_ENVIRONMENT_LIMITATION",
+    "note": "Disposal code exists and runs on React unmount for all three pilots (geometry/material/texture .dispose(), mixer.uncacheRoot, InstancedMesh removal), and React's own unmount guarantee (a different component type mounted in the same conditional slot triggers full unmount of the previous one, not an update) means this fires on every pilot switch by construction — but the actual GPU-resource-count-stays-bounded claim could not be confirmed live this session (gl.info.memory.geometries/textures via the dev-only Drift3DKitPilotMemoryProbe never produced a non-zero reading, consistent with the render loop never starting). One exception is architectural, not session-specific: Water.js's internal reflection WebGLRenderTarget has no public accessor, so it cannot be explicitly .dispose()d by this pilot regardless of environment — documented as a known upstream three.js addon limitation."
+  },
+  "owner_live_review_resolution": {
+    "classification": "OWNER_LIVE_REVIEW",
+    "note": "This section resolves the functional/acceptance question this file's environment_limitation and per_pilot_render_metrics sections above could not answer this session — it does not retroactively convert any null numeric field to a measured value. The owner personally ran all three pilots in Drift Kit Lab, on their own local machine, in a session this agent did not observe, and confirmed: 'Everything is OK in Drift Kit Lab, although it is severely lacking in realistic graphics.' This is first-hand confirmation that the pilots load, run, and are usable end-to-end (resolving the functional-viability question), combined with an explicit artistic reservation on visual realism (see shared-kit-pilots-evidence.md/.json §12 / owner_live_review for the full record). It does not supply any FPS/draw-call/triangle/geometry/texture number — every such field in per_pilot_render_metrics above remains null and KNOWN_ENVIRONMENT_LIMITATION, honestly, because no such number was measured or reported. No screenshot file was supplied with this decision.",
+    "verdicts": {
+      "urban_human": "ACCEPT (technical/architectural)",
+      "nature_movement": "ACCEPT (technical/architectural)",
+      "water_weather_light": "ACCEPT (technical/architectural)"
+    },
+    "artistic_status": "TECHNICALLY ACCEPTED — VISUAL REALISM NOT ACCEPTED AS FINAL ART"
+  }
+}
