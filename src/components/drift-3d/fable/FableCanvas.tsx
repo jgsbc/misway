@@ -15,6 +15,11 @@ import FableTunnel from "@/components/drift-3d/fable/FableTunnel";
 import FableCity from "@/components/drift-3d/fable/FableCity";
 import FableCanal from "@/components/drift-3d/fable/FableCanal";
 import FableFarEras from "@/components/drift-3d/fable/FableFarEras";
+import {
+  FABLE_BELVEDERE_ROUTE,
+  FABLE_HEADLAND_ROUTE,
+  FABLE_SUBURB_LOOP,
+} from "@/components/drift-3d/fable/fableBranches";
 import { FABLE_ERAS } from "@/components/drift-3d/fable/fableTopology";
 import FableLife from "@/components/drift-3d/fable/FableLife";
 import FableDirector from "@/components/drift-3d/fable/FableDirector";
@@ -154,6 +159,17 @@ function FableDebugProbe({
     };
     (window as unknown as Record<string, unknown>).__fableProbe = probe;
     (window as unknown as Record<string, unknown>).__fablePathX = fablePathX;
+    (window as unknown as Record<string, unknown>).__fableBranches = () => ({
+      belvedere: {
+        start: FABLE_BELVEDERE_ROUTE[0],
+        end: FABLE_BELVEDERE_ROUTE[FABLE_BELVEDERE_ROUTE.length - 1],
+      },
+      loop: { mid: FABLE_SUBURB_LOOP[Math.floor(FABLE_SUBURB_LOOP.length / 2)] },
+      headland: {
+        mid: FABLE_HEADLAND_ROUTE[Math.floor(FABLE_HEADLAND_ROUTE.length / 2)],
+        end: FABLE_HEADLAND_ROUTE[FABLE_HEADLAND_ROUTE.length - 1],
+      },
+    });
 
     return () => {
       delete (window as unknown as Record<string, unknown>).__fableProbe;

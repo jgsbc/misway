@@ -11,6 +11,23 @@ import {
   fableRng,
   fableRouteAltitude,
 } from "@/components/drift-3d/fable/fableWorld";
+import {
+  FABLE_BELVEDERE_ROUTE,
+  FABLE_HEADLAND_ROUTE,
+  FABLE_SUBURB_LOOP,
+  registerFableWorldRoutes,
+} from "@/components/drift-3d/fable/fableBranches";
+import { fableFarPathX as spineX } from "@/components/drift-3d/fable/fableWorld";
+import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
+
+/**
+ * Dégagement : aucun décor ne se pose sur une route, quelle qu'elle soit.
+ * Sans cette règle les branches se retrouvent semées de rochers et de
+ * maisons — le monde élastique exige que le décor connaisse le réseau.
+ */
+function clearsRoutes(x: number, z: number, margin: number) {
+  return fableRouteField(x, z).distance > margin;
+}
 
 /**
  * FABLE — blockout immersif des trois ères lointaines.
@@ -139,6 +156,74 @@ function EraRoad({
   );
 }
 
+
+/**
+ * Ruban de route le long d'une polyligne quelconque — c'est lui qui rend
+ * les détours conduisibles au lieu de rester des lignes dans un fichier.
+ */
+function RouteRibbon({
+  points,
+  width,
+  color,
+  lift = 0.08,
+}: {
+  points: Array<[number, number, number]>;
+  width: number;
+  color: string;
+  lift?: number;
+}) {
+  const geometry = useMemo(() => {
+    registerFableWorldRoutes(spineX, fableRouteAltitude);
+    const positions: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
+    const half = width / 2;
+    let travelled = 0;
+
+    for (let i = 0; i < points.length; i += 1) {
+      const [x, y, z] = points[i];
+      const prev = points[Math.max(0, i - 1)];
+      const next = points[Math.min(points.length - 1, i + 1)];
+      // Normale horizontale au tracé : elle donne la largeur de la chaussée.
+      const dx = next[0] - prev[0];
+      const dz = next[2] - prev[2];
+      const length = Math.hypot(dx, dz) || 1;
+      const nx = -dz / length;
+      const nz = dx / length;
+
+      if (i > 0) {
+        travelled += Math.hypot(x - points[i - 1][0], z - points[i - 1][2]);
+      }
+
+      positions.push(x - nx * half, y + lift, z - nz * half);
+      positions.push(x + nx * half, y + lift, z + nz * half);
+      uvs.push(0, travelled / 8, 1, travelled / 8);
+
+      if (i > 0) {
+        const a = (i - 1) * 2;
+        indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+
+    return geo;
+  }, [points, width, lift]);
+
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  const maps = getDriftMaterialMaps("concrete", 2, 30);
+
+  return (
+    <mesh geometry={geometry} receiveShadow>
+      <meshStandardMaterial map={maps.map ?? undefined} color={color} roughness={0.95} />
+    </mesh>
+  );
+}
+
 /* ─── OLDER SHADOWS — montagne ────────────────────────────────────────── */
 
 /**
@@ -187,6 +272,9 @@ function EraOlderShadows() {
 
       const side = rng() < 0.5 ? -1 : 1;
       const x = fableFarPathX(z) + side * (10 + rng() * rng() * 62);
+
+      if (!clearsRoutes(x, z, 4.5)) continue;
+
       const y = fableGroundY(x, z);
       const h = 5 + rng() * 8;
       e.set(0, rng() * Math.PI, (rng() - 0.5) * 0.08);
@@ -205,6 +293,9 @@ function EraOlderShadows() {
       const z = 175 + rng() * 300;
       const side = rng() < 0.5 ? -1 : 1;
       const x = fableFarPathX(z) + side * (5 + rng() * rng() * 34);
+
+      if (!clearsRoutes(x, z, 3.2)) continue;
+
       const y = fableGroundY(x, z);
       const s = 0.7 + rng() * rng() * 5;
       e.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
@@ -223,6 +314,9 @@ function EraOlderShadows() {
       const z = 200 + i * 9 + rng() * 4;
       const side = rng() < 0.5 ? -1 : 1;
       const x = fableFarPathX(z) + side * (5.5 + rng() * 2.5);
+
+      if (!clearsRoutes(x, z, 2.2)) continue;
+
       const y = fableGroundY(x, z);
 
       for (let s = 0; s < 4; s += 1) {
@@ -257,6 +351,8 @@ function EraOlderShadows() {
     <group>
       <EraTerrain z0={170} z1={480} color="#8b8b76" material="rock" />
       <EraRoad z0={172} z1={478} width={7.4} color="#9c9184" />
+      {/* La montée au belvédère : trois lacets, un cul-de-sac, une vue. */}
+      <RouteRibbon points={FABLE_BELVEDERE_ROUTE} width={6.4} color="#94897b" />
 
       {/* Pics : cônes larges, sommets clairs — la neige se lit à la couleur. */}
       <instancedMesh
@@ -364,6 +460,9 @@ function EraVegetativeField() {
       for (const side of [-1, 1] as const) {
         const cx = fableFarPathX(z);
         const front = cx + side * 11;
+
+        if (!clearsRoutes(front + side * 5, z, 5.5)) continue;
+
         const y = fableGroundY(front, z);
         const yaw = side < 0 ? Math.PI / 2 : -Math.PI / 2;
         e.set(0, yaw, 0);
@@ -457,6 +556,8 @@ function EraVegetativeField() {
       <EraTerrain z0={470} z1={710} color="#6f7a5e" material="sand" segments={72} />
       {/* Asphalte mouillé : plus clair et plus lisse que partout ailleurs. */}
       <EraRoad z0={472} z1={708} width={9} color="#6a6d70" lift={0.06} />
+      {/* La desserte qui tourne et revient — sans qu'on s'en aperçoive. */}
+      <RouteRibbon points={FABLE_SUBURB_LOOP} width={7.6} color="#6a6d70" lift={0.06} />
 
       <instancedMesh
         ref={housesRef}
@@ -622,7 +723,7 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
   });
 
   return (
-    <mesh material={material} position={[190, -26, 860]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh material={material} position={[190, 0, 860]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[420, 640, 40, 60]} />
     </mesh>
   );
@@ -670,6 +771,9 @@ function EraNewSignal({
       const cx = fableFarPathX(z);
       const side = rng() < 0.62 ? -1 : 1;
       const x = cx + side * (7 + rng() * rng() * 40);
+
+      if (!clearsRoutes(x, z, 3.4)) continue;
+
       const y = fableGroundY(x, z);
       const s = 0.7 + rng() * 1.9;
       scrub.push(
@@ -684,11 +788,11 @@ function EraNewSignal({
     // La ville au fond de la baie : masses basses, très loin.
     for (let i = 0; i < 90; i += 1) {
       const z = 780 + rng() * 240;
-      const x = fableFarPathX(z) + 60 + rng() * 90;
+      const x = fableFarPathX(z) + 150 + rng() * 90;
       const h = 4 + rng() * rng() * 22;
       town.push(
         new THREE.Matrix4().compose(
-          new THREE.Vector3(x, -14 + h / 2, z),
+          new THREE.Vector3(x, 1 + h / 2, z),
           new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 0.4, 0)),
           new THREE.Vector3(6 + rng() * 10, h, 6 + rng() * 10)
         )
@@ -714,6 +818,8 @@ function EraNewSignal({
     <group>
       <EraTerrain z0={700} z1={1010} color="#6d6551" material="rock" segments={80} />
       <EraRoad z0={702} z1={1006} width={8} color="#8e8880" />
+      {/* La descente à la pointe : on perd la vue pour la retrouver au ras. */}
+      <RouteRibbon points={FABLE_HEADLAND_ROUTE} width={6.6} color="#8e8880" />
       <Ocean sunDir={sunDir} sunColor={sunColor} />
 
       <instancedMesh
@@ -769,7 +875,7 @@ function EraNewSignal({
       </group>
 
       {/* Phare de la pointe : le seul point fixe dans tout le couchant. */}
-      <group position={[fableFarPathX(940) + 78, -12, 940]}>
+      <group position={[fableFarPathX(940) + 78, 0.5, 940]}>
         <mesh position={[0, 9, 0]} castShadow>
           <cylinderGeometry args={[1.4, 2.2, 18, 10]} />
           <meshStandardMaterial color="#ada79b" roughness={0.92} />
