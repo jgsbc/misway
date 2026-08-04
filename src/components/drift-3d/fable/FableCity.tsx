@@ -35,6 +35,7 @@ import {
   FABLE_SUN_COLOR,
   FABLE_SUN_DIR,
 } from "@/components/drift-3d/fable/FableSky";
+import { buildFableArchitecture } from "@/components/drift-3d/fable/fableArchitecture";
 import { immersionBackdropRing } from "@/components/drift-3d/fable/core/immersionLayers";
 import {
   desyncFrequency,
@@ -254,113 +255,51 @@ function FableSidewalks() {
 
 /* ─── Bâtiments ────────────────────────────────────────────────────────── */
 
-function facadeBand(height: number) {
-  if (height < 13) return 1;
+function FableBlocks({ lots }: { lots: FableLot[] }) {
+  const geometries = useMemo(() => buildFableArchitecture(lots), [lots]);
+  const plasterMaps = getDriftMaterialMaps("concrete", 1, 1);
+  const brickMaps = getDriftMaterialMaps("brick", 1, 1);
 
-  if (height < 21) return 2;
-
-  return 3;
-}
-
-function FableBuildings({ lots }: { lots: FableLot[] }) {
-  const byVariant = useMemo(() => {
-    const groups = new Map<string, { variant: number; band: number; lots: FableLot[] }>();
-
-    for (const lot of lots) {
-      const band = facadeBand(lot.height);
-      const key = `${lot.variant}:${band}`;
-      const entry = groups.get(key) ?? { variant: lot.variant, band, lots: [] };
-      entry.lots.push(lot);
-      groups.set(key, entry);
-    }
-
-    return [...groups.values()];
-  }, [lots]);
+  useEffect(() => {
+    return () => {
+      for (const geo of Object.values(geometries)) geo.dispose();
+    };
+  }, [geometries]);
 
   return (
     <group>
-      {byVariant.map((group) => (
-        <BuildingVariant
-          key={`${group.variant}:${group.band}`}
-          variant={group.variant}
-          band={group.band}
-          lots={group.lots}
+      {/* Maçonnerie : un seul appel de dessin pour toute la ville. */}
+      <mesh geometry={geometries.solid} castShadow receiveShadow frustumCulled={false}>
+        <meshStandardMaterial
+          map={plasterMaps.map ?? undefined}
+          normalMap={plasterMaps.normalMap ?? undefined}
+          normalScale={new THREE.Vector2(0.6, 0.6)}
+          vertexColors
+          roughness={0.95}
         />
-      ))}
+      </mesh>
+      {/* Vitrages éteints : sombres, un peu spéculaires, jamais noirs. */}
+      <mesh geometry={geometries.glass} frustumCulled={false}>
+        <meshStandardMaterial vertexColors roughness={0.12} metalness={0.15} envMapIntensity={2.4} />
+      </mesh>
+      {/* Intérieurs allumés : la couleur EST la lumière, sans éclairage. */}
+      <mesh geometry={geometries.lit} frustumCulled={false}>
+        <meshBasicMaterial vertexColors toneMapped={false} />
+      </mesh>
+      {/* Ferronnerie : garde-corps, escaliers de secours. */}
+      <mesh geometry={geometries.metal} castShadow frustumCulled={false}>
+        <meshStandardMaterial vertexColors roughness={0.55} metalness={0.55} envMapIntensity={1.3} />
+      </mesh>
+      {/* Toiles de devanture. */}
+      <mesh geometry={geometries.fabric} castShadow frustumCulled={false}>
+        <meshStandardMaterial
+          map={brickMaps.map ?? undefined}
+          vertexColors
+          roughness={0.95}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
     </group>
-  );
-}
-
-function BuildingVariant({
-  variant,
-  band,
-  lots,
-}: {
-  variant: number;
-  band: number;
-  lots: FableLot[];
-}) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const { map, emissiveMap } = getFableFacadeMaps(variant, band);
-
-  const materials = useMemo(() => {
-    const facade = new THREE.MeshStandardMaterial({
-      map,
-      emissiveMap,
-      emissive: new THREE.Color("#ffc27a"),
-      emissiveIntensity: 0.78,
-      roughness: 0.92,
-    });
-    const roof = new THREE.MeshStandardMaterial({
-      color: ROOF_COLORS[variant % ROOF_COLORS.length],
-      roughness: 0.96,
-    });
-
-    return [facade, facade, roof, roof, facade, facade];
-  }, [map, emissiveMap, variant]);
-
-  const geometry = useMemo(() => {
-    const geo = new THREE.BoxGeometry(1, 1, 1);
-    geo.translate(0, 0.5, 0);
-
-    return geo;
-  }, []);
-
-  useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-
-    const m = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    const e = new THREE.Euler();
-    const color = new THREE.Color();
-
-    lots.forEach((lot, i) => {
-      e.set(0, lot.yaw, 0);
-      q.setFromEuler(e);
-      m.compose(
-        new THREE.Vector3(lot.x, fableGroundY(lot.x, lot.z) - 0.15, lot.z),
-        q,
-        new THREE.Vector3(lot.width, lot.height, lot.depth)
-      );
-      mesh.setMatrixAt(i, m);
-      color.setRGB(lot.tint.r, lot.tint.g, lot.tint.b);
-      mesh.setColorAt(i, color);
-    });
-    mesh.instanceMatrix.needsUpdate = true;
-
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [lots]);
-
-  return (
-    <instancedMesh
-      ref={meshRef}
-      args={[geometry, undefined, lots.length]}
-      material={materials}
-      frustumCulled={false}
-      castShadow
-      receiveShadow
-    />
   );
 }
 
@@ -398,100 +337,6 @@ function BreathingBuilding({ reducedMotion }: { reducedMotion: boolean }) {
         <boxGeometry args={[9.3, 0.7, 10.3]} />
         <meshStandardMaterial color={ROOF_COLORS[2]} roughness={0.96} />
       </mesh>
-    </group>
-  );
-}
-
-/**
- * Acrotères et soubassements : un liseré sombre en pied de façade (crasse,
- * ancrage au sol) et un rebord de toit qui casse la silhouette « boîte ».
- */
-function FableParapetsAndSkirts({ lots }: { lots: FableLot[] }) {
-  const parapetRef = useRef<THREE.InstancedMesh>(null);
-  const skirtRef = useRef<THREE.InstancedMesh>(null);
-
-  const { parapets, skirts } = useMemo(() => {
-    const rng = fableRng(45210);
-    const parapetList: THREE.Matrix4[] = [];
-    const skirtList: THREE.Matrix4[] = [];
-    const q = new THREE.Quaternion();
-    const e = new THREE.Euler();
-
-    for (const lot of lots) {
-      const baseY = fableGroundY(lot.x, lot.z) - 0.15;
-      e.set(0, lot.yaw, 0);
-      q.setFromEuler(e);
-
-      // Soubassement légèrement débordant.
-      skirtList.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(lot.x, baseY + 0.55, lot.z),
-          q,
-          new THREE.Vector3(lot.width + 0.18, 1.1, lot.depth + 0.18)
-        )
-      );
-
-      if (rng() < 0.7) {
-        // Acrotère : cadre fin qui dépasse du toit.
-        const h = 0.3 + rng() * 0.35;
-        const topY = baseY + lot.height + h / 2 - 0.05;
-
-        for (const [ox, oz, sx, sz] of [
-          [0, lot.depth / 2, lot.width + 0.24, 0.22],
-          [0, -lot.depth / 2, lot.width + 0.24, 0.22],
-          [lot.width / 2, 0, 0.22, lot.depth + 0.24],
-          [-lot.width / 2, 0, 0.22, lot.depth + 0.24],
-        ] as const) {
-          const cos = Math.cos(lot.yaw);
-          const sin = Math.sin(lot.yaw);
-          parapetList.push(
-            new THREE.Matrix4().compose(
-              new THREE.Vector3(
-                lot.x + ox * cos + oz * sin,
-                topY,
-                lot.z - ox * sin + oz * cos
-              ),
-              q,
-              new THREE.Vector3(sx, h, sz)
-            )
-          );
-        }
-      }
-    }
-
-    return { parapets: parapetList, skirts: skirtList };
-  }, [lots]);
-
-  useEffect(() => {
-    const apply = (mesh: THREE.InstancedMesh | null, list: THREE.Matrix4[]) => {
-      if (!mesh) return;
-
-      list.forEach((m, i) => mesh.setMatrixAt(i, m));
-      mesh.instanceMatrix.needsUpdate = true;
-    };
-    apply(parapetRef.current, parapets);
-    apply(skirtRef.current, skirts);
-  }, [parapets, skirts]);
-
-  return (
-    <group>
-      <instancedMesh
-        ref={parapetRef}
-        args={[undefined, undefined, parapets.length]}
-        frustumCulled={false}
-        castShadow
-      >
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#7f7466" roughness={0.95} />
-      </instancedMesh>
-      <instancedMesh
-        ref={skirtRef}
-        args={[undefined, undefined, skirts.length]}
-        frustumCulled={false}
-      >
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#4a4038" roughness={0.98} />
-      </instancedMesh>
     </group>
   );
 }
@@ -1664,8 +1509,7 @@ export default function FableCity({
       <FableTerrain />
       <FableRoads />
       <FableSidewalks />
-      <FableBuildings lots={lots} />
-      <FableParapetsAndSkirts lots={lots} />
+      <FableBlocks lots={lots} />
       <BreathingBuilding reducedMotion={reducedMotion} />
       <FableRoofProps lots={lots} />
       <FableGroundDetail />

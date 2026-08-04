@@ -13,7 +13,12 @@ export const FABLE_SUN_DIR = new THREE.Vector3(-0.55, 0.34, 0.62).normalize();
 export const FABLE_SKY_ZENITH = new THREE.Color("#22374a");
 export const FABLE_SKY_HORIZON = new THREE.Color("#d9995a");
 export const FABLE_SUN_COLOR = new THREE.Color("#ffd9a0");
-export const FABLE_FOG_CITY = new THREE.Color("#b38a5f");
+/**
+ * Brume de ville : violette et froide, pas brune. C'est ce contraste qui
+ * fait chanter les fenêtres chaudes et creuse la profondeur — un brouillard
+ * de la couleur des murs aplatit tout.
+ */
+export const FABLE_FOG_CITY = new THREE.Color("#7d7391");
 export const FABLE_FOG_TUNNEL = new THREE.Color("#05060a");
 
 const vertexShader = /* glsl */ `
@@ -66,24 +71,25 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
+/** Matière du dôme — partagée avec la sonde d'environnement. */
+export function createFableSkyMaterial() {
+  return new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader,
+    uniforms: {
+      uZenith: { value: FABLE_SKY_ZENITH },
+      uHorizon: { value: FABLE_SKY_HORIZON },
+      uSunDir: { value: FABLE_SUN_DIR },
+      uSunColor: { value: FABLE_SUN_COLOR },
+    },
+    side: THREE.BackSide,
+    depthWrite: false,
+    fog: false,
+  });
+}
+
 export default function FableSky() {
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          uZenith: { value: FABLE_SKY_ZENITH },
-          uHorizon: { value: FABLE_SKY_HORIZON },
-          uSunDir: { value: FABLE_SUN_DIR },
-          uSunColor: { value: FABLE_SUN_COLOR },
-        },
-        side: THREE.BackSide,
-        depthWrite: false,
-        fog: false,
-      }),
-    []
-  );
+  const material = useMemo(() => createFableSkyMaterial(), []);
 
   return (
     <mesh material={material} position={[0, 0, 60]} renderOrder={-100} frustumCulled={false}>

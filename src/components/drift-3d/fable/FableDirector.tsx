@@ -370,7 +370,7 @@ export default function FableDirector({
     }
 
     /* ── Adaptation lumineuse (core) ──────────────────────────────────── */
-    const exposureTarget = 1.24 + tm * 0.6;
+    const exposureTarget = 1.34 + tm * 0.55;
     const glare = stepImmersionExposure(exposureRef.current, exposureTarget, delta);
     gl.toneMappingExposure = exposureRef.current.current;
 

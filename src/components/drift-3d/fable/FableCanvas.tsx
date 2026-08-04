@@ -9,7 +9,8 @@ import Drift3DVehicle, {
 } from "@/components/drift-3d/Drift3DVehicle";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
 import type { ImmersionInput } from "@/components/drift-3d/fable/core/immersionInput";
-import FableSky from "@/components/drift-3d/fable/FableSky";
+import FableSky, { createFableSkyMaterial } from "@/components/drift-3d/fable/FableSky";
+import ImmersionEnvironment from "@/components/drift-3d/fable/core/ImmersionEnvironment";
 import FableTunnel from "@/components/drift-3d/fable/FableTunnel";
 import FableCity from "@/components/drift-3d/fable/FableCity";
 import FableCanal from "@/components/drift-3d/fable/FableCanal";
@@ -201,6 +202,7 @@ export default function FableCanvas({
       <color attach="background" args={["#05060a"]} />
 
       <FableSky />
+      <ImmersionEnvironment createSkyMaterial={createFableSkyMaterial} intensity={0.55} />
       <FableTunnel reducedMotion={reducedMotion} />
       <FableCity lots={layout.lots} reducedMotion={reducedMotion} />
       <FableCanal reducedMotion={reducedMotion} />
