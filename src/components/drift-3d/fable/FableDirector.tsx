@@ -10,7 +10,6 @@ import { getDrift3DHeadingVector } from "@/lib/drift3d";
 import {
   createDrift3DVehiclePhysicsState,
   DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
-  stepDrift3DVehiclePhysics,
   type Drift3DVehiclePhysicsState,
   type Drift3DVehicleCollider,
 } from "@/lib/drift3dVehiclePhysics";
@@ -19,7 +18,6 @@ import {
   FABLE_SPAWN,
   FABLE_VENTS,
   fableCityMix,
-  fableCruiseScale,
   fableGroundY,
   fableLerp,
   fablePathX,
@@ -27,10 +25,9 @@ import {
   fableTunnelMix,
   fableYardMix,
 } from "@/components/drift-3d/fable/fableWorld";
-import {
-  immersionCruiseScale,
-  type ImmersionInput,
-} from "@/components/drift-3d/fable/core/immersionInput";
+import type { ImmersionInput } from "@/components/drift-3d/fable/core/immersionInput";
+import { stepImmersionVehicle } from "@/components/drift-3d/fable/core/immersionVehicle";
+import { fableEraBlend } from "@/components/drift-3d/fable/fableTopology";
 import {
   createImmersionExposure,
   stepImmersionExposure,
@@ -47,10 +44,8 @@ import {
 } from "@/components/drift-3d/fable/core/immersionGrounding";
 import { eventPulse } from "@/components/drift-3d/fable/core/immersionSecondary";
 import {
-  FABLE_FOG_CITY,
   FABLE_FOG_TUNNEL,
   FABLE_SUN_COLOR,
-  FABLE_SUN_DIR,
 } from "@/components/drift-3d/fable/FableSky";
 import {
   getFableContactShadowTexture,
@@ -70,6 +65,8 @@ type FableDirectorProps = {
   vehicleRef: RefObject<Drift3DVehicleHandle | null>;
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
   inputRef: MutableRefObject<ImmersionInput | null>;
+  /** Position longitudinale publiée pour le streamer d'ères. */
+  vehicleZRef: MutableRefObject<number>;
   colliders: Drift3DVehicleCollider[];
   postUniformsRef: MutableRefObject<FablePostUniforms | null>;
   ambienceRef: MutableRefObject<FableAmbience | null>;
@@ -77,16 +74,13 @@ type FableDirectorProps = {
   reducedMotion: boolean;
 };
 
-/** Braquage maximal (rad/s) — plein à l'arrêt, resserré à vitesse. */
-const STEER_RATE_SLOW = 1.9;
-const STEER_RATE_FAST = 0.85;
-
 const DUST_COUNT = 14;
 
 export default function FableDirector({
   vehicleRef,
   vehicleStateRef,
   inputRef,
+  vehicleZRef,
   colliders,
   postUniformsRef,
   ambienceRef,
@@ -98,8 +92,8 @@ export default function FableDirector({
   const gl = useThree((state) => state.gl);
 
   const poseRef = useRef({ pitch: 0, roll: 0 });
-  /** Montée en régime au démarrage : le monde t'emporte, il ne te catapulte pas. */
-  const launchRef = useRef(0);
+  /** Facteur de zoom caméra, piloté molette / pincement / stick droit. */
+  const zoomRef = useRef(1);
   // Naissance : l'œil part fermé — la gorge s'ouvre lentement au regard.
   const exposureRef = useRef(createImmersionExposure(1.02));
   const audioClockRef = useRef(0);
@@ -136,6 +130,11 @@ export default function FableDirector({
   const dustCooldownRef = useRef(0);
 
   const fogColor = useMemo(() => new THREE.Color(), []);
+  const eraFog = useMemo(() => new THREE.Color(), []);
+  const eraSun = useMemo(() => new THREE.Color(), []);
+  const eraHemiSky = useMemo(() => new THREE.Color(), []);
+  const eraHemiGround = useMemo(() => new THREE.Color(), []);
+  const eraSunDir = useMemo(() => new THREE.Vector3(), []);
   const preDawnColor = useMemo(() => new THREE.Color("#6b4c34"), []);
 
   // Spawn.
@@ -169,12 +168,13 @@ export default function FableDirector({
     const t = clock.elapsedTime;
     const frameDelta = Math.min(delta, 1 / 30);
 
-    /* ── Conduite : avance gouvernée, direction analogique ─────────────── */
+    /* ── Conduite : le joueur décide de tout ───────────────────────────── */
     const snapshot = inputRef.current?.read(frameDelta) ?? {
       steer: 0,
+      throttle: 0,
       brake: 0,
-      throttleOverride: null,
-      mode: "pointer" as const,
+      zoomDelta: 0,
+      mode: "keyboard" as const,
       engaged: false,
     };
 
@@ -183,65 +183,23 @@ export default function FableDirector({
       onFirstMove();
     }
 
-    // Le monde t'emporte : la croisière s'installe en ~2,5 s, sans à-coup.
-    launchRef.current = Math.min(1, launchRef.current + frameDelta * 0.4);
-    const contextScale = fableCruiseScale(state.position.z) * launchRef.current;
-    const cruise = reducedMotion
-      ? 0
-      : immersionCruiseScale(contextScale, snapshot.brake, snapshot.throttleOverride);
+    zoomRef.current = Math.min(
+      2.6,
+      Math.max(0.55, zoomRef.current + snapshot.zoomDelta)
+    );
 
-    // Braquage au taux : plein à basse vitesse, resserré à l'allure. L'écart
-    // demandé est exprimé PAR SECONDE — sans quoi la physique rattraperait
-    // n'importe quel écart au maximum et l'axe deviendrait tout ou rien.
-    const currentRatio = Math.min(1, Math.abs(state.speed) / 6.4);
-    const steerRate = fableLerp(STEER_RATE_SLOW, STEER_RATE_FAST, currentRatio);
-    let desiredHeading = state.heading + snapshot.steer * steerRate * frameDelta;
-
-    // Attraction de route : sans ordre de direction, le véhicule se recale
-    // doucement sur la tangente du tracé — jamais sur un rail, seulement
-    // assez pour ne pas racler les façades.
-    // Seuil serré : l'assistance ne doit jamais contredire un ordre réel,
-    // seulement tenir le cap quand la main ne demande rien.
-    if (Math.abs(snapshot.steer) < 0.05) {
-      const ahead = 6;
-      const targetX = fablePathX(state.position.z + ahead);
-      const towardPath = Math.atan2(
-        targetX - state.position.x,
-        ahead
-      );
-      const assist = 1 - Math.abs(snapshot.steer) / 0.05;
-      const off = Math.atan2(
-        Math.sin(towardPath - state.heading),
-        Math.cos(towardPath - state.heading)
-      );
-      desiredHeading += off * frameDelta * 1.6 * assist;
-    }
-
-    const driveInput = {
-      x: Math.sin(desiredHeading),
-      z: Math.cos(desiredHeading),
-      active: cruise > 0.02,
-    };
-
-    stepDrift3DVehiclePhysics(
+    stepImmersionVehicle(
       state,
-      driveInput,
+      reducedMotion
+        ? { steer: 0, throttle: 0, brake: 1 }
+        : { steer: snapshot.steer, throttle: snapshot.throttle, brake: snapshot.brake },
       frameDelta,
       FABLE_BOUNDS,
       colliders,
-      Math.max(0.06, cruise),
       fableGroundY
     );
 
-    // Frein : au-delà de la friction, un vrai ralentissement contextuel.
-    if (snapshot.brake > 0.02) {
-      const damp = Math.exp(-frameDelta * (1.4 + snapshot.brake * 5.5));
-      state.speed *= damp;
-      state.velocityX *= damp;
-      state.velocityZ *= damp;
-    }
-
-    // Confinement latéral de la gorge.
+    // Confinement latéral de la gorge : la roche, pas un rail.
     if (state.position.z < -3) {
       const px = fablePathX(state.position.z);
       const dx = state.position.x - px;
@@ -257,6 +215,8 @@ export default function FableDirector({
         state.velocityZ = Math.max(0, state.velocityZ);
       }
     }
+
+    vehicleZRef.current = state.position.z;
 
     /* ── Assiette & ancrage (core) ────────────────────────────────────── */
     const heading = getDrift3DHeadingVector(state.heading);
@@ -322,8 +282,8 @@ export default function FableDirector({
       yawRate,
     };
     const cameraParams = {
-      distance: 3.2 + (1 - tm) * 0.75 + ledgeMix * 2.6,
-      height: 1.02 + (1 - tm) * 0.3 + ledgeMix * 1.7,
+      distance: (3.2 + (1 - tm) * 0.75 + ledgeMix * 2.6) * zoomRef.current,
+      height: (1.02 + (1 - tm) * 0.3 + ledgeMix * 1.7) * (0.55 + zoomRef.current * 0.45),
       lookAhead: 2.9,
       lookHeight: 0.72 + ledgeMix * 0.25,
       fovBase: 52 + tm * 5 - ledgeMix * 6,
@@ -369,8 +329,20 @@ export default function FableDirector({
       perspective.updateProjectionMatrix();
     }
 
+    /* ── Atmosphère : chaque ère apporte son heure ─────────────────────── */
+    const { from: eraFrom, to: eraTo, t: eraT } = fableEraBlend(z);
+    eraFog.copy(eraFrom.fog).lerp(eraTo.fog, eraT);
+    eraSun.copy(eraFrom.sunColor).lerp(eraTo.sunColor, eraT);
+    eraHemiSky.copy(eraFrom.hemiSky).lerp(eraTo.hemiSky, eraT);
+    eraHemiGround.copy(eraFrom.hemiGround).lerp(eraTo.hemiGround, eraT);
+    eraSunDir.copy(eraFrom.sunDir).lerp(eraTo.sunDir, eraT).normalize();
+    const eraFogDensity = fableLerp(eraFrom.fogDensity, eraTo.fogDensity, eraT);
+    const eraSunIntensity = fableLerp(eraFrom.sunIntensity, eraTo.sunIntensity, eraT);
+    const eraHemiIntensity = fableLerp(eraFrom.hemiIntensity, eraTo.hemiIntensity, eraT);
+    const eraExposure = fableLerp(eraFrom.exposure, eraTo.exposure, eraT);
+
     /* ── Adaptation lumineuse (core) ──────────────────────────────────── */
-    const exposureTarget = 1.34 + tm * 0.55;
+    const exposureTarget = eraExposure + tm * 0.55;
     const glare = stepImmersionExposure(exposureRef.current, exposureTarget, delta);
     gl.toneMappingExposure = exposureRef.current.current;
 
@@ -384,27 +356,30 @@ export default function FableDirector({
 
     /* ── Brouillard, fond, lumières ───────────────────────────────────── */
     if (scene.fog instanceof THREE.FogExp2) {
-      fogColor.copy(FABLE_FOG_CITY).lerp(FABLE_FOG_TUNNEL, tm);
+      fogColor.copy(eraFog).lerp(FABLE_FOG_TUNNEL, tm);
       // Fausse aube : l'air de la gorge se réchauffe à l'approche de la brèche.
       const dawn = fableSmoothstep(-26, -8, z) * tm;
       fogColor.lerp(preDawnColor, dawn * 0.5);
       scene.fog.color.copy(fogColor);
-      scene.fog.density = fableLerp(0.0105, 0.05, tm) + ym * 0.0012;
+      scene.fog.density = fableLerp(eraFogDensity, 0.05, tm) + ym * 0.0012;
     }
 
     if (sunRef.current && sunTargetRef.current) {
-      sunRef.current.intensity = 4.4 * (1 - tm * 0.96);
+      sunRef.current.intensity = eraSunIntensity * (1 - tm * 0.96);
+      sunRef.current.color.copy(eraSun);
       sunRef.current.position.set(
-        state.position.x + FABLE_SUN_DIR.x * 90,
-        FABLE_SUN_DIR.y * 90,
-        state.position.z + FABLE_SUN_DIR.z * 90
+        state.position.x + eraSunDir.x * 110,
+        Math.max(12, eraSunDir.y * 110),
+        state.position.z + eraSunDir.z * 110
       );
       sunTargetRef.current.position.set(state.position.x, 0, state.position.z);
       sunTargetRef.current.updateMatrixWorld();
     }
 
     if (hemiRef.current) {
-      hemiRef.current.intensity = 0.06 + (1 - tm) * 1.1;
+      hemiRef.current.intensity = 0.06 + (1 - tm) * eraHemiIntensity;
+      hemiRef.current.color.copy(eraHemiSky);
+      hemiRef.current.groundColor.copy(eraHemiGround);
     }
 
     if (ambientRef.current) {

@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { fableEraBlend } from "@/components/drift-3d/fable/fableTopology";
 import * as THREE from "three";
 
 /**
@@ -88,11 +90,36 @@ export function createFableSkyMaterial() {
   });
 }
 
-export default function FableSky() {
+export default function FableSky({
+  vehicleZRef,
+}: {
+  vehicleZRef?: React.MutableRefObject<number>;
+}) {
   const material = useMemo(() => createFableSkyMaterial(), []);
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  // Le dôme suit le joueur et prend les couleurs de son ère.
+  useFrame(({ camera }) => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    mesh.position.set(camera.position.x, 0, camera.position.z);
+
+    if (!vehicleZRef) return;
+
+    const { from, to, t } = fableEraBlend(vehicleZRef.current);
+    const uniforms = material.uniforms;
+    (uniforms.uZenith.value as THREE.Color).copy(from.zenith).lerp(to.zenith, t);
+    (uniforms.uHorizon.value as THREE.Color).copy(from.horizon).lerp(to.horizon, t);
+    (uniforms.uSunColor.value as THREE.Color).copy(from.sunColor).lerp(to.sunColor, t);
+    (uniforms.uSunDir.value as THREE.Vector3)
+      .copy(from.sunDir)
+      .lerp(to.sunDir, t)
+      .normalize();
+  });
 
   return (
-    <mesh material={material} position={[0, 0, 60]} renderOrder={-100} frustumCulled={false}>
+    <mesh ref={meshRef} material={material} position={[0, 0, 60]} renderOrder={-100} frustumCulled={false}>
       <sphereGeometry args={[430, 32, 20]} />
     </mesh>
   );

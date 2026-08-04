@@ -21,10 +21,10 @@ export const FABLE_YARD_Z1 = 116;
 export const FABLE_SPAWN = { x: 0.66, z: -56.5 };
 
 export const FABLE_BOUNDS = {
-  minX: -68,
-  maxX: 68,
+  minX: -110,
+  maxX: 110,
   minZ: -59,
-  maxZ: 148,
+  maxZ: 1008,
 };
 
 export const FABLE_TUNNEL_HALF_WIDTH = 3.7;
@@ -82,6 +82,9 @@ export function fablePathX(z: number): number {
       (1 - smoothstep(34, FABLE_DESCENT_Z1, z));
   }
 
+  // Au-delà de la ville-port, le tracé appartient aux ères lointaines.
+  if (z > 170) return fableFarPathX(z);
+
   return 0;
 }
 
@@ -137,8 +140,11 @@ export function fableGroundY(x: number, z: number): number {
     base = 6.0;
   } else if (z <= FABLE_DESCENT_Z1) {
     base = lerp(6.0, 0.4, smoothstep(FABLE_LEDGE_Z1, FABLE_DESCENT_Z1, z));
-  } else {
+  } else if (z <= 170) {
     base = 0.4 + (hashNoise(Math.floor(x * 0.7), Math.floor(z * 0.7)) - 0.5) * 0.06;
+  } else {
+    // Au-delà de la ville-port, le monde continue : montagne, banlieue, mer.
+    base = fableFarGroundY(x, z);
   }
 
   // Le bassin creuse le sol : le quai tombe droit, le fond reste sous l'eau.
@@ -147,6 +153,93 @@ export function fableGroundY(x: number, z: number): number {
   if (canal > 0) base = lerp(base, -2.4, canal);
 
   return base;
+}
+
+/* ── Relief du monde lointain ─────────────────────────────────────────── */
+
+/** Bruit fractal léger — assez pour que rien ne soit plat, pas plus. */
+function fbm(x: number, z: number) {
+  return (
+    (hashNoise(Math.floor(x * 0.11), Math.floor(z * 0.11)) - 0.5) * 1.0 +
+    (hashNoise(Math.floor(x * 0.31) + 17, Math.floor(z * 0.31)) - 0.5) * 0.45 +
+    (hashNoise(Math.floor(x * 0.8) + 91, Math.floor(z * 0.8)) - 0.5) * 0.2
+  );
+}
+
+/** Altitude de la route au-delà de Birth Yard : elle monte puis redescend. */
+export function fableRouteAltitude(z: number): number {
+  if (z <= 170) return 0.4;
+
+  // Older Shadows : longue montée jusqu'au col, puis bascule.
+  const climb = smoothstep(170, 300, z) * 46;
+  const plateau = smoothstep(300, 400, z) * 22;
+  const col = smoothstep(400, 440, z) * 8;
+  const dropToSuburb = smoothstep(440, 500, z) * 62;
+  // Vegetative Field : plat, bas, mouillé.
+  const suburb = smoothstep(500, 700, z) * 0;
+  // New Signal : la corniche redescend vers la mer.
+  const coast = smoothstep(700, 1010, z) * 10;
+
+  return 0.4 + climb + plateau + col - dropToSuburb + suburb + 14 - coast;
+}
+
+/**
+ * Sol hors de la tranche de référence. La route reste une bande à peu près
+ * plane ; le relief se creuse dès qu'on s'en écarte, ce qui suffit à
+ * enfermer le joueur sans mur invisible.
+ */
+export function fableFarGroundY(x: number, z: number): number {
+  const road = fableRouteAltitude(z);
+  const lateral = Math.abs(x - fableFarPathX(z));
+
+  if (z < 470) {
+    // Montagne : la vallée se relève fort de part et d'autre du chemin.
+    const flank = Math.max(0, lateral - 7);
+    const rise = Math.pow(flank, 1.42) * 0.5;
+    const ridges = fbm(x, z) * Math.min(18, flank * 0.9);
+
+    return road + rise + ridges;
+  }
+
+  if (z < 700) {
+    // Banlieue : plat, à peine bombé, trottoirs et pelouses.
+    const flank = Math.max(0, lateral - 9);
+
+    return road + flank * 0.035 + fbm(x, z) * 0.5;
+  }
+
+  // Littoral : falaise côté mer, colline côté terre.
+  const offset = x - fableFarPathX(z);
+
+  if (offset > 9) {
+    // Vers la mer : la falaise plonge.
+    const fall = offset - 9;
+
+    return road - Math.pow(fall, 1.35) * 0.55 + fbm(x, z) * 1.2;
+  }
+
+  const inland = Math.max(0, -offset - 8);
+
+  return road + Math.pow(inland, 1.28) * 0.42 + fbm(x, z) * 1.4;
+}
+
+/** Tracé de la route au-delà de Birth Yard : lacets, cols, corniche. */
+export function fableFarPathX(z: number): number {
+  if (z <= 170) return 0;
+
+  // Montagne : deux grands lacets puis un col.
+  const mountain =
+    smoothstep(170, 200, z) *
+    (Math.sin((z - 170) * 0.026) * 26 + Math.sin((z - 170) * 0.011) * 14);
+  const mountainFade = 1 - smoothstep(430, 480, z);
+  // Banlieue : rues droites, légers décrochements.
+  const suburb =
+    smoothstep(470, 510, z) * (1 - smoothstep(660, 700, z)) *
+    Math.round(Math.sin(z * 0.03) * 1.2) * 9;
+  // Corniche : longue courbe qui suit la baie.
+  const coast = smoothstep(690, 740, z) * (Math.sin((z - 700) * 0.0135) * 34);
+
+  return mountain * mountainFade + suburb + coast;
 }
 
 /** 0 = plein air, 1 = au fond du tunnel. Pilote l'exposition, le brouillard, le son. */

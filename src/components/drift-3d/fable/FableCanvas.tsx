@@ -14,6 +14,8 @@ import ImmersionEnvironment from "@/components/drift-3d/fable/core/ImmersionEnvi
 import FableTunnel from "@/components/drift-3d/fable/FableTunnel";
 import FableCity from "@/components/drift-3d/fable/FableCity";
 import FableCanal from "@/components/drift-3d/fable/FableCanal";
+import FableFarEras from "@/components/drift-3d/fable/FableFarEras";
+import { FABLE_ERAS } from "@/components/drift-3d/fable/fableTopology";
 import FableLife from "@/components/drift-3d/fable/FableLife";
 import FableDirector from "@/components/drift-3d/fable/FableDirector";
 import FablePost, { type FablePostUniforms } from "@/components/drift-3d/fable/FablePost";
@@ -177,6 +179,7 @@ export default function FableCanvas({
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const postUniformsRef = useRef<FablePostUniforms | null>(null);
   const layout = useMemo(() => buildFableWorldLayout(), []);
+  const vehicleZRef = useRef(FABLE_SPAWN.z);
 
   const spawnY = fableGroundY(FABLE_SPAWN.x, FABLE_SPAWN.z) + 0.02;
 
@@ -187,7 +190,7 @@ export default function FableCanvas({
         position: [FABLE_SPAWN.x, spawnY + 1.3, FABLE_SPAWN.z - 3.6],
         fov: 60,
         near: 0.1,
-        far: 900,
+        far: 1600,
       }}
       dpr={[1, 1.75]}
       shadows
@@ -201,11 +204,16 @@ export default function FableCanvas({
       <fogExp2 attach="fog" args={["#05060a", 0.05]} />
       <color attach="background" args={["#05060a"]} />
 
-      <FableSky />
+      <FableSky vehicleZRef={vehicleZRef} />
       <ImmersionEnvironment createSkyMaterial={createFableSkyMaterial} intensity={0.55} />
       <FableTunnel reducedMotion={reducedMotion} />
       <FableCity lots={layout.lots} reducedMotion={reducedMotion} />
       <FableCanal reducedMotion={reducedMotion} />
+      <FableFarEras
+        vehicleZRef={vehicleZRef}
+        sunDir={FABLE_ERAS[4].sunDir}
+        sunColor={FABLE_ERAS[4].sunColor}
+      />
       <FableLife reducedMotion={reducedMotion} />
 
       <Drift3DVehicle
@@ -217,6 +225,7 @@ export default function FableCanvas({
         vehicleRef={vehicleRef}
         vehicleStateRef={vehicleStateRef}
         inputRef={inputRef}
+        vehicleZRef={vehicleZRef}
         colliders={layout.colliders}
         postUniformsRef={postUniformsRef}
         ambienceRef={ambienceRef}
