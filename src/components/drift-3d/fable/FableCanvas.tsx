@@ -159,6 +159,9 @@ function FableDebugProbe({
     };
     (window as unknown as Record<string, unknown>).__fableProbe = probe;
     (window as unknown as Record<string, unknown>).__fablePathX = fablePathX;
+    (window as unknown as Record<string, unknown>).__fableGroundY = fableGroundY;
+    (window as unknown as Record<string, unknown>).__fableVehicleY = () =>
+      vehicleStateRef.current.position.y;
     (window as unknown as Record<string, unknown>).__fableBranches = () => ({
       belvedere: {
         start: FABLE_BELVEDERE_ROUTE[0],
@@ -198,6 +201,7 @@ export default function FableCanvas({
   const postUniformsRef = useRef<FablePostUniforms | null>(null);
   const layout = useMemo(() => buildFableWorldLayout(), []);
   const vehicleZRef = useRef(FABLE_SPAWN.z);
+  const vehicleXRef = useRef(FABLE_SPAWN.x);
 
   const spawnY = fableGroundY(FABLE_SPAWN.x, FABLE_SPAWN.z) + 0.02;
 
@@ -222,13 +226,14 @@ export default function FableCanvas({
       <fogExp2 attach="fog" args={["#05060a", 0.05]} />
       <color attach="background" args={["#05060a"]} />
 
-      <FableSky vehicleZRef={vehicleZRef} />
+      <FableSky vehicleZRef={vehicleZRef} vehicleXRef={vehicleXRef} />
       <ImmersionEnvironment createSkyMaterial={createFableSkyMaterial} intensity={0.55} />
       <FableTunnel reducedMotion={reducedMotion} />
       <FableCity lots={layout.lots} reducedMotion={reducedMotion} />
       <FableCanal reducedMotion={reducedMotion} />
       <FableFarEras
         vehicleZRef={vehicleZRef}
+        vehicleXRef={vehicleXRef}
         sunDir={FABLE_ERAS[4].sunDir}
         sunColor={FABLE_ERAS[4].sunColor}
       />
@@ -244,6 +249,7 @@ export default function FableCanvas({
         vehicleStateRef={vehicleStateRef}
         inputRef={inputRef}
         vehicleZRef={vehicleZRef}
+        vehicleXRef={vehicleXRef}
         colliders={layout.colliders}
         postUniformsRef={postUniformsRef}
         ambienceRef={ambienceRef}

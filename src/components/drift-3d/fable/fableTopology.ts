@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { fableEraMixAt } from "@/components/drift-3d/fable/fablePeninsula";
 
 /**
  * FABLE — topologie du monde complet.
@@ -142,16 +143,22 @@ export function fableEraAt(z: number): FableEra {
   return FABLE_ERAS[FABLE_ERAS.length - 1];
 }
 
-/** Fondu 0..1 entre l'ère courante et la suivante, sur la couture. */
-export function fableEraBlend(z: number): { from: FableEra; to: FableEra; t: number } {
-  const era = fableEraAt(z);
-  const index = FABLE_ERAS.indexOf(era);
-  const next = FABLE_ERAS[Math.min(FABLE_ERAS.length - 1, index + 1)];
-  const seam = 34;
-  const distance = era.z1 - z;
-  const t = distance < seam ? 1 - distance / seam : 0;
+const ERA_BY_ID = Object.fromEntries(FABLE_ERAS.map((e) => [e.id, e])) as Record<
+  FableEraId,
+  FableEra
+>;
 
-  return { from: era, to: next, t: Math.min(1, Math.max(0, t)) };
+/**
+ * Fondu d'atmosphère en un point du plan. Sur la péninsule pliée, l'ère ne
+ * se lit plus sur un intervalle de z : elle se lit sur les régions.
+ */
+export function fableEraBlendAt(
+  x: number,
+  z: number
+): { from: FableEra; to: FableEra; t: number } {
+  const mix = fableEraMixAt(x, z);
+
+  return { from: ERA_BY_ID[mix.from], to: ERA_BY_ID[mix.to], t: mix.t };
 }
 
 /* ── Territoires de tracks ────────────────────────────────────────────── */

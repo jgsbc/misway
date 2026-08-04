@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { fableEraBlend } from "@/components/drift-3d/fable/fableTopology";
+import { fableEraBlendAt } from "@/components/drift-3d/fable/fableTopology";
 import * as THREE from "three";
 
 /**
@@ -92,8 +92,10 @@ export function createFableSkyMaterial() {
 
 export default function FableSky({
   vehicleZRef,
+  vehicleXRef,
 }: {
   vehicleZRef?: React.MutableRefObject<number>;
+  vehicleXRef?: React.MutableRefObject<number>;
 }) {
   const material = useMemo(() => createFableSkyMaterial(), []);
   const meshRef = useRef<THREE.Mesh>(null);
@@ -107,7 +109,7 @@ export default function FableSky({
 
     if (!vehicleZRef) return;
 
-    const { from, to, t } = fableEraBlend(vehicleZRef.current);
+    const { from, to, t } = fableEraBlendAt(vehicleXRef?.current ?? 0, vehicleZRef.current);
     const uniforms = material.uniforms;
     (uniforms.uZenith.value as THREE.Color).copy(from.zenith).lerp(to.zenith, t);
     (uniforms.uHorizon.value as THREE.Color).copy(from.horizon).lerp(to.horizon, t);

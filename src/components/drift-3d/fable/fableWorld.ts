@@ -1,6 +1,10 @@
 import type { Drift3DVehicleCollider } from "@/lib/drift3dVehiclePhysics";
 import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 import { registerFableWorldRoutes } from "@/components/drift-3d/fable/fableBranches";
+import {
+  FABLE_HERO_Z_END,
+  fablePeninsulaGroundY,
+} from "@/components/drift-3d/fable/fablePeninsula";
 
 /**
  * FABLE SPIKE — analytic spine of the Entry → Birth Yard slice.
@@ -22,11 +26,13 @@ export const FABLE_YARD_Z1 = 116;
 
 export const FABLE_SPAWN = { x: 0.66, z: -56.5 };
 
+// La péninsule pliée s'étend en x comme en z : des limites longitudinales
+// plaqueraient le véhicule contre un mur invisible dès le massif.
 export const FABLE_BOUNDS = {
-  minX: -110,
-  maxX: 110,
-  minZ: -59,
-  maxZ: 1008,
+  minX: -130,
+  maxX: 580,
+  minZ: -230,
+  maxZ: 480,
 };
 
 export const FABLE_TUNNEL_HALF_WIDTH = 3.7;
@@ -84,9 +90,6 @@ export function fablePathX(z: number): number {
       (1 - smoothstep(34, FABLE_DESCENT_Z1, z));
   }
 
-  // Au-delà de la ville-port, le tracé appartient aux ères lointaines.
-  if (z > 170) return fableFarPathX(z);
-
   return 0;
 }
 
@@ -142,7 +145,7 @@ export function fableGroundY(x: number, z: number): number {
     base = 6.0;
   } else if (z <= FABLE_DESCENT_Z1) {
     base = lerp(6.0, 0.4, smoothstep(FABLE_LEDGE_Z1, FABLE_DESCENT_Z1, z));
-  } else if (z <= 170) {
+  } else if (z <= FABLE_HERO_Z_END) {
     base = 0.4 + (hashNoise(Math.floor(x * 0.7), Math.floor(z * 0.7)) - 0.5) * 0.06;
   } else {
     // Au-delà de la ville-port, le monde continue : montagne, banlieue, mer.
@@ -158,15 +161,6 @@ export function fableGroundY(x: number, z: number): number {
 }
 
 /* ── Relief du monde lointain ─────────────────────────────────────────── */
-
-/** Bruit fractal léger — assez pour que rien ne soit plat, pas plus. */
-function fbm(x: number, z: number) {
-  return (
-    (hashNoise(Math.floor(x * 0.11), Math.floor(z * 0.11)) - 0.5) * 1.0 +
-    (hashNoise(Math.floor(x * 0.31) + 17, Math.floor(z * 0.31)) - 0.5) * 0.45 +
-    (hashNoise(Math.floor(x * 0.8) + 91, Math.floor(z * 0.8)) - 0.5) * 0.2
-  );
-}
 
 /** Altitude de la route au-delà de Birth Yard : elle monte puis redescend. */
 export function fableRouteAltitude(z: number): number {
@@ -186,53 +180,21 @@ export function fableRouteAltitude(z: number): number {
 }
 
 /**
- * Sol hors de la tranche de référence. La route reste une bande à peu près
- * plane ; le relief se creuse dès qu'on s'en écarte, ce qui suffit à
- * enfermer le joueur sans mur invisible.
+ * Sol hors de la tranche de référence : la péninsule pliée prend la main.
+ * Le relief vient des régions, l'aplanissement vient du réseau de routes,
+ * et la baie centrale creuse ce qu'elle recouvre.
  */
 export function fableFarGroundY(x: number, z: number): number {
-  // Le terrain s'aplanit le long de TOUTE route du réseau — épine dorsale,
-  // branche, lacet ou boucle. C'est ce qui rend le monde élastique : on
-  // greffe un détour et le relief le suit, sans toucher aux règles d'ère.
   const route = fableRouteField(x, z);
-  const onRoute = route.distance < 40;
-  const road = onRoute ? route.altitude : fableRouteAltitude(z);
-  const lateral = onRoute ? route.distance : Math.abs(x - fableFarPathX(z));
+  const ground = fablePeninsulaGroundY(x, z, route.distance);
 
-  if (z < 470) {
-    // Montagne : un plateau largement ouvert, les versants ne se referment
-    // qu'au loin. Le masterframe montre du ciel, pas un couloir.
-    const flank = Math.max(0, lateral - (onRoute ? 1 : 17));
-    const rise = Math.pow(flank, 1.24) * 0.1;
-    const ridges = fbm(x, z) * Math.min(9, 1.2 + flank * 0.18);
+  if (route.distance > 34) return ground;
 
-    return road + rise + ridges;
-  }
+  // Plateforme de chaussée : elle s'efface progressivement dans le relief.
+  const grip = 1 - smoothstep(2, 34, route.distance);
+  const shelf = route.altitude + Math.pow(Math.max(0, route.distance - 1.5), 1.2) * 0.2;
 
-  if (z < 700) {
-    // Banlieue : plat, à peine bombé, trottoirs et pelouses.
-    const flank = Math.max(0, lateral - (onRoute ? 1 : 9));
-
-    return road + flank * 0.035 + fbm(x, z) * 0.5;
-  }
-
-  // Littoral. Toute route y porte sa banquette : c'est la distance AU
-  // RÉSEAU qui commande, jamais un décalage mesuré depuis l'épine — mélanger
-  // les deux repères faisait éclater le terrain sur la descente à la pointe.
-  // Banquette portée par la route…
-  const shelf = road + Math.pow(Math.max(0, route.distance - 1.5), 1.2) * 0.24;
-  // …et relief général de la côte, falaise vers la mer, colline vers la terre.
-  const offset = x - fableFarPathX(z);
-  const wild =
-    offset > 9
-      ? road - Math.pow(offset - 9, 1.3) * 0.5
-      : road + Math.pow(Math.max(0, -offset - 8), 1.28) * 0.42;
-
-  // Les deux se fondent : une marche franche entre eux fait éclater le
-  // terrain en lames au bord de chaque route.
-  const k = smoothstep(12, 34, route.distance);
-
-  return lerp(shelf, wild, k) + fbm(x, z) * (0.5 + k * 0.7);
+  return ground * (1 - grip) + shelf * grip;
 }
 
 /** Tracé de la route au-delà de Birth Yard : lacets, cols, corniche. */
@@ -550,4 +512,4 @@ export { smoothstep as fableSmoothstep, lerp as fableLerp };
 
 // Le réseau de routes existe dès le chargement : les branches doivent être
 // connues avant le premier calcul de terrain comme avant le premier ruban.
-registerFableWorldRoutes(fableFarPathX, fableRouteAltitude);
+registerFableWorldRoutes();

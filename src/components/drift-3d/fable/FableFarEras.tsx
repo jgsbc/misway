@@ -5,20 +5,79 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import { getFableGlowTexture } from "@/components/drift-3d/fable/fableTextures";
-import {
-  fableFarPathX,
-  fableGroundY,
-  fableRng,
-  fableRouteAltitude,
-} from "@/components/drift-3d/fable/fableWorld";
+import { fableGroundY, fableRng } from "@/components/drift-3d/fable/fableWorld";
 import {
   FABLE_BELVEDERE_ROUTE,
   FABLE_HEADLAND_ROUTE,
   FABLE_SUBURB_LOOP,
   registerFableWorldRoutes,
 } from "@/components/drift-3d/fable/fableBranches";
-import { fableFarPathX as spineX } from "@/components/drift-3d/fable/fableWorld";
 import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
+import {
+  FABLE_REGIONS,
+  FABLE_SPINE,
+  fableRegionAt,
+  type FableRegion,
+} from "@/components/drift-3d/fable/fablePeninsula";
+
+/**
+ * Un point de l'épine pliée avec son repère local. Tout le décor lointain
+ * se sème dans ce repère : le monde n'a plus d'axe z le long duquel semer.
+ */
+type SpineFrame = {
+  x: number;
+  y: number;
+  z: number;
+  /** Direction de marche. */
+  fx: number;
+  fz: number;
+  /** Perpendiculaire droite. */
+  sx: number;
+  sz: number;
+};
+
+function spineFrame(index: number): SpineFrame {
+  const [x, y, z] = FABLE_SPINE[index];
+  const a = FABLE_SPINE[Math.max(0, index - 1)];
+  const b = FABLE_SPINE[Math.min(FABLE_SPINE.length - 1, index + 1)];
+  const dx = b[0] - a[0];
+  const dz = b[2] - a[2];
+  const len = Math.hypot(dx, dz) || 1;
+  const fx = dx / len;
+  const fz = dz / len;
+
+  return { x, y, z, fx, fz, sx: fz, sz: -fx };
+}
+
+/** Sous-échantillonne l'épine entre deux nœuds, pas régulier. */
+function spineFrames(from: number, to: number, steps = 4): SpineFrame[] {
+  const frames: SpineFrame[] = [];
+
+  for (let i = from; i < to; i += 1) {
+    const a = spineFrame(i);
+    const b = spineFrame(Math.min(FABLE_SPINE.length - 1, i + 1));
+
+    for (let s = 0; s < steps; s += 1) {
+      const t = s / steps;
+      frames.push({
+        x: a.x + (b.x - a.x) * t,
+        y: a.y + (b.y - a.y) * t,
+        z: a.z + (b.z - a.z) * t,
+        fx: a.fx + (b.fx - a.fx) * t,
+        fz: a.fz + (b.fz - a.fz) * t,
+        sx: a.sx + (b.sx - a.sx) * t,
+        sz: a.sz + (b.sz - a.sz) * t,
+      });
+    }
+  }
+
+  return frames;
+}
+
+const REGION = Object.fromEntries(FABLE_REGIONS.map((r) => [r.id, r])) as Record<
+  string,
+  FableRegion
+>;
 
 /**
  * Dégagement : aucun décor ne se pose sur une route, quelle qu'elle soit.
@@ -43,37 +102,36 @@ function clearsRoutes(x: number, z: number, margin: number) {
 
 /* ─── Sol commun ──────────────────────────────────────────────────────── */
 
-function EraTerrain({
-  z0,
-  z1,
-  color,
-  material,
-  segments = 96,
-}: {
-  z0: number;
-  z1: number;
-  color: string;
-  material: "rock" | "sand" | "concrete";
-  segments?: number;
-}) {
-  const maps = getDriftMaterialMaps(material, 40, 60);
+/**
+ * Terrain de la péninsule : une grille continue de dalles qui échantillonnent
+ * toutes le même sol. Des nappes par région se chevauchaient et divergeaient
+ * sur leurs bords — d'où les lames de terrain et la caméra sous la surface.
+ * Une seule grille, aucune couture possible.
+ */
+const TERRAIN_TILE = 130;
+const TERRAIN_MIN_X = -150;
+const TERRAIN_MAX_X = 620;
+const TERRAIN_MIN_Z = -260;
+const TERRAIN_MAX_Z = 520;
+
+function TerrainTile({ cx, cz }: { cx: number; cz: number }) {
+  const maps = getDriftMaterialMaps("rock", 26, 26);
   const geometry = useMemo(() => {
-    const width = 220;
-    const depth = z1 - z0;
-    const geo = new THREE.PlaneGeometry(width, depth, segments, Math.round(segments * 1.4));
+    const geo = new THREE.PlaneGeometry(TERRAIN_TILE, TERRAIN_TILE, 40, 40);
     const pos = geo.attributes.position;
     const colors = new Float32Array(pos.count * 3);
-    const base = new THREE.Color(color);
     const shade = new THREE.Color();
 
     for (let i = 0; i < pos.count; i += 1) {
-      const x = pos.getX(i);
-      const z = -pos.getY(i) + (z0 + z1) / 2;
+      const x = pos.getX(i) + cx;
+      const z = -pos.getY(i) + cz;
       const y = fableGroundY(x, z);
       pos.setZ(i, y);
-      // Variation basse fréquence : la matière respire sur la distance.
-      const v = 0.82 + Math.sin(x * 0.031 + z * 0.017) * 0.1 + Math.sin(z * 0.09) * 0.06;
-      shade.copy(base).multiplyScalar(v);
+      // La couleur suit la région dominante : la matière change avec le lieu.
+      const region = fableRegionAt(x, z);
+      const base = TERRAIN_COLORS[region.relief] ?? "#7f7a68";
+      const v = 0.84 + Math.sin(x * 0.03 + z * 0.017) * 0.1;
+      shade.set(base).multiplyScalar(v);
       colors[i * 3] = shade.r;
       colors[i * 3 + 1] = shade.g;
       colors[i * 3 + 2] = shade.b;
@@ -83,7 +141,7 @@ function EraTerrain({
     geo.computeVertexNormals();
 
     return geo;
-  }, [z0, z1, color, segments]);
+  }, [cx, cz]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
@@ -91,7 +149,7 @@ function EraTerrain({
     <mesh
       geometry={geometry}
       rotation={[-Math.PI / 2, 0, 0]}
-      position={[0, 0, (z0 + z1) / 2]}
+      position={[cx, 0, cz]}
       receiveShadow
     >
       <meshStandardMaterial
@@ -104,58 +162,66 @@ function EraTerrain({
   );
 }
 
-/** Ruban de route qui suit le tracé lointain. */
-function EraRoad({
-  z0,
-  z1,
-  width,
-  color,
-  lift = 0.07,
+const TERRAIN_COLORS: Record<string, string> = {
+  massif: "#8b8b76",
+  basin: "#6f7a5e",
+  coast: "#6d6551",
+  port: "#8a7861",
+  gorge: "#7a7268",
+  water: "#4a5148",
+};
+
+/** Les dalles proches du joueur, et elles seules. */
+function PeninsulaTerrain({
+  vehicleXRef,
+  vehicleZRef,
 }: {
-  z0: number;
-  z1: number;
-  width: number;
-  color: string;
-  lift?: number;
+  vehicleXRef: React.MutableRefObject<number>;
+  vehicleZRef: React.MutableRefObject<number>;
 }) {
-  const geometry = useMemo(() => {
-    const positions: number[] = [];
-    const uvs: number[] = [];
-    const indices: number[] = [];
-    let row = 0;
+  const all = useMemo(() => {
+    const tiles: Array<{ key: string; cx: number; cz: number }> = [];
 
-    for (let z = z0; z <= z1; z += 2.4, row += 1) {
-      const cx = fableFarPathX(z);
-      const half = width / 2;
-      const y = fableGroundY(cx, z) + lift;
-      positions.push(cx - half, y, z, cx + half, y, z);
-      uvs.push(0, z / 8, 1, z / 8);
-
-      if (row > 0) {
-        const a = (row - 1) * 2;
-        indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+    for (let x = TERRAIN_MIN_X; x < TERRAIN_MAX_X; x += TERRAIN_TILE) {
+      for (let z = TERRAIN_MIN_Z; z < TERRAIN_MAX_Z; z += TERRAIN_TILE) {
+        const cx = x + TERRAIN_TILE / 2;
+        const cz = z + TERRAIN_TILE / 2;
+        tiles.push({ key: `${cx}:${cz}`, cx, cz });
       }
     }
 
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
+    return tiles;
+  }, []);
 
-    return geo;
-  }, [z0, z1, width, lift]);
+  const [visible, setVisible] = useState<string[]>([]);
+  const visibleRef = useRef<string[]>([]);
 
-  useEffect(() => () => geometry.dispose(), [geometry]);
-  const maps = getDriftMaterialMaps("concrete", 2, 40);
+  useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
+
+  useFrame(() => {
+    const x = vehicleXRef.current;
+    const z = vehicleZRef.current;
+    const next = all
+      .filter((t) => Math.hypot(t.cx - x, t.cz - z) < 330)
+      .map((t) => t.key);
+
+    if (next.length !== visibleRef.current.length || next.some((k, i) => k !== visibleRef.current[i])) {
+      setVisible(next);
+    }
+  });
 
   return (
-    <mesh geometry={geometry} receiveShadow>
-      <meshStandardMaterial map={maps.map ?? undefined} color={color} roughness={0.95} />
-    </mesh>
+    <group>
+      {all
+        .filter((t) => visible.includes(t.key))
+        .map((t) => (
+          <TerrainTile key={t.key} cx={t.cx} cz={t.cz} />
+        ))}
+    </group>
   );
 }
-
 
 /**
  * Ruban de route le long d'une polyligne quelconque — c'est lui qui rend
@@ -173,7 +239,7 @@ function RouteRibbon({
   lift?: number;
 }) {
   const geometry = useMemo(() => {
-    registerFableWorldRoutes(spineX, fableRouteAltitude);
+    registerFableWorldRoutes();
     const positions: number[] = [];
     const uvs: number[] = [];
     const indices: number[] = [];
@@ -245,89 +311,104 @@ function EraOlderShadows() {
     const cairns: THREE.Matrix4[] = [];
     const q = new THREE.Quaternion();
     const e = new THREE.Euler();
+    const frames = spineFrames(2, 15, 5);
+    const massif = REGION["os-massif"];
 
-    // Pics : la ligne d'horizon de l'ère, très loin, très hauts.
-    for (let i = 0; i < 34; i += 1) {
-      const z = 200 + rng() * 320;
-      const side = rng() < 0.5 ? -1 : 1;
-      const x = fableFarPathX(z) + side * (70 + rng() * 90);
-      const h = 60 + rng() * rng() * 130;
+    // Les pics couronnent le massif : c'est la silhouette que tout le monde
+    // voit, depuis la baie comme depuis la banlieue.
+    for (let i = 0; i < 60; i += 1) {
+      const a = rng() * Math.PI * 2;
+      const d = 60 + rng() * 200;
+      const x = massif.x + Math.cos(a) * d;
+      const z = massif.z + Math.sin(a) * d;
+
+      // Un pic ne se pose jamais sur une route : il en écraserait le col.
+      if (!clearsRoutes(x, z, 78)) continue;
+
+      const core = Math.max(0, 1 - d / 260);
+      const h = 40 + core * 140 + rng() * 40;
       e.set(0, rng() * Math.PI, 0);
       q.setFromEuler(e);
       peaks.push(
         new THREE.Matrix4().compose(
-          new THREE.Vector3(x, fableRouteAltitude(z) + h * 0.28, z),
+          // Assis sur le sol réel, pas sur une altitude inventée.
+          new THREE.Vector3(x, fableGroundY(x, z) + h * 0.32, z),
           q,
-          new THREE.Vector3(38 + rng() * 46, h, 38 + rng() * 46)
+          new THREE.Vector3(36 + rng() * 52, h, 36 + rng() * 52)
         )
       );
     }
 
-    // Conifères : denses en contrebas, ils s'arrêtent net à la limite des arbres.
-    for (let i = 0; i < 900; i += 1) {
-      const z = 175 + rng() * 300;
-      const treeLine = 1 - Math.min(1, Math.max(0, (fableRouteAltitude(z) - 34) / 30));
+    for (const frame of frames) {
+      // Conifères : denses en bas, ils s'arrêtent à la limite des arbres.
+      const treeLine = 1 - Math.min(1, Math.max(0, (frame.y - 34) / 34));
 
-      if (rng() > treeLine) continue;
+      for (let i = 0; i < 26; i += 1) {
+        if (rng() > treeLine) continue;
 
-      const side = rng() < 0.5 ? -1 : 1;
-      const x = fableFarPathX(z) + side * (10 + rng() * rng() * 62);
+        const side = rng() < 0.5 ? -1 : 1;
+        const lateral = side * (12 + rng() * rng() * 70);
+        const x = frame.x + frame.sx * lateral;
+        const z = frame.z + frame.sz * lateral;
 
-      if (!clearsRoutes(x, z, 4.5)) continue;
+        if (!clearsRoutes(x, z, 4.5)) continue;
 
-      const y = fableGroundY(x, z);
-      const h = 5 + rng() * 8;
-      e.set(0, rng() * Math.PI, (rng() - 0.5) * 0.08);
-      q.setFromEuler(e);
-      trees.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(x, y + h / 2, z),
-          q,
-          new THREE.Vector3(1.5 + rng() * 0.9, h, 1.5 + rng() * 0.9)
-        )
-      );
-    }
-
-    // Blocs erratiques le long de la piste.
-    for (let i = 0; i < 220; i += 1) {
-      const z = 175 + rng() * 300;
-      const side = rng() < 0.5 ? -1 : 1;
-      const x = fableFarPathX(z) + side * (5 + rng() * rng() * 34);
-
-      if (!clearsRoutes(x, z, 3.2)) continue;
-
-      const y = fableGroundY(x, z);
-      const s = 0.7 + rng() * rng() * 5;
-      e.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
-      q.setFromEuler(e);
-      rocks.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(x, y + s * 0.25, z),
-          q,
-          new THREE.Vector3(s, s * 0.8, s)
-        )
-      );
-    }
-
-    // Cairns : ils jalonnent le chemin — l'anomalie de RISE viendra d'eux.
-    for (let i = 0; i < 26; i += 1) {
-      const z = 200 + i * 9 + rng() * 4;
-      const side = rng() < 0.5 ? -1 : 1;
-      const x = fableFarPathX(z) + side * (5.5 + rng() * 2.5);
-
-      if (!clearsRoutes(x, z, 2.2)) continue;
-
-      const y = fableGroundY(x, z);
-
-      for (let s = 0; s < 4; s += 1) {
-        const r = 0.42 - s * 0.07;
-        cairns.push(
+        const y = fableGroundY(x, z);
+        const h = 5 + rng() * 8;
+        e.set(0, rng() * Math.PI, (rng() - 0.5) * 0.08);
+        q.setFromEuler(e);
+        trees.push(
           new THREE.Matrix4().compose(
-            new THREE.Vector3(x + (rng() - 0.5) * 0.08, y + 0.14 + s * 0.24, z),
-            new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 3, 0)),
-            new THREE.Vector3(r, 0.22, r)
+            new THREE.Vector3(x, y + h / 2, z),
+            q,
+            new THREE.Vector3(1.5 + rng() * 0.9, h, 1.5 + rng() * 0.9)
           )
         );
+      }
+
+      // Blocs erratiques au bord de la piste.
+      for (let i = 0; i < 7; i += 1) {
+        const side = rng() < 0.5 ? -1 : 1;
+        const lateral = side * (6 + rng() * rng() * 38);
+        const x = frame.x + frame.sx * lateral;
+        const z = frame.z + frame.sz * lateral;
+
+        if (!clearsRoutes(x, z, 3.2)) continue;
+
+        const y = fableGroundY(x, z);
+        const sc = 0.7 + rng() * rng() * 5;
+        e.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+        q.setFromEuler(e);
+        rocks.push(
+          new THREE.Matrix4().compose(
+            new THREE.Vector3(x, y + sc * 0.25, z),
+            q,
+            new THREE.Vector3(sc, sc * 0.8, sc)
+          )
+        );
+      }
+
+      // Cairns : ils jalonnent la montée, un sur quatre repères.
+      if (rng() < 0.28) {
+        const side = rng() < 0.5 ? -1 : 1;
+        const lateral = side * (6 + rng() * 3);
+        const x = frame.x + frame.sx * lateral;
+        const z = frame.z + frame.sz * lateral;
+
+        if (clearsRoutes(x, z, 2.2)) {
+          const y = fableGroundY(x, z);
+
+          for (let k = 0; k < 4; k += 1) {
+            const r = 0.42 - k * 0.07;
+            cairns.push(
+              new THREE.Matrix4().compose(
+                new THREE.Vector3(x + (rng() - 0.5) * 0.08, y + 0.14 + k * 0.24, z),
+                new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 3, 0)),
+                new THREE.Vector3(r, 0.22, r)
+              )
+            );
+          }
+        }
       }
     }
 
@@ -347,14 +428,15 @@ function EraOlderShadows() {
     apply(cairnsRef.current, placements.cairns);
   }, [placements]);
 
+  const refuge = spineFrame(11);
+
   return (
     <group>
-      <EraTerrain z0={170} z1={480} color="#8b8b76" material="rock" />
-      <EraRoad z0={172} z1={478} width={7.4} color="#9c9184" />
+      {/* L'épine pliée, d'un seul tenant : c'est la route qu'on suit. */}
+      <RouteRibbon points={FABLE_SPINE} width={8.6} color="#9c9184" />
       {/* La montée au belvédère : trois lacets, un cul-de-sac, une vue. */}
       <RouteRibbon points={FABLE_BELVEDERE_ROUTE} width={6.4} color="#94897b" />
 
-      {/* Pics : cônes larges, sommets clairs — la neige se lit à la couleur. */}
       <instancedMesh
         ref={peaksRef}
         args={[undefined, undefined, placements.peaks.length]}
@@ -400,14 +482,14 @@ function EraOlderShadows() {
         <meshStandardMaterial color="#9a9484" roughness={0.95} flatShading />
       </instancedMesh>
 
-      {/* Le refuge sur la crête — le seul bâti de l'ère, donc il compte. */}
+      {/* Le refuge : seul bâti de l'ère, posé au bord du col. */}
       <group
         position={[
-          fableFarPathX(356) + 30,
-          fableGroundY(fableFarPathX(356) + 30, 356),
-          356,
+          refuge.x + refuge.sx * 26,
+          fableGroundY(refuge.x + refuge.sx * 26, refuge.z + refuge.sz * 26),
+          refuge.z + refuge.sz * 26,
         ]}
-        rotation={[0, -0.5, 0]}
+        rotation={[0, Math.atan2(refuge.fx, refuge.fz), 0]}
       >
         <mesh position={[0, 2.2, 0]} castShadow receiveShadow>
           <boxGeometry args={[9, 4.4, 6.5]} />
@@ -452,84 +534,106 @@ function EraVegetativeField() {
     const lawns: THREE.Matrix4[] = [];
     const trees: THREE.Matrix4[] = [];
     const lamps: THREE.Matrix4[] = [];
-    const q = new THREE.Quaternion();
-    const e = new THREE.Euler();
 
-    // Parcelles identiques des deux côtés, alignées au cordeau.
-    for (let z = 480; z < 700; z += 13) {
-      for (const side of [-1, 1] as const) {
-        const cx = fableFarPathX(z);
-        const front = cx + side * 11;
+    // Les parcelles bordent la rue ET la boucle : c'est la répétition des
+    // mêmes maisons sur deux rues différentes qui rend le retour ambigu.
+    const streets: Array<Array<[number, number, number]>> = [
+      spineFrames(15, 23, 3).map((f) => [f.x, f.y, f.z] as [number, number, number]),
+      FABLE_SUBURB_LOOP,
+    ];
 
-        if (!clearsRoutes(front + side * 5, z, 5.5)) continue;
+    for (const street of streets) {
+      for (let i = 1; i < street.length - 1; i += 1) {
+        const [x, , z] = street[i];
+        const [px, , pz] = street[i - 1];
+        const [nx2, , nz2] = street[i + 1];
+        const dx = nx2 - px;
+        const dz = nz2 - pz;
+        const len = Math.hypot(dx, dz) || 1;
+        const sx = dz / len;
+        const sz = -dx / len;
+        const step = Math.hypot(x - px, z - pz);
 
-        const y = fableGroundY(front, z);
-        const yaw = side < 0 ? Math.PI / 2 : -Math.PI / 2;
-        e.set(0, yaw, 0);
-        q.setFromEuler(e);
-        const depth = 9 + rng() * 2;
-        const houseX = front + side * (depth / 2 + 1.5);
+        // Une parcelle tous les treize mètres environ, des deux côtés.
+        if (step < 6) continue;
 
-        houses.push(
-          new THREE.Matrix4().compose(
-            new THREE.Vector3(houseX, y + 3, z),
-            q,
-            new THREE.Vector3(depth, 6, 10 + rng() * 2)
-          )
-        );
-        // Toit à deux pentes, tuile sombre.
-        roofs.push(
-          new THREE.Matrix4().compose(
-            new THREE.Vector3(houseX, y + 7, z),
-            new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)),
-            new THREE.Vector3(depth + 1.4, 2.4, 11.6)
-          )
-        );
-        // Garage avancé vers la rue.
-        garages.push(
-          new THREE.Matrix4().compose(
-            new THREE.Vector3(front + side * 3, y + 1.6, z + 4.4),
-            q,
-            new THREE.Vector3(5.4, 3.2, 5)
-          )
-        );
-        // Pelouse et haie taillée.
-        lawns.push(
-          new THREE.Matrix4().compose(
-            new THREE.Vector3(front + side * 2.6, y + 0.03, z - 2),
-            q,
-            new THREE.Vector3(5, 0.06, 7)
-          )
-        );
-        hedges.push(
-          new THREE.Matrix4().compose(
-            new THREE.Vector3(front + side * 5.6, y + 0.55, z - 5.6),
-            q,
-            new THREE.Vector3(0.9, 1.1, 6)
-          )
-        );
+        for (const side of [-1, 1] as const) {
+          const frontX = x + sx * side * 11;
+          const frontZ = z + sz * side * 11;
 
-        if (rng() < 0.55) {
-          const th = 4 + rng() * 2.5;
-          trees.push(
+          if (!clearsRoutes(frontX + sx * side * 5, frontZ + sz * side * 5, 5.5)) continue;
+
+          const yaw = Math.atan2(sx * side, sz * side);
+          const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0));
+          const depth = 9 + rng() * 2;
+          const houseX = frontX + sx * side * (depth / 2 + 1.5);
+          const houseZ = frontZ + sz * side * (depth / 2 + 1.5);
+          const ground = fableGroundY(houseX, houseZ);
+
+          houses.push(
             new THREE.Matrix4().compose(
-              new THREE.Vector3(front + side * 1.6, y + th / 2, z - 3.5),
+              new THREE.Vector3(houseX, ground + 3, houseZ),
+              q,
+              new THREE.Vector3(depth, 6, 10 + rng() * 2)
+            )
+          );
+          roofs.push(
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(houseX, ground + 7, houseZ),
+              q,
+              new THREE.Vector3(depth + 1.4, 2.4, 11.6)
+            )
+          );
+          garages.push(
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(
+                frontX + sx * side * 3 + dx / len * 4.4,
+                ground + 1.6,
+                frontZ + sz * side * 3 + dz / len * 4.4
+              ),
+              q,
+              new THREE.Vector3(5.4, 3.2, 5)
+            )
+          );
+          lawns.push(
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(frontX + sx * side * 2.6, ground + 0.03, frontZ + sz * side * 2.6),
+              q,
+              new THREE.Vector3(5, 0.06, 7)
+            )
+          );
+          hedges.push(
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(frontX + sx * side * 5.6, ground + 0.55, frontZ + sz * side * 5.6),
+              q,
+              new THREE.Vector3(0.9, 1.1, 6)
+            )
+          );
+
+          if (rng() < 0.5) {
+            const th = 4 + rng() * 2.5;
+            trees.push(
+              new THREE.Matrix4().compose(
+                new THREE.Vector3(frontX + sx * side * 1.6, ground + th / 2, frontZ + sz * side * 1.6),
+                new THREE.Quaternion(),
+                new THREE.Vector3(2.2, th, 2.2)
+              )
+            );
+          }
+        }
+
+        if (i % 3 === 0) {
+          const lx = x + sx * 10;
+          const lz = z + sz * 10;
+          lamps.push(
+            new THREE.Matrix4().compose(
+              new THREE.Vector3(lx, fableGroundY(lx, lz) + 3.4, lz),
               new THREE.Quaternion(),
-              new THREE.Vector3(2.2, th, 2.2)
+              new THREE.Vector3(1, 6.8, 1)
             )
           );
         }
       }
-
-      // Candélabres, un côté sur deux.
-      const lx = fableFarPathX(z) - 10;
-      lamps.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(lx, fableGroundY(lx, z) + 3.4, z),
-          new THREE.Quaternion(),
-          new THREE.Vector3(1, 6.8, 1)
-        )
-      );
     }
 
     return { houses, roofs, garages, hedges, lawns, trees, lamps };
@@ -553,79 +657,34 @@ function EraVegetativeField() {
 
   return (
     <group>
-      <EraTerrain z0={470} z1={710} color="#6f7a5e" material="sand" segments={72} />
-      {/* Asphalte mouillé : plus clair et plus lisse que partout ailleurs. */}
-      <EraRoad z0={472} z1={708} width={9} color="#6a6d70" lift={0.06} />
       {/* La desserte qui tourne et revient — sans qu'on s'en aperçoive. */}
       <RouteRibbon points={FABLE_SUBURB_LOOP} width={7.6} color="#6a6d70" lift={0.06} />
 
-      <instancedMesh
-        ref={housesRef}
-        args={[undefined, undefined, placements.houses.length]}
-        frustumCulled={false}
-        castShadow
-        receiveShadow
-      >
+      <instancedMesh ref={housesRef} args={[undefined, undefined, placements.houses.length]} frustumCulled={false} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#cfc9bb" roughness={0.93} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={roofsRef}
-        args={[undefined, undefined, placements.roofs.length]}
-        frustumCulled={false}
-        castShadow
-      >
+      <instancedMesh ref={roofsRef} args={[undefined, undefined, placements.roofs.length]} frustumCulled={false} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#4c4a49" roughness={0.9} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={garagesRef}
-        args={[undefined, undefined, placements.garages.length]}
-        frustumCulled={false}
-        castShadow
-        receiveShadow
-      >
+      <instancedMesh ref={garagesRef} args={[undefined, undefined, placements.garages.length]} frustumCulled={false} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#b9b3a6" roughness={0.92} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={lawnsRef}
-        args={[undefined, undefined, placements.lawns.length]}
-        frustumCulled={false}
-        receiveShadow
-      >
+      <instancedMesh ref={lawnsRef} args={[undefined, undefined, placements.lawns.length]} frustumCulled={false} receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#4e6b39" roughness={0.96} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={hedgesRef}
-        args={[undefined, undefined, placements.hedges.length]}
-        frustumCulled={false}
-        castShadow
-      >
+      <instancedMesh ref={hedgesRef} args={[undefined, undefined, placements.hedges.length]} frustumCulled={false} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#38502f" roughness={0.97} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={treesRef}
-        args={[undefined, undefined, placements.trees.length]}
-        frustumCulled={false}
-        castShadow
-      >
+      <instancedMesh ref={treesRef} args={[undefined, undefined, placements.trees.length]} frustumCulled={false} castShadow>
         <sphereGeometry args={[0.5, 7, 6]} />
         <meshStandardMaterial color="#435a34" roughness={0.96} flatShading />
       </instancedMesh>
-
-      <instancedMesh
-        ref={lampsRef}
-        args={[undefined, undefined, placements.lamps.length]}
-        frustumCulled={false}
-      >
+      <instancedMesh ref={lampsRef} args={[undefined, undefined, placements.lamps.length]} frustumCulled={false}>
         <cylinderGeometry args={[0.06, 0.09, 1, 6]} />
         <meshStandardMaterial color="#8d9094" roughness={0.7} metalness={0.35} />
       </instancedMesh>
@@ -723,9 +782,16 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
   });
 
   return (
-    <mesh material={material} position={[190, 0, 860]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[420, 640, 40, 60]} />
-    </mesh>
+    <group>
+      {/* Océan au sud de la péninsule. */}
+      <mesh material={material} position={[120, 0, -320]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[900, 460, 48, 32]} />
+      </mesh>
+      {/* Baie intérieure : c'est elle qui creuse le fer à cheval. */}
+      <mesh material={material} position={[240, 0, 110]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[420, 540, 36, 44]} />
+      </mesh>
+    </group>
   );
 }
 
@@ -750,51 +816,57 @@ function EraNewSignal({
     const scrub: THREE.Matrix4[] = [];
     const rail: THREE.Matrix4[] = [];
     const town: THREE.Matrix4[] = [];
+    const frames = spineFrames(23, 32, 8);
 
-    // Garde-corps côté mer, poteau tous les 3 m.
-    for (let z = 706; z < 1006; z += 3) {
-      const cx = fableFarPathX(z);
-      const x = cx + 5.4;
-      const y = fableGroundY(x, z);
+    for (const frame of frames) {
+      // Glissière côté mer, poteau tous les trois mètres environ.
+      const rx = frame.x + frame.sx * 5.4;
+      const rz = frame.z + frame.sz * 5.4;
       rail.push(
         new THREE.Matrix4().compose(
-          new THREE.Vector3(x, y + 0.5, z),
+          new THREE.Vector3(rx, fableGroundY(rx, rz) + 0.5, rz),
           new THREE.Quaternion(),
           new THREE.Vector3(0.12, 1, 0.12)
         )
       );
+
+      // Maquis sur le talus amont, rare côté mer.
+      for (let i = 0; i < 9; i += 1) {
+        const side = rng() < 0.68 ? -1 : 1;
+        const lateral = side * (7 + rng() * rng() * 44);
+        const x = frame.x + frame.sx * lateral;
+        const z = frame.z + frame.sz * lateral;
+
+        if (!clearsRoutes(x, z, 3.4)) continue;
+
+        const y = fableGroundY(x, z);
+
+        if (y < 1) continue;
+
+        const sc = 0.7 + rng() * 1.9;
+        scrub.push(
+          new THREE.Matrix4().compose(
+            new THREE.Vector3(x, y + sc * 0.35, z),
+            new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 3, 0)),
+            new THREE.Vector3(sc, sc * 0.75, sc)
+          )
+        );
+      }
     }
 
-    // Maquis méditerranéen sur le talus amont.
-    for (let i = 0; i < 620; i += 1) {
-      const z = 700 + rng() * 310;
-      const cx = fableFarPathX(z);
-      const side = rng() < 0.62 ? -1 : 1;
-      const x = cx + side * (7 + rng() * rng() * 40);
-
-      if (!clearsRoutes(x, z, 3.4)) continue;
-
-      const y = fableGroundY(x, z);
-      const s = 0.7 + rng() * 1.9;
-      scrub.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(x, y + s * 0.35, z),
-          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 3, 0)),
-          new THREE.Vector3(s, s * 0.75, s)
-        )
-      );
-    }
-
-    // La ville au fond de la baie : masses basses, très loin.
-    for (let i = 0; i < 90; i += 1) {
-      const z = 780 + rng() * 240;
-      const x = fableFarPathX(z) + 150 + rng() * 90;
-      const h = 4 + rng() * rng() * 22;
+    // La ville au fond de la baie : c'est Birth Yard qu'on aperçoit de la
+    // côte, de l'autre côté de l'eau. Le monde se referme visuellement.
+    for (let i = 0; i < 110; i += 1) {
+      const a = rng() * Math.PI * 2;
+      const d = 40 + rng() * 120;
+      const x = 30 + Math.cos(a) * d;
+      const z = 150 + Math.sin(a) * d * 0.7;
+      const h = 5 + rng() * rng() * 26;
       town.push(
         new THREE.Matrix4().compose(
           new THREE.Vector3(x, 1 + h / 2, z),
-          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 0.4, 0)),
-          new THREE.Vector3(6 + rng() * 10, h, 6 + rng() * 10)
+          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 0.5, 0)),
+          new THREE.Vector3(7 + rng() * 11, h, 7 + rng() * 11)
         )
       );
     }
@@ -814,68 +886,50 @@ function EraNewSignal({
     apply(townRef.current, placements.town);
   }, [placements]);
 
+  const marker = spineFrame(31);
+  const lighthouse = spineFrame(27);
+
   return (
     <group>
-      <EraTerrain z0={700} z1={1010} color="#6d6551" material="rock" segments={80} />
-      <EraRoad z0={702} z1={1006} width={8} color="#8e8880" />
-      {/* La descente à la pointe : on perd la vue pour la retrouver au ras. */}
+      {/* La descente au cap : on perd la vue pour la retrouver au ras. */}
       <RouteRibbon points={FABLE_HEADLAND_ROUTE} width={6.6} color="#8e8880" />
       <Ocean sunDir={sunDir} sunColor={sunColor} />
 
-      <instancedMesh
-        ref={railRef}
-        args={[undefined, undefined, placements.rail.length]}
-        frustumCulled={false}
-        castShadow
-      >
+      <instancedMesh ref={railRef} args={[undefined, undefined, placements.rail.length]} frustumCulled={false} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#9aa0a4" roughness={0.6} metalness={0.5} />
       </instancedMesh>
-
-      <instancedMesh
-        ref={scrubRef}
-        args={[undefined, undefined, placements.scrub.length]}
-        frustumCulled={false}
-        castShadow
-      >
+      <instancedMesh ref={scrubRef} args={[undefined, undefined, placements.scrub.length]} frustumCulled={false} castShadow>
         <icosahedronGeometry args={[1, 0]} />
         <meshStandardMaterial color="#57603f" roughness={0.97} flatShading />
       </instancedMesh>
-
-      <instancedMesh
-        ref={townRef}
-        args={[undefined, undefined, placements.town.length]}
-        frustumCulled={false}
-      >
+      <instancedMesh ref={townRef} args={[undefined, undefined, placements.town.length]} frustumCulled={false}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial
-          color="#7d7468"
-          roughness={0.95}
-          emissive="#ffb066"
-          emissiveIntensity={0.35}
-        />
+        <meshStandardMaterial color="#7d7468" roughness={0.95} emissive="#ffb066" emissiveIntensity={0.4} />
       </instancedMesh>
 
       {/* La borne du registre — le Λ redevenu objet ordinaire du monde. */}
       <group
         position={[
-          fableFarPathX(1000) + 6.6,
-          fableGroundY(fableFarPathX(1000) + 6.6, 1000),
-          1000,
+          marker.x + marker.sx * 6.6,
+          fableGroundY(marker.x + marker.sx * 6.6, marker.z + marker.sz * 6.6),
+          marker.z + marker.sz * 6.6,
         ]}
       >
         <mesh position={[0, 0.85, 0]} castShadow receiveShadow>
           <boxGeometry args={[1.5, 1.7, 1.1]} />
           <meshStandardMaterial color="#8d8579" roughness={0.96} flatShading />
         </mesh>
-        <mesh position={[-0.78, 1.0, 0]} rotation={[0, -Math.PI / 2, 0]}>
-          <planeGeometry args={[0.85, 0.95]} />
-          <meshStandardMaterial color="#cfd4d6" roughness={0.5} metalness={0.3} />
-        </mesh>
       </group>
 
-      {/* Phare de la pointe : le seul point fixe dans tout le couchant. */}
-      <group position={[fableFarPathX(940) + 78, 0.5, 940]}>
+      {/* Phare de la pointe : point fixe dans tout le couchant. */}
+      <group
+        position={[
+          lighthouse.x + lighthouse.sx * 62,
+          0.5,
+          lighthouse.z + lighthouse.sz * 62,
+        ]}
+      >
         <mesh position={[0, 9, 0]} castShadow>
           <cylinderGeometry args={[1.4, 2.2, 18, 10]} />
           <meshStandardMaterial color="#ada79b" roughness={0.92} />
@@ -885,14 +939,7 @@ function EraNewSignal({
           <meshBasicMaterial color="#ffe9be" toneMapped={false} />
         </mesh>
         <sprite position={[0, 18.6, 0]} scale={[16, 16, 1]}>
-          <spriteMaterial
-            map={glow}
-            color="#ffd9a0"
-            transparent
-            opacity={0.5}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-          />
+          <spriteMaterial map={glow} color="#ffd9a0" transparent opacity={0.5} blending={THREE.AdditiveBlending} depthWrite={false} />
         </sprite>
       </group>
     </group>
@@ -908,10 +955,12 @@ function EraNewSignal({
  */
 export default function FableFarEras({
   vehicleZRef,
+  vehicleXRef,
   sunDir,
   sunColor,
 }: {
   vehicleZRef: React.MutableRefObject<number>;
+  vehicleXRef: React.MutableRefObject<number>;
   sunDir: THREE.Vector3;
   sunColor: THREE.Color;
 }) {
@@ -927,12 +976,21 @@ export default function FableFarEras({
   }, [mounted]);
 
   useFrame(() => {
+    const x = vehicleXRef.current;
     const z = vehicleZRef.current;
-    // Marge large : l'ère suivante existe avant qu'on la voie arriver.
+    // Streaming par voisinage de région : sur une péninsule pliée, la
+    // distance en z ne veut plus rien dire — la côte peut être juste
+    // derrière le massif.
+    const near = (region: FableRegion, margin: number) =>
+      Math.hypot(x - region.x, z - region.z) < region.radius + margin;
+
     const next = {
-      mountain: z > 40 && z < 620,
-      suburb: z > 340 && z < 850,
-      coast: z > 560,
+      mountain: near(REGION["os-approach"], 220) || near(REGION["os-massif"], 220),
+      suburb: near(REGION["vf-basin"], 240),
+      coast:
+        near(REGION["ns-coast"], 260) ||
+        near(REGION["ns-west"], 260) ||
+        near(REGION["central-bay"], 120),
     };
     const current = mountedRef.current;
 
@@ -947,6 +1005,7 @@ export default function FableFarEras({
 
   return (
     <group>
+      <PeninsulaTerrain vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef} />
       {mounted.mountain ? <EraOlderShadows /> : null}
       {mounted.suburb ? <EraVegetativeField /> : null}
       {mounted.coast ? <EraNewSignal sunDir={sunDir} sunColor={sunColor} /> : null}

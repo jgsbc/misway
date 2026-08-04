@@ -27,7 +27,7 @@ import {
 } from "@/components/drift-3d/fable/fableWorld";
 import type { ImmersionInput } from "@/components/drift-3d/fable/core/immersionInput";
 import { stepImmersionVehicle } from "@/components/drift-3d/fable/core/immersionVehicle";
-import { fableEraBlend } from "@/components/drift-3d/fable/fableTopology";
+import { fableEraBlendAt } from "@/components/drift-3d/fable/fableTopology";
 import {
   createImmersionExposure,
   stepImmersionExposure,
@@ -65,8 +65,9 @@ type FableDirectorProps = {
   vehicleRef: RefObject<Drift3DVehicleHandle | null>;
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
   inputRef: MutableRefObject<ImmersionInput | null>;
-  /** Position longitudinale publiée pour le streamer d'ères. */
+  /** Position publiée pour le streamer de régions. */
   vehicleZRef: MutableRefObject<number>;
+  vehicleXRef: MutableRefObject<number>;
   colliders: Drift3DVehicleCollider[];
   postUniformsRef: MutableRefObject<FablePostUniforms | null>;
   ambienceRef: MutableRefObject<FableAmbience | null>;
@@ -81,6 +82,7 @@ export default function FableDirector({
   vehicleStateRef,
   inputRef,
   vehicleZRef,
+  vehicleXRef,
   colliders,
   postUniformsRef,
   ambienceRef,
@@ -199,8 +201,10 @@ export default function FableDirector({
       fableGroundY
     );
 
-    // Confinement latéral de la gorge : la roche, pas un rail.
-    if (state.position.z < -3) {
+    // Confinement latéral de la gorge : la roche, pas un rail. Il est
+    // borné en x autant qu'en z — sur la péninsule pliée, la corniche
+    // ouest redescend dans la même plage de z que la gorge d'Entry.
+    if (state.position.z < -3 && Math.abs(state.position.x) < 26) {
       const px = fablePathX(state.position.z);
       const dx = state.position.x - px;
       const limit = 2.75;
@@ -217,6 +221,7 @@ export default function FableDirector({
     }
 
     vehicleZRef.current = state.position.z;
+    vehicleXRef.current = state.position.x;
 
     /* ── Assiette & ancrage (core) ────────────────────────────────────── */
     const heading = getDrift3DHeadingVector(state.heading);
@@ -330,7 +335,7 @@ export default function FableDirector({
     }
 
     /* ── Atmosphère : chaque ère apporte son heure ─────────────────────── */
-    const { from: eraFrom, to: eraTo, t: eraT } = fableEraBlend(z);
+    const { from: eraFrom, to: eraTo, t: eraT } = fableEraBlendAt(state.position.x, z);
     eraFog.copy(eraFrom.fog).lerp(eraTo.fog, eraT);
     eraSun.copy(eraFrom.sunColor).lerp(eraTo.sunColor, eraT);
     eraHemiSky.copy(eraFrom.hemiSky).lerp(eraTo.hemiSky, eraT);
