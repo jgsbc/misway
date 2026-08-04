@@ -94,8 +94,12 @@ export function stepImmersionCamera(
   );
   state.look.lerp(lookTarget, 1 - Math.exp(-dt * params.lookDamping));
 
-  // Roulis de virage : la caméra penche dans la courbe, doucement.
-  const rollTarget = -targets.yawRate * params.rollGain * targets.speedRatio;
+  // Roulis de virage : la caméra penche dans la courbe, doucement — et
+  // jamais au-delà d'un souffle, sinon l'horizon part en diagonale.
+  const rollTarget = Math.max(
+    -0.05,
+    Math.min(0.05, -targets.yawRate * params.rollGain * targets.speedRatio)
+  );
   state.roll += (rollTarget - state.roll) * Math.min(1, dt * 3);
 
   camera.position.copy(state.position);

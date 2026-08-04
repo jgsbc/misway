@@ -24,6 +24,7 @@ import {
   FABLE_SPAWN,
   buildFableWorldLayout,
   fableGroundY,
+  fablePathX,
 } from "@/components/drift-3d/fable/fableWorld";
 
 /**
@@ -152,6 +153,7 @@ function FableDebugProbe({
       },
     };
     (window as unknown as Record<string, unknown>).__fableProbe = probe;
+    (window as unknown as Record<string, unknown>).__fablePathX = fablePathX;
 
     return () => {
       delete (window as unknown as Record<string, unknown>).__fableProbe;

@@ -193,10 +193,11 @@ export function fableFarGroundY(x: number, z: number): number {
   const lateral = Math.abs(x - fableFarPathX(z));
 
   if (z < 470) {
-    // Montagne : la vallée se relève fort de part et d'autre du chemin.
-    const flank = Math.max(0, lateral - 7);
-    const rise = Math.pow(flank, 1.42) * 0.5;
-    const ridges = fbm(x, z) * Math.min(18, flank * 0.9);
+    // Montagne : un plateau largement ouvert, les versants ne se referment
+    // qu'au loin. Le masterframe montre du ciel, pas un couloir.
+    const flank = Math.max(0, lateral - 17);
+    const rise = Math.pow(flank, 1.24) * 0.1;
+    const ridges = fbm(x, z) * Math.min(9, 1.2 + flank * 0.18);
 
     return road + rise + ridges;
   }
@@ -233,9 +234,10 @@ export function fableFarPathX(z: number): number {
     (Math.sin((z - 170) * 0.026) * 26 + Math.sin((z - 170) * 0.011) * 14);
   const mountainFade = 1 - smoothstep(430, 480, z);
   // Banlieue : rues droites, légers décrochements.
+  // Rues de lotissement : longues, presque droites, un très léger dévers.
   const suburb =
     smoothstep(470, 510, z) * (1 - smoothstep(660, 700, z)) *
-    Math.round(Math.sin(z * 0.03) * 1.2) * 9;
+    Math.sin(z * 0.021) * 7;
   // Corniche : longue courbe qui suit la baie.
   const coast = smoothstep(690, 740, z) * (Math.sin((z - 700) * 0.0135) * 34);
 
