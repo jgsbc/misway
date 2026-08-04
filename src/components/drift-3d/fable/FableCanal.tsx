@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import type { MutableRefObject } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
@@ -12,8 +13,10 @@ import {
   FABLE_CANAL_Z1,
   FABLE_QUAY_X,
   FABLE_WATER_Y,
+  FABLE_SHOWROOM_Z,
   fableGroundY,
   fableRng,
+  fableStreetHalfWidth,
 } from "@/components/drift-3d/fable/fableWorld";
 import {
   FABLE_SKY_HORIZON,
@@ -32,6 +35,80 @@ import { swaySignal } from "@/components/drift-3d/fable/core/immersionSecondary"
  * Les silhouettes vivent SOUS l'eau, inversées ; rien au-dessus ne les
  * projette. On ne les voit qu'en reflet.
  */
+
+/* ─── Sources réfléchies ──────────────────────────────────────────────── */
+
+export type CanalLight = {
+  x: number;
+  z: number;
+  /** Hauteur au-dessus de l'eau : elle étire la traînée. */
+  height: number;
+  color: THREE.Color;
+  intensity: number;
+};
+
+/**
+ * Les lumières que le bassin rend. Elles sont déclarées une seule fois et
+ * consommées deux fois : par la géométrie qui les porte, et par l'eau qui
+ * les réfléchit. Sans cette source unique, les reflets mentiraient.
+ */
+export const FABLE_CANAL_LIGHTS: CanalLight[] = (() => {
+  const rng = fableRng(662201);
+  const lights: CanalLight[] = [];
+  const bankTints = ["#ffb066", "#ffd39a", "#cfe0f2", "#ff9a5e"];
+
+  // Fenêtres et lampes de la rive d'en face.
+  let z = FABLE_CANAL_Z0 - 10;
+
+  while (z < FABLE_CANAL_Z1 + 12 && lights.length < 7) {
+    const width = 6 + rng() * 11;
+
+    if (rng() < 0.8) {
+      lights.push({
+        x: FABLE_CANAL_FAR_X + 0.6,
+        z: z + width * (0.2 + rng() * 0.6),
+        height: 1.4 + rng() * 5,
+        color: new THREE.Color(bankTints[Math.floor(rng() * bankTints.length)]),
+        intensity: 0.5 + rng() * 0.5,
+      });
+    }
+
+    z += width + 3 + rng() * 5;
+  }
+
+  // Lampes de quai — rares, froides, hautes.
+  for (const lz of [FABLE_CANAL_Z0 + 8, FABLE_CANAL_Z0 + 22, FABLE_CANAL_Z0 + 34]) {
+    lights.push({
+      x: FABLE_QUAY_X + 0.9,
+      z: lz,
+      height: 5.2,
+      color: new THREE.Color("#cfe2f2"),
+      intensity: 0.75,
+    });
+  }
+
+  // La vitrine : sa nappe froide traverse la chaussée et touche l'eau.
+  lights.push({
+    x: FABLE_QUAY_X + 2.6,
+    z: FABLE_SHOWROOM_Z,
+    height: 3.4,
+    color: new THREE.Color("#dcecfa"),
+    intensity: 1.15,
+  });
+
+  // Feu de manœuvre de la grue.
+  lights.push({
+    x: FABLE_CANAL_FAR_X + 4,
+    z: FABLE_CANAL_Z0 + 17,
+    height: 9,
+    color: new THREE.Color("#ffe2a8"),
+    intensity: 0.9,
+  });
+
+  return lights;
+})();
+
+const CANAL_LIGHT_SLOTS = 12;
 
 /* ─── Eau ──────────────────────────────────────────────────────────────── */
 
@@ -54,6 +131,12 @@ const waterFragment = /* glsl */ `
   uniform vec3 uSunColor;
   uniform vec3 uCameraPos;
   uniform float uTime;
+  /** x, z, hauteur — les sources que le bassin doit rendre. */
+  uniform vec3 uLights[LIGHT_SLOTS];
+  uniform vec3 uLightColors[LIGHT_SLOTS];
+  uniform float uLightPower[LIGHT_SLOTS];
+  /** Centre et demi-longueur de la péniche : elle coupe les traînées. */
+  uniform vec3 uOccluder;
   varying vec3 vWorldPos;
   varying vec2 vUv;
 
@@ -90,9 +173,10 @@ const waterFragment = /* glsl */ `
     float t = pow(clamp(reflected.y, 0.0, 1.0), 0.55);
     vec3 sky = mix(uHorizon, uZenith, t);
 
-    // Traînée solaire, étirée par les rides.
+    // Traînée solaire — hachée par les rides, sinon elle se pose en nappe.
+    float sunRipple = noise(p * 2.6 + vec2(uTime * 0.3, -uTime * 0.2));
     float glare = pow(clamp(dot(reflected, uSunDir), 0.0, 1.0), 22.0);
-    sky += uSunColor * glare * 1.4;
+    sky += uSunColor * glare * (0.35 + sunRipple * 1.15);
 
     // Fresnel : rasant, l'eau devient miroir ; à la verticale, elle se
     // creuse — mais jamais jusqu'au noir, un port garde toujours du ciel.
@@ -100,35 +184,93 @@ const waterFragment = /* glsl */ `
     vec3 deep = vec3(0.06, 0.075, 0.085);
     vec3 color = mix(deep, sky, clamp(fresnel * 1.7 + 0.3, 0.0, 1.0));
 
+    /*
+      Traînées des sources réelles. Chacune s'étire depuis sa berge vers
+      l'œil, se brise sur les rides, et s'éteint derrière la péniche —
+      c'est cette coupure mobile qui donne au bassin sa profondeur.
+    */
+    vec3 streaks = vec3(0.0);
+    float ripple = noise(p * 1.9 + vec2(uTime * 0.22, -uTime * 0.15));
+    float ripple2 = noise(p * 4.5 - vec2(uTime * 0.4, uTime * 0.3));
+
+    for (int i = 0; i < LIGHT_SLOTS; i++) {
+      float power = uLightPower[i];
+
+      if (power <= 0.001) continue;
+
+      vec3 L = uLights[i];
+      // Largeur : une source haute traîne un peu plus large, jamais assez
+      // pour se fondre avec sa voisine — ce sont des colonnes, pas une nappe.
+      float w = 0.34 + L.z * 0.07;
+      float lateral = p.y - L.y;
+      float band = exp(-(lateral * lateral) / (w * w));
+
+      // Longitudinale : la traînée court de la source vers l'observateur,
+      // et s'épuise bien avant de l'atteindre.
+      float span = uCameraPos.x - L.x;
+      float t2 = clamp((p.x - L.x) / (abs(span) < 0.001 ? 0.001 : span), 0.0, 1.0);
+      float along = smoothstep(1.0, 0.02, t2) * smoothstep(-0.04, 0.1, t2) * exp(-t2 * 1.7);
+
+      // Occlusion : la coque masque tout ce qui est derrière elle.
+      float behind = step(p.x, uOccluder.x) * step(abs(p.y - uOccluder.y), uOccluder.z);
+      float shadow = 1.0 - behind * 0.92;
+
+      // Les rides hachent la colonne : sans elles, c'est un néon posé à plat.
+      float broken = max(0.0, -0.12 + ripple * 1.15 + ripple2 * 0.5);
+      streaks += uLightColors[i] * band * along * broken * power * shadow;
+    }
+
+    streaks = min(streaks, vec3(1.4));
+    color += streaks * 0.42;
+
     // L'eau reste translucide : ce qui est dessous doit pouvoir remonter.
-    float alpha = clamp(0.58 + fresnel * 0.38, 0.0, 0.95);
+    float alpha = clamp(0.58 + fresnel * 0.38 + min(0.22, streaks.r * 0.3), 0.0, 0.96);
 
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-function CanalWater() {
+function CanalWater({
+  bargeRef,
+}: {
+  bargeRef: MutableRefObject<THREE.Group | null>;
+}) {
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
 
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: waterVertex,
-        fragmentShader: waterFragment,
-        uniforms: {
-          uZenith: { value: FABLE_SKY_ZENITH },
-          uHorizon: { value: FABLE_SKY_HORIZON },
-          uSunDir: { value: FABLE_SUN_DIR },
-          uSunColor: { value: FABLE_SUN_COLOR },
-          uCameraPos: { value: new THREE.Vector3() },
-          uTime: { value: 0 },
-        },
-        transparent: true,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-      }),
-    []
-  );
+  const material = useMemo(() => {
+    const positions: THREE.Vector3[] = [];
+    const colors: THREE.Color[] = [];
+    const powers: number[] = [];
+
+    for (let i = 0; i < CANAL_LIGHT_SLOTS; i += 1) {
+      const light = FABLE_CANAL_LIGHTS[i];
+      positions.push(
+        light ? new THREE.Vector3(light.x, light.z, light.height) : new THREE.Vector3()
+      );
+      colors.push(light ? light.color.clone() : new THREE.Color());
+      powers.push(light ? light.intensity : 0);
+    }
+
+    return new THREE.ShaderMaterial({
+      vertexShader: waterVertex,
+      fragmentShader: `#define LIGHT_SLOTS ${CANAL_LIGHT_SLOTS}\n${waterFragment}`,
+      uniforms: {
+        uZenith: { value: FABLE_SKY_ZENITH },
+        uHorizon: { value: FABLE_SKY_HORIZON },
+        uSunDir: { value: FABLE_SUN_DIR },
+        uSunColor: { value: FABLE_SUN_COLOR },
+        uCameraPos: { value: new THREE.Vector3() },
+        uTime: { value: 0 },
+        uLights: { value: positions },
+        uLightColors: { value: colors },
+        uLightPower: { value: powers },
+        uOccluder: { value: new THREE.Vector3(-999, -999, 7.5) },
+      },
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+  }, []);
 
   useEffect(() => {
     materialRef.current = material;
@@ -144,6 +286,13 @@ function CanalWater() {
 
     mat.uniforms.uCameraPos.value.copy(camera.position);
     mat.uniforms.uTime.value = clock.elapsedTime;
+
+    const barge = bargeRef.current;
+
+    if (barge) {
+      const occluder = mat.uniforms.uOccluder.value as THREE.Vector3;
+      occluder.set(barge.position.x, barge.position.z, 7.5);
+    }
   });
 
   const width = FABLE_QUAY_X - FABLE_CANAL_FAR_X;
@@ -406,8 +555,13 @@ function RiderlessBikes({ reducedMotion }: { reducedMotion: boolean }) {
 
 /* ─── Péniche ──────────────────────────────────────────────────────────── */
 
-function Barge({ reducedMotion }: { reducedMotion: boolean }) {
-  const groupRef = useRef<THREE.Group>(null);
+function Barge({
+  reducedMotion,
+  groupRef,
+}: {
+  reducedMotion: boolean;
+  groupRef: MutableRefObject<THREE.Group | null>;
+}) {
   const glow = getFableGlowTexture();
 
   useFrame(({ clock }) => {
@@ -568,11 +722,9 @@ function FarBank() {
   const bankRef = useRef<THREE.InstancedMesh>(null);
   const glow = getFableGlowTexture();
 
-  const { matrices, lights } = useMemo(() => {
+  const matrices = useMemo(() => {
     const rng = fableRng(662201);
     const list: THREE.Matrix4[] = [];
-    const lightList: Array<{ x: number; y: number; z: number; tint: string }> = [];
-    const tints = ["#ffb066", "#ffd39a", "#cfe0f2", "#ff9a5e"];
     let z = FABLE_CANAL_Z0 - 12;
 
     while (z < FABLE_CANAL_Z1 + 14) {
@@ -587,21 +739,15 @@ function FarBank() {
           new THREE.Vector3(depth, height, width)
         )
       );
-
-      if (rng() < 0.75) {
-        lightList.push({
-          x: FABLE_CANAL_FAR_X + 0.4,
-          y: 0.6 + rng() * Math.min(height, 8),
-          z: z + width * (0.2 + rng() * 0.6),
-          tint: tints[Math.floor(rng() * tints.length)],
-        });
-      }
-
       z += width + 0.5 + rng() * 2.5;
     }
 
-    return { matrices: list, lights: lightList };
+    return list;
   }, []);
+
+  // Les sources sont déclarées une seule fois, plus haut : la géométrie qui
+  // les porte et l'eau qui les reflète lisent la même liste.
+  const lights = FABLE_CANAL_LIGHTS.filter((l) => l.x < FABLE_QUAY_X - 2);
 
   useEffect(() => {
     const mesh = bankRef.current;
@@ -646,54 +792,347 @@ function FarBank() {
 
       {lights.map((light, i) => (
         <group key={i}>
-          <mesh position={[light.x, light.y, light.z]}>
+          <mesh position={[light.x, light.height, light.z]}>
             <sphereGeometry args={[0.11, 6, 5]} />
-            <meshBasicMaterial color={light.tint} toneMapped={false} />
+            <meshBasicMaterial color={light.color} toneMapped={false} />
           </mesh>
-          <sprite position={[light.x, light.y, light.z]} scale={[2.4, 2.4, 1]}>
+          <sprite position={[light.x, light.height, light.z]} scale={[2.6, 2.6, 1]}>
             <spriteMaterial
               map={glow}
-              color={light.tint}
+              color={light.color}
               transparent
               opacity={0.4}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />
           </sprite>
-          {/*
-            La traînée sur l'eau : une bande verticale étirée vers nous,
-            posée juste sous la surface. C'est elle qui creuse la distance.
-          */}
-          <mesh
-            position={[light.x + 5.5, FABLE_WATER_Y + 0.015, light.z]}
-            rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-            renderOrder={5}
-          >
-            <planeGeometry args={[0.5 + light.y * 0.06, 11]} />
-            <meshBasicMaterial
-              map={glow}
-              color={light.tint}
-              transparent
-              opacity={0.3}
-              blending={THREE.AdditiveBlending}
-              depthWrite={false}
-            />
-          </mesh>
         </group>
       ))}
     </group>
   );
 }
 
+/* ─── L'enseigne d'en face ────────────────────────────────────────────── */
+
+/**
+ * La vitrine d'optimisation, en vis-à-vis du bassin — c'est la composition
+ * même du masterframe : la voiture entre une façade de verre allumée au
+ * néon et l'eau noire.
+ *
+ * Ce n'est ici que le VOLUME et sa lumière : la coque de verre, le bandeau
+ * fluorescent, trois machines en silhouette. Le contenu accepté d'EUX
+ * GAINENT — sa dramaturgie, son vocabulaire, son anomalie — n'est pas
+ * réinterprété ici et viendra s'y monter tel quel.
+ */
+function QuaysideShowroom({ reducedMotion }: { reducedMotion: boolean }) {
+  const stripRef = useRef<THREE.MeshBasicMaterial>(null);
+  const runnersRef = useRef<Array<THREE.Group | null>>([]);
+  const z = FABLE_SHOWROOM_Z;
+  const x = fableStreetHalfWidth(z) + 2.1;
+  const groundY = fableGroundY(x, z);
+
+  useFrame(({ clock }) => {
+    const t = reducedMotion ? 0 : clock.elapsedTime;
+
+    // Le tube fatigue : il bat, très légèrement, jamais en rythme.
+    if (stripRef.current) {
+      stripRef.current.opacity = 0.86 + Math.sin(t * 7.3) * 0.03 + Math.sin(t * 2.1) * 0.05;
+    }
+
+    // Les trois corps travaillent, chacun à sa cadence.
+    runnersRef.current.forEach((runner, i) => {
+      if (!runner) return;
+
+      runner.position.y = Math.abs(Math.sin(t * (2.6 + i * 0.45) + i)) * 0.05;
+    });
+  });
+
+  return (
+    <group position={[x, groundY, z]}>
+      {/* Coque : sol, plafond, fond. */}
+      <mesh position={[2.6, 1.9, 0]} castShadow receiveShadow>
+        <boxGeometry args={[5.4, 3.8, 11]} />
+        <meshStandardMaterial color="#6b6157" roughness={0.94} />
+      </mesh>
+      <mesh position={[0.1, 0.06, 0]} receiveShadow>
+        <boxGeometry args={[5, 0.12, 10.4]} />
+        <meshStandardMaterial color="#33383c" roughness={0.8} />
+      </mesh>
+
+      {/* Bandeau fluorescent, au plafond, sur toute la longueur. */}
+      <mesh position={[0.6, 3.42, 0]}>
+        <boxGeometry args={[0.36, 0.1, 9.6]} />
+        <meshBasicMaterial ref={stripRef} color="#eaf6ff" toneMapped={false} transparent opacity={0.9} />
+      </mesh>
+      <pointLight position={[0.4, 3.1, -2.6]} color="#dcecfa" intensity={38} distance={16} decay={1.7} />
+      <pointLight position={[0.4, 3.1, 2.6]} color="#dcecfa" intensity={38} distance={16} decay={1.7} />
+
+      {/* Trois postes, alignés face à la rue. */}
+      {[-3.1, 0, 3.1].map((oz, i) => (
+        <group key={oz} position={[1.5, 0, oz]}>
+          <mesh position={[0, 0.28, 0]} castShadow>
+            <boxGeometry args={[1.5, 0.16, 0.72]} />
+            <meshStandardMaterial color="#26282a" roughness={0.6} metalness={0.4} />
+          </mesh>
+          <mesh position={[-0.62, 0.85, 0]}>
+            <boxGeometry args={[0.1, 1.15, 0.6]} />
+            <meshStandardMaterial color="#3a3d40" roughness={0.5} metalness={0.5} />
+          </mesh>
+          <mesh position={[-0.62, 1.42, 0]}>
+            <planeGeometry args={[0.42, 0.26]} />
+            <meshBasicMaterial color="#8fd8c4" toneMapped={false} />
+          </mesh>
+          {/* Le corps sur la machine — silhouette, rien de plus. */}
+          <group
+            ref={(g) => {
+              runnersRef.current[i] = g;
+            }}
+            position={[0, 0, 0]}
+          >
+            <mesh position={[0, 0.78, 0]} castShadow>
+              <boxGeometry args={[0.24, 0.82, 0.2]} />
+              <meshStandardMaterial color="#2f3236" roughness={0.9} />
+            </mesh>
+            <mesh position={[0, 1.28, 0]} castShadow>
+              <sphereGeometry args={[0.1, 8, 6]} />
+              <meshStandardMaterial color="#2f3236" roughness={0.9} />
+            </mesh>
+          </group>
+        </group>
+      ))}
+
+      {/* La glace : c'est elle qu'on voit depuis le quai. */}
+      <mesh position={[-0.1, 1.95, 0]}>
+        <boxGeometry args={[0.06, 3.5, 10.6]} />
+        <meshStandardMaterial
+          color="#cfe4f2"
+          roughness={0.06}
+          metalness={0.05}
+          transparent
+          opacity={0.24}
+          envMapIntensity={2.6}
+        />
+      </mesh>
+      {/* Meneaux verticaux. */}
+      {[-4.2, -1.4, 1.4, 4.2].map((oz) => (
+        <mesh key={oz} position={[-0.12, 1.95, oz]}>
+          <boxGeometry args={[0.14, 3.5, 0.14]} />
+          <meshStandardMaterial color="#1f2123" roughness={0.6} metalness={0.4} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ─── Sources du quai ─────────────────────────────────────────────────── */
+
+/**
+ * Lampes de quai : rares et hautes. Elles posent trois flaques froides sur
+ * la pierre mouillée et laissent tout le reste au noir — un quai n'est pas
+ * une rue, il n'a jamais été éclairé pour qu'on s'y promène.
+ */
+function QuayLamps() {
+  const glow = getFableGlowTexture();
+  const lamps = FABLE_CANAL_LIGHTS.filter((l) => l.x > FABLE_QUAY_X - 1);
+
+  return (
+    <group>
+      {lamps.map((lamp, i) => {
+        const groundY = fableGroundY(lamp.x + 2, lamp.z);
+
+        return (
+          <group key={i} position={[lamp.x, groundY, lamp.z]}>
+            <mesh position={[0, lamp.height / 2, 0]} castShadow>
+              <cylinderGeometry args={[0.07, 0.11, lamp.height, 8]} />
+              <meshStandardMaterial color="#2b2d2f" roughness={0.8} metalness={0.35} />
+            </mesh>
+            {/* Crosse tournée vers l'eau. */}
+            <mesh position={[-0.42, lamp.height - 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.05, 0.05, 0.9, 6]} />
+              <meshStandardMaterial color="#2b2d2f" roughness={0.8} metalness={0.35} />
+            </mesh>
+            <mesh position={[-0.84, lamp.height - 0.22, 0]}>
+              <boxGeometry args={[0.42, 0.16, 0.3]} />
+              <meshBasicMaterial color={lamp.color} toneMapped={false} />
+            </mesh>
+            <sprite position={[-0.84, lamp.height - 0.28, 0]} scale={[3.4, 3.4, 1]}>
+              <spriteMaterial
+                map={glow}
+                color={lamp.color}
+                transparent
+                opacity={0.4}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+              />
+            </sprite>
+            <pointLight
+              position={[-0.84, lamp.height - 0.4, 0]}
+              color={lamp.color}
+              intensity={26}
+              distance={13}
+              decay={1.9}
+            />
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/** Bateau de servitude amarré : feu de pont, coque qui bouge un peu. */
+function MooredVessel({ reducedMotion }: { reducedMotion: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const z = FABLE_CANAL_Z0 + 15;
+
+  useFrame(({ clock }) => {
+    const group = groupRef.current;
+    if (!group || reducedMotion) return;
+
+    const t = clock.elapsedTime;
+    group.rotation.z = swaySignal(t, 91, 0.07, 0.16) * 0.022;
+    group.position.y = FABLE_WATER_Y - 0.18 + swaySignal(t, 44, 0.05, 0.13) * 0.045;
+  });
+
+  return (
+    <group ref={groupRef} position={[FABLE_QUAY_X - 3.4, FABLE_WATER_Y - 0.18, z]}>
+      <mesh position={[0, 0.35, 0]} castShadow>
+        <boxGeometry args={[2.4, 0.9, 7.6]} />
+        <meshStandardMaterial color="#454b50" roughness={0.82} metalness={0.25} />
+      </mesh>
+      <mesh position={[0, 0.02, 0]}>
+        <boxGeometry args={[2.46, 0.22, 7.66]} />
+        <meshStandardMaterial color="#6b3f30" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 1.15, -2]} castShadow>
+        <boxGeometry args={[1.7, 1.1, 2]} />
+        <meshStandardMaterial color="#525860" roughness={0.78} />
+      </mesh>
+      <mesh position={[0, 1.3, -0.98]}>
+        <planeGeometry args={[1.2, 0.42]} />
+        <meshBasicMaterial color="#ffcf8a" toneMapped={false} />
+      </mesh>
+      <pointLight position={[0, 1.3, -0.7]} color="#ffcf8a" intensity={7} distance={9} decay={1.9} />
+      {/* Amarres tendues vers les bittes. */}
+      {[-2.6, 2.6].map((oz) => (
+        <mesh key={oz} position={[1.6, 0.42, oz]} rotation={[0, 0, -0.34]}>
+          <cylinderGeometry args={[0.028, 0.028, 3.1, 5]} />
+          <meshStandardMaterial color="#6c6152" roughness={0.95} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/**
+ * L'autre rive travaille : un hangar ouvert dont l'intérieur brûle, une
+ * grue portuaire dont les feux de service balaient lentement. C'est de là
+ * que vient la lumière qui traverse le bassin.
+ */
+function FarBankWorks({ reducedMotion }: { reducedMotion: boolean }) {
+  const craneRef = useRef<THREE.Group>(null);
+  const glow = getFableGlowTexture();
+  const hangarZ = FABLE_CANAL_Z0 + 30;
+  const craneZ = FABLE_CANAL_Z0 + 17;
+
+  useFrame(({ clock }) => {
+    const crane = craneRef.current;
+    if (!crane || reducedMotion) return;
+
+    // Le chariot va et vient sur sa poutre, à son propre rythme.
+    crane.position.z = craneZ + swaySignal(clock.elapsedTime, 12, 0.02, 0.05) * 5;
+  });
+
+  return (
+    <group>
+      {/* Hangar ouvert sur l'eau. */}
+      <group position={[FABLE_CANAL_FAR_X - 6, -0.6, hangarZ]}>
+        <mesh position={[0, 4, 0]} castShadow receiveShadow>
+          <boxGeometry args={[13, 8, 17]} />
+          <meshStandardMaterial color="#4b4a47" roughness={0.95} />
+        </mesh>
+        {/* Grande porte : la lumière sort par là. */}
+        <mesh position={[6.55, 3, 0]}>
+          <planeGeometry args={[11, 5.6]} />
+          <meshBasicMaterial color="#ffd9a2" toneMapped={false} side={THREE.DoubleSide} />
+        </mesh>
+        <pointLight position={[7.6, 3, 0]} color="#ffd9a2" intensity={110} distance={34} decay={1.7} />
+        {/* Silhouettes de charge devant la porte : le travail est visible. */}
+        {[-3.4, -0.6, 2.6].map((oz, i) => (
+          <mesh key={oz} position={[7.2, 0.9 + (i % 2) * 0.4, oz]} castShadow>
+            <boxGeometry args={[1.6, 1.8 + (i % 2) * 0.8, 1.9]} />
+            <meshStandardMaterial color="#3b3733" roughness={0.95} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Grue portuaire. */}
+      <group position={[FABLE_CANAL_FAR_X + 3, -0.6, craneZ]}>
+        {[-1.6, 1.6].map((oz) => (
+          <mesh key={oz} position={[0, 5, oz]} castShadow>
+            <boxGeometry args={[0.6, 10, 0.6]} />
+            <meshStandardMaterial color="#6a5a35" roughness={0.82} metalness={0.3} />
+          </mesh>
+        ))}
+        <mesh position={[0, 10.2, 0]} castShadow>
+          <boxGeometry args={[1.1, 0.8, 5]} />
+          <meshStandardMaterial color="#6a5a35" roughness={0.82} metalness={0.3} />
+        </mesh>
+        {/* Flèche au-dessus de l'eau. */}
+        <mesh position={[5.4, 11.4, 0]} rotation={[0, 0, -0.16]} castShadow>
+          <boxGeometry args={[13, 0.45, 0.5]} />
+          <meshStandardMaterial color="#6a5a35" roughness={0.82} metalness={0.3} />
+        </mesh>
+        {/* Feux de service. */}
+        <mesh position={[0.6, 9.6, 0]}>
+          <boxGeometry args={[0.3, 0.22, 0.34]} />
+          <meshBasicMaterial color="#ffe2a8" toneMapped={false} />
+        </mesh>
+        <sprite position={[0.6, 9.6, 0]} scale={[4, 4, 1]}>
+          <spriteMaterial
+            map={glow}
+            color="#ffe2a8"
+            transparent
+            opacity={0.42}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </sprite>
+        <pointLight position={[1.2, 9.4, 0]} color="#ffe2a8" intensity={60} distance={26} decay={1.8} />
+        {/* Chariot et son crochet. */}
+        <group ref={craneRef} position={[0, 0, 0]}>
+          <mesh position={[8.4, 10.9, 0]}>
+            <boxGeometry args={[1.2, 0.5, 0.7]} />
+            <meshStandardMaterial color="#4b4640" roughness={0.85} />
+          </mesh>
+          <mesh position={[8.4, 8.4, 0]}>
+            <boxGeometry args={[0.04, 4.6, 0.04]} />
+            <meshStandardMaterial color="#232323" roughness={0.7} />
+          </mesh>
+          <mesh position={[8.4, 6, 0]} castShadow>
+            <boxGeometry args={[0.7, 0.6, 0.7]} />
+            <meshStandardMaterial color="#3c3833" roughness={0.85} />
+          </mesh>
+        </group>
+      </group>
+    </group>
+  );
+}
+
 export default function FableCanal({ reducedMotion }: { reducedMotion: boolean }) {
+  const bargeRef = useRef<THREE.Group | null>(null);
+
   return (
     <group>
       <QuayEdge />
+      <QuayLamps />
+      <QuaysideShowroom reducedMotion={reducedMotion} />
       <FarBank />
+      <FarBankWorks reducedMotion={reducedMotion} />
       <AbsentReflections reducedMotion={reducedMotion} />
-      <CanalWater />
+      <CanalWater bargeRef={bargeRef} />
       <RiderlessBikes reducedMotion={reducedMotion} />
-      <Barge reducedMotion={reducedMotion} />
+      <Barge reducedMotion={reducedMotion} groupRef={bargeRef} />
+      <MooredVessel reducedMotion={reducedMotion} />
       <LiftBridge reducedMotion={reducedMotion} />
     </group>
   );

@@ -95,8 +95,9 @@ export function fableStreetHalfWidth(z: number): number {
   const yard = 17 * smoothstep(FABLE_YARD_Z0 - 4, FABLE_YARD_Z0 + 6, z) *
     (1 - smoothstep(FABLE_YARD_Z1 - 6, FABLE_YARD_Z1 + 4, z));
   const drift = 0.5 * Math.sin(z * 0.16);
+  const canyon = smoothstep(48, 58, z) * (1 - smoothstep(78, 88, z));
 
-  return base + pinch + drift + yard;
+  return base + pinch + drift + yard - canyon * 1.35;
 }
 
 /* ── A WALK IN ZEELAND — le bassin, ouvert sur la gauche de la rue ────── */
@@ -108,6 +109,8 @@ export const FABLE_QUAY_X = -6.6;
 export const FABLE_CANAL_FAR_X = -44;
 export const FABLE_WATER_Y = -0.2;
 export const FABLE_BRIDGE_Z = 141;
+/** Parcelle réservée à la vitrine d'en face, côté rue. */
+export const FABLE_SHOWROOM_Z = 121;
 
 /** 1 à l'intérieur du bassin, 0 sur la rue — bord adouci. */
 export function fableCanalMix(x: number, z: number): number {
@@ -189,6 +192,46 @@ export function fableYardMix(z: number): number {
     (1 - smoothstep(FABLE_YARD_Z1 - 6, FABLE_YARD_Z1 + 10, z));
 }
 
+/* ── Territoires : une seule ville, des quartiers reconnaissables ─────── */
+
+/**
+ * Birth Yard est un organisme continu, pas une suite d'arènes. Chaque track
+ * occupe une part de la même ville et s'annonce par la MORPHOLOGIE — la rue
+ * se pince ou s'ouvre, les immeubles montent ou s'écrasent, la foule enfle,
+ * la matière change — jamais par une coupure de scène.
+ *
+ *   z 40 – 52   arrivée : la ville basse, encore lâche
+ *   z 52 – 84   FOOLFOULE : le canyon commercial, vertical et pressé
+ *   z 84 – 116  la cour d'amarrage : ça s'ouvre, ça respire, ça regarde
+ *   z 112 – 152 A WALK IN ZEELAND : le port, l'eau, le ciel qui revient
+ */
+export type FableDistrict = {
+  /** Multiplie la hauteur bâtie. */
+  heightScale: number;
+  /** Hauteur minimale imposée — c'est elle qui fait le canyon. */
+  heightFloor: number;
+  /** Recul des façades : petit = rue étroite et oppressante. */
+  setback: number;
+  /** Densité de foule relative. */
+  crowd: number;
+  /** Resserrement de la chaussée, en mètres retirés de la demi-largeur. */
+  narrow: number;
+};
+
+export function fableDistrictAt(z: number): FableDistrict {
+  // Le canyon monte et redescend progressivement : on y entre sans porte.
+  const canyon = smoothstep(48, 58, z) * (1 - smoothstep(78, 88, z));
+  const port = smoothstep(104, 116, z);
+
+  return {
+    heightScale: 1 + canyon * 1.5 - port * 0.28,
+    heightFloor: 8 + canyon * 15,
+    setback: 1.9 - canyon * 0.75 + port * 0.5,
+    crowd: 1 + canyon * 2.4 - port * 0.35,
+    narrow: canyon * 1.35,
+  };
+}
+
 /** Bouches de vapeur — partagées entre la scène (sprites) et l'audio (sifflement localisé). */
 export const FABLE_VENTS = [
   { x: 3.4, z: 57 },
@@ -257,11 +300,21 @@ export function buildFableWorldLayout(): FableWorldLayout {
         continue;
       }
 
+      // Parcelle de la vitrine : rien d'autre ne s'y construit.
+      if (side === 1 && Math.abs(zc - FABLE_SHOWROOM_Z) < 7) {
+        z += width * 0.7;
+        continue;
+      }
+
+      const district = fableDistrictAt(zc);
       const half = fableStreetHalfWidth(zc);
       const depth = 6 + rng() * 6;
-      const setback = 1.6 + rng() * 0.4;
+      const setback = district.setback + rng() * 0.4;
       const x = side * (half + setback + depth / 2);
-      const height = 8 + rng() * rng() * 19;
+      const height = Math.max(
+        district.heightFloor,
+        (8 + rng() * rng() * 19) * district.heightScale
+      );
       const yaw = (rng() - 0.5) * 0.05;
       const variant = Math.floor(rng() * FACADE_VARIANTS);
       const tint = TINTS[Math.floor(rng() * TINTS.length)];
@@ -294,10 +347,14 @@ export function buildFableWorldLayout(): FableWorldLayout {
         continue;
       }
 
+      const district = fableDistrictAt(zc);
       const half = fableStreetHalfWidth(zc);
       const depth = 8 + rng() * 8;
-      const x = side * (half + 8 + rng() * 8 + depth / 2);
-      const height = 11 + rng() * rng() * 26;
+      const x = side * (half + 7 + rng() * 8 + depth / 2);
+      const height = Math.max(
+        district.heightFloor + 3,
+        (11 + rng() * rng() * 26) * district.heightScale
+      );
 
       lots.push({
         x,

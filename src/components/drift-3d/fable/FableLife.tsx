@@ -9,6 +9,7 @@ import {
   FABLE_CITY_Z1,
   FABLE_YARD_Z0,
   FABLE_YARD_Z1,
+  fableDistrictAt,
   fableGroundY,
   fableRng,
   fableStreetHalfWidth,
@@ -118,9 +119,13 @@ function buildFigures(): Figure[] {
   const rng = fableRng(19770);
   const figures: Figure[] = [];
 
-  // Marcheurs des trottoirs.
-  for (let i = 0; i < 74; i += 1) {
+  // Marcheurs des trottoirs — la densité suit le quartier, pas une moyenne.
+  for (let i = 0; i < 150; i += 1) {
     const z = FABLE_CITY_Z0 + 5 + rng() * (FABLE_CITY_Z1 - FABLE_CITY_Z0 - 12);
+
+    // Rejet proportionnel : le canyon avale la foule, le port la relâche.
+    if (rng() > fableDistrictAt(z).crowd / 3.4) continue;
+
     const side = rng() < 0.5 ? -1 : 1;
     const inYard = z > FABLE_YARD_Z0 && z < FABLE_YARD_Z1;
     const lateral = inYard
@@ -432,6 +437,110 @@ function FablePointingFigure({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
+/* ─── FOOLFOULE — les panneaux qui vous suivent ───────────────────────── */
+
+/**
+ * Anomalie canonique du canyon : les panneaux publicitaires pivotent pour
+ * rester face au flux. Jamais d'un coup — ils rattrapent, avec un retard
+ * juste assez long pour qu'on doute d'avoir vu bouger.
+ *
+ * Le compteur qui grimpe sur chacun ne compte rien.
+ */
+function FoolfouleAdPanels({ reducedMotion }: { reducedMotion: boolean }) {
+  const pivotRefs = useRef<Array<THREE.Group | null>>([]);
+  const counterRefs = useRef<Array<THREE.MeshBasicMaterial | null>>([]);
+  const yawRef = useRef<number[]>([]);
+
+  const panels = useMemo(() => {
+    const rng = fableRng(70450);
+
+    return Array.from({ length: 9 }, (_, i) => {
+      const z = 53 + i * 3.4 + rng() * 1.2;
+      const side = i % 2 === 0 ? 1 : -1;
+
+      return {
+        z,
+        side,
+        x: side * (fableStreetHalfWidth(z) + 0.75),
+        y: 3.1 + rng() * 3.4,
+        w: 1.5 + rng() * 0.5,
+        h: 2.1 + rng() * 0.7,
+        tint: ["#c8d8e6", "#e6c9a8", "#d6bde0", "#bcd8c8"][i % 4],
+        lag: 0.5 + rng() * 1.5,
+      };
+    });
+  }, []);
+
+  useFrame(({ camera, clock }, delta) => {
+    if (yawRef.current.length !== panels.length) {
+      yawRef.current = panels.map(() => 0);
+    }
+
+    panels.forEach((panel, i) => {
+      const pivot = pivotRefs.current[i];
+      if (!pivot) return;
+
+      if (!reducedMotion) {
+        // Chacun cherche l'observateur, à sa propre lenteur.
+        const target = Math.atan2(
+          camera.position.x - panel.x,
+          camera.position.z - panel.z
+        );
+        const current = yawRef.current[i];
+        let diff = target - current;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        yawRef.current[i] = current + diff * Math.min(1, delta / panel.lag);
+      }
+
+      pivot.rotation.y = yawRef.current[i];
+
+      const material = counterRefs.current[i];
+
+      if (material) {
+        // Le compteur monte, sans jamais rien totaliser.
+        const v = (clock.elapsedTime * (0.7 + i * 0.13)) % 1;
+        material.opacity = 0.55 + v * 0.45;
+      }
+    });
+  });
+
+  return (
+    <group>
+      {panels.map((panel, i) => (
+        <group key={i} position={[panel.x, fableGroundY(panel.x, panel.z), panel.z]}>
+          <mesh position={[0, panel.y / 2, 0]} castShadow>
+            <cylinderGeometry args={[0.055, 0.075, panel.y, 7]} />
+            <meshStandardMaterial color="#2a2c2e" roughness={0.75} metalness={0.4} />
+          </mesh>
+          <group
+            ref={(g) => {
+              pivotRefs.current[i] = g;
+            }}
+            position={[0, panel.y + panel.h / 2, 0]}
+          >
+            <mesh castShadow>
+              <boxGeometry args={[panel.w, panel.h, 0.1]} />
+              <meshStandardMaterial color="#1c1d1f" roughness={0.7} />
+            </mesh>
+            <mesh position={[0, 0, 0.055]}>
+              <planeGeometry args={[panel.w - 0.12, panel.h - 0.12]} />
+              <meshBasicMaterial
+                ref={(m) => {
+                  counterRefs.current[i] = m;
+                }}
+                color={panel.tint}
+                toneMapped={false}
+                transparent
+                opacity={0.8}
+              />
+            </mesh>
+          </group>
+        </group>
+      ))}
+    </group>
+  );
+}
+
 /* ─── Trafic ───────────────────────────────────────────────────────────── */
 
 type TrafficUnit = {
@@ -635,6 +744,7 @@ export default function FableLife({ reducedMotion }: { reducedMotion: boolean })
   return (
     <group>
       <FableCrowd reducedMotion={reducedMotion} />
+      <FoolfouleAdPanels reducedMotion={reducedMotion} />
       <FableSitters />
       <FablePointingFigure reducedMotion={reducedMotion} />
       <FableTraffic reducedMotion={reducedMotion} />
