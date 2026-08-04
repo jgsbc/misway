@@ -14,7 +14,10 @@ import {
   fableRng,
   fableStreetHalfWidth,
 } from "@/components/drift-3d/fable/fableWorld";
-import { getFableContactShadowTexture } from "@/components/drift-3d/fable/fableTextures";
+import {
+  getFableContactShadowTexture,
+  getFableSignTexture,
+} from "@/components/drift-3d/fable/fableTextures";
 
 /**
  * FABLE SPIKE — la vie secondaire. Des silhouettes qui marchent, un groupe
@@ -130,7 +133,7 @@ function buildFigures(): Figure[] {
     const inYard = z > FABLE_YARD_Z0 && z < FABLE_YARD_Z1;
     const lateral = inYard
       ? 5 + rng() * 13
-      : fableStreetHalfWidth(z) + 0.6 + rng() * 1.1;
+      : fableStreetHalfWidth(z) + 0.15 + rng() * rng() * 2.6;
     figures.push({
       kind: "walker",
       x: side * lateral,
@@ -466,6 +469,7 @@ function FoolfouleAdPanels({ reducedMotion }: { reducedMotion: boolean }) {
         w: 1.5 + rng() * 0.5,
         h: 2.1 + rng() * 0.7,
         tint: ["#c8d8e6", "#e6c9a8", "#d6bde0", "#bcd8c8"][i % 4],
+        seed: 60 + i * 7,
         lag: 0.5 + rng() * 1.5,
       };
     });
@@ -528,6 +532,7 @@ function FoolfouleAdPanels({ reducedMotion }: { reducedMotion: boolean }) {
                 ref={(m) => {
                   counterRefs.current[i] = m;
                 }}
+                map={getFableSignTexture(panel.seed, true)}
                 color={panel.tint}
                 toneMapped={false}
                 transparent
