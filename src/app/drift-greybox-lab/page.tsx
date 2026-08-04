@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import DriftMacroWorldGreybox from "@/components/drift-3d/greybox/DriftMacroWorldGreybox";
+import FableExperience from "@/components/drift-3d/fable/FableExperience";
 
 /**
- * DRIFT-IV-PRE-40 — internal five-macro-world greybox readiness route. Not
- * linked from public navigation, not indexed, not production Drift. See
- * `docs/evidence/DRIFT-IV-PRE-40/` for the full evidence and readiness
- * dossier.
+ * FABLE SPIKE — internal creative slice: Entry (la gorge) → Birth Yard
+ * (le chantier de naissance). Replaces the PRE-40 five-world greybox on this
+ * internal route for the duration of the spike; the greybox components are
+ * untouched under src/components/drift-3d/greybox/. Not linked from public
+ * navigation, not indexed, not production Drift.
  */
 export const metadata: Metadata = {
-  title: "Drift Greybox Lab — PRE-40 macro-world readiness (internal)",
+  title: "Drift — fable spike (internal)",
   description:
-    "Internal DRIFT-IV-PRE-40 readiness route: one continuous, driveable, low-fidelity representation of all five macro-worlds. Not production Drift.",
+    "Internal creative spike: one immersive Entry → Birth Yard driving slice. Not production Drift.",
   robots: {
     index: false,
     follow: false,
@@ -18,5 +19,5 @@ export const metadata: Metadata = {
 };
 
 export default function DriftGreyboxLabPage() {
-  return <DriftMacroWorldGreybox />;
+  return <FableExperience />;
 }
