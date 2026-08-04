@@ -15,6 +15,8 @@ import {
   getFableSmokeTexture,
 } from "@/components/drift-3d/fable/fableTextures";
 import {
+  FABLE_CANAL_Z0,
+  FABLE_CANAL_Z1,
   FABLE_CITY_Z0,
   FABLE_CITY_Z1,
   FABLE_VENTS,
@@ -1284,6 +1286,13 @@ function FableBackdrop() {
     if (!mesh) return;
 
     const rng = fableRng(41999);
+    // Le fond de ville ne se pose pas dans le bassin : le port s'ouvre.
+    const clearsCanal = (m: THREE.Matrix4) => {
+      const x = m.elements[12];
+      const z = m.elements[14];
+
+      return !(x < -4 && z > FABLE_CANAL_Z0 - 8 && z < FABLE_CANAL_Z1 + 6);
+    };
     const matrices = immersionBackdropRing({
       seed: rng,
       count,
@@ -1298,13 +1307,17 @@ function FableBackdrop() {
       widthMax: 20,
     });
     const color = new THREE.Color();
+    const kept = matrices.filter(clearsCanal);
+    const hidden = new THREE.Matrix4().makeScale(0, 0, 0);
 
-    matrices.forEach((m, i) => {
-      mesh.setMatrixAt(i, m);
+    for (let i = 0; i < count; i += 1) {
+      const m = kept[i];
+      mesh.setMatrixAt(i, m ?? hidden);
       const v = 0.9 + rng() * 0.25;
       color.setRGB(0.34 * v, 0.325 * v, 0.31 * v);
       mesh.setColorAt(i, color);
-    });
+    }
+
     mesh.instanceMatrix.needsUpdate = true;
 
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;

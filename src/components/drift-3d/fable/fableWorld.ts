@@ -103,7 +103,7 @@ export function fableStreetHalfWidth(z: number): number {
 
 export const FABLE_CANAL_Z0 = 112;
 export const FABLE_CANAL_Z1 = 152;
-/** Bord du quai : au-delà (vers −x), c'est l'eau. */
+/** Bord du quai : au-delà (vers −x), c'est l'eau, jusqu'à la rive d'en face. */
 export const FABLE_QUAY_X = -6.6;
 export const FABLE_CANAL_FAR_X = -44;
 export const FABLE_WATER_Y = -0.2;
@@ -114,9 +114,12 @@ export function fableCanalMix(x: number, z: number): number {
   const along =
     smoothstep(FABLE_CANAL_Z0 - 3, FABLE_CANAL_Z0 + 5, z) *
     (1 - smoothstep(FABLE_CANAL_Z1 - 4, FABLE_CANAL_Z1 + 2, z));
-  const across = 1 - smoothstep(FABLE_QUAY_X - 2.2, FABLE_QUAY_X + 0.2, x);
+  // Le bassin est borné des DEUX côtés : sans rive opposée, la découpe
+  // filerait en plaine sèche jusqu'à l'horizon.
+  const nearSide = 1 - smoothstep(FABLE_QUAY_X - 2.2, FABLE_QUAY_X + 0.2, x);
+  const farSide = smoothstep(FABLE_CANAL_FAR_X - 1.5, FABLE_CANAL_FAR_X + 2.5, x);
 
-  return along * across;
+  return along * nearSide * farSide;
 }
 
 /** Ground elevation — continuous across every regime. */
@@ -314,6 +317,9 @@ export function buildFableWorldLayout(): FableWorldLayout {
   // Rues transversales : quelques bâtiments qui fuient dans la brume.
   for (const crossZ of [71, 129]) {
     for (const side of [-1, 1] as const) {
+      // Côté bassin, la rue transversale n'existe pas : il y a l'eau.
+      if (side === -1 && crossZ > FABLE_CANAL_Z0) continue;
+
       for (let i = 0; i < 4; i += 1) {
         const x = side * (9 + i * 9 + rng() * 3);
         const z = crossZ + (rng() - 0.5) * 1.5 + (i % 2 === 0 ? -6.5 : 6.5);

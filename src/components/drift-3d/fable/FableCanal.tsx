@@ -94,13 +94,14 @@ const waterFragment = /* glsl */ `
     float glare = pow(clamp(dot(reflected, uSunDir), 0.0, 1.0), 22.0);
     sky += uSunColor * glare * 1.4;
 
-    // Fresnel : rasant, l'eau devient miroir ; à la verticale, elle est noire.
-    float fresnel = pow(1.0 - clamp(dot(-viewDir, normal), 0.0, 1.0), 3.2);
-    vec3 deep = vec3(0.035, 0.045, 0.05);
-    vec3 color = mix(deep, sky, clamp(fresnel * 1.5 + 0.12, 0.0, 1.0));
+    // Fresnel : rasant, l'eau devient miroir ; à la verticale, elle se
+    // creuse — mais jamais jusqu'au noir, un port garde toujours du ciel.
+    float fresnel = pow(1.0 - clamp(dot(-viewDir, normal), 0.0, 1.0), 2.4);
+    vec3 deep = vec3(0.06, 0.075, 0.085);
+    vec3 color = mix(deep, sky, clamp(fresnel * 1.7 + 0.3, 0.0, 1.0));
 
     // L'eau reste translucide : ce qui est dessous doit pouvoir remonter.
-    float alpha = clamp(0.5 + fresnel * 0.45, 0.0, 0.94);
+    float alpha = clamp(0.58 + fresnel * 0.38, 0.0, 0.95);
 
     gl_FragColor = vec4(color, alpha);
   }
@@ -124,6 +125,7 @@ function CanalWater() {
         },
         transparent: true,
         depthWrite: false,
+        side: THREE.DoubleSide,
       }),
     []
   );

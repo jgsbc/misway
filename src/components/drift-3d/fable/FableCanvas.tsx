@@ -103,6 +103,45 @@ function FableDebugProbe({
 
         return url.length;
       },
+      memory() {
+        const { gl } = get();
+
+        return {
+          geometries: gl.info.memory.geometries,
+          textures: gl.info.memory.textures,
+          calls: gl.info.render.calls,
+          triangles: gl.info.render.triangles,
+        };
+      },
+      /** Inventaire d'une zone du monde — sert au contrôle de rendu. */
+      inspect(minX: number, maxX: number, minZ: number, maxZ: number) {
+        const out: Array<Record<string, unknown>> = [];
+        const p = new THREE.Vector3();
+        get().scene.traverse((o) => {
+          const mesh = o as THREE.Mesh & { isPoints?: boolean; count?: number };
+
+          if (!mesh.isMesh && !mesh.isPoints) return;
+
+          o.getWorldPosition(p);
+
+          if (p.x < minX || p.x > maxX || p.z < minZ || p.z > maxZ) return;
+
+          out.push({
+            type: o.type,
+            count: mesh.count ?? null,
+            x: +p.x.toFixed(1),
+            y: +p.y.toFixed(1),
+            z: +p.z.toFixed(1),
+            visible: o.visible,
+            geo: mesh.geometry?.type ?? null,
+            mat: Array.isArray(mesh.material)
+              ? "array"
+              : (mesh.material as THREE.Material)?.type,
+          });
+        });
+
+        return out;
+      },
       read(offset: number, length: number) {
         const url = (window as unknown as Record<string, string>).__fableSnap ?? "";
 
