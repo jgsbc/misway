@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Etat cartographique genere — regenerable via `npm run cartography`
+/docs/evidence/fable-cartography-current/

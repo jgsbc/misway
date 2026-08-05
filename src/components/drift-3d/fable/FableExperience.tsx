@@ -230,6 +230,14 @@ export default function FableExperience() {
         >
           quitter
         </Link>
+        {process.env.NODE_ENV !== "production" ? (
+          <Link
+            href="/drift-greybox-map"
+            className="ml-4 inline-flex items-center font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-600 transition hover:text-neutral-400"
+          >
+            carte
+          </Link>
+        ) : null}
       </div>
     </main>
   );

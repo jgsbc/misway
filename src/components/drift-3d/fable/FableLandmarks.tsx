@@ -6,6 +6,10 @@ import * as THREE from "three";
 import { getFableGlowTexture } from "@/components/drift-3d/fable/fableTextures";
 import { fableRng } from "@/components/drift-3d/fable/fableWorld";
 import { FABLE_REGIONS } from "@/components/drift-3d/fable/fablePeninsula";
+import { FABLE_LANDMARKS } from "@/components/drift-3d/fable/fableLandmarkData";
+
+/** Les positions viennent de la table partagée avec la carte. */
+const LANDMARK = Object.fromEntries(FABLE_LANDMARKS.map((l) => [l.id, l]));
 
 /**
  * FABLE — les repères lointains de la péninsule.
@@ -213,7 +217,7 @@ function CoastLandmark() {
   const glow = getFableGlowTexture();
 
   return (
-    <group position={[92, 2, -196]}>
+    <group position={[LANDMARK.cape.x, 2, LANDMARK.cape.z]}>
       <mesh position={[0, 16, 0]}>
         <cylinderGeometry args={[2.4, 4, 32, 10]} />
         <meshStandardMaterial color="#b3ada1" roughness={0.92} />
@@ -278,16 +282,16 @@ export default function FableLandmarks({
 }) {
   return (
     <group>
-      <DistantOnly x={BY.x} z={BY.z} hideWithin={210} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
+      <DistantOnly x={LANDMARK.port.x} z={LANDMARK.port.z} hideWithin={LANDMARK.port.hideWithin} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
         <PortLandmark />
       </DistantOnly>
-      <DistantOnly x={MASSIF.x} z={MASSIF.z} hideWithin={280} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
+      <DistantOnly x={LANDMARK.massif.x} z={LANDMARK.massif.z} hideWithin={LANDMARK.massif.hideWithin} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
         <MassifLandmark />
       </DistantOnly>
-      <DistantOnly x={BASIN.x} z={BASIN.z} hideWithin={250} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
+      <DistantOnly x={LANDMARK.suburb.x} z={LANDMARK.suburb.z} hideWithin={LANDMARK.suburb.hideWithin} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
         <SuburbLandmark />
       </DistantOnly>
-      <DistantOnly x={92} z={-196} hideWithin={120} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
+      <DistantOnly x={LANDMARK.cape.x} z={LANDMARK.cape.z} hideWithin={LANDMARK.cape.hideWithin} vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef}>
         <CoastLandmark />
       </DistantOnly>
     </group>
