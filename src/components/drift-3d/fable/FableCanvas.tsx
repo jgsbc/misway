@@ -15,6 +15,7 @@ import FableTunnel from "@/components/drift-3d/fable/FableTunnel";
 import FableCity from "@/components/drift-3d/fable/FableCity";
 import FableCanal from "@/components/drift-3d/fable/FableCanal";
 import FableFarEras from "@/components/drift-3d/fable/FableFarEras";
+import FableGroundHaze from "@/components/drift-3d/fable/FableGroundHaze";
 import FableLandmarks from "@/components/drift-3d/fable/FableLandmarks";
 import {
   FABLE_BELVEDERE_ROUTE,
@@ -129,6 +130,112 @@ function FableDebugProbe({
             cam.position.y - fableGroundY(cam.position.x, cam.position.z)
           ).toFixed(2),
         };
+      },
+      /**
+       * Ce qui se trouve sous un pixel donné, en coordonnées écran
+       * normalisées (−1..1). Plus fiable qu'un dépointage du rayon central :
+       * on vise exactement ce que l'image montre.
+       */
+      pixelAt(ndcX: number, ndcY: number, count = 4) {
+        const { camera, scene } = get();
+        const ray = new THREE.Raycaster();
+        ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+        ray.far = 2000;
+        const shown = (o: THREE.Object3D) => {
+          for (let n: THREE.Object3D | null = o; n; n = n.parent) {
+            if (!n.visible) return false;
+          }
+
+          return true;
+        };
+        const meshes: THREE.Object3D[] = [];
+        scene.traverse((o) => {
+          const mesh = o as THREE.Mesh;
+
+          if (!mesh.isMesh || !shown(o)) return;
+
+          // Une InstancedMesh garde la sphère englobante calculée avant que
+          // ses matrices soient posées : minuscule, elle fait sortir le
+          // raycaster d'emblée. Sans ce recalcul, la sonde jure qu'il n'y a
+          // rien là où le rendu dessine une ville entière.
+          const instanced = o as THREE.InstancedMesh;
+
+          if (instanced.isInstancedMesh) instanced.computeBoundingSphere();
+
+          meshes.push(o);
+        });
+
+        return ray
+          .intersectObjects(meshes, false)
+          .slice(0, count)
+          .map((hit) => {
+            const mesh = hit.object as THREE.Mesh;
+            const material = Array.isArray(mesh.material)
+              ? mesh.material[0]
+              : mesh.material;
+
+            return {
+              d: +hit.distance.toFixed(1),
+              geo: mesh.geometry?.type ?? null,
+              mat: material?.type ?? null,
+              colour:
+                (material as THREE.MeshStandardMaterial)?.color?.getHexString() ?? null,
+              fog: (material as THREE.Material & { fog?: boolean })?.fog ?? null,
+              at: [
+                +hit.point.x.toFixed(1),
+                +hit.point.y.toFixed(1),
+                +hit.point.z.toFixed(1),
+              ],
+            };
+          });
+      },
+      /**
+       * Masque tous les maillages d'un type de géométrie donné. Sert au
+       * diagnostic : quand une masse n'est identifiée par aucun rayon, la
+       * faire disparaître est le seul test qui ne se discute pas.
+       */
+      setVisible(geoType: string, on: boolean) {
+        let touched = 0;
+        get().scene.traverse((o) => {
+          const sprite = o as THREE.Sprite;
+          const mesh = o as THREE.Mesh;
+          const match =
+            geoType === "Sprite"
+              ? sprite.isSprite === true
+              : mesh.isMesh && mesh.geometry?.type === geoType;
+
+          if (!match) return;
+
+          o.visible = on;
+          touched += 1;
+        });
+
+        return touched;
+      },
+      /** Inventaire des sprites — invisibles au lancer de rayon. */
+      sprites() {
+        const p = new THREE.Vector3();
+        const out: Array<Record<string, unknown>> = [];
+        get().scene.traverse((o) => {
+          const sprite = o as THREE.Sprite;
+
+          if (!sprite.isSprite) return;
+
+          o.getWorldPosition(p);
+          out.push({
+            x: +p.x.toFixed(1),
+            y: +p.y.toFixed(1),
+            z: +p.z.toFixed(1),
+            w: +sprite.scale.x.toFixed(1),
+            h: +sprite.scale.y.toFixed(1),
+            visible: o.visible,
+            opacity: (sprite.material as THREE.SpriteMaterial)?.opacity ?? null,
+            colour:
+              (sprite.material as THREE.SpriteMaterial)?.color?.getHexString() ?? null,
+          });
+        });
+
+        return out.sort((a, b) => (b.w as number) - (a.w as number)).slice(0, 8);
       },
       /** Brouillard et exposition au point courant — diagnostic d'ambiance. */
       atmosphere() {
@@ -435,6 +542,9 @@ export default function FableCanvas({
         sunColor={FABLE_ERAS[4].sunColor}
       />
       <FableLife reducedMotion={reducedMotion} />
+      {/* Densité d'air propre au port, rendue après le décor pour s'empiler
+          par-dessus lui sans jamais toucher au ciel ni à la rive d'en face. */}
+      <FableGroundHaze />
 
       <Drift3DVehicle
         ref={vehicleRef}

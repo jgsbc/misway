@@ -49,7 +49,8 @@ function PortLandmark() {
 
       // Le semis porte à 160 m : vers l'est il franchissait la rive et
       // posait des blocs de 40 m sur la baie. Une ville ne flotte pas.
-      if (fableGroundY(x, z) < 0.6) continue;
+      // Seuil sous l'altitude de base du port, sinon on rejette le port.
+      if (fableGroundY(x, z) < 0.15) continue;
 
       const h = 8 + rng() * rng() * 34;
       blockList.push(

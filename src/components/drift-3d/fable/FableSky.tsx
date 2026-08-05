@@ -122,7 +122,15 @@ export default function FableSky({
 
   return (
     <mesh ref={meshRef} material={material} position={[0, 0, 60]} renderOrder={-100} frustumCulled={false}>
-      <sphereGeometry args={[430, 32, 20]} />
+      {/*
+        Tessellation fine, et ce n'est pas de la coquetterie : le gradient
+        d'horizon passe par pow(h, 0.5), très raide près de h=0. Avec 32
+        méridiens, chaque facette couvrait 11,25° — soit près de deux cents
+        pixels — et l'horizon se lisait comme un pan de mur beige posé en
+        travers de la baie. Le dôme suivant la caméra, ce faux volume la
+        suivait aussi.
+      */}
+      <sphereGeometry args={[430, 128, 64]} />
     </mesh>
   );
 }

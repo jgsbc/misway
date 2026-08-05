@@ -37,7 +37,10 @@ import {
 } from "@/components/drift-3d/fable/FableSky";
 import { buildFableArchitecture } from "@/components/drift-3d/fable/fableArchitecture";
 import { immersionBackdropRing } from "@/components/drift-3d/fable/core/immersionLayers";
-import { fableRegionAt } from "@/components/drift-3d/fable/fablePeninsula";
+import {
+  fableBayField,
+  fableRegionAt,
+} from "@/components/drift-3d/fable/fablePeninsula";
 import {
   desyncFrequency,
   desyncPhase,
@@ -1163,12 +1166,17 @@ function FableBackdrop() {
       const x = m.elements[12];
       const z = m.elements[14];
 
-      // Et rien ne se tient dans l'eau : une tour posée sur la rive ou sur
-      // la baie ferme le vide central, qui est ce qui rend la péninsule
-      // lisible depuis les cinq ères.
+      // Et le fond de ville se tient EN RETRAIT de l'eau. Être au sec ne
+      // suffisait pas : des tours de quarante mètres se dressaient au ras
+      // du rivage, et depuis le quai elles formaient un mur en travers de
+      // l'ouverture de la baie. Le front d'eau appartient au quai dessiné,
+      // pas à une silhouette de remplissage.
+      // Seuil « au sec » calé sous l'altitude de base du port (0,4 m) : au
+      //-dessus, le filtre rejetait Birth Yard lui-même.
       return (
         fableRegionAt(x, z).id === "birth-yard" &&
-        fableGroundY(x, z) > 0.6 &&
+        fableGroundY(x, z) > 0.15 &&
+        fableBayField(x, z) > 30 &&
         clearsCanal(m)
       );
     });

@@ -70,7 +70,10 @@ export const FABLE_ERAS: FableEra[] = [
     zenith: new THREE.Color("#22374a"),
     horizon: new THREE.Color("#d9995a"),
     fog: new THREE.Color("#7d7391"),
-    fogDensity: 0.0105,
+    // Portée longue : la baie fait ~300 m, l'ancienne densité saturait à
+    // 165 m et écrasait la rive d'en face. La densité du port revient
+    // localement par les coques de FableGroundHaze, pas par le brouillard.
+    fogDensity: 0.0042,
     sunColor: new THREE.Color("#ffd9a0"),
     sunIntensity: 4.4,
     sunDir: new THREE.Vector3(-0.55, 0.34, 0.62).normalize(),
@@ -106,7 +109,8 @@ export const FABLE_ERAS: FableEra[] = [
     zenith: new THREE.Color("#8d949c"),
     horizon: new THREE.Color("#b4b8bc"),
     fog: new THREE.Color("#a9aeb4"),
-    fogDensity: 0.0092,
+    // Le bassin borde la baie à l'est : il doit voir l'autre rive.
+    fogDensity: 0.0046,
     sunColor: new THREE.Color("#c9cdd2"),
     sunIntensity: 1.5,
     sunDir: new THREE.Vector3(-0.2, 0.8, -0.4).normalize(),
@@ -124,7 +128,8 @@ export const FABLE_ERAS: FableEra[] = [
     zenith: new THREE.Color("#4a5570"),
     horizon: new THREE.Color("#f0a45e"),
     fog: new THREE.Color("#9a8378"),
-    fogDensity: 0.0068,
+    // La corniche regarde Birth Yard à travers la baie.
+    fogDensity: 0.004,
     sunColor: new THREE.Color("#ffcf87"),
     sunIntensity: 5.4,
     sunDir: new THREE.Vector3(0.72, 0.3, 0.68).normalize(),
@@ -135,13 +140,14 @@ export const FABLE_ERAS: FableEra[] = [
   },
 ];
 
-export function fableEraAt(z: number): FableEra {
-  for (const era of FABLE_ERAS) {
-    if (z < era.z1) return era;
-  }
-
-  return FABLE_ERAS[FABLE_ERAS.length - 1];
-}
+/*
+  Ici vivait `fableEraAt(z)`, qui rendait une ère à partir du seul z. Plus
+  aucun appelant depuis le pliage, et pour cause : sur la péninsule, z=250
+  tombe dans le massif à l'ouest et dans le bassin pavillonnaire à l'est.
+  Elle est retirée plutôt que laissée en réserve — un classificateur d'ère
+  faux mais disponible finit toujours par être rappelé. L'autorité est
+  `fableEraBlendAt(x, z)`, et `fableRegionAt(x, z)` pour les régions.
+*/
 
 const ERA_BY_ID = Object.fromEntries(FABLE_ERAS.map((e) => [e.id, e])) as Record<
   FableEraId,

@@ -707,15 +707,21 @@ function EraVegetativeField() {
 
 const oceanVertex = /* glsl */ `
   varying vec3 vWorldPos;
+  varying float vDepth;
 
   void main() {
     vec4 worldPos = modelMatrix * vec4(position, 1.0);
     vWorldPos = worldPos.xyz;
-    gl_Position = projectionMatrix * viewMatrix * worldPos;
+    vec4 mvPosition = viewMatrix * worldPos;
+    vDepth = -mvPosition.z;
+    gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
 const oceanFragment = /* glsl */ `
+  uniform vec3 uFogColor;
+  uniform float uFogDensity;
+  varying float vDepth;
   uniform vec3 uSunDir;
   uniform vec3 uSunColor;
   uniform vec3 uDeep;
@@ -752,6 +758,15 @@ const oceanFragment = /* glsl */ `
     float foam = smoothstep(0.62, 0.9, chop + swell * 0.5) * shore;
     color = mix(color, vec3(0.86, 0.88, 0.9), foam * 0.55);
 
+    // L'eau respire le même air que la terre. Les chunks de brouillard de
+    // three.js ne mordaient pas sur cette matière ; la perspective aérienne
+    // est donc calculée ici, avec la formule exponentielle de FogExp2 et la
+    // couleur du brouillard de scène passée en uniforme. Sans elle, le plan
+    // de la baie gardait sa couleur brute à trois cents mètres et se lisait
+    // comme une plaine orange posée entre les deux rives.
+    float fogFactor = 1.0 - exp(-uFogDensity * uFogDensity * vDepth * vDepth);
+    color = mix(color, uFogColor, clamp(fogFactor, 0.0, 1.0));
+
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -765,6 +780,8 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
         vertexShader: oceanVertex,
         fragmentShader: oceanFragment,
         uniforms: {
+          uFogColor: { value: new THREE.Color("#7d7391") },
+          uFogDensity: { value: 0.0042 },
           uSunDir: { value: sunDir },
           uSunColor: { value: sunColor },
           uDeep: { value: new THREE.Color("#1b2836") },
@@ -784,12 +801,21 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
     };
   }, [material]);
 
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera, clock, scene }) => {
     const mat = materialRef.current;
     if (!mat) return;
 
     mat.uniforms.uCameraPos.value.copy(camera.position);
     mat.uniforms.uTime.value = clock.elapsedTime;
+
+    // L'air de l'eau suit celui de la scène, réglé chaque image par le
+    // metteur en scène selon l'ère traversée. Une seule source.
+    const fog = scene.fog;
+
+    if (fog instanceof THREE.FogExp2) {
+      mat.uniforms.uFogColor.value.copy(fog.color);
+      mat.uniforms.uFogDensity.value = fog.density;
+    }
   });
 
   return (
@@ -865,22 +891,18 @@ function EraNewSignal({
       }
     }
 
-    // La ville au fond de la baie : c'est Birth Yard qu'on aperçoit de la
-    // côte, de l'autre côté de l'eau. Le monde se referme visuellement.
-    for (let i = 0; i < 110; i += 1) {
-      const a = rng() * Math.PI * 2;
-      const d = 40 + rng() * 120;
-      const x = 30 + Math.cos(a) * d;
-      const z = 150 + Math.sin(a) * d * 0.7;
-      const h = 5 + rng() * rng() * 26;
-      town.push(
-        new THREE.Matrix4().compose(
-          new THREE.Vector3(x, 1 + h / 2, z),
-          new THREE.Quaternion().setFromEuler(new THREE.Euler(0, rng() * 0.5, 0)),
-          new THREE.Vector3(7 + rng() * 11, h, 7 + rng() * 11)
-        )
-      );
-    }
+    /*
+      Ici, New Signal semait sa propre « ville au fond de la baie » : 110
+      boîtes en (30, 150), à une altitude fixe de 1 + h/2 qui ne consultait
+      jamais le terrain. C'était un second Birth Yard, dessiné à des
+      coordonnées écrites quand le monde était un couloir — et depuis le
+      pliage il se dressait à l'est du vrai port, au-dessus de l'eau, en
+      travers de l'ouverture de la baie. Depuis le quai, c'était lui le mur.
+
+      La silhouette lointaine de Birth Yard a déjà une autorité, ancrée sur
+      la région : PortLandmark, toujours montée, masquée de près. Deux
+      silhouettes de la même ville à deux endroits ne se rattrapent pas.
+    */
 
     return { scrub, rail, town };
   }, []);
