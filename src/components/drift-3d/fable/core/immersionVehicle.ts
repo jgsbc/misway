@@ -36,6 +36,25 @@ export type ImmersionDriveInput = {
   brake: number;
 };
 
+/**
+ * Contexte de surface. La difficulté vient du terrain, jamais d'un réglage
+ * par ère : une chaussée tient, un versant hors-piste glisse, et c'est la
+ * même règle partout dans le monde.
+ */
+export type ImmersionSurface = {
+  /** 0 hors route … 1 sur la chaussée. */
+  paved: number;
+};
+
+export type ImmersionVehicleState = {
+  /** Temps restant de maintien en côte, en secondes. */
+  hillHold: number;
+};
+
+export function createImmersionVehicleState(): ImmersionVehicleState {
+  return { hillHold: 0 };
+}
+
 export type ImmersionVehicleResult = {
   airborne: boolean;
   landingImpact: number;
@@ -48,6 +67,10 @@ const BRAKE_DECEL = 11;
 const REVERSE_ACCEL = 5.4;
 /** Sous cette vitesse, le frein bascule en marche arrière. */
 const REVERSE_THRESHOLD = 0.25;
+/** Fenêtre de maintien en côte : on ne recule pas immédiatement. */
+const HILL_HOLD_SECONDS = 1.3;
+/** Au-delà de cette pente, le couple disponible s'effondre. */
+const GRADE_STALL = 0.62;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -63,7 +86,9 @@ export function stepImmersionVehicle(
   dt: number,
   bounds: Drift3DMovementBounds,
   colliders: readonly Drift3DVehicleCollider[],
-  getGroundY: (x: number, z: number) => number
+  getGroundY: (x: number, z: number) => number,
+  surface: ImmersionSurface = { paved: 1 },
+  vehicleState: ImmersionVehicleState = { hillHold: HILL_HOLD_SECONDS }
 ): ImmersionVehicleResult {
   const speedRatio = clamp(Math.abs(state.speed) / DRIFT_3D_VEHICLE_MAX_SPEED, 0, 1);
 
@@ -92,18 +117,45 @@ export function stepImmersionVehicle(
       (getGroundY(state.position.x + headingX * probe, state.position.z + headingZ * probe) -
         getGroundY(state.position.x, state.position.z)) /
       probe;
-    const slopeFactor = clamp(1 - slope * 0.85, 0.25, 1.35);
+
+    // Couple disponible : il tombe avec la pente et avec le manque
+    // d'adhérence. Une côte optionnelle exige de l'élan ; la route
+    // principale reste franchissable au ralenti.
+    const grade = slope;
+    const traction = 0.55 + surface.paved * 0.45;
+    const torque = Math.max(
+      0,
+      1 - Math.max(0, grade) / (GRADE_STALL * traction)
+    );
 
     if (input.throttle > 0.02) {
       state.speed +=
-        DRIFT_3D_VEHICLE_ACCELERATION * input.throttle * slopeFactor * dt;
+        DRIFT_3D_VEHICLE_ACCELERATION * input.throttle * torque * traction * dt;
+    }
+
+    // Maintien en côte, puis recul : le 4x4 est lourd, il n'est pas magique.
+    const steep = grade > 0.18;
+
+    if (steep && Math.abs(state.speed) < 0.5) {
+      if (input.throttle > 0.05 || input.brake > 0.05) {
+        vehicleState.hillHold = HILL_HOLD_SECONDS;
+      } else {
+        vehicleState.hillHold = Math.max(0, vehicleState.hillHold - dt);
+      }
+
+      if (vehicleState.hillHold <= 0) {
+        // Recul lent et contrôlable — jamais une chute.
+        state.speed -= Math.min(2.6, grade * 4.2) * dt;
+      }
+    } else {
+      vehicleState.hillHold = HILL_HOLD_SECONDS;
     }
 
     if (input.brake > 0.02) {
       if (state.speed > REVERSE_THRESHOLD) {
         state.speed -= BRAKE_DECEL * input.brake * dt;
       } else {
-        state.speed -= REVERSE_ACCEL * input.brake * slopeFactor * dt;
+        state.speed -= REVERSE_ACCEL * input.brake * traction * dt;
       }
     }
 
@@ -138,12 +190,13 @@ export function stepImmersionVehicle(
       (state.velocityZ - targetVelocityZ) * headingX
   );
   const slip = clamp(lateral / (DRIFT_3D_VEHICLE_MAX_SPEED * 0.55), 0, 1);
+  const surfaceGrip = 0.62 + surface.paved * 0.38;
   const grip =
     lerp(
       DRIFT_3D_VEHICLE_GRIP,
       DRIFT_3D_VEHICLE_GRIP * DRIFT_3D_VEHICLE_DRIFT_GRIP_FACTOR,
       slip
-    ) * airFactor;
+    ) * airFactor * surfaceGrip;
   const gripAmount = Math.min(1, grip * dt);
   state.velocityX += (targetVelocityX - state.velocityX) * gripAmount;
   state.velocityZ += (targetVelocityZ - state.velocityZ) * gripAmount;

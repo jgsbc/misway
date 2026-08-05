@@ -26,7 +26,11 @@ import {
   fableYardMix,
 } from "@/components/drift-3d/fable/fableWorld";
 import type { ImmersionInput } from "@/components/drift-3d/fable/core/immersionInput";
-import { stepImmersionVehicle } from "@/components/drift-3d/fable/core/immersionVehicle";
+import {
+  createImmersionVehicleState,
+  stepImmersionVehicle,
+} from "@/components/drift-3d/fable/core/immersionVehicle";
+import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 import { fableEraBlendAt } from "@/components/drift-3d/fable/fableTopology";
 import {
   createImmersionExposure,
@@ -96,6 +100,7 @@ export default function FableDirector({
   const poseRef = useRef({ pitch: 0, roll: 0 });
   /** Facteur de zoom caméra, piloté molette / pincement / stick droit. */
   const zoomRef = useRef(1);
+  const vehicleStateExtra = useRef(createImmersionVehicleState());
   // Naissance : l'œil part fermé — la gorge s'ouvre lentement au regard.
   const exposureRef = useRef(createImmersionExposure(1.02));
   const audioClockRef = useRef(0);
@@ -190,6 +195,11 @@ export default function FableDirector({
       Math.max(0.55, zoomRef.current + snapshot.zoomDelta)
     );
 
+    // Surface : la chaussée tient, le hors-piste glisse. Une seule règle
+    // pour tout le monde — la difficulté vient du sol, pas de l'ère.
+    const surfaceField = fableRouteField(state.position.x, state.position.z);
+    const paved = 1 - fableSmoothstep(0.5, 7, surfaceField.distance);
+
     stepImmersionVehicle(
       state,
       reducedMotion
@@ -198,7 +208,9 @@ export default function FableDirector({
       frameDelta,
       FABLE_BOUNDS,
       colliders,
-      fableGroundY
+      fableGroundY,
+      { paved },
+      vehicleStateExtra.current
     );
 
     // Confinement latéral de la gorge : la roche, pas un rail. Il est
@@ -266,7 +278,7 @@ export default function FableDirector({
 
     /* ── Zones ────────────────────────────────────────────────────────── */
     const z = state.position.z;
-    const tm = fableTunnelMix(z);
+    const tm = fableTunnelMix(z, state.position.x);
     const cm = fableCityMix(z);
     const ym = fableYardMix(z);
     const ledgeMix =

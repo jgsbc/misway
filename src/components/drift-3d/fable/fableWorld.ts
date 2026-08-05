@@ -2,6 +2,7 @@ import type { Drift3DVehicleCollider } from "@/lib/drift3dVehiclePhysics";
 import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 import { registerFableWorldRoutes } from "@/components/drift-3d/fable/fableBranches";
 import {
+  FABLE_HERO_HALF_WIDTH,
   FABLE_HERO_Z_END,
   fablePeninsulaGroundY,
 } from "@/components/drift-3d/fable/fablePeninsula";
@@ -133,22 +134,53 @@ export function fableCanalMix(x: number, z: number): number {
   return along * nearSide * farSide;
 }
 
-/** Ground elevation — continuous across every regime. */
-export function fableGroundY(x: number, z: number): number {
-  let base: number;
-
+/**
+ * Profil de la tranche de référence : gorge, corniche, descente, ville. Il
+ * n'est valable que DANS le couloir — hors de lui, c'est la péninsule.
+ */
+function fableHeroGroundY(x: number, z: number): number {
   if (z <= FABLE_MOUTH_Z) {
     const t = smoothstep(FABLE_TUNNEL_Z0, FABLE_MOUTH_Z, z);
-    base = lerp(4.1, 6.0, t);
-    base += (hashNoise(Math.floor(x * 2) * 0.5, Math.floor(z * 2) * 0.5) - 0.5) * 0.05;
-  } else if (z <= FABLE_LEDGE_Z1) {
-    base = 6.0;
-  } else if (z <= FABLE_DESCENT_Z1) {
-    base = lerp(6.0, 0.4, smoothstep(FABLE_LEDGE_Z1, FABLE_DESCENT_Z1, z));
-  } else if (z <= FABLE_HERO_Z_END) {
-    base = 0.4 + (hashNoise(Math.floor(x * 0.7), Math.floor(z * 0.7)) - 0.5) * 0.06;
+
+    return (
+      lerp(4.1, 6.0, t) +
+      (hashNoise(Math.floor(x * 2) * 0.5, Math.floor(z * 2) * 0.5) - 0.5) * 0.05
+    );
+  }
+
+  if (z <= FABLE_LEDGE_Z1) return 6.0;
+
+  if (z <= FABLE_DESCENT_Z1) {
+    return lerp(6.0, 0.4, smoothstep(FABLE_LEDGE_Z1, FABLE_DESCENT_Z1, z));
+  }
+
+  return 0.4 + (hashNoise(Math.floor(x * 0.7), Math.floor(z * 0.7)) - 0.5) * 0.06;
+}
+
+/**
+ * Ground elevation — continuous across every regime.
+ *
+ * La tranche de référence est un COULOIR borné en x ET en z. Chacune de ses
+ * étapes était auparavant testée sur z seul, si bien que la rampe de
+ * descente et la gorge s'étendaient jusqu'au milieu de la baie centrale et
+ * y posaient de la terre sèche à quatre mètres au-dessus de la mer.
+ */
+export function fableGroundY(x: number, z: number): number {
+  const inHeroZ = z <= FABLE_HERO_Z_END;
+  const lateral = Math.abs(x);
+  let base: number;
+
+  if (inHeroZ && lateral < FABLE_HERO_HALF_WIDTH) {
+    base = fableHeroGroundY(x, z);
+  } else if (inHeroZ && lateral < FABLE_HERO_HALF_WIDTH + 40) {
+    // Frange : le couloir se raccorde à la géographie sans marche.
+    const t = smoothstep(
+      FABLE_HERO_HALF_WIDTH,
+      FABLE_HERO_HALF_WIDTH + 40,
+      lateral
+    );
+    base = lerp(fableHeroGroundY(x, z), fableFarGroundY(x, z), t);
   } else {
-    // Au-delà de la ville-port, le monde continue : montagne, banlieue, mer.
     base = fableFarGroundY(x, z);
   }
 
@@ -217,9 +249,18 @@ export function fableFarPathX(z: number): number {
   return mountain * mountainFade + suburb + coast;
 }
 
-/** 0 = plein air, 1 = au fond du tunnel. Pilote l'exposition, le brouillard, le son. */
-export function fableTunnelMix(z: number): number {
-  return 1 - smoothstep(-10, -2.5, z);
+/**
+ * 0 = plein air, 1 = au fond du tunnel. Pilote l'exposition, le brouillard
+ * et le son.
+ *
+ * Borné en x autant qu'en z : la corniche de New Signal redescend jusqu'à
+ * z −166, et sans cette borne le monde s'y croyait au fond de la gorge —
+ * soleil coupé à 4 %, voile de caverne, côte entièrement noire.
+ */
+export function fableTunnelMix(z: number, x = 0): number {
+  const inCorridor = 1 - smoothstep(FABLE_HERO_HALF_WIDTH * 0.4, FABLE_HERO_HALF_WIDTH, Math.abs(x));
+
+  return (1 - smoothstep(-10, -2.5, z)) * inCorridor;
 }
 
 /** 0 hors ville, 1 dans la rue. */

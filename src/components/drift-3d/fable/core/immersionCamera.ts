@@ -37,6 +37,8 @@ export type ImmersionCameraState = {
   look: THREE.Vector3;
   roll: number;
   initialized: boolean;
+  /** Dernière position connue du sujet, pour détecter les sauts. */
+  lastSubject: THREE.Vector3;
 };
 
 export function createImmersionCameraState(): ImmersionCameraState {
@@ -45,6 +47,7 @@ export function createImmersionCameraState(): ImmersionCameraState {
     look: new THREE.Vector3(),
     roll: 0,
     initialized: false,
+    lastSubject: new THREE.Vector3(),
   };
 }
 
@@ -75,9 +78,22 @@ export function stepImmersionCamera(
   params: ImmersionCameraParams,
   dt: number
 ): number {
-  if (!state.initialized) {
+  /*
+    Un saut de position n'est pas un déplacement : interpoler à travers la
+    distance ferait passer la caméra sous la montagne. Mesuré au col, une
+    relocalisation creusait 5,3 m sous le terrain, là où la conduite
+    continue gardait 2,3 m de garde. On détecte donc la discontinuité et
+    on repose la caméra d'un coup, vitesse comprise.
+  */
+  const jumped =
+    state.initialized &&
+    state.lastSubject.distanceTo(targets.subject) >
+      Math.max(6, params.distance * 2 + targets.speedRatio * 40 * dt);
+
+  if (!state.initialized || jumped) {
     state.initialized = true;
     state.position.copy(desired);
+    state.roll = 0;
     state.look.set(
       targets.subject.x + targets.headingX * params.lookAhead,
       targets.subject.y + params.lookHeight,
@@ -85,6 +101,7 @@ export function stepImmersionCamera(
     );
   }
 
+  state.lastSubject.copy(targets.subject);
   state.position.lerp(desired, 1 - Math.exp(-dt * params.positionDamping));
 
   const lookTarget = new THREE.Vector3(

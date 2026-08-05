@@ -25,6 +25,12 @@ import type { FableEraId } from "@/components/drift-3d/fable/fableTopology";
 
 /** Fin de la tranche détaillée : au-delà, la péninsule prend la main. */
 export const FABLE_HERO_Z_END = 170;
+/**
+ * Demi-largeur du couloir héroïque. La gorge, la rue et le bassin tiennent
+ * dans ±60 ; au-delà c'est la péninsule, sinon la baie centrale hériterait
+ * du sol plat du port.
+ */
+export const FABLE_HERO_HALF_WIDTH = 60;
 
 /* ── L'épine dorsale pliée ────────────────────────────────────────────── */
 
@@ -105,7 +111,11 @@ export const FABLE_REGIONS: FableRegion[] = [
   { id: "ns-coast", era: "new-signal", x: 300, z: -40, radius: 150, baseY: 19, relief: "coast" },
   { id: "ns-west", era: "new-signal", x: 60, z: -150, radius: 150, baseY: 10, relief: "coast" },
   // La baie intérieure : c'est elle qui fait la péninsule.
-  { id: "central-bay", era: "new-signal", x: 240, z: 110, radius: 190, baseY: -4, relief: "water" },
+  // La baie tient entre le port, le massif et la côte — elle ne doit pas
+  // atteindre le bassin pavillonnaire, qu'elle léchait à huit mètres de la rue.
+  // Bordée au sud par la corniche et à l'ouest par le port : la baie tient
+  // dans le creux du fer à cheval, elle ne recouvre aucune chaussée.
+  { id: "central-bay", era: "new-signal", x: 258, z: 85, radius: 142, baseY: -4, relief: "water" },
 ];
 
 export const FABLE_SEA_LEVEL = 0;

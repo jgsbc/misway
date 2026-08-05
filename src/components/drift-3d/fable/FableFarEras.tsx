@@ -788,8 +788,8 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
         <planeGeometry args={[900, 460, 48, 32]} />
       </mesh>
       {/* Baie intérieure : c'est elle qui creuse le fer à cheval. */}
-      <mesh material={material} position={[240, 0, 110]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[420, 540, 36, 44]} />
+      <mesh material={material} position={[258, 0, 85]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[310, 400, 30, 38]} />
       </mesh>
     </group>
   );

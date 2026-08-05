@@ -15,6 +15,7 @@ import FableTunnel from "@/components/drift-3d/fable/FableTunnel";
 import FableCity from "@/components/drift-3d/fable/FableCity";
 import FableCanal from "@/components/drift-3d/fable/FableCanal";
 import FableFarEras from "@/components/drift-3d/fable/FableFarEras";
+import FableLandmarks from "@/components/drift-3d/fable/FableLandmarks";
 import {
   FABLE_BELVEDERE_ROUTE,
   FABLE_HEADLAND_ROUTE,
@@ -28,9 +29,12 @@ import type { FableAmbience } from "@/components/drift-3d/fable/fableAudio";
 import {
   FABLE_SPAWN,
   buildFableWorldLayout,
+  fableFarGroundY,
   fableGroundY,
   fablePathX,
 } from "@/components/drift-3d/fable/fableWorld";
+import { fableBayField, fableRegionAt } from "@/components/drift-3d/fable/fablePeninsula";
+import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 
 /**
  * FABLE SPIKE — montage de la scène complète : gorge, ville, vie, véhicule
@@ -112,6 +116,20 @@ function FableDebugProbe({
 
         return url.length;
       },
+      /** Hauteur de la caméra au-dessus du sol — diagnostic du rig. */
+      cameraClearance() {
+        const cam = get().camera;
+
+        return {
+          x: +cam.position.x.toFixed(1),
+          y: +cam.position.y.toFixed(2),
+          z: +cam.position.z.toFixed(1),
+          ground: +fableGroundY(cam.position.x, cam.position.z).toFixed(2),
+          clearance: +(
+            cam.position.y - fableGroundY(cam.position.x, cam.position.z)
+          ).toFixed(2),
+        };
+      },
       memory() {
         const { gl } = get();
 
@@ -160,6 +178,13 @@ function FableDebugProbe({
     (window as unknown as Record<string, unknown>).__fableProbe = probe;
     (window as unknown as Record<string, unknown>).__fablePathX = fablePathX;
     (window as unknown as Record<string, unknown>).__fableGroundY = fableGroundY;
+    (window as unknown as Record<string, unknown>).__fableDiag = (x: number, z: number) => ({
+      ground: fableGroundY(x, z),
+      far: fableFarGroundY(x, z),
+      bay: fableBayField(x, z),
+      route: fableRouteField(x, z).distance,
+      region: fableRegionAt(x, z).id,
+    });
     (window as unknown as Record<string, unknown>).__fableVehicleY = () =>
       vehicleStateRef.current.position.y;
     (window as unknown as Record<string, unknown>).__fableBranches = () => ({
@@ -231,6 +256,8 @@ export default function FableCanvas({
       <FableTunnel reducedMotion={reducedMotion} />
       <FableCity lots={layout.lots} reducedMotion={reducedMotion} />
       <FableCanal reducedMotion={reducedMotion} />
+      {/* Amers : toujours montés, c'est ce qui fait une seule géographie. */}
+      <FableLandmarks vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef} />
       <FableFarEras
         vehicleZRef={vehicleZRef}
         vehicleXRef={vehicleXRef}
