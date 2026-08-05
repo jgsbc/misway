@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { getFableGlowTexture } from "@/components/drift-3d/fable/fableTextures";
-import { fableRng } from "@/components/drift-3d/fable/fableWorld";
+import { fableGroundY, fableRng } from "@/components/drift-3d/fable/fableWorld";
 import { FABLE_REGIONS } from "@/components/drift-3d/fable/fablePeninsula";
 import { FABLE_LANDMARKS } from "@/components/drift-3d/fable/fableLandmarkData";
 
@@ -46,6 +46,11 @@ function PortLandmark() {
       const d = 30 + rng() * 130;
       const x = BY.x + Math.cos(a) * d;
       const z = BY.z + Math.sin(a) * d * 0.85;
+
+      // Le semis porte à 160 m : vers l'est il franchissait la rive et
+      // posait des blocs de 40 m sur la baie. Une ville ne flotte pas.
+      if (fableGroundY(x, z) < 0.6) continue;
+
       const h = 8 + rng() * rng() * 34;
       blockList.push(
         new THREE.Matrix4().compose(

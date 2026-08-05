@@ -130,6 +130,17 @@ function FableDebugProbe({
           ).toFixed(2),
         };
       },
+      /** Brouillard et exposition au point courant — diagnostic d'ambiance. */
+      atmosphere() {
+        const { scene, gl } = get();
+        const fog = scene.fog as THREE.FogExp2 | null;
+
+        return {
+          fogColour: fog?.color?.getHexString() ?? null,
+          fogDensity: fog ? +fog.density.toFixed(5) : null,
+          exposure: +gl.toneMappingExposure.toFixed(3),
+        };
+      },
       memory() {
         const { gl } = get();
 
@@ -166,6 +177,165 @@ function FableDebugProbe({
               : (mesh.material as THREE.Material)?.type,
           });
         });
+
+        return out;
+      },
+      /**
+       * Inventaire des grands volumes, instance par instance. Sert à auditer
+       * ce qui bouche la lecture du monde : on mesure les boîtes, on ne les
+       * juge pas à l'œil.
+       */
+      volumes(minSize = 40) {
+        type Volume = {
+          kind: string;
+          geo: string;
+          w: number;
+          h: number;
+          d: number;
+          x: number;
+          y: number;
+          z: number;
+          span: number;
+          visible: boolean;
+          colour: string | null;
+        };
+        const out: Volume[] = [];
+        const box = new THREE.Box3();
+        const size = new THREE.Vector3();
+        const centre = new THREE.Vector3();
+        const matrix = new THREE.Matrix4();
+        const scene = get().scene;
+        scene.updateMatrixWorld(true);
+
+        scene.traverse((o) => {
+          const mesh = o as THREE.Mesh;
+
+          if (!mesh.isMesh || !mesh.geometry) return;
+
+          mesh.geometry.computeBoundingBox();
+          const local = mesh.geometry.boundingBox;
+
+          if (!local) return;
+
+          const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+          const colour =
+            (material as THREE.MeshStandardMaterial)?.color?.getHexString() ?? null;
+          const instanced = mesh as THREE.InstancedMesh;
+
+          const push = (world: THREE.Matrix4, kind: string) => {
+            box.copy(local).applyMatrix4(world);
+            box.getSize(size);
+            box.getCenter(centre);
+            const span = Math.max(size.x, size.y, size.z);
+
+            if (span < minSize) return;
+
+            out.push({
+              kind,
+              geo: mesh.geometry.type,
+              w: +size.x.toFixed(1),
+              h: +size.y.toFixed(1),
+              d: +size.z.toFixed(1),
+              x: +centre.x.toFixed(1),
+              y: +centre.y.toFixed(1),
+              z: +centre.z.toFixed(1),
+              span: +span.toFixed(1),
+              visible: o.visible,
+              colour,
+            });
+          };
+
+          if (instanced.isInstancedMesh) {
+            for (let i = 0; i < instanced.count; i += 1) {
+              instanced.getMatrixAt(i, matrix);
+              matrix.premultiply(instanced.matrixWorld);
+              push(matrix, `instance ${instanced.count}×`);
+            }
+          } else {
+            push(mesh.matrixWorld, "mesh");
+          }
+        });
+
+        return out.sort((a, b) => b.span - a.span);
+      },
+      /** Ce que la caméra a droit devant : nomme ce qui bouche la vue. */
+      lookAt(count = 6, pitch = 0, yaw = 0) {
+        const { camera, scene } = get();
+        const ray = new THREE.Raycaster();
+        const dir = new THREE.Vector3();
+        camera.getWorldDirection(dir);
+
+        // Dépointage : le rayon central regarde le véhicule, donc vers le
+        // bas. Ce qui bouche le haut du cadre lui échappe.
+        if (pitch !== 0 || yaw !== 0) {
+          const right = new THREE.Vector3()
+            .crossVectors(dir, new THREE.Vector3(0, 1, 0))
+            .normalize();
+          dir
+            .applyAxisAngle(right, pitch)
+            .applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw)
+            .normalize();
+        }
+
+        ray.set(camera.position, dir);
+        ray.far = 900;
+        const matrix = new THREE.Matrix4();
+        const box = new THREE.Box3();
+        const size = new THREE.Vector3();
+        const out: Array<Record<string, unknown>> = [];
+        // Les sprites n'ont pas de caméra ici et font planter le raycaster :
+        // on ne vise que les maillages, qui sont seuls à boucher la vue.
+        // La visibilité est héritée : un groupe masqué garde des enfants dont
+        // le drapeau reste vrai. On remonte la chaîne, sinon la sonde accuse
+        // des objets que le rendu ne dessine jamais.
+        const shown = (o: THREE.Object3D) => {
+          for (let n: THREE.Object3D | null = o; n; n = n.parent) {
+            if (!n.visible) return false;
+          }
+
+          return true;
+        };
+        const meshes: THREE.Object3D[] = [];
+        scene.traverse((o) => {
+          if ((o as THREE.Mesh).isMesh && shown(o)) meshes.push(o);
+        });
+
+        for (const hit of ray.intersectObjects(meshes, false)) {
+          if (out.length >= count) break;
+
+          const mesh = hit.object as THREE.Mesh;
+
+          if (!mesh.isMesh || !mesh.geometry) continue;
+
+          const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+          mesh.geometry.computeBoundingBox();
+          const local = mesh.geometry.boundingBox;
+          const instanced = mesh as THREE.InstancedMesh;
+
+          if (local) {
+            if (instanced.isInstancedMesh && hit.instanceId != null) {
+              instanced.getMatrixAt(hit.instanceId, matrix);
+              matrix.premultiply(instanced.matrixWorld);
+            } else {
+              matrix.copy(mesh.matrixWorld);
+            }
+
+            box.copy(local).applyMatrix4(matrix);
+            box.getSize(size);
+          } else {
+            size.set(0, 0, 0);
+          }
+
+          out.push({
+            d: +hit.distance.toFixed(1),
+            geo: mesh.geometry.type,
+            colour: (material as THREE.MeshStandardMaterial)?.color?.getHexString() ?? null,
+            w: +size.x.toFixed(1),
+            h: +size.y.toFixed(1),
+            depth: +size.z.toFixed(1),
+            at: [+hit.point.x.toFixed(1), +hit.point.y.toFixed(1), +hit.point.z.toFixed(1)],
+          });
+        }
 
         return out;
       },

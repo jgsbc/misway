@@ -110,6 +110,52 @@ export function fableRouteField(x: number, z: number): FableRouteSample {
   return { distance: Math.max(0, bestDistance), altitude: bestAltitude };
 }
 
+export type FableRoutePoint = {
+  x: number;
+  z: number;
+  /** Altitude de la chaussée. */
+  y: number;
+  /** Direction de la route, normalisée. */
+  fx: number;
+  fz: number;
+  distance: number;
+};
+
+/**
+ * Chaussée la plus proche, direction comprise. Sert au secours, et lui seul :
+ * on balaie tout le réseau au lieu de la tranche locale, parce qu'un véhicule
+ * à secourir est justement là où il n'y a pas de route.
+ */
+export function fableNearestRoutePoint(x: number, z: number): FableRoutePoint | null {
+  let best: FableRoutePoint | null = null;
+  let bestDistance = Infinity;
+
+  for (const s of segments) {
+    const t = Math.max(
+      0,
+      Math.min(1, ((x - s.ax) * (s.bx - s.ax) + (z - s.az) * (s.bz - s.az)) / s.lengthSq)
+    );
+    const px = s.ax + (s.bx - s.ax) * t;
+    const pz = s.az + (s.bz - s.az) * t;
+    const distance = Math.hypot(x - px, z - pz);
+
+    if (distance >= bestDistance) continue;
+
+    bestDistance = distance;
+    const length = Math.hypot(s.bx - s.ax, s.bz - s.az) || 1;
+    best = {
+      x: px,
+      z: pz,
+      y: s.ay + (s.by - s.ay) * t,
+      fx: (s.bx - s.ax) / length,
+      fz: (s.bz - s.az) / length,
+      distance,
+    };
+  }
+
+  return best;
+}
+
 /* ── Le réseau ────────────────────────────────────────────────────────── */
 
 export const FABLE_ROUTES: FableRoute[] = [];

@@ -30,6 +30,12 @@ export type ImmersionInputSnapshot = {
   mode: ImmersionInputMode;
   /** L'utilisateur a-t-il déjà agi ? Sert à effacer l'amorce. */
   engaged: boolean;
+  /**
+   * Demande de secours, vraie une seule image. R au clavier, trois doigts au
+   * tactile, B à la manette. Jamais automatique : c'est le joueur qui
+   * constate qu'il est coincé, pas le monde qui le décide à sa place.
+   */
+  recover: boolean;
 };
 
 const STEER_DEADZONE = 0.05;
@@ -38,6 +44,12 @@ const STEER_EXPO = 1.25;
 const TOUCH_STEER_RANGE = 78;
 /** Débattement tactile vertical pour accélérer / freiner. */
 const TOUCH_PEDAL_RANGE = 62;
+/**
+ * Zone morte de la pédale, en fraction du débattement. Un pouce posé sur du
+ * verre dérive de plusieurs millimètres sans que son propriétaire le veuille :
+ * en deçà de ce seuil, tenir veut dire avancer, jamais freiner.
+ */
+const TOUCH_PEDAL_DEADZONE = 0.42;
 
 function applyCurve(raw: number) {
   const clamped = Math.max(-1, Math.min(1, raw));
@@ -67,6 +79,7 @@ const KEYS_LEFT = new Set(["ArrowLeft", "KeyA", "KeyQ"]);
 const KEYS_RIGHT = new Set(["ArrowRight", "KeyD"]);
 const KEYS_THROTTLE = new Set(["ArrowUp", "KeyW", "KeyZ"]);
 const KEYS_BRAKE = new Set(["ArrowDown", "KeyS"]);
+const KEYS_RECOVER = new Set(["KeyR"]);
 
 type TouchPoint = {
   id: number;
@@ -93,6 +106,7 @@ export class ImmersionInput {
 
   private touches = new Map<number, TouchPoint>();
   private pinchDistance: number | null = null;
+  private recoverPending = false;
 
   private detachFns: Array<() => void> = [];
   private onEngage: (() => void) | null = null;
@@ -124,6 +138,7 @@ export class ImmersionInput {
       else if (KEYS_RIGHT.has(event.code)) this.keyRight = true;
       else if (KEYS_THROTTLE.has(event.code)) this.keyThrottle = true;
       else if (KEYS_BRAKE.has(event.code)) this.keyBrake = true;
+      else if (KEYS_RECOVER.has(event.code)) this.recoverPending = true;
       else return;
 
       event.preventDefault();
@@ -160,6 +175,11 @@ export class ImmersionInput {
         role: event.clientX < half ? "steer" : "pedal",
       });
       this.mode = "touch";
+
+      // Trois doigts : secours. Le pincement en utilise deux, on ne le
+      // déclenche donc pas par accident, et rien n'apparaît à l'écran.
+      if (this.touches.size >= 3) this.recoverPending = true;
+
       markEngaged();
     };
 
@@ -243,6 +263,9 @@ export class ImmersionInput {
       const zoomAxis = pad.axes[3] ?? 0;
       const throttle = pad.buttons[7]?.value ?? 0;
       const brake = pad.buttons[6]?.value ?? 0;
+
+      if (pad.buttons[1]?.pressed) this.recoverPending = true;
+
       const active =
         Math.abs(steer) > 0.12 ||
         throttle > 0.04 ||
@@ -282,11 +305,12 @@ export class ImmersionInput {
         if (touch.role === "steer") {
           steerTarget = (touch.x - touch.originX) / TOUCH_STEER_RANGE;
         } else {
-          // Maintenir accélère ; descendre sous le point d'appui freine.
+          // Maintenir accélère ; descendre franchement sous le point d'appui
+          // freine. Le seuil est large exprès : c'est un geste, pas une dérive.
           const drop = (touch.y - touch.originY) / TOUCH_PEDAL_RANGE;
 
-          if (drop > 0.12) {
-            brakeTarget = Math.min(1, drop);
+          if (drop > TOUCH_PEDAL_DEADZONE) {
+            brakeTarget = Math.min(1, (drop - TOUCH_PEDAL_DEADZONE) / 0.85);
             throttleTarget = 0;
           } else {
             brakeTarget = 0;
@@ -311,6 +335,8 @@ export class ImmersionInput {
 
     const zoomDelta = this.zoomAccum;
     this.zoomAccum = 0;
+    const recover = this.recoverPending;
+    this.recoverPending = false;
 
     return {
       steer: this.smoothedSteer,
@@ -319,6 +345,7 @@ export class ImmersionInput {
       zoomDelta,
       mode: this.mode,
       engaged: this.engaged,
+      recover,
     };
   }
 }

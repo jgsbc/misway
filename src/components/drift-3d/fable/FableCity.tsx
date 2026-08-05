@@ -37,6 +37,7 @@ import {
 } from "@/components/drift-3d/fable/FableSky";
 import { buildFableArchitecture } from "@/components/drift-3d/fable/fableArchitecture";
 import { immersionBackdropRing } from "@/components/drift-3d/fable/core/immersionLayers";
+import { fableRegionAt } from "@/components/drift-3d/fable/fablePeninsula";
 import {
   desyncFrequency,
   desyncPhase,
@@ -1138,9 +1139,11 @@ function FableBackdrop() {
 
       return !(x < -4 && z > FABLE_CANAL_Z0 - 8 && z < FABLE_CANAL_Z1 + 6);
     };
+    // On tire large et on laisse la carte des régions trancher : trois fois
+    // plus de candidats que de places, pour que le fond reste dense après tri.
     const matrices = immersionBackdropRing({
       seed: rng,
-      count,
+      count: count * 3,
       center: { x: 0, z: 95 },
       radiusMin: 70,
       radiusMax: 148,
@@ -1152,7 +1155,23 @@ function FableBackdrop() {
       widthMax: 20,
     });
     const color = new THREE.Color();
-    const kept = matrices.filter(clearsCanal);
+    // Le fond de ville appartient à Birth Yard. C'est la carte des régions
+    // qui le dit — pas un rayon écrit à la main du temps où le monde était
+    // un couloir et où l'anneau montait jusqu'à z=243, en plein sur
+    // l'approche du massif.
+    const kept = matrices.filter((m) => {
+      const x = m.elements[12];
+      const z = m.elements[14];
+
+      // Et rien ne se tient dans l'eau : une tour posée sur la rive ou sur
+      // la baie ferme le vide central, qui est ce qui rend la péninsule
+      // lisible depuis les cinq ères.
+      return (
+        fableRegionAt(x, z).id === "birth-yard" &&
+        fableGroundY(x, z) > 0.6 &&
+        clearsCanal(m)
+      );
+    });
     const hidden = new THREE.Matrix4().makeScale(0, 0, 0);
 
     for (let i = 0; i < count; i += 1) {
@@ -1180,15 +1199,14 @@ function FableBackdrop() {
           emissiveIntensity={0.5}
         />
       </instancedMesh>
-      {/* La mégastructure — un pan immense à demi noyé de brume, jamais expliqué. */}
-      <mesh position={[42, 44, 236]} rotation={[0, -0.2, 0]}>
-        <boxGeometry args={[64, 96, 18]} />
-        <meshStandardMaterial color="#4c4a4e" roughness={1} />
-      </mesh>
-      <mesh position={[-58, 30, 218]} rotation={[0, 0.25, 0]}>
-        <boxGeometry args={[34, 64, 14]} />
-        <meshStandardMaterial color="#514e50" roughness={1} />
-      </mesh>
+      {/*
+        Ici se tenaient deux « mégastructures » : un pan de 64×96×18 en
+        (42, 236) et un autre de 34×64×14 en (−58, 218). Elles dataient du
+        monde en couloir, où z=220 était le fond d'horizon de Birth Yard.
+        Le pliage de la péninsule a mis l'approche d'Older Shadows exactement
+        sous elles : deux blocs opaques posés sur le versant d'une ère dont
+        tout le propos est l'altitude et l'horizon ouvert. Retirées.
+      */}
     </group>
   );
 }

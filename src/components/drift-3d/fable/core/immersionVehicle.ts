@@ -44,15 +44,24 @@ export type ImmersionDriveInput = {
 export type ImmersionSurface = {
   /** 0 hors route … 1 sur la chaussée. */
   paved: number;
+  /**
+   * Famille de sol, 0.75 … 1 : roche, herbe, galets, sol mouillé. Vaut 1 sur
+   * la chaussée — une route mandatoire reste franchissable partout.
+   */
+  grip?: number;
 };
 
 export type ImmersionVehicleState = {
   /** Temps restant de maintien en côte, en secondes. */
   hillHold: number;
+  /** Rapport engagé. La marche arrière se demande, elle n'arrive jamais seule. */
+  gear: 1 | -1;
+  /** Frein maintenu à l'arrêt, en secondes, avant d'engager l'arrière. */
+  reverseArm: number;
 };
 
 export function createImmersionVehicleState(): ImmersionVehicleState {
-  return { hillHold: 0 };
+  return { hillHold: HILL_HOLD_SECONDS, gear: 1, reverseArm: 0 };
 }
 
 export type ImmersionVehicleResult = {
@@ -69,6 +78,10 @@ const REVERSE_ACCEL = 5.4;
 const REVERSE_THRESHOLD = 0.25;
 /** Fenêtre de maintien en côte : on ne recule pas immédiatement. */
 const HILL_HOLD_SECONDS = 1.3;
+/** Frein appuyé, à l'arrêt, avant que la marche arrière s'engage. */
+const REVERSE_ARM_SECONDS = 0.45;
+/** En deçà, un frein est une hésitation, pas une demande de marche arrière. */
+const REVERSE_ARM_BRAKE = 0.35;
 /** Au-delà de cette pente, le couple disponible s'effondre. */
 const GRADE_STALL = 0.62;
 
@@ -88,7 +101,7 @@ export function stepImmersionVehicle(
   colliders: readonly Drift3DVehicleCollider[],
   getGroundY: (x: number, z: number) => number,
   surface: ImmersionSurface = { paved: 1 },
-  vehicleState: ImmersionVehicleState = { hillHold: HILL_HOLD_SECONDS }
+  vehicleState: ImmersionVehicleState = createImmersionVehicleState()
 ): ImmersionVehicleResult {
   const speedRatio = clamp(Math.abs(state.speed) / DRIFT_3D_VEHICLE_MAX_SPEED, 0, 1);
 
@@ -98,13 +111,16 @@ export function stepImmersionVehicle(
     DRIFT_3D_VEHICLE_TURN_RATE_MIN,
     speedRatio
   );
-  // À l'arrêt les roues tournent sans faire pivoter la caisse ; en marche
-  // arrière la géométrie du train inverse le sens — comme une vraie voiture.
+  // À l'arrêt les roues tournent sans faire pivoter la caisse.
+  //
+  // Le braquage ne s'inverse JAMAIS. Une voiture réelle fait pivoter sa proue
+  // dans l'autre sens en marche arrière, mais ici le recul arrive surtout sans
+  // qu'on l'ait demandé — pouce qui dérive, glissade dans une côte — et une
+  // direction qui se retourne toute seule à ce moment-là se lit comme une
+  // panne, pas comme du réalisme. Gauche fait tourner à gauche, toujours.
   const steerAuthority = clamp(Math.abs(state.speed) / 1.1, 0, 1);
-  const direction = state.speed < -0.05 ? -1 : 1;
   const airFactor = state.airborne ? 0.14 : 1;
-  state.heading +=
-    input.steer * turnRate * dt * steerAuthority * direction * airFactor;
+  state.heading += input.steer * turnRate * dt * steerAuthority * airFactor;
   state.heading = Math.atan2(Math.sin(state.heading), Math.cos(state.heading));
 
   /* ── Longitudinal : accélérer, freiner, reculer ────────────────────── */
@@ -122,7 +138,7 @@ export function stepImmersionVehicle(
     // d'adhérence. Une côte optionnelle exige de l'élan ; la route
     // principale reste franchissable au ralenti.
     const grade = slope;
-    const traction = 0.55 + surface.paved * 0.45;
+    const traction = (0.55 + surface.paved * 0.45) * (surface.grip ?? 1);
     const torque = Math.max(
       0,
       1 - Math.max(0, grade) / (GRADE_STALL * traction)
@@ -151,11 +167,36 @@ export function stepImmersionVehicle(
       vehicleState.hillHold = HILL_HOLD_SECONDS;
     }
 
-    if (input.brake > 0.02) {
-      if (state.speed > REVERSE_THRESHOLD) {
-        state.speed -= BRAKE_DECEL * input.brake * dt;
+    // Engagement de la marche arrière : il faut être arrêté, freiner
+    // franchement, et insister. Un frein léger ne recule jamais.
+    const stopped = Math.abs(state.speed) < REVERSE_THRESHOLD;
+
+    if (vehicleState.gear === 1) {
+      if (stopped && input.brake > REVERSE_ARM_BRAKE && input.throttle <= 0.02) {
+        vehicleState.reverseArm += dt;
+
+        if (vehicleState.reverseArm >= REVERSE_ARM_SECONDS) vehicleState.gear = -1;
       } else {
+        vehicleState.reverseArm = 0;
+      }
+    } else {
+      vehicleState.reverseArm = 0;
+
+      // Redemander de l'accélérateur reprend la marche avant.
+      if (input.throttle > 0.05) vehicleState.gear = 1;
+    }
+
+    if (input.brake > 0.02) {
+      const bite = BRAKE_DECEL * input.brake * dt;
+
+      if (vehicleState.gear === -1 && state.speed <= REVERSE_THRESHOLD) {
         state.speed -= REVERSE_ACCEL * input.brake * traction * dt;
+      } else if (state.speed > 0) {
+        // Le frein s'arrête à zéro tant que l'arrière n'est pas engagé.
+        state.speed = Math.max(0, state.speed - bite);
+      } else {
+        // Et il retient aussi une glissade en arrière dans une côte.
+        state.speed = Math.min(0, state.speed + bite);
       }
     }
 
@@ -190,7 +231,7 @@ export function stepImmersionVehicle(
       (state.velocityZ - targetVelocityZ) * headingX
   );
   const slip = clamp(lateral / (DRIFT_3D_VEHICLE_MAX_SPEED * 0.55), 0, 1);
-  const surfaceGrip = 0.62 + surface.paved * 0.38;
+  const surfaceGrip = (0.62 + surface.paved * 0.38) * (surface.grip ?? 1);
   const grip =
     lerp(
       DRIFT_3D_VEHICLE_GRIP,

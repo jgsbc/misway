@@ -30,7 +30,14 @@ import {
   createImmersionVehicleState,
   stepImmersionVehicle,
 } from "@/components/drift-3d/fable/core/immersionVehicle";
-import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
+import {
+  fableNearestRoutePoint,
+  fableRouteField,
+} from "@/components/drift-3d/fable/fableRoutes";
+import {
+  FABLE_SEA_LEVEL,
+  fableRegionAt,
+} from "@/components/drift-3d/fable/fablePeninsula";
 import { fableEraBlendAt } from "@/components/drift-3d/fable/fableTopology";
 import {
   createImmersionExposure,
@@ -80,6 +87,8 @@ type FableDirectorProps = {
 };
 
 const DUST_COUNT = 14;
+/** Profondeur guéable, en mètres. Au-delà, l'eau refuse le véhicule. */
+const FABLE_MAX_WADE = 0.85;
 
 export default function FableDirector({
   vehicleRef,
@@ -183,6 +192,7 @@ export default function FableDirector({
       zoomDelta: 0,
       mode: "keyboard" as const,
       engaged: false,
+      recover: false,
     };
 
     if (snapshot.engaged && !movedRef.current) {
@@ -200,6 +210,29 @@ export default function FableDirector({
     const surfaceField = fableRouteField(state.position.x, state.position.z);
     const paved = 1 - fableSmoothstep(0.5, 7, surfaceField.distance);
 
+    // Familles de sol. La roche du massif et les galets de la côte tiennent
+    // moins que le béton du port ; le bord de l'eau tient moins que tout.
+    // Hors-piste seulement : sur la chaussée l'adhérence reste pleine, sinon
+    // une route obligatoire deviendrait infranchissable selon l'ère.
+    const relief = fableRegionAt(state.position.x, state.position.z).relief;
+    const wet = 1 - fableSmoothstep(0.4, 5, fableGroundY(state.position.x, state.position.z));
+    const family =
+      relief === "massif"
+        ? 0.84
+        : relief === "coast"
+          ? 0.82
+          : relief === "basin"
+            ? 0.9
+            : relief === "gorge"
+              ? 0.94
+              : 0.97;
+    const grip = fableLerp(family * (1 - wet * 0.12), 1, paved);
+
+    // Position d'avant le pas : elle sert à refuser l'entrée dans l'eau
+    // profonde sans jamais téléporter le véhicule.
+    const previousX = state.position.x;
+    const previousZ = state.position.z;
+
     stepImmersionVehicle(
       state,
       reducedMotion
@@ -209,7 +242,7 @@ export default function FableDirector({
       FABLE_BOUNDS,
       colliders,
       fableGroundY,
-      { paved },
+      { paved, grip },
       vehicleStateExtra.current
     );
 
@@ -229,6 +262,48 @@ export default function FableDirector({
       if (state.position.z < -57.5) {
         state.position.z = -57.5;
         state.velocityZ = Math.max(0, state.velocityZ);
+      }
+    }
+
+    // Eau profonde : le 4x4 n'est pas un bateau. On gué jusqu'aux moyeux,
+    // au-delà l'entrée est refusée — c'est une limite physique lisible, pas
+    // une frontière invisible posée sur une région inachevée.
+    const depth = FABLE_SEA_LEVEL - fableGroundY(state.position.x, state.position.z);
+
+    if (depth > FABLE_MAX_WADE) {
+      // ... sauf si on y était déjà : l'eau refuse l'entrée, jamais la
+      // sortie. Un véhicule ne doit jamais rester prisonnier d'une règle.
+      const wasDeep =
+        FABLE_SEA_LEVEL - fableGroundY(previousX, previousZ) > FABLE_MAX_WADE;
+
+      if (!wasDeep) {
+        state.position.x = previousX;
+        state.position.z = previousZ;
+        state.velocityX *= -0.12;
+        state.velocityZ *= -0.12;
+        state.speed *= 0.35;
+      }
+    }
+
+    // Secours : demandé par le joueur, jamais déclenché tout seul. Repose le
+    // véhicule sur la chaussée la plus proche, à l'arrêt, dans le sens de
+    // la route. Tout le réseau est candidat, y compris depuis le hors-piste.
+    if (snapshot.recover) {
+      const point = fableNearestRoutePoint(state.position.x, state.position.z);
+
+      if (point) {
+        state.position.x = point.x;
+        state.position.z = point.z;
+        state.position.y =
+          fableGroundY(point.x, point.z) + DRIFT_3D_VEHICLE_GROUND_CLEARANCE;
+        state.heading = Math.atan2(point.fx, point.fz);
+        state.speed = 0;
+        state.velocityX = 0;
+        state.velocityZ = 0;
+        state.velocityY = 0;
+        state.airborne = false;
+        vehicleStateExtra.current.gear = 1;
+        vehicleStateExtra.current.hillHold = 1.3;
       }
     }
 
@@ -279,10 +354,16 @@ export default function FableDirector({
     /* ── Zones ────────────────────────────────────────────────────────── */
     const z = state.position.z;
     const tm = fableTunnelMix(z, state.position.x);
-    const cm = fableCityMix(z);
-    const ym = fableYardMix(z);
+    // Ces trois mélanges datent du monde en couloir : ils ne lisaient que z.
+    // Sur la péninsule pliée, la même tranche de z traverse la baie et le
+    // bassin pavillonnaire — la ville de Birth Yard sonnait donc dans l'est,
+    // et la corniche d'Entry reculait la caméra à l'autre bout du monde. On
+    // les borne au corridor hero, comme tout le reste.
+    const heroBand = 1 - fableSmoothstep(26, 60, Math.abs(state.position.x));
+    const cm = fableCityMix(z) * heroBand;
+    const ym = fableYardMix(z) * heroBand;
     const ledgeMix =
-      fableSmoothstep(0.5, 4.5, z) * (1 - fableSmoothstep(14, 24, z));
+      fableSmoothstep(0.5, 4.5, z) * (1 - fableSmoothstep(14, 24, z)) * heroBand;
 
     /* ── Caméra (core + contraintes du monde) ─────────────────────────── */
     const yawRate =
@@ -315,7 +396,11 @@ export default function FableDirector({
 
     // Contraintes du monde : la caméra reste dans la gorge, ne retraverse
     // jamais la paroi, ne passe jamais sous le sol.
-    if (desired.z < -3) {
+    // Bornée en x autant qu'en z : la gorge d'Entry occupe une bande étroite
+    // autour de x=0, mais la côte sud descend jusqu'à z=−200. Sans la borne
+    // latérale, cette règle happait la caméra depuis l'autre bout du monde et
+    // la laissait à 147 m du véhicule.
+    if (desired.z < -3 && Math.abs(desired.x) < 26) {
       const px = fablePathX(desired.z);
       const camLimit = 2.4;
       const dx = desired.x - px;
@@ -323,10 +408,43 @@ export default function FableDirector({
       if (Math.abs(dx) > camLimit) desired.x = px + Math.sign(dx) * camLimit;
 
       desired.y = Math.min(desired.y, fableGroundY(desired.x, desired.z) + 4.1);
-    } else if (z > -3 && desired.z < -2.6) {
+    } else if (z > -3 && Math.abs(desired.x) < 26 && desired.z < -2.6) {
       desired.z = -2.6;
       desired.x = Math.min(1.3, Math.max(-0.4, desired.x));
       desired.y = Math.min(desired.y, fableGroundY(0.5, -2.6) + 4.6);
+    }
+
+    // Relief : si le terrain coupe la ligne sujet → caméra, on raccourcit
+    // la focale plutôt que de traverser la colline. En terrain libre c'est
+    // ce qui empêche la caméra de se retrouver dans la roche dès qu'on
+    // grimpe un versant.
+    const subject = cameraTargets.subject;
+    // La ligne de visée part du toit, pas du plancher : le véhicule est déjà
+    // à sa garde au sol, et prendre son plancher comme origine ferait
+    // déclarer une collision dès le premier échantillon, en terrain plat.
+    const originY = subject.y + 0.9;
+    const spanX = desired.x - subject.x;
+    const spanZ = desired.z - subject.z;
+    const spanY = desired.y - originY;
+    let clear = 1;
+
+    for (let i = 2; i <= 8; i += 1) {
+      const k = i / 8;
+
+      if (
+        originY + spanY * k <
+        fableGroundY(subject.x + spanX * k, subject.z + spanZ * k) + 0.35
+      ) {
+        clear = Math.min(clear, (i - 1) / 8);
+      }
+    }
+
+    if (clear < 1) {
+      // Jamais collée au pare-chocs : on garde au moins la moitié.
+      const keep = Math.max(0.5, clear);
+      desired.x = subject.x + spanX * keep;
+      desired.y = originY + spanY * keep;
+      desired.z = subject.z + spanZ * keep;
     }
 
     desired.y = Math.max(desired.y, fableGroundY(desired.x, desired.z) + 0.55);

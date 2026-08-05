@@ -16,6 +16,7 @@ import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 import {
   FABLE_REGIONS,
   FABLE_SPINE,
+  fableBayField,
   fableRegionAt,
   type FableRegion,
 } from "@/components/drift-3d/fable/fablePeninsula";
@@ -324,6 +325,16 @@ function EraOlderShadows() {
 
       // Un pic ne se pose jamais sur une route : il en écraserait le col.
       if (!clearsRoutes(x, z, 78)) continue;
+
+      // Ni dans la baie. Le rayon de semis porte à 260 m et redescendait
+      // jusqu'à z≈245 : des sommets de 144 m se plantaient dans l'eau et
+      // fermaient le vide central, qui est ce qui rend la péninsule lisible.
+      if (fableBayField(x, z) < 14) continue;
+
+      // Ni hors de son ère : un pic de 98 m s'était planté en (109, 155),
+      // à cent mètres du port. C'est la carte des régions qui dit où le
+      // massif a le droit de se dresser.
+      if (fableRegionAt(x, z).era !== "older-shadows") continue;
 
       const core = Math.max(0, 1 - d / 260);
       const h = 40 + core * 140 + rng() * 40;
