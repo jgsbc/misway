@@ -5,7 +5,11 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import { getFableGlowTexture } from "@/components/drift-3d/fable/fableTextures";
-import { fableGroundY, fableRng } from "@/components/drift-3d/fable/fableWorld";
+import {
+  FABLE_BOUNDS,
+  fableGroundY,
+  fableRng,
+} from "@/components/drift-3d/fable/fableWorld";
 import {
   FABLE_BELVEDERE_ROUTE,
   FABLE_HEADLAND_ROUTE,
@@ -15,6 +19,7 @@ import {
 import { fableRouteField } from "@/components/drift-3d/fable/fableRoutes";
 import {
   FABLE_REGIONS,
+  FABLE_SEA_LEVEL,
   FABLE_SPINE,
   fableBayField,
   fableRegionAt,
@@ -87,6 +92,34 @@ const REGION = Object.fromEntries(FABLE_REGIONS.map((r) => [r.id, r])) as Record
  */
 function clearsRoutes(x: number, z: number, margin: number) {
   return fableRouteField(x, z).distance > margin;
+}
+
+/**
+ * La percée du bassin vers la baie — une seule, et c'est le sujet.
+ *
+ * Le lotissement atteint la rive et lui tourne le dos sur toute sa longueur.
+ * Cette condition est gardée : c'est elle qui fait la répétition et
+ * l'enfermement de l'ère. Une seule parcelle reste nue, alignée de la
+ * chaussée vers l'eau, et l'on y découvre la baie d'un coup.
+ *
+ * Le couloir est défini par un segment, pas par une boîte : il descend avec
+ * le terrain au lieu de découper un rectangle dans le plan.
+ */
+const VF_BREACH = { x0: 379, z0: 231, x1: 349, z1: 181, halfWidth: 17 };
+
+function inVegetativeBreach(x: number, z: number) {
+  const dx = VF_BREACH.x1 - VF_BREACH.x0;
+  const dz = VF_BREACH.z1 - VF_BREACH.z0;
+  const lengthSq = dx * dx + dz * dz;
+  const t = Math.max(
+    0,
+    Math.min(1, ((x - VF_BREACH.x0) * dx + (z - VF_BREACH.z0) * dz) / lengthSq)
+  );
+
+  return (
+    Math.hypot(x - (VF_BREACH.x0 + dx * t), z - (VF_BREACH.z0 + dz * t)) <
+    VF_BREACH.halfWidth
+  );
 }
 
 /**
@@ -574,6 +607,12 @@ function EraVegetativeField() {
 
           if (!clearsRoutes(frontX + sx * side * 5, frontZ + sz * side * 5, 5.5)) continue;
 
+          // L'unique percée vers la baie. Le lotissement tourne le dos à
+          // l'eau partout ailleurs, et c'est voulu : c'est ce qui fait
+          // l'enfermement. Ici une parcelle est restée nue — un couloir de
+          // rétention jamais bâti — et la mer apparaît d'un coup.
+          if (inVegetativeBreach(frontX, frontZ)) continue;
+
           const yaw = Math.atan2(sx * side, sz * side);
           const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0));
           const depth = 9 + rng() * 2;
@@ -722,6 +761,11 @@ const oceanFragment = /* glsl */ `
   uniform vec3 uFogColor;
   uniform float uFogDensity;
   varying float vDepth;
+  /** Champ de profondeur échantillonné sur le terrain : c'est lui la côte. */
+  uniform sampler2D uDepth;
+  uniform vec2 uFieldMin;
+  uniform vec2 uFieldSize;
+  uniform float uDepthScale;
   uniform vec3 uSunDir;
   uniform vec3 uSunColor;
   uniform vec3 uDeep;
@@ -753,10 +797,23 @@ const oceanFragment = /* glsl */ `
     float glare = pow(clamp(dot(r, uSunDir), 0.0, 1.0), 16.0);
     color += uSunColor * glare * (0.4 + chop * 1.6);
 
-    // Écume sur les crêtes, plus dense près du rivage.
-    float shore = smoothstep(70.0, 26.0, vWorldPos.x);
-    float foam = smoothstep(0.62, 0.9, chop + swell * 0.5) * shore;
-    color = mix(color, vec3(0.86, 0.88, 0.9), foam * 0.55);
+    // Profondeur réelle, lue dans le champ échantillonné sur le terrain.
+    // L'écume ne suit plus une abscisse écrite en dur — elle suit le rivage.
+    vec2 uv = (vWorldPos.xz - uFieldMin) / uFieldSize;
+    float depth = texture2D(uDepth, uv).r * uDepthScale;
+
+    // Hors du champ, on est au large : profondeur pleine.
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) depth = uDepthScale;
+
+    // La terre perce la nappe : pas de mer par-dessus une colline, et pas
+    // de lutte de profondeur au ras du rivage.
+    if (depth <= 0.02) discard;
+
+    float shallow = 1.0 - smoothstep(0.0, 2.6, depth);
+    color = mix(color, uDeep * 1.35 + vec3(0.06, 0.07, 0.06), shallow * 0.5);
+
+    float foam = smoothstep(0.62, 0.9, chop + swell * 0.5) * shallow;
+    color = mix(color, vec3(0.86, 0.88, 0.9), foam * 0.6);
 
     // L'eau respire le même air que la terre. Les chunks de brouillard de
     // three.js ne mordaient pas sur cette matière ; la perspective aérienne
@@ -774,8 +831,67 @@ const oceanFragment = /* glsl */ `
 /** Le ciel réfléchi reste un peu plus clair et plus froid que l'air. */
 const SKY_TINT = new THREE.Color("#b8c6d2");
 
+/* ── Le champ de profondeur : une seule autorité pour l'eau ───────────── */
+
+/** Marge autour des bornes du monde : la mer déborde la terre. */
+const SEA_FIELD_MARGIN = 220;
+/** Résolution du champ. 320² suffit : la côte n'a pas besoin du centimètre. */
+const SEA_FIELD_STEPS = 320;
+/** Profondeur maximale encodée, en mètres. */
+const SEA_DEPTH_SCALE = 24;
+/** Taille de la nappe. Elle suit la caméra, donc elle n'a pas de bord. */
+const SEA_SPAN = 1400;
+
+const SEA_FIELD_MIN = new THREE.Vector2(
+  FABLE_BOUNDS.minX - SEA_FIELD_MARGIN,
+  FABLE_BOUNDS.minZ - SEA_FIELD_MARGIN
+);
+const SEA_FIELD_SIZE = new THREE.Vector2(
+  FABLE_BOUNDS.maxX - FABLE_BOUNDS.minX + SEA_FIELD_MARGIN * 2,
+  FABLE_BOUNDS.maxZ - FABLE_BOUNDS.minZ + SEA_FIELD_MARGIN * 2
+);
+
+/**
+ * Profondeur d'eau échantillonnée sur le vrai sol, encodée en texture.
+ *
+ * C'est le remplacement des deux rectangles écrits en dur : l'eau ne sait
+ * plus où est « la baie » ni « l'océan », elle sait seulement où le terrain
+ * passe sous le niveau de la mer. Le trait de côte devient donc le même
+ * objet pour la conduite, pour la carte et pour le rendu.
+ */
+function buildSeaDepthTexture() {
+  const n = SEA_FIELD_STEPS;
+  const data = new Uint8Array(n * n);
+
+  for (let j = 0; j < n; j += 1) {
+    const z = SEA_FIELD_MIN.y + (SEA_FIELD_SIZE.y * (j + 0.5)) / n;
+
+    for (let i = 0; i < n; i += 1) {
+      const x = SEA_FIELD_MIN.x + (SEA_FIELD_SIZE.x * (i + 0.5)) / n;
+      const depth = FABLE_SEA_LEVEL - fableGroundY(x, z);
+      data[j * n + i] = Math.max(
+        0,
+        Math.min(255, Math.round((depth / SEA_DEPTH_SCALE) * 255))
+      );
+    }
+  }
+
+  const texture = new THREE.DataTexture(data, n, n, THREE.RedFormat);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.needsUpdate = true;
+
+  return texture;
+}
+
 function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Color }) {
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
+  const seaRef = useRef<THREE.Mesh>(null);
+  const depthField = useMemo(() => buildSeaDepthTexture(), []);
+
+  useEffect(() => () => depthField.dispose(), [depthField]);
 
   const material = useMemo(
     () =>
@@ -791,9 +907,13 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
           uSky: { value: new THREE.Color("#c69a72") },
           uCameraPos: { value: new THREE.Vector3() },
           uTime: { value: 0 },
+          uDepth: { value: depthField },
+          uFieldMin: { value: SEA_FIELD_MIN },
+          uFieldSize: { value: SEA_FIELD_SIZE },
+          uDepthScale: { value: SEA_DEPTH_SCALE },
         },
       }),
-    [sunDir, sunColor]
+    [sunDir, sunColor, depthField]
   );
 
   useEffect(() => {
@@ -811,6 +931,11 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
     mat.uniforms.uCameraPos.value.copy(camera.position);
     mat.uniforms.uTime.value = clock.elapsedTime;
 
+    // La mer suit la caméra en x/z : aucun bord de plan ne peut apparaître.
+    if (seaRef.current) {
+      seaRef.current.position.set(camera.position.x, FABLE_SEA_LEVEL, camera.position.z);
+    }
+
     // L'air de l'eau suit celui de la scène, réglé chaque image par le
     // metteur en scène selon l'ère traversée. Une seule source.
     const fog = scene.fog;
@@ -827,16 +952,29 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
   });
 
   return (
-    <group>
-      {/* Océan au sud de la péninsule. */}
-      <mesh material={material} position={[120, 0, -320]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[900, 460, 48, 32]} />
-      </mesh>
-      {/* Baie intérieure : c'est elle qui creuse le fer à cheval. */}
-      <mesh material={material} position={[258, 0, 85]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[310, 400, 30, 38]} />
-      </mesh>
-    </group>
+    /*
+      Une seule mer, au niveau de la mer partagé.
+
+      Il y avait ici deux rectangles écrits en dur — un « océan » en
+      (120, −320) de 900×460, une « baie » en (258, 85) de 310×400 — dont la
+      géographie ne devait rien au monde : ni au relief, ni à la région de la
+      baie, ni au trait de côte que la carte extrait déjà du champ de hauteur.
+      Ils décidaient où était l'eau ; c'est le terrain qui doit le dire.
+
+      La nappe suit maintenant la caméra, donc elle n'a plus de bord qu'on
+      puisse surprendre, et le shader écarte le fragment partout où le sol
+      passe au-dessus du niveau de la mer. La côte n'est plus dessinée : elle
+      est ce qui reste quand la terre perce l'eau.
+    */
+    <mesh
+      ref={seaRef}
+      material={material}
+      rotation={[-Math.PI / 2, 0, 0]}
+      renderOrder={-50}
+      frustumCulled={false}
+    >
+      <planeGeometry args={[SEA_SPAN, SEA_SPAN, 64, 64]} />
+    </mesh>
   );
 }
 
