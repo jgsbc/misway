@@ -191,6 +191,34 @@ function FableDebugProbe({
               ? mesh.material[0]
               : mesh.material;
 
+            // Identité complète de l'instance touchée : sans l'index et sa
+            // matrice, on ne peut ni nommer le fautif ni dire d'où il vient.
+            const instanced = mesh as THREE.InstancedMesh;
+            let instance: Record<string, unknown> | null = null;
+
+            if (instanced.isInstancedMesh && hit.instanceId != null) {
+              const m = new THREE.Matrix4();
+              const p = new THREE.Vector3();
+              const q = new THREE.Quaternion();
+              const s = new THREE.Vector3();
+              instanced.getMatrixAt(hit.instanceId, m);
+              m.premultiply(instanced.matrixWorld).decompose(p, q, s);
+              instance = {
+                id: hit.instanceId,
+                count: instanced.count,
+                pos: [+p.x.toFixed(1), +p.y.toFixed(1), +p.z.toFixed(1)],
+                scale: [+s.x.toFixed(2), +s.y.toFixed(2), +s.z.toFixed(2)],
+                region: fableRegionAt(p.x, p.z).id,
+                ground: +fableGroundY(p.x, p.z).toFixed(2),
+              };
+            }
+
+            const chain: string[] = [];
+
+            for (let n: THREE.Object3D | null = mesh; n && chain.length < 6; n = n.parent) {
+              chain.push(n.name || n.type);
+            }
+
             return {
               d: +hit.distance.toFixed(1),
               geo: mesh.geometry?.type ?? null,
@@ -203,6 +231,8 @@ function FableDebugProbe({
                 +hit.point.y.toFixed(1),
                 +hit.point.z.toFixed(1),
               ],
+              instance,
+              chain,
             };
           });
       },
