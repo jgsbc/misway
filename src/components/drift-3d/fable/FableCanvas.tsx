@@ -615,7 +615,7 @@ export default function FableCanvas({
       <FableLife reducedMotion={reducedMotion} />
       {/* Densité d'air propre au port, rendue après le décor pour s'empiler
           par-dessus lui sans jamais toucher au ciel ni à la rive d'en face. */}
-      <FableGroundHaze />
+      <FableGroundHaze vehicleXRef={vehicleXRef} vehicleZRef={vehicleZRef} />
 
       <Drift3DVehicle
         ref={vehicleRef}

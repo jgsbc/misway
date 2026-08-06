@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { FABLE_REGIONS } from "@/components/drift-3d/fable/fablePeninsula";
 
@@ -80,7 +81,20 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
-export default function FableGroundHaze() {
+/**
+ * Portée de montage : au-delà, les coques sont inutiles et coûteuses. L'audit
+ * les a trouvées rendues depuis le cap sud, à deux cents mètres du port —
+ * quatorze cylindres transparents de 225 m que personne ne devait voir.
+ */
+const HAZE_MOUNT_RADIUS = BY.radius + 60;
+
+export default function FableGroundHaze({
+  vehicleXRef,
+  vehicleZRef,
+}: {
+  vehicleXRef: React.MutableRefObject<number>;
+  vehicleZRef: React.MutableRefObject<number>;
+}) {
   const shells = useMemo(() => {
     const list: Array<{ radius: number; alpha: number; order: number }> = [];
 
@@ -108,8 +122,22 @@ export default function FableGroundHaze() {
     []
   );
 
+  // Montée seulement quand le port est proche : la brume est un fait local,
+  // elle n'a rien à dire depuis l'autre bout de la péninsule.
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame(() => {
+    const group = groupRef.current;
+
+    if (!group) return;
+
+    group.visible =
+      Math.hypot(vehicleXRef.current - BY.x, vehicleZRef.current - BY.z) <
+      HAZE_MOUNT_RADIUS;
+  });
+
   return (
-    <group position={[BY.x, BY.baseY, BY.z]}>
+    <group ref={groupRef} position={[BY.x, BY.baseY, BY.z]}>
       {shells.map((shell, i) => (
         <mesh key={i} renderOrder={shell.order} position={[0, TOP * 0.5 - 1.5, 0]}>
           <cylinderGeometry args={[shell.radius, shell.radius, TOP, 40, 1, true]} />
