@@ -280,6 +280,10 @@ export function fablePeninsulaGroundY(x: number, z: number, routeDistance: numbe
     ground = ground * (1 - submerge) + (FABLE_SEA_LEVEL - 9) * submerge;
   }
 
+  // Les deux ouvertures voulues sur l'eau, taillées avant la chaussée pour
+  // que la route reprenne toujours le dessus sur son propre tracé.
+  ground = fableSeaOpenings(x, z, ground);
+
   // …sauf sous une route : une chaussée ne passe jamais sous l'eau.
   if (routeDistance < 24) {
     const grip = 1 - smoothstep(2, 24, routeDistance);
@@ -287,6 +291,96 @@ export function fablePeninsulaGroundY(x: number, z: number, routeDistance: numbe
   }
 
   return ground;
+}
+
+/* ── Les deux ouvertures sur l'eau ────────────────────────────────────── */
+
+/**
+ * Distance à un segment, et position le long de celui-ci. Les ouvertures se
+ * décrivent par un couloir orienté, jamais par une boîte : un couloir
+ * descend avec le terrain, une boîte y découpe une marche.
+ */
+function segmentField(
+  x: number,
+  z: number,
+  ax: number,
+  az: number,
+  bx: number,
+  bz: number
+) {
+  const dx = bx - ax;
+  const dz = bz - az;
+  const lengthSq = dx * dx + dz * dz || 1;
+  const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / lengthSq));
+
+  return {
+    t,
+    distance: Math.hypot(x - (ax + dx * t), z - (az + dz * t)),
+    length: Math.sqrt(lengthSq),
+  };
+}
+
+/**
+ * La percée du bassin vers la baie.
+ *
+ * Le lotissement atteint la rive et lui tourne le dos partout — c'est ce qui
+ * fait son enfermement, et on le garde. Ici, et seulement ici, un couloir de
+ * rétention jamais bâti descend de la chaussée jusqu'à l'eau. L'ouverture
+ * est étroite : la mer doit surprendre, pas border la banlieue.
+ */
+const VF_BREACH = { ax: 381, az: 234, bx: 344, bz: 189, halfWidth: 19 };
+
+/**
+ * La fenêtre de mer de New Signal.
+ *
+ * Une corniche qui ne voit pas la mer n'est pas une corniche. Une crête
+ * montait à 23,8 m devant une route à 17 m et fermait tout l'horizon sud.
+ * Plutôt que d'araser la région — l'altitude et le relief font l'ère — on
+ * abaisse le terrain sous une ligne de visée qui descend depuis la route :
+ * la mer devient visible par construction, et le relief reste ailleurs.
+ */
+const NS_WINDOW = {
+  ax: 268,
+  az: -82,
+  bx: 176,
+  bz: -222,
+  halfWidth: 62,
+  /** Altitude de l'œil sur la corniche. */
+  eyeY: 18.4,
+  /** Pente de la ligne de visée : ce qui dépasse est abaissé. */
+  fall: 0.085,
+};
+
+function fableSeaOpenings(x: number, z: number, ground: number) {
+  let result = ground;
+
+  const breach = segmentField(x, z, VF_BREACH.ax, VF_BREACH.az, VF_BREACH.bx, VF_BREACH.bz);
+
+  if (breach.distance < VF_BREACH.halfWidth + 16) {
+    // Le fond du couloir descend de la chaussée au niveau de l'eau.
+    const target = lerp(10.5, FABLE_SEA_LEVEL - 2.5, smoothstep(0.06, 0.92, breach.t));
+    const across = 1 - smoothstep(VF_BREACH.halfWidth * 0.45, VF_BREACH.halfWidth + 16, breach.distance);
+    result = Math.min(result, lerp(result, target, across));
+  }
+
+  const window = segmentField(x, z, NS_WINDOW.ax, NS_WINDOW.az, NS_WINDOW.bx, NS_WINDOW.bz);
+
+  if (window.distance < NS_WINDOW.halfWidth + 34) {
+    const along = window.t * window.length;
+    // Sous la ligne de visée, et pas plus bas : on ouvre la vue sans creuser.
+    const ceiling = NS_WINDOW.eyeY - along * NS_WINDOW.fall;
+    const across = 1 - smoothstep(NS_WINDOW.halfWidth * 0.5, NS_WINDOW.halfWidth + 34, window.distance);
+    // L'ouverture ne commence qu'après les premiers mètres : la route garde
+    // son épaulement, et le premier regard reste contraint.
+    const start = smoothstep(18, 52, along);
+    const blend = across * start;
+
+    if (blend > 0 && result > ceiling) {
+      result = lerp(result, Math.min(result, ceiling), blend);
+    }
+  }
+
+  return result;
 }
 
 /**
