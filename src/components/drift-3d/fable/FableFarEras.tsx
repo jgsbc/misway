@@ -771,6 +771,9 @@ const oceanFragment = /* glsl */ `
   }
 `;
 
+/** Le ciel réfléchi reste un peu plus clair et plus froid que l'air. */
+const SKY_TINT = new THREE.Color("#b8c6d2");
+
 function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Color }) {
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
 
@@ -815,6 +818,11 @@ function Ocean({ sunDir, sunColor }: { sunDir: THREE.Vector3; sunColor: THREE.Co
     if (fog instanceof THREE.FogExp2) {
       mat.uniforms.uFogColor.value.copy(fog.color);
       mat.uniforms.uFogDensity.value = fog.density;
+      // Ce que l'eau réfléchit, c'est le ciel de l'endroit où l'on est. Ce
+      // fut longtemps un tan chaud constant : à angle rasant le fresnel
+      // sature et la nappe rendait ce tan seul, si bien que la baie se
+      // lisait comme une plaine orange sous le ciel gris du bassin.
+      mat.uniforms.uSky.value.copy(fog.color).lerp(SKY_TINT, 0.42);
     }
   });
 

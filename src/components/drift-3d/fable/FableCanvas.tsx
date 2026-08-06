@@ -190,6 +190,85 @@ function FableDebugProbe({
           });
       },
       /**
+       * Valeurs réelles des uniformes de la matière sous un pixel. Une
+       * matière peut porter le bon code et ne jamais recevoir ses valeurs :
+       * c'est la seule façon de le voir depuis l'extérieur.
+       */
+      uniformsAt(ndcX: number, ndcY: number) {
+        const hit = probe.pixelAt(ndcX, ndcY, 1)[0];
+
+        if (!hit) return null;
+
+        const { camera, scene } = get();
+        const ray = new THREE.Raycaster();
+        ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+        ray.far = 2000;
+        // Mêmes filtres que pixelAt : visibilité héritée et sphère
+        // englobante des instances. Sans eux la sonde interroge une matière
+        // que le rendu ne dessine pas.
+        const shown = (o: THREE.Object3D) => {
+          for (let n: THREE.Object3D | null = o; n; n = n.parent) {
+            if (!n.visible) return false;
+          }
+
+          return true;
+        };
+        const meshes: THREE.Object3D[] = [];
+        scene.traverse((o) => {
+          const mesh = o as THREE.Mesh;
+
+          if (!mesh.isMesh || !shown(o)) return;
+
+          const instanced = o as THREE.InstancedMesh;
+
+          if (instanced.isInstancedMesh) instanced.computeBoundingSphere();
+
+          meshes.push(o);
+        });
+        const first = ray.intersectObjects(meshes, false)[0];
+        const mesh = first?.object as THREE.Mesh | undefined;
+        const material = Array.isArray(mesh?.material) ? mesh?.material[0] : mesh?.material;
+        const shader = material as THREE.ShaderMaterial | undefined;
+
+        if (!shader?.uniforms) return { type: material?.type ?? null, uniforms: null };
+
+        const out: Record<string, unknown> = {};
+
+        for (const [key, entry] of Object.entries(shader.uniforms)) {
+          const value = (entry as { value: unknown }).value;
+
+          if (typeof value === "number") out[key] = +value.toFixed(5);
+          else if (value instanceof THREE.Color) out[key] = `#${value.getHexString()}`;
+          else if (value instanceof THREE.Vector3)
+            out[key] = [+value.x.toFixed(2), +value.y.toFixed(2), +value.z.toFixed(2)];
+        }
+
+        return { type: material?.type ?? null, distance: +first.distance.toFixed(1), uniforms: out };
+      },
+      /**
+       * Masque les surfaces d'eau, reconnues à un uniforme qui n'appartient
+       * qu'à leur shader. Isolation contrôlée : deux sondes qui se
+       * contredisent se départagent en faisant disparaître l'une des deux.
+       */
+      setWaterVisible(on: boolean) {
+        let touched = 0;
+        get().scene.traverse((o) => {
+          const mesh = o as THREE.Mesh;
+
+          if (!mesh.isMesh) return;
+
+          const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+          const shader = material as THREE.ShaderMaterial;
+
+          if (!shader?.uniforms?.uDeep) return;
+
+          o.visible = on;
+          touched += 1;
+        });
+
+        return touched;
+      },
+      /**
        * Masque tous les maillages d'un type de géométrie donné. Sert au
        * diagnostic : quand une masse n'est identifiée par aucun rayon, la
        * faire disparaître est le seul test qui ne se discute pas.
