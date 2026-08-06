@@ -23,7 +23,12 @@ test("keyboard controls are relative throttle and steering", () => {
     new Set(["ArrowUp", "ArrowRight"])
   );
 
-  assert.deepEqual(input, { x: 1, z: 1, active: true });
+  assert.deepEqual(input, { x: -1, z: 1, active: true });
+  assert.deepEqual(getDrift3DDriveInput(new Set(["ArrowLeft"])), {
+    x: 1,
+    z: 0,
+    active: true,
+  });
   assert.deepEqual(getDrift3DDriveInput(new Set(["ArrowDown"])), {
     x: 0,
     z: -1,
@@ -31,7 +36,7 @@ test("keyboard controls are relative throttle and steering", () => {
   });
 });
 
-test("touch drag maps up to forward and down to reverse", () => {
+test("touch drag maps screen direction to matching steering", () => {
   const forward = getDrift3DDragDriveInput(
     { x: 100, y: 100 },
     { x: 100, y: 20 }
@@ -40,11 +45,21 @@ test("touch drag maps up to forward and down to reverse", () => {
     { x: 100, y: 100 },
     { x: 100, y: 180 }
   );
+  const right = getDrift3DDragDriveInput(
+    { x: 100, y: 100 },
+    { x: 180, y: 100 }
+  );
+  const left = getDrift3DDragDriveInput(
+    { x: 100, y: 100 },
+    { x: 20, y: 100 }
+  );
 
   assert.ok(forward.z > 0);
   assert.ok(reverse.z < 0);
   assert.equal(forward.x, 0);
   assert.equal(reverse.x, 0);
+  assert.ok(right.x < 0);
+  assert.ok(left.x > 0);
 });
 
 test("chase camera stays behind the vehicle heading", () => {
@@ -104,7 +119,7 @@ test("vehicle accelerates forward and can reverse", () => {
   assert.ok(reverseState.position.z < 0);
 });
 
-test("steering changes heading while moving forward", () => {
+test("right steering turns the vehicle right while moving forward", () => {
   const state = createDrift3DVehiclePhysicsState(
     { x: 0, y: 0.02, z: 0 },
     0
@@ -113,7 +128,7 @@ test("steering changes heading while moving forward", () => {
   for (let index = 0; index < 60; index += 1) {
     stepDrift3DVehiclePhysics(
       state,
-      { x: 1, z: 1, active: true },
+      { x: -1, z: 1, active: true },
       1 / 60,
       bounds,
       [],
@@ -122,6 +137,6 @@ test("steering changes heading while moving forward", () => {
     );
   }
 
-  assert.ok(state.heading > 0);
-  assert.ok(state.position.x > 0);
+  assert.ok(state.heading < 0);
+  assert.ok(state.position.x < 0);
 });
