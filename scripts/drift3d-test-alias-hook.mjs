@@ -9,5 +9,16 @@ export async function resolve(specifier, context, nextResolve) {
     return nextResolve(rewritten, context);
   }
 
+  if (
+    (specifier.startsWith("./") || specifier.startsWith("../")) &&
+    path.extname(specifier) === ""
+  ) {
+    try {
+      return await nextResolve(`${specifier}.ts`, context);
+    } catch {
+      // Fall through to Node's default resolver for non-TypeScript targets.
+    }
+  }
+
   return nextResolve(specifier, context);
 }
