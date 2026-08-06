@@ -27,6 +27,10 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+function normalizeSignedZero(value: number) {
+  return value === 0 ? 0 : value;
+}
+
 /**
  * Vehicle-relative controls used by the chase camera mode.
  * x follows the scene yaw convention (+1 left, -1 right), while z is
@@ -89,10 +93,12 @@ export function getDrift3DDragDriveInput(
     1
   );
   const directionScale = distance === 0 ? 0 : magnitude / distance;
+  const steering = clamp(-deltaX * directionScale, -1, 1);
+  const throttle = clamp(-deltaY * directionScale, -1, 1);
 
   return {
-    x: clamp(-deltaX * directionScale, -1, 1),
-    z: clamp(-deltaY * directionScale, -1, 1),
+    x: normalizeSignedZero(steering),
+    z: normalizeSignedZero(throttle),
     active: magnitude > 0,
   } satisfies Drift3DDriveInput;
 }
