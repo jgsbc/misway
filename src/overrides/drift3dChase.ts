@@ -29,7 +29,8 @@ function clamp(value: number, min: number, max: number) {
 
 /**
  * Vehicle-relative controls used by the chase camera mode.
- * x = steering (-1 left, +1 right), z = throttle (-1 reverse, +1 forward).
+ * x follows the scene yaw convention (+1 left, -1 right), while z is
+ * throttle (-1 reverse, +1 forward).
  */
 export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
   const throttle =
@@ -40,12 +41,12 @@ export function getDrift3DDriveInput(activeCodes: ReadonlySet<string>) {
       : 0) -
     (activeCodes.has("ArrowDown") || activeCodes.has("KeyS") ? 1 : 0);
   const steering =
-    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0) -
     (activeCodes.has("ArrowLeft") ||
     activeCodes.has("KeyA") ||
     activeCodes.has("KeyQ")
       ? 1
-      : 0);
+      : 0) -
+    (activeCodes.has("ArrowRight") || activeCodes.has("KeyD") ? 1 : 0);
 
   return {
     x: steering,
@@ -90,7 +91,7 @@ export function getDrift3DDragDriveInput(
   const directionScale = distance === 0 ? 0 : magnitude / distance;
 
   return {
-    x: clamp(deltaX * directionScale, -1, 1),
+    x: clamp(-deltaX * directionScale, -1, 1),
     z: clamp(-deltaY * directionScale, -1, 1),
     active: magnitude > 0,
   } satisfies Drift3DDriveInput;
