@@ -58,6 +58,48 @@ function FableDebugProbe({
 
   useEffect(() => {
     let last = performance.now();
+
+    /**
+     * Une seule collecte de maillages pour toutes les sondes. Deux listes
+     * bâties séparément se contredisent : l'une jurait qu'un pixel montrait
+     * l'eau, l'autre une matière standard. La visibilité est héritée, et une
+     * InstancedMesh garde la sphère englobante calculée avant que ses
+     * matrices soient posées — minuscule, elle fait sortir le raycaster
+     * d'emblée. Les deux pièges sont désarmés ici, une fois.
+     */
+    const collectMeshes = () => {
+      const shown = (o: THREE.Object3D) => {
+        for (let n: THREE.Object3D | null = o; n; n = n.parent) {
+          if (!n.visible) return false;
+        }
+
+        return true;
+      };
+      const meshes: THREE.Object3D[] = [];
+      get().scene.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+
+        if (!mesh.isMesh || !shown(o)) return;
+
+        const instanced = o as THREE.InstancedMesh;
+
+        if (instanced.isInstancedMesh) instanced.computeBoundingSphere();
+
+        meshes.push(o);
+      });
+
+      return meshes;
+    };
+
+    /** Lancer depuis la caméra, en coordonnées écran normalisées. */
+    const castFromCamera = (ndcX: number, ndcY: number) => {
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), get().camera);
+      ray.far = 2000;
+
+      return ray.intersectObjects(collectMeshes(), false);
+    };
+
     const probe = {
       lots: (z0: number, z1: number) =>
         lots
@@ -110,7 +152,11 @@ function FableDebugProbe({
         target.width = width;
         target.height = Math.round(source.height * scale);
         const ctx = target.getContext("2d")!;
-        probe.step(1);
+        // Deux images, pas une : le tampon de dessin n'est pas préservé, et
+        // lire juste après un changement de scène rendait parfois l'image
+        // précédente — assez cohérente pour faire croire à un défaut du
+        // monde là où la caméra était mesurée saine.
+        probe.step(2);
         ctx.drawImage(source, 0, 0, target.width, target.height);
         const url = target.toDataURL("image/jpeg", quality);
         (window as unknown as Record<string, unknown>).__fableSnap = url;
@@ -137,36 +183,7 @@ function FableDebugProbe({
        * on vise exactement ce que l'image montre.
        */
       pixelAt(ndcX: number, ndcY: number, count = 4) {
-        const { camera, scene } = get();
-        const ray = new THREE.Raycaster();
-        ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
-        ray.far = 2000;
-        const shown = (o: THREE.Object3D) => {
-          for (let n: THREE.Object3D | null = o; n; n = n.parent) {
-            if (!n.visible) return false;
-          }
-
-          return true;
-        };
-        const meshes: THREE.Object3D[] = [];
-        scene.traverse((o) => {
-          const mesh = o as THREE.Mesh;
-
-          if (!mesh.isMesh || !shown(o)) return;
-
-          // Une InstancedMesh garde la sphère englobante calculée avant que
-          // ses matrices soient posées : minuscule, elle fait sortir le
-          // raycaster d'emblée. Sans ce recalcul, la sonde jure qu'il n'y a
-          // rien là où le rendu dessine une ville entière.
-          const instanced = o as THREE.InstancedMesh;
-
-          if (instanced.isInstancedMesh) instanced.computeBoundingSphere();
-
-          meshes.push(o);
-        });
-
-        return ray
-          .intersectObjects(meshes, false)
+        return castFromCamera(ndcX, ndcY)
           .slice(0, count)
           .map((hit) => {
             const mesh = hit.object as THREE.Mesh;
@@ -195,38 +212,13 @@ function FableDebugProbe({
        * c'est la seule façon de le voir depuis l'extérieur.
        */
       uniformsAt(ndcX: number, ndcY: number) {
-        const hit = probe.pixelAt(ndcX, ndcY, 1)[0];
+        // Même lancer que pixelAt, à la lettre : c'est la seule garantie que
+        // les deux sondes parlent bien du même pixel.
+        const first = castFromCamera(ndcX, ndcY)[0];
 
-        if (!hit) return null;
+        if (!first) return null;
 
-        const { camera, scene } = get();
-        const ray = new THREE.Raycaster();
-        ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
-        ray.far = 2000;
-        // Mêmes filtres que pixelAt : visibilité héritée et sphère
-        // englobante des instances. Sans eux la sonde interroge une matière
-        // que le rendu ne dessine pas.
-        const shown = (o: THREE.Object3D) => {
-          for (let n: THREE.Object3D | null = o; n; n = n.parent) {
-            if (!n.visible) return false;
-          }
-
-          return true;
-        };
-        const meshes: THREE.Object3D[] = [];
-        scene.traverse((o) => {
-          const mesh = o as THREE.Mesh;
-
-          if (!mesh.isMesh || !shown(o)) return;
-
-          const instanced = o as THREE.InstancedMesh;
-
-          if (instanced.isInstancedMesh) instanced.computeBoundingSphere();
-
-          meshes.push(o);
-        });
-        const first = ray.intersectObjects(meshes, false)[0];
-        const mesh = first?.object as THREE.Mesh | undefined;
+        const mesh = first.object as THREE.Mesh | undefined;
         const material = Array.isArray(mesh?.material) ? mesh?.material[0] : mesh?.material;
         const shader = material as THREE.ShaderMaterial | undefined;
 
