@@ -9,7 +9,11 @@ import {
 import * as legacyTopology from "@/lib/drift3dTopologyBase";
 import { getDrift3DNodeRadius } from "@/lib/drift3dTopologyBase";
 import { getDrift3DTerrainHeight as getLegacyTerrainHeight } from "./drift3dTerrainLegacy";
-import { getDrift3DPeninsulaBaseHeight } from "./drift3dPeninsula";
+import {
+  DRIFT_3D_SEA_LEVEL,
+  getDrift3DPeninsulaBaseHeight,
+} from "./drift3dPeninsula";
+import { getDrift3DRouteField } from "./drift3dRoutes";
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -19,6 +23,14 @@ function smoothstep01(value: number) {
   const t = clamp01(value);
 
   return t * t * (3 - 2 * t);
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  if (edge0 === edge1) {
+    return value < edge0 ? 0 : 1;
+  }
+
+  return smoothstep01((value - edge0) / (edge1 - edge0));
 }
 
 function legacyDetailWeight(distance: number, radius: number) {
@@ -68,8 +80,39 @@ function getLegacyDetailHeight(x: number, z: number) {
   return detail;
 }
 
+/**
+ * A road is geography, not decoration. Close to a route the terrain converges
+ * to the route altitude; the shoulder then releases smoothly back into the
+ * peninsula. This is the recovered Fable distance-field doctrine.
+ */
+function applyRouteTerrain(baseHeight: number, x: number, z: number) {
+  const route = getDrift3DRouteField(x, z);
+
+  if (!Number.isFinite(route.distance) || route.distance >= 34) {
+    return baseHeight;
+  }
+
+  const influence = 1 - smoothstep(2, 34, route.distance);
+  const shoulderRise =
+    Math.pow(Math.max(0, route.distance - 1.5), 1.2) * 0.2;
+  const shelfHeight = route.altitude + shoulderRise;
+  let ground = baseHeight * (1 - influence) + shelfHeight * influence;
+
+  // A real road cannot silently become submerged because a bay field wins a
+  // blend. Coast/water rendering comes later; geographic driveability is
+  // protected now.
+  if (baseHeight < DRIFT_3D_SEA_LEVEL && route.distance < 24) {
+    ground = Math.max(ground, route.altitude - 0.3);
+  }
+
+  return ground;
+}
+
 function getRawTerrainHeight(x: number, z: number) {
-  return getDrift3DPeninsulaBaseHeight(x, z) + getLegacyDetailHeight(x, z);
+  const geographicHeight =
+    getDrift3DPeninsulaBaseHeight(x, z) + getLegacyDetailHeight(x, z);
+
+  return applyRouteTerrain(geographicHeight, x, z);
 }
 
 const FLATTEN_INNER = 2.6;
