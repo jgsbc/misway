@@ -6,7 +6,10 @@ import {
   getDrift3DInspectorTeleportTarget,
 } from "@/lib/drift3dInspector";
 import { DRIFT_3D_PENINSULA_BOUNDS } from "@/lib/drift3dPeninsula";
-import { getDrift3DRouteField } from "@/lib/drift3dRoutes";
+import {
+  getDrift3DNearestRoutePoint,
+  getDrift3DRouteField,
+} from "@/lib/drift3dRoutes";
 import { getDrift3DWaterDepth } from "@/lib/drift3dWater";
 import { createDrift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
 
@@ -23,11 +26,12 @@ test("World Inspector exposes one safe teleport for Entry and each era", () => {
   );
 });
 
-test("all inspector teleports are finite, in bounds, dry and on the route network", () => {
+test("all inspector teleports are finite, in bounds, dry and aligned to the route network", () => {
   for (const target of DRIFT_3D_INSPECTOR_TELEPORTS) {
     assert.ok(Number.isFinite(target.x));
     assert.ok(Number.isFinite(target.y));
     assert.ok(Number.isFinite(target.z));
+    assert.ok(Number.isFinite(target.heading));
     assert.ok(target.x >= DRIFT_3D_PENINSULA_BOUNDS.minX);
     assert.ok(target.x <= DRIFT_3D_PENINSULA_BOUNDS.maxX);
     assert.ok(target.z >= DRIFT_3D_PENINSULA_BOUNDS.minZ);
@@ -36,6 +40,17 @@ test("all inspector teleports are finite, in bounds, dry and on the route networ
     assert.ok(
       getDrift3DRouteField(target.x, target.z).distance <= 1e-9,
       `${target.id} is not on a route centerline`
+    );
+
+    const route = getDrift3DNearestRoutePoint(target.x, target.z);
+    const headingError = Math.atan2(
+      Math.sin(target.heading - route.heading),
+      Math.cos(target.heading - route.heading)
+    );
+
+    assert.ok(
+      Math.abs(headingError) <= 1e-9,
+      `${target.id} is not aligned with its route tangent`
     );
   }
 });
@@ -60,6 +75,7 @@ test("inspector snapshot reads canonical spatial and renderer truth", () => {
   assert.equal(snapshot.viewMode, "top-down");
   assert.equal(snapshot.vehicle.x, target.x);
   assert.equal(snapshot.vehicle.z, target.z);
+  assert.equal(snapshot.vehicle.heading, target.heading);
   assert.equal(snapshot.ground.waterDepth, 0);
   assert.ok(snapshot.spatial.routeId);
   assert.equal(snapshot.render.drawCalls, 12);
