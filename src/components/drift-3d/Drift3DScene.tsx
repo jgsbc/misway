@@ -31,6 +31,7 @@ import { getDrift3DChaseCameraRig } from "@/lib/drift3d";
 const DRIFT_3D_CHASE_CAMERA_POSITION_RESPONSE = 7.5;
 const DRIFT_3D_CHASE_CAMERA_TARGET_RESPONSE = 10;
 const DRIFT_3D_INSPECTOR_TOP_DOWN_Y = 170;
+const DRIFT_3D_INSPECTOR_SAFE_TELEPORT_ZOOM = 1;
 
 type Drift3DSceneProps = ComponentProps<typeof OriginalDrift3DScene>;
 
@@ -257,6 +258,7 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
         );
 
         props.vehicleStateRef.current = nextVehicleState;
+        props.cameraZoomTargetRef.current = DRIFT_3D_INSPECTOR_SAFE_TELEPORT_ZOOM;
         proximityRef.current = nextProximity;
         props.onProximityChange?.(nextProximity);
         inspectorTeleportRevisionRef.current += 1;
@@ -284,7 +286,7 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
           .__drift3dWorldInspector;
       }
     };
-  }, [props.onProximityChange, props.vehicleStateRef]);
+  }, [props.cameraZoomTargetRef, props.onProximityChange, props.vehicleStateRef]);
 
   return (
     <>
