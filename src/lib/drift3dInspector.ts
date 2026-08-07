@@ -96,7 +96,7 @@ function safeRoadTarget(
       getDrift3DGroundY(targetX, targetZ) +
       DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
     z: targetZ,
-    heading: 0,
+    heading: route.routeId ? route.heading : 0,
   }) satisfies Drift3DInspectorTeleportTarget;
 }
 
