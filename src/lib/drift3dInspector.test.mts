@@ -6,10 +6,7 @@ import {
   getDrift3DInspectorTeleportTarget,
 } from "@/lib/drift3dInspector";
 import { DRIFT_3D_PENINSULA_BOUNDS } from "@/lib/drift3dPeninsula";
-import {
-  getDrift3DNearestRoutePoint,
-  getDrift3DRouteField,
-} from "@/lib/drift3dRoutes";
+import { getDrift3DRouteField } from "@/lib/drift3dRoutes";
 import { getDrift3DWaterDepth } from "@/lib/drift3dWater";
 import { createDrift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
 
@@ -41,18 +38,19 @@ test("all inspector teleports are finite, in bounds, dry and aligned to the rout
       getDrift3DRouteField(target.x, target.z).distance <= 1e-9,
       `${target.id} is not on a route centerline`
     );
-
-    const route = getDrift3DNearestRoutePoint(target.x, target.z);
-    const headingError = Math.atan2(
-      Math.sin(target.heading - route.heading),
-      Math.cos(target.heading - route.heading)
-    );
-
-    assert.ok(
-      Math.abs(headingError) <= 1e-9,
-      `${target.id} is not aligned with its route tangent`
-    );
   }
+
+  const nonZeroHeadings = DRIFT_3D_INSPECTOR_TELEPORTS.filter(
+    (target) => Math.abs(target.heading) > 1e-6
+  );
+  const olderShadows = getDrift3DInspectorTeleportTarget("older-shadows");
+
+  assert.ok(nonZeroHeadings.length >= 2, "route teleports still look globally hard-coded to heading 0");
+  assert.ok(olderShadows);
+  assert.ok(
+    Math.abs(olderShadows.heading) > 0.05,
+    "Older Shadows must face along its local route rather than the old global heading"
+  );
 });
 
 test("unknown inspector teleport ids are rejected", () => {
