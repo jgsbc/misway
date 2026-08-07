@@ -5,61 +5,49 @@
 
 ## NOW
 
-### A1 — Recovery + canonical documentation
+### Kill Gate A — LOOK / DRIVE / MEASURE
 
-- establish `WORLD_VISION.md`, `WORLD_CONTENT.md`, `WORLD_ARCHITECTURE.md`, `WORLD_BACKLOG.md`;
-- maintain temporary `WORLD_RECOVERY.md` until convergence is complete;
-- classify before deleting;
-- stop treating the former 153-lot integral backlog as the day-to-day execution authority.
+Campaign A foundations are technically integrated. Do **not** densify yet.
 
-**Done when:** the five files exist, current authority is explicit, old documents are sources/historical unless still delegated by the canonical docs.
+Validate the running `/drift` and `/drift-greybox-lab` on the real production runtime:
 
-### A2 — Extract the Fable peninsula into production `/drift`
+- drive Entry → Birth Yard → Older Shadows → Vegetative Field → New Signal;
+- verify metric scale, route readability, grades, terrain continuity and coast/bay credibility;
+- verify the validated chase camera and driving feel did not regress;
+- use Inspector teleports/top-down/spatial probes to diagnose defects;
+- capture current FPS / draw calls / triangles / geometries / textures where possible;
+- distinguish geographic defects from missing visual density.
 
-Visible goal:
+**Kill Gate A passes only when:**
 
-> opening `/drift` reveals the real large peninsula with the existing vehicle, chase camera and object scale unchanged.
+> the large world is already coherent, pleasant and promising to traverse before additional decoration.
 
-Scope:
+If not, fix geography/routes/terrain/water first.
 
-- extract peninsula bounds/spine/x-z region geography from Fable;
-- preserve production shell, audio, vehicle, controls, camera and accepted content;
-- establish the new metric world bounds without global scaling;
-- migrate production terrain queries to the recovered geography through one authority;
-- keep the first PR focused on geography/topology only.
+### A5b — convergence cleanup, only after visual parity
 
-**Kill gate A:** the enlarged world must already feel coherent and promising to traverse before density work.
+- remove the redundant legacy translation-follow camera callback only after chase parity is visually confirmed;
+- collapse `*Base` / `*Legacy` recovery wrappers only where the canonical implementation can absorb them without behavior drift;
+- keep each cleanup PR behavior-equivalent and independently testable.
 
 ## NEXT
 
-### A3 — Routes + terrain relationship
+### B — Birth Yard Hero Slice / quality proof
 
-- extract/adapt Fable route field/network;
-- make roads influence local terrain;
-- validate route continuity, grades and vehicle clearance;
-- add deterministic tests for route/terrain invariants.
+Only after Kill Gate A passes:
 
-### A4 — Sea / coast / bay
+- select a limited Birth Yard road/territory slice;
+- establish a real Visual Target from accepted masterframes;
+- use existing/licensed assets and coherent PBR materials where code-only primitives are insufficient;
+- improve vehicle/road/buildings/vegetation/population/atmosphere/events only inside the slice;
+- measure desktop and mobile performance;
+- identify which repeated quality work deserves reusable infrastructure.
 
-- one sea-level authority;
-- coherent seabed/depth/coast relation;
-- remove arbitrary water geometry only after replacement is proven;
-- validate true opposite shores and accessible coastline.
+**Kill Gate B:**
 
-### A5 — Runtime simplification + World Inspector
+> is the slice genuinely impressive enough to justify generalization?
 
-- remove the now-redundant legacy camera callback and collapse `*Base` migration wrappers when behavior parity is proven;
-- turn Greybox into a World Inspector reading the same production world data;
-- add high-value topology/terrain/water/route/perf probes.
-
-### B — Hero quality slice
-
-- choose a limited Birth Yard area;
-- establish a real Visual Target using appropriate assets/materials rather than code-only primitives where quality demands it;
-- measure performance on desktop and mobile;
-- generalize nothing until the slice is genuinely impressive.
-
-**Kill gate B:** do not industrialize mediocre quality.
+If no, fix the quality pipeline instead of producing four mediocre eras.
 
 ## LATER
 
@@ -67,27 +55,27 @@ Scope:
 
 Only after Campaigns A/B are convincing:
 
-- AssetRegistry / MaterialRegistry where real reuse justifies them;
+- AssetRegistry / MaterialRegistry only where real repeated authoring proves value;
 - EraManifest / TrackManifest;
 - deterministic PopulationGrammar;
 - AudioFeatureManifest;
 - reusable event/narrative primitives;
 - convert contrasting tracks such as FOOLFOULE, EUX GAINENT and A WALK IN ZEELAND;
-- integrate one new track primarily through data/assets/signature without changing core runtimes.
+- integrate one previously unconverted track primarily through data/assets/signature without changing world/camera/audio/terrain runtimes.
 
 ### D — Complete MISWAY
 
-- all eras/tracks/transitions/signatures;
-- quality tiers;
+- remaining eras/tracks/transitions/signatures;
+- shared quality tiers;
 - performance/memory hardening;
 - mobile.
 
 ### E — Prove the platform
 
 - minimal WalkingExperience;
-- LAMBDA spike (500–1000 m, 2–3 tracks, 1–2 eras);
-- small DOGGOD spike only after LAMBDA proves reuse;
-- declare World Platform V1 only when the same core/runtime infrastructure supports materially different worlds without forks.
+- LAMBDA spike: 500–1000 m, 2–3 tracks, 1–2 eras;
+- DOGGOD spike only after LAMBDA proves reuse;
+- declare World Platform V1 only when materially different worlds share the proven infrastructure without forks.
 
 ### World Composer
 
@@ -96,5 +84,11 @@ Deferred until MISWAY + Track Factory + LAMBDA + DOGGOD spike are proven.
 ## DONE
 
 - accepted EUX GAINENT proof slice and owner review on `main`;
-- chase camera + vehicle-relative controls/physics validated in PR #38;
-- PR #39: removed hidden `src/overrides`/`tsconfig` chase authorities and made canonical runtime paths explicit while preserving previous blobs and behavior.
+- PR #38: chase camera + vehicle-relative controls/physics validated;
+- PR #39: canonicalized chase runtime and removed hidden override aliases;
+- PR #40: established compact WORLD canonical docs + temporary recovery map;
+- PR #41: added runtime CI — tests / lint / TypeScript / production build;
+- PR #42: recovered 710 m × 710 m Fable peninsula into `/drift` with rigid era translations and preserved local scale;
+- PR #43: recovered five-route network, route distance field and route-shaped terrain; protected carriageway from legacy scatter;
+- PR #44: established single sea-level authority, geographic water depth and one canonical sea surface;
+- PR #45: converted `/drift-greybox-lab` into World Inspector V1 over the exact production runtime.

@@ -16,56 +16,59 @@ Decisions:
 
 | Source | Value | Target | Decision |
 |---|---|---|---|
-| `/drift` production shell (`Drift3DClient`, `Drift3DCanvas`) | working WebGL/reduced-motion shell, lifecycle, input/pinch, audio integration | production runtime | **KEEP** |
-| canonical chase controls/camera after PR #39 | owner-validated vehicle-relative controls and chase behavior | Driving behavior in production | **KEEP** |
-| canonical vehicle physics after PR #39 | validated arcade/simcade base, terrain following, airborne/collisions | Driving behavior in production | **KEEP** |
-| `drift3dBase.ts`, `drift3dVehiclePhysicsBase.ts`, `Drift3DSceneBase.tsx` | exact preserved pre-migration implementations | collapse into simpler canonical modules after parity proof | **MIGRATE** |
-| legacy translation-follow callback inside `Drift3DSceneBase` | historical camera behavior, currently overwritten by chase rig | none after parity proof | **ARCHIVE**, then **DELETE** only after verified redundant |
-| `drift3dAudioClock`, cue resolver, signature arbitration, lifecycle | proven shared temporal contracts | production runtime / later reusable runtime | **KEEP** |
-| EUX GAINENT accepted local dramaturgy/cues/living scene | accepted artistic + technical proof | MISWAY track territory / reusable patterns later | **KEEP**; selective **EXTRACT** later |
-| current `drift3dTerrain` / `drift3dTopology` | current runtime truth and compatibility surface | peninsula-era production terrain/topology authority | **MIGRATE**, never bypass |
-| current scatter/instancing | proven efficient population primitive | future population grammar inputs | **KEEP** / selective **EXTRACT** |
-| current atmosphere/material helpers | proven reusable visual infrastructure | shared era/material capabilities | **KEEP** / extend only when needed |
-| Fable peninsula spine/bounds/x-z regions | strong large-world geography and coherent era placement | production MISWAY geography | **EXTRACT** |
-| Fable terrain / region weighting / bay field | coherent relief, coast and water-depth R&D | production terrain authority | **EXTRACT**, adapt behind one query authority |
-| Fable route network / route distance field | route continuity + terrain influence | production route/terrain system | **EXTRACT** |
-| Fable deterministic generation ideas | reproducible spatial generation | production generators where generation is real | **EXTRACT** selectively |
-| Fable track territories / density doctrine | authored spatial experiments and lessons | MISWAY grammar/content | **REFERENCE**, then selective **EXTRACT** |
-| Fable debug probes / immersion findings | expensive R&D evidence | World Inspector / tests | **EXTRACT** selectively |
-| Fable canvas/shell/input/camera/audio/runtime | competing implementation authorities | none | **REFERENCE** during extraction, then **ARCHIVE** |
-| Greybox lab/world | useful inspection/cartography R&D | World Inspector using production runtime | **MIGRATE** |
-| masterframes / accepted visual references | accepted artistic targets | `WORLD_CONTENT` + production QA | **KEEP** |
-| current primitive-only pilot assets | useful technical pilots, insufficient as universal final foreground art | asset strategy / references | **REFERENCE**; reuse only where quality is adequate |
-| removed `src/overrides/*` chase files from #38 | zero unique value after PR #39 canonical migration | canonical runtime files | **DELETE — DONE**, after blob-preserving migration |
+| `/drift` production shell (`Drift3DClient`, `Drift3DCanvas`) | working shell, lifecycle, inputs/pinch, audio integration | production runtime | **KEEP** |
+| canonical chase controls/camera | owner-validated vehicle-relative controls and chase behavior | production driving | **KEEP** |
+| canonical vehicle physics | validated arcade/simcade base, terrain following, airborne/collisions | production driving | **KEEP** |
+| `drift3dBase`, `drift3dVehiclePhysicsBase`, `Drift3DSceneBase` | preserved pre-migration implementations | simpler canonical modules after parity proof | **MIGRATE — OPEN** |
+| legacy translation-follow callback in `Drift3DSceneBase` | superseded camera behavior | none after parity proof | **ARCHIVE → DELETE only after visual parity** |
+| `drift3dTopologyBase`, `drift3dTerrainLegacy`, `drift3dScatterBase` | preserved local production data/behavior used during recovery | canonical spatial/population authorities | **MIGRATE — OPEN** |
+| `drift3dAudioClock`, cue resolver, signature arbitration, lifecycle | proven shared temporal contracts | production / later reusable runtime | **KEEP** |
+| EUX GAINENT accepted dramaturgy/cues/living scene | accepted artistic + technical proof | MISWAY track territory / reusable patterns later | **KEEP**; selective **EXTRACT** later |
+| canonical `drift3dTopology` / `drift3dTerrain` | production peninsula/topology/ground truth after #42/#43 | production spatial authority | **KEEP — RECOVERY DONE** |
+| canonical `drift3dRoutes` | five recovered routes + deterministic distance/altitude field | production route authority | **KEEP — RECOVERY DONE** |
+| canonical `drift3dWater` + sea surface | geographic water depth + single sea-level rendering authority | production water authority | **KEEP — RECOVERY DONE** |
+| current scatter/instancing | proven efficient local population primitive | future population grammar inputs | **KEEP**; selective **EXTRACT** only when justified |
+| atmosphere / texture / material helpers | proven reusable visual infrastructure | current visual runtime | **KEEP** |
+| Fable peninsula spine/bounds/x-z regions | large-world geography and coherent era placement | production MISWAY geography | **EXTRACT — DONE in #42** |
+| Fable terrain / region weighting / bay field | relief, coast and depth R&D | production terrain | **EXTRACT — DONE/ADAPTED in #42/#44** |
+| Fable route network / route distance field | route continuity + terrain influence | production route/terrain | **EXTRACT — DONE in #43** |
+| Fable deterministic generation ideas | reproducible spatial generation | current geography/routes and future proven generators | **PARTIAL EXTRACT — KEEP REFERENCE** |
+| Fable track territories / density doctrine | authored spatial experiments and lessons | future MISWAY grammar/content | **REFERENCE** |
+| Fable debug probes / immersion findings | expensive R&D evidence | tests / World Inspector | **PARTIAL EXTRACT — KEEP REFERENCE** |
+| Fable canvas/shell/input/camera/audio/runtime | competing authorities | none | **REFERENCE → ARCHIVE**, never merge wholesale |
+| old Greybox lab/world | cartography/debug R&D | World Inspector | **MIGRATE — DONE in #45** |
+| `/drift-greybox-lab` after #45 | Inspector over exact production runtime | debugging authority | **KEEP** |
+| masterframes / accepted visual references | accepted artistic targets | `WORLD_CONTENT` + visual QA | **KEEP** |
+| primitive-only pilot assets | useful technical pilots, insufficient as universal final foreground art | Hero Slice / asset strategy | **REFERENCE**; reuse only where quality is adequate |
+| removed `src/overrides/*` chase files | zero unique value after canonical migration | canonical runtime | **DELETE — DONE in #39** |
 
 ## Documentation recovery
 
 | Source/family | Remaining value | Target | Classification |
 |---|---|---|---|
-| `DRIFT_3D_REALISM_BIBLE.md` | detailed realism doctrine | `WORLD_VISION.md` | **ACTIVE SOURCE → ABSORB** |
-| `DRIFT_3D_LIVING_WORLD_BIBLE.md` | detailed world-life/narrative doctrine | `WORLD_VISION.md` / `WORLD_CONTENT.md` | **ACTIVE SOURCE → ABSORB** |
-| `DRIFT_3D_GLOBAL_ART_DIRECTION.md` | accepted cross-era synthesis | `WORLD_VISION.md` / `WORLD_CONTENT.md` | **ACTIVE SOURCE → ABSORB** |
-| `DRIFT_3D_ERA_TRACK_ATLAS.md` | detailed accepted/preliminary 27-segment content | `WORLD_CONTENT.md` | **ACTIVE SOURCE → ABSORB progressively** |
-| accepted Identity Contracts / Cue Maps | local artistic/timing authority | `WORLD_CONTENT.md` delegation + runtime data | **KEEP LOCAL AUTHORITY** until data-driven replacement exists |
-| `DRIFT_3D_MASTERFRAME_BRIEFS.md` + evidence | accepted visual targets | `WORLD_CONTENT.md` | **KEEP REFERENCE**, absorb stable decisions |
-| `DRIFT_3D_RUNTIME_MIGRATION_MAP.md` | useful previous inventory, now stale vs Fable/#39 | this recovery map + `WORLD_ARCHITECTURE.md` | **HISTORICAL / REFERENCE** |
-| `DRIFT_3D_INTEGRAL_SYSTEMS_ARCHITECTURE.md`, shared-kit target docs | design ideas, often prospective | `WORLD_ARCHITECTURE.md` only when proven | **REFERENCE**, not runtime authority |
-| `DRIFT_3D_INTEGRAL_BACKLOG.md` | historical 153-lot plan and traceability | `WORLD_BACKLOG.md` | **HISTORICAL**; no longer day-to-day execution authority |
-| `DRIFT_DOCUMENTATION_MAP.md` | useful historical authority map, but reflects pre-convergence regime | canonical WORLD docs | **HISTORICAL / REFERENCE** |
-| old art direction / set-design / implementation matrices already superseded | history/provenance only | Git history | **ARCHIVE** |
+| `DRIFT_3D_REALISM_BIBLE.md` | detailed realism doctrine | `WORLD_VISION.md` | **SOURCE → ABSORB as touched** |
+| `DRIFT_3D_LIVING_WORLD_BIBLE.md` | detailed world-life/narrative doctrine | `WORLD_VISION.md` / `WORLD_CONTENT.md` | **SOURCE → ABSORB as touched** |
+| `DRIFT_3D_GLOBAL_ART_DIRECTION.md` | accepted cross-era synthesis | canonical WORLD docs | **SOURCE → ABSORB as touched** |
+| `DRIFT_3D_ERA_TRACK_ATLAS.md` | detailed 27-segment content | `WORLD_CONTENT.md` | **SOURCE → ABSORB progressively** |
+| accepted Identity Contracts / Cue Maps | local artistic/timing authority | runtime data / `WORLD_CONTENT` delegation | **KEEP LOCAL AUTHORITY** until data-driven replacement exists |
+| masterframe briefs + evidence | accepted visual targets | `WORLD_CONTENT.md` | **KEEP REFERENCE** |
+| `DRIFT_3D_RUNTIME_MIGRATION_MAP.md` | previous inventory | canonical WORLD docs / Git history | **HISTORICAL / REFERENCE** |
+| integral systems/shared-kit target docs | prospective ideas | `WORLD_ARCHITECTURE.md` only when proven | **REFERENCE**, not runtime authority |
+| `DRIFT_3D_INTEGRAL_BACKLOG.md` | historical 153-lot traceability | `WORLD_BACKLOG.md` | **HISTORICAL** |
+| `DRIFT_DOCUMENTATION_MAP.md` | pre-convergence authority map | canonical WORLD docs | **HISTORICAL / REFERENCE** |
+| superseded implementation matrices | provenance only | Git history | **ARCHIVE** |
 | evidence files | proof of accepted work | retained evidence | **KEEP REFERENCE** |
 
-## Current recovery conclusion
+## Recovery state after Campaign A foundations
 
-There is no justification for a wholesale rewrite.
+The major R&D harvest is complete enough to stop treating Fable/Greybox as alternative products:
 
-The highest-value convergence path is:
+1. production shell, driving, audio and accepted content were preserved;
+2. Fable peninsula geography was extracted into production;
+3. Fable routes and route-shaped terrain were extracted;
+4. canonical sea/coast/bay queries and rendering were established;
+5. Greybox became an Inspector of the same runtime.
 
-1. preserve the production shell, accepted driving/camera/audio and EUX GAINENT;
-2. extract Fable's large geography into the existing production authority;
-3. extract routes and coherent land/sea relationships;
-4. convert Greybox into an inspector of that same world;
-5. simplify transitional wrappers only after behavioral parity is proven;
-6. generalize manifests/registries/generators only after the real world demonstrates repeated needs.
+Remaining recovery work is **cleanup, not a rewrite**. Do not delete the `*Base` / `*Legacy` sources until the running world has passed Kill Gate A and each preserved behavior has an equivalent canonical home.
 
-**DELETE remains exceptional.** No Fable geographic or artistic R&D is to be deleted during Campaign A.
+**DELETE remains exceptional.** Fable artistic/geographic R&D remains available in branch history even when no longer authoritative.
