@@ -65,7 +65,7 @@ function ChaseCameraRig({
   const cinematicZoomRef = useRef(1);
   const initializedRef = useRef(false);
   const previousViewModeRef = useRef<Drift3DInspectorViewMode>("chase");
-  const previousTeleportRevisionRef = useRef(inspectorTeleportRevisionRef.current);
+  const previousTeleportRevisionRef = useRef(-1);
   const smoothedPositionRef = useRef(new THREE.Vector3());
   const smoothedTargetRef = useRef(new THREE.Vector3());
   const desiredPositionRef = useRef(new THREE.Vector3());
