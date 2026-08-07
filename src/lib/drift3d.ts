@@ -20,11 +20,13 @@ export const DRIFT_3D_CHASE_CAMERA_DEPTH = 7.6;
 export const DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD = 3.2;
 export const DRIFT_3D_CHASE_CAMERA_TARGET_HEIGHT = 0.72;
 export const DRIFT_3D_CHASE_CAMERA_MIN_GROUND_CLEARANCE = 1.15;
+export const DRIFT_3D_CHASE_CAMERA_TARGET_GROUND_CLEARANCE = 0.8;
 
 export type Drift3DChaseCameraOptions = {
   cinematicScale?: number;
   groundY?: (x: number, z: number) => number;
   minimumGroundClearance?: number;
+  targetGroundClearance?: number;
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -140,6 +142,24 @@ export function getDrift3DChaseCameraRig(
     terrainFloor
   );
   const lookAheadScale = Math.min(effectiveScale, 1.6);
+  const targetX =
+    vehiclePosition.x +
+    headingVector.x * DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD * lookAheadScale;
+  const targetZ =
+    vehiclePosition.z +
+    headingVector.z * DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD * lookAheadScale;
+  const targetGroundClearance = Math.max(
+    0,
+    options.targetGroundClearance ??
+      DRIFT_3D_CHASE_CAMERA_TARGET_GROUND_CLEARANCE
+  );
+  const targetTerrainFloor = options.groundY
+    ? options.groundY(targetX, targetZ) + targetGroundClearance
+    : Number.NEGATIVE_INFINITY;
+  const targetY = Math.max(
+    vehiclePosition.y + DRIFT_3D_CHASE_CAMERA_TARGET_HEIGHT,
+    targetTerrainFloor
+  );
 
   return {
     position: {
@@ -148,13 +168,9 @@ export function getDrift3DChaseCameraRig(
       z: positionZ,
     },
     target: {
-      x:
-        vehiclePosition.x +
-        headingVector.x * DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD * lookAheadScale,
-      y: vehiclePosition.y + DRIFT_3D_CHASE_CAMERA_TARGET_HEIGHT,
-      z:
-        vehiclePosition.z +
-        headingVector.z * DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD * lookAheadScale,
+      x: targetX,
+      y: targetY,
+      z: targetZ,
     },
   };
 }
