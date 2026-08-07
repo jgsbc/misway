@@ -1,68 +1,33 @@
-import { driftMapConfig } from "@/lib/driftMap";
-import type { DriftPropType } from "@/types/drift";
+export * from "./drift3dVehiclePhysicsBase";
+
 import {
   getDrift3DHeadingVector,
-  getDrift3DPropTransform,
-  getDrift3DYawFromVector,
   type Drift3DDriveInput,
   type Drift3DMovementBounds,
-  type Drift3DPoint,
-} from "@/lib/drift3d";
+} from "./drift3d";
+import {
+  DRIFT_3D_AIR_CONTROL,
+  DRIFT_3D_GRAVITY,
+  DRIFT_3D_MAX_GROUND_FOLLOW_RATE,
+  DRIFT_3D_VEHICLE_ACCELERATION,
+  DRIFT_3D_VEHICLE_COLLISION_BOUNCE,
+  DRIFT_3D_VEHICLE_COLLISION_RADIUS,
+  DRIFT_3D_VEHICLE_DRIFT_GRIP_FACTOR,
+  DRIFT_3D_VEHICLE_FRICTION,
+  DRIFT_3D_VEHICLE_GRIP,
+  DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
+  DRIFT_3D_VEHICLE_MAX_SPEED,
+  DRIFT_3D_VEHICLE_REVERSE_MAX_SPEED,
+  DRIFT_3D_VEHICLE_TURN_RATE_MAX,
+  DRIFT_3D_VEHICLE_TURN_RATE_MIN,
+  type Drift3DVehicleCollider,
+  type Drift3DVehiclePhysicsState,
+  type Drift3DVehiclePhysicsStepResult,
+} from "./drift3dVehiclePhysicsBase";
 
-export const DRIFT_3D_VEHICLE_MAX_SPEED = 6.4;
-export const DRIFT_3D_VEHICLE_REVERSE_MAX_SPEED = 3.1;
-export const DRIFT_3D_VEHICLE_ACCELERATION = 9;
-export const DRIFT_3D_VEHICLE_FRICTION = 7.2;
-export const DRIFT_3D_VEHICLE_TURN_RATE_MAX = 3.6;
-export const DRIFT_3D_VEHICLE_TURN_RATE_MIN = 1.25;
-export const DRIFT_3D_VEHICLE_GRIP = 10.5;
-export const DRIFT_3D_VEHICLE_DRIFT_GRIP_FACTOR = 0.3;
-export const DRIFT_3D_VEHICLE_COLLISION_RADIUS = 0.34;
-export const DRIFT_3D_VEHICLE_COLLISION_BOUNCE = 0.32;
-export const DRIFT_3D_GRAVITY = 22;
-/** Le point de référence physique = le contact des roues du 4x4. */
-export const DRIFT_3D_VEHICLE_GROUND_CLEARANCE = 0.02;
-/** Vitesse verticale max (u/s) à laquelle les roues suivent un sol qui descend. */
-export const DRIFT_3D_MAX_GROUND_FOLLOW_RATE = 8.5;
-/** Contrôle directionnel résiduel en vol. */
-export const DRIFT_3D_AIR_CONTROL = 0.14;
-
-const solidPropRadii: Partial<Record<DriftPropType, number>> = {
-  sign: 0.16,
-  lamp: 0.12,
-  speaker: 0.16,
-  desk: 0.22,
-  stone: 0.1,
-  synth: 0.2,
-  chair: 0.12,
-  bridge: 0.26,
-};
-
-export type Drift3DVehicleCollider = {
-  x: number;
-  z: number;
-  radius: number;
-};
-
-export type Drift3DVehiclePhysicsState = {
-  position: Drift3DPoint;
-  velocityX: number;
-  velocityZ: number;
-  velocityY: number;
-  heading: number;
-  speed: number;
-  airborne: boolean;
-  /** Taux vertical lissé au sol — devient la vitesse de décollage sur une lèvre. */
-  slopeVerticalRate: number;
-};
-
-export type Drift3DVehiclePhysicsStepResult = {
-  moved: boolean;
-  slip: number;
-  airborne: boolean;
-  /** Vitesse verticale absorbée à l'atterrissage (0 si pas d'impact). */
-  landingImpact: number;
-};
+const DRIFT_3D_VEHICLE_BRAKE_DECELERATION = 13.5;
+const DRIFT_3D_VEHICLE_REVERSE_ACCELERATION_FACTOR = 0.72;
+const DRIFT_3D_VEHICLE_INPUT_EPSILON = 0.01;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -74,49 +39,6 @@ function normalizeAngle(angle: number) {
 
 function lerp(from: number, to: number, amount: number) {
   return from + (to - from) * clamp(amount, 0, 1);
-}
-
-export function createDrift3DVehiclePhysicsState(
-  position: Drift3DPoint,
-  heading = 0
-): Drift3DVehiclePhysicsState {
-  return {
-    position: { ...position },
-    velocityX: 0,
-    velocityZ: 0,
-    velocityY: 0,
-    heading,
-    speed: 0,
-    airborne: false,
-    slopeVerticalRate: 0,
-  };
-}
-
-export function getDrift3DPropColliders(): Drift3DVehicleCollider[] {
-  const colliders: Drift3DVehicleCollider[] = [];
-
-  for (const zone of driftMapConfig.zones) {
-    for (const prop of zone.props ?? []) {
-      const radius = solidPropRadii[prop.type];
-
-      if (!radius) {
-        continue;
-      }
-
-      const transform = getDrift3DPropTransform(prop, {
-        width: driftMapConfig.width,
-        height: driftMapConfig.height,
-      });
-
-      colliders.push({
-        x: transform.position.x,
-        z: transform.position.z,
-        radius,
-      });
-    }
-  }
-
-  return colliders;
 }
 
 function resolvePropCollisions(
@@ -193,6 +115,32 @@ function resolveBoundaryCollision(
   return collided;
 }
 
+function getSlopeFactor(
+  state: Drift3DVehiclePhysicsState,
+  throttle: number,
+  getGroundY?: (x: number, z: number) => number
+) {
+  if (!getGroundY || Math.abs(throttle) <= DRIFT_3D_VEHICLE_INPUT_EPSILON) {
+    return 1;
+  }
+
+  const headingVector = getDrift3DHeadingVector(state.heading);
+  const travelDirection = throttle >= 0 ? 1 : -1;
+  const probe = 1.2;
+  const currentGround = getGroundY(state.position.x, state.position.z);
+  const nextGround = getGroundY(
+    state.position.x + headingVector.x * probe * travelDirection,
+    state.position.z + headingVector.z * probe * travelDirection
+  );
+  const slopeAhead = (nextGround - currentGround) / probe;
+
+  return clamp(1 - slopeAhead * 0.85, 0.3, 1.3);
+}
+
+/**
+ * Arcade vehicle step for a chase camera:
+ * input.x steers, input.z accelerates/brakes/reverses relative to the vehicle.
+ */
 export function stepDrift3DVehiclePhysics(
   state: Drift3DVehiclePhysicsState,
   input: Drift3DDriveInput,
@@ -206,8 +154,18 @@ export function stepDrift3DVehiclePhysics(
   const previousHeading = state.heading;
   const maxSpeed = DRIFT_3D_VEHICLE_MAX_SPEED * speedScale;
   const reverseMaxSpeed = DRIFT_3D_VEHICLE_REVERSE_MAX_SPEED * speedScale;
-
-  const speedRatio = clamp(Math.abs(state.speed) / maxSpeed, 0, 1);
+  const throttle = clamp(input.z, -1, 1);
+  const steering = clamp(input.x, -1, 1);
+  const throttleActive =
+    Math.abs(throttle) > DRIFT_3D_VEHICLE_INPUT_EPSILON;
+  const steeringActive =
+    Math.abs(steering) > DRIFT_3D_VEHICLE_INPUT_EPSILON;
+  const referenceSpeed = state.speed >= 0 ? maxSpeed : reverseMaxSpeed;
+  const speedRatio = clamp(
+    Math.abs(state.speed) / Math.max(referenceSpeed, 0.001),
+    0,
+    1
+  );
   const airFactor = state.airborne ? DRIFT_3D_AIR_CONTROL : 1;
   const turnRate =
     lerp(
@@ -216,40 +174,66 @@ export function stepDrift3DVehiclePhysics(
       speedRatio
     ) * airFactor;
 
-  if (input.active) {
-    const desiredHeading = getDrift3DYawFromVector(input);
-    const headingDelta = normalizeAngle(desiredHeading - state.heading);
-    const maxStep = turnRate * dt;
-    state.heading = normalizeAngle(
-      state.heading + clamp(headingDelta, -maxStep, maxStep)
+  if (steeringActive) {
+    const reversing =
+      state.speed < -0.05 ||
+      (Math.abs(state.speed) <= 0.05 && throttle < -0.05);
+    const steeringDirection = reversing ? -1 : 1;
+    const steeringAuthority = clamp(
+      speedRatio * 1.25 + (throttleActive ? 0.2 : 0),
+      0,
+      1
     );
 
-    if (!state.airborne) {
-      // la pente freine la montée et pousse à la descente
-      let slopeFactor = 1;
+    state.heading = normalizeAngle(
+      state.heading +
+        steering * steeringDirection * turnRate * steeringAuthority * dt
+    );
+  }
 
-      if (getGroundY) {
-        const headingVector = getDrift3DHeadingVector(state.heading);
-        const probe = 1.2;
-        const slopeAhead =
-          (getGroundY(
-            state.position.x + headingVector.x * probe,
-            state.position.z + headingVector.z * probe
-          ) -
-            getGroundY(state.position.x, state.position.z)) /
-          probe;
-        slopeFactor = clamp(1 - slopeAhead * 0.85, 0.3, 1.3);
+  if (!state.airborne) {
+    if (throttle > DRIFT_3D_VEHICLE_INPUT_EPSILON) {
+      if (state.speed < -0.05) {
+        state.speed = Math.min(
+          0,
+          state.speed +
+            DRIFT_3D_VEHICLE_BRAKE_DECELERATION * throttle * dt
+        );
+      } else {
+        const slopeFactor = getSlopeFactor(state, throttle, getGroundY);
+        state.speed +=
+          DRIFT_3D_VEHICLE_ACCELERATION *
+          speedScale *
+          slopeFactor *
+          throttle *
+          dt;
       }
+    } else if (throttle < -DRIFT_3D_VEHICLE_INPUT_EPSILON) {
+      const reverseAmount = Math.abs(throttle);
 
-      state.speed +=
-        DRIFT_3D_VEHICLE_ACCELERATION * speedScale * slopeFactor * dt;
+      if (state.speed > 0.05) {
+        state.speed = Math.max(
+          0,
+          state.speed -
+            DRIFT_3D_VEHICLE_BRAKE_DECELERATION * reverseAmount * dt
+        );
+      } else {
+        const slopeFactor = getSlopeFactor(state, throttle, getGroundY);
+        state.speed -=
+          DRIFT_3D_VEHICLE_ACCELERATION *
+          DRIFT_3D_VEHICLE_REVERSE_ACCELERATION_FACTOR *
+          speedScale *
+          slopeFactor *
+          reverseAmount *
+          dt;
+      }
+    } else if (Math.abs(state.speed) > 0.0001) {
+      const decel = DRIFT_3D_VEHICLE_FRICTION * dt;
+      state.speed =
+        state.speed > 0
+          ? Math.max(0, state.speed - decel)
+          : Math.min(0, state.speed + decel);
     }
-  } else if (!state.airborne && Math.abs(state.speed) > 0.0001) {
-    const decel = DRIFT_3D_VEHICLE_FRICTION * dt;
-    state.speed =
-      state.speed > 0
-        ? Math.max(0, state.speed - decel)
-        : Math.min(0, state.speed + decel);
   }
 
   state.speed = clamp(state.speed, -reverseMaxSpeed, maxSpeed);
@@ -288,7 +272,6 @@ export function stepDrift3DVehiclePhysics(
       state.velocityX * headingVector.x + state.velocityZ * headingVector.z;
   }
 
-  // ─── Verticale : suivi de sol, décollage, chute, atterrissage ────────────
   let landingImpact = 0;
 
   if (getGroundY) {
@@ -312,13 +295,13 @@ export function stepDrift3DVehiclePhysics(
         dt > 0 ? (groundTarget - state.position.y) / dt : 0;
 
       if (requiredRate < -DRIFT_3D_MAX_GROUND_FOLLOW_RATE) {
-        // le sol se dérobe (lèvre de rampe, falaise) : décollage balistique
         state.airborne = true;
         state.velocityY = clamp(state.slopeVerticalRate, 0, 14);
         state.position.y += state.velocityY * dt;
       } else {
         state.slopeVerticalRate =
-          state.slopeVerticalRate * 0.5 + clamp(requiredRate, -20, 20) * 0.5;
+          state.slopeVerticalRate * 0.5 +
+          clamp(requiredRate, -20, 20) * 0.5;
         state.position.y = groundTarget;
         state.velocityY = 0;
       }

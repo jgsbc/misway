@@ -4,11 +4,11 @@ import {
   getDrift3DChaseCameraRig,
   getDrift3DDragDriveInput,
   getDrift3DDriveInput,
-} from "@/overrides/drift3dChase";
+} from "@/lib/drift3d";
 import {
   createDrift3DVehiclePhysicsState,
   stepDrift3DVehiclePhysics,
-} from "@/overrides/drift3dVehiclePhysicsChase";
+} from "@/lib/drift3dVehiclePhysics";
 
 const bounds = {
   minX: -100,
