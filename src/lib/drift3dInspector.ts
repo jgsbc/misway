@@ -112,6 +112,11 @@ function safeRoadTarget(
   }) satisfies Drift3DInspectorTeleportTarget;
 }
 
+const vegetativeFieldNeutralSample = Object.freeze({
+  x: drift3dEraById["vegetative-field"].center.x + 6,
+  z: drift3dEraById["vegetative-field"].center.z - 26,
+});
+
 export const DRIFT_3D_INSPECTOR_TELEPORTS: readonly Drift3DInspectorTeleportTarget[] =
   Object.freeze([
     safeRoadTarget(
@@ -132,11 +137,14 @@ export const DRIFT_3D_INSPECTOR_TELEPORTS: readonly Drift3DInspectorTeleportTarg
       drift3dEraById["older-shadows"].center.x,
       drift3dEraById["older-shadows"].center.z
     ),
+    // The era center sits almost on CHAILK and therefore inherits its dense
+    // chalk-fog sub-region. Sample the same era on its south spine instead so
+    // the Inspector shows Vegetative Field's baseline atmosphere/geography.
     safeRoadTarget(
       "vegetative-field",
       "Vegetative Field",
-      drift3dEraById["vegetative-field"].center.x,
-      drift3dEraById["vegetative-field"].center.z
+      vegetativeFieldNeutralSample.x,
+      vegetativeFieldNeutralSample.z
     ),
     safeRoadTarget(
       "new-signal",
