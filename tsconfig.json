@@ -19,13 +19,6 @@
       }
     ],
     "paths": {
-      "@/components/drift-3d/Drift3DScene": [
-        "./src/overrides/Drift3DSceneChase"
-      ],
-      "@/lib/drift3d": ["./src/overrides/drift3dChase"],
-      "@/lib/drift3dVehiclePhysics": [
-        "./src/overrides/drift3dVehiclePhysicsChase"
-      ],
       "@/*": ["./src/*"]
     }
   },
