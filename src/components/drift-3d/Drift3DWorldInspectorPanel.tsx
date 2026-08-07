@@ -116,6 +116,21 @@ export default function Drift3DWorldInspectorPanel() {
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-white/15 pt-3">
+            <span className="text-white/45">zoom / cine</span>
+            <span>
+              {format(snapshot.camera.zoomTarget)} / {format(snapshot.camera.cinematicZoom)}
+            </span>
+            <span className="text-white/45">cam xyz</span>
+            <span>
+              {format(snapshot.camera.x, 1)} / {format(snapshot.camera.y, 1)} / {format(snapshot.camera.z, 1)}
+            </span>
+            <span className="text-white/45">cam target</span>
+            <span>
+              {format(snapshot.camera.targetX, 1)} / {format(snapshot.camera.targetY, 1)} / {format(snapshot.camera.targetZ, 1)}
+            </span>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-white/15 pt-3">
             <span className="text-white/45">draw calls</span>
             <span>{snapshot.render.drawCalls}</span>
             <span className="text-white/45">triangles</span>
