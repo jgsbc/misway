@@ -17,7 +17,10 @@ import {
   type Drift3DWorldInspectorProbe,
 } from "@/lib/drift3dInspector";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
-import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
+import {
+  getDrift3DTopologyProximity,
+  type Drift3DTopologyProximity,
+} from "@/lib/drift3dTopology";
 import {
   createDrift3DVehiclePhysicsState,
   type Drift3DVehiclePhysicsState,
@@ -211,10 +214,17 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
           return false;
         }
 
-        props.vehicleStateRef.current = createDrift3DVehiclePhysicsState(
+        const nextVehicleState = createDrift3DVehiclePhysicsState(
           { x: target.x, y: target.y, z: target.z },
           target.heading
         );
+        const nextProximity = getDrift3DTopologyProximity(
+          nextVehicleState.position
+        );
+
+        props.vehicleStateRef.current = nextVehicleState;
+        proximityRef.current = nextProximity;
+        props.onProximityChange?.(nextProximity);
         inspectorTeleportRevisionRef.current += 1;
         return true;
       },
@@ -240,7 +250,7 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
           .__drift3dWorldInspector;
       }
     };
-  }, [props.vehicleStateRef]);
+  }, [props.onProximityChange, props.vehicleStateRef]);
 
   return (
     <>

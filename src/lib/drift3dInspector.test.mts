@@ -23,11 +23,12 @@ test("World Inspector exposes one safe teleport for Entry and each era", () => {
   );
 });
 
-test("all inspector teleports are finite, in bounds, dry and on the route network", () => {
+test("all inspector teleports are finite, in bounds, dry and aligned to the route network", () => {
   for (const target of DRIFT_3D_INSPECTOR_TELEPORTS) {
     assert.ok(Number.isFinite(target.x));
     assert.ok(Number.isFinite(target.y));
     assert.ok(Number.isFinite(target.z));
+    assert.ok(Number.isFinite(target.heading));
     assert.ok(target.x >= DRIFT_3D_PENINSULA_BOUNDS.minX);
     assert.ok(target.x <= DRIFT_3D_PENINSULA_BOUNDS.maxX);
     assert.ok(target.z >= DRIFT_3D_PENINSULA_BOUNDS.minZ);
@@ -38,6 +39,18 @@ test("all inspector teleports are finite, in bounds, dry and on the route networ
       `${target.id} is not on a route centerline`
     );
   }
+
+  const nonZeroHeadings = DRIFT_3D_INSPECTOR_TELEPORTS.filter(
+    (target) => Math.abs(target.heading) > 1e-6
+  );
+  const olderShadows = getDrift3DInspectorTeleportTarget("older-shadows");
+
+  assert.ok(nonZeroHeadings.length >= 2, "route teleports still look globally hard-coded to heading 0");
+  assert.ok(olderShadows);
+  assert.ok(
+    Math.abs(olderShadows.heading) > 0.05,
+    "Older Shadows must face along its local route rather than the old global heading"
+  );
 });
 
 test("unknown inspector teleport ids are rejected", () => {
@@ -60,6 +73,7 @@ test("inspector snapshot reads canonical spatial and renderer truth", () => {
   assert.equal(snapshot.viewMode, "top-down");
   assert.equal(snapshot.vehicle.x, target.x);
   assert.equal(snapshot.vehicle.z, target.z);
+  assert.equal(snapshot.vehicle.heading, target.heading);
   assert.equal(snapshot.ground.waterDepth, 0);
   assert.ok(snapshot.spatial.routeId);
   assert.equal(snapshot.render.drawCalls, 12);

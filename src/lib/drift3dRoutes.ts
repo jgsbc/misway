@@ -322,7 +322,13 @@ export function getDrift3DRouteField(x: number, z: number): Drift3DRouteField {
 
 export function getDrift3DNearestRoutePoint(x: number, z: number) {
   let bestDistance = Number.POSITIVE_INFINITY;
-  let best = { x, y: 0, z, routeId: null as string | null };
+  let best = {
+    x,
+    y: 0,
+    z,
+    routeId: null as string | null,
+    heading: 0,
+  };
 
   for (const segment of routeSegments) {
     const sample = sampleSegment(segment, x, z);
@@ -335,6 +341,7 @@ export function getDrift3DNearestRoutePoint(x: number, z: number) {
         y: sample.altitude,
         z: sample.z,
         routeId: segment.routeId,
+        heading: Math.atan2(segment.bx - segment.ax, segment.bz - segment.az),
       };
     }
   }
