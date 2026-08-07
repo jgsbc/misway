@@ -1,4 +1,8 @@
 export * from "./drift3dBase";
+export {
+  getDrift3DPropTransform,
+  getDrift3DZoneTransform,
+} from "./drift3dLegacyPlacement";
 
 import {
   DRIFT_3D_CAMERA_MAX_SCALE,
