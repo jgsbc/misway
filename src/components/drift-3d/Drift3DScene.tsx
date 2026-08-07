@@ -6,6 +6,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import OriginalDrift3DScene from "./Drift3DSceneBase";
 import Drift3DRoadNetwork from "./Drift3DRoadNetwork";
+import Drift3DWaterSurface from "./Drift3DWaterSurface";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
@@ -117,6 +118,7 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
     <>
       <OriginalDrift3DScene {...props} />
       <Drift3DRoadNetwork />
+      <Drift3DWaterSurface />
       <ChaseCameraRig
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
