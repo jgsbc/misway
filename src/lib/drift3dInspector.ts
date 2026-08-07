@@ -41,6 +41,17 @@ export type Drift3DInspectorRenderMetrics = Readonly<{
   textures: number;
 }>;
 
+export type Drift3DInspectorCameraMetrics = Readonly<{
+  zoomTarget: number;
+  cinematicZoom: number;
+  x: number;
+  y: number;
+  z: number;
+  targetX: number;
+  targetY: number;
+  targetZ: number;
+}>;
+
 export type Drift3DInspectorSnapshot = Readonly<{
   viewMode: Drift3DInspectorViewMode;
   vehicle: Readonly<{
@@ -66,6 +77,7 @@ export type Drift3DInspectorSnapshot = Readonly<{
     activeNodeId: string | null;
     nearestNodeId: string | null;
   }>;
+  camera: Drift3DInspectorCameraMetrics;
   render: Drift3DInspectorRenderMetrics;
   worldBounds: typeof DRIFT_3D_PENINSULA_BOUNDS;
 }>;
@@ -142,7 +154,8 @@ export function createDrift3DInspectorSnapshot(
   vehicle: Drift3DVehiclePhysicsState,
   proximity: Drift3DTopologyProximity | null,
   viewMode: Drift3DInspectorViewMode,
-  render: Drift3DInspectorRenderMetrics
+  render: Drift3DInspectorRenderMetrics,
+  camera: Drift3DInspectorCameraMetrics
 ): Drift3DInspectorSnapshot {
   const { x, y, z } = vehicle.position;
   const terrainHeight = getDrift3DTerrainHeight(x, z);
@@ -174,6 +187,7 @@ export function createDrift3DInspectorSnapshot(
       activeNodeId: proximity?.activeNode?.id ?? null,
       nearestNodeId: proximity?.nearestNode?.id ?? null,
     }),
+    camera: Object.freeze({ ...camera }),
     render: Object.freeze({ ...render }),
     worldBounds: DRIFT_3D_PENINSULA_BOUNDS,
   });

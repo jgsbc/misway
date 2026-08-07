@@ -12,6 +12,7 @@ import {
   createDrift3DInspectorSnapshot,
   DRIFT_3D_INSPECTOR_TELEPORTS,
   getDrift3DInspectorTeleportTarget,
+  type Drift3DInspectorCameraMetrics,
   type Drift3DInspectorRenderMetrics,
   type Drift3DInspectorViewMode,
   type Drift3DWorldInspectorProbe,
@@ -40,6 +41,7 @@ type ChaseCameraRigProps = {
   inspectorViewModeRef: MutableRefObject<Drift3DInspectorViewMode>;
   inspectorTeleportRevisionRef: MutableRefObject<number>;
   inspectorMetricsRef: MutableRefObject<Drift3DInspectorRenderMetrics>;
+  inspectorCameraRef: MutableRefObject<Drift3DInspectorCameraMetrics>;
 };
 
 function getActiveTrackSlug(proximity: Drift3DTopologyProximity | null) {
@@ -61,6 +63,7 @@ function ChaseCameraRig({
   inspectorViewModeRef,
   inspectorTeleportRevisionRef,
   inspectorMetricsRef,
+  inspectorCameraRef,
 }: ChaseCameraRigProps) {
   const camera = useThree((state) => state.camera);
   const gl = useThree((state) => state.gl);
@@ -83,6 +86,19 @@ function ChaseCameraRig({
     };
   }
 
+  function captureCameraMetrics(target: THREE.Vector3) {
+    inspectorCameraRef.current = {
+      zoomTarget: cameraZoomTargetRef.current,
+      cinematicZoom: cinematicZoomRef.current,
+      x: camera.position.x,
+      y: camera.position.y,
+      z: camera.position.z,
+      targetX: target.x,
+      targetY: target.y,
+      targetZ: target.z,
+    };
+  }
+
   // Positive priority guarantees this camera is applied after the legacy
   // translation-follow callback, then renders the completed frame once.
   useFrame((_, delta) => {
@@ -96,13 +112,19 @@ function ChaseCameraRig({
 
     if (viewMode === "top-down") {
       const vehicle = vehicleStateRef.current.position;
+      const topDownTarget = desiredTargetRef.current.set(
+        vehicle.x,
+        vehicle.y,
+        vehicle.z
+      );
       camera.up.set(0, 0, -1);
       camera.position.set(
         vehicle.x,
         vehicle.y + DRIFT_3D_INSPECTOR_TOP_DOWN_Y,
         vehicle.z + 0.1
       );
-      camera.lookAt(vehicle.x, vehicle.y, vehicle.z);
+      camera.lookAt(topDownTarget);
+      captureCameraMetrics(topDownTarget);
       gl.render(scene, camera);
       captureRenderMetrics();
       previousViewModeRef.current = viewMode;
@@ -169,6 +191,7 @@ function ChaseCameraRig({
 
     camera.position.copy(smoothedPositionRef.current);
     camera.lookAt(smoothedTargetRef.current);
+    captureCameraMetrics(smoothedTargetRef.current);
     gl.render(scene, camera);
     captureRenderMetrics();
   }, 1);
@@ -184,6 +207,16 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
     triangles: 0,
     geometries: 0,
     textures: 0,
+  });
+  const inspectorCameraRef = useRef<Drift3DInspectorCameraMetrics>({
+    zoomTarget: 1,
+    cinematicZoom: 1,
+    x: 0,
+    y: 0,
+    z: 0,
+    targetX: 0,
+    targetY: 0,
+    targetZ: 0,
   });
   const proximityRef = useRef(props.proximity);
 
@@ -205,7 +238,8 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
           props.vehicleStateRef.current,
           proximityRef.current,
           inspectorViewModeRef.current,
-          inspectorMetricsRef.current
+          inspectorMetricsRef.current,
+          inspectorCameraRef.current
         ),
       teleport: (id: string) => {
         const target = getDrift3DInspectorTeleportTarget(id);
@@ -264,6 +298,7 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
         inspectorViewModeRef={inspectorViewModeRef}
         inspectorTeleportRevisionRef={inspectorTeleportRevisionRef}
         inspectorMetricsRef={inspectorMetricsRef}
+        inspectorCameraRef={inspectorCameraRef}
       />
     </>
   );

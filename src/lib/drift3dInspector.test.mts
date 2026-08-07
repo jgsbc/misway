@@ -57,17 +57,28 @@ test("unknown inspector teleport ids are rejected", () => {
   assert.equal(getDrift3DInspectorTeleportTarget("not-a-place"), null);
 });
 
-test("inspector snapshot reads canonical spatial and renderer truth", () => {
+test("inspector snapshot reads canonical spatial, camera and renderer truth", () => {
   const target = DRIFT_3D_INSPECTOR_TELEPORTS[1];
   const vehicle = createDrift3DVehiclePhysicsState(
     { x: target.x, y: target.y, z: target.z },
     target.heading
   );
+  const camera = {
+    zoomTarget: 1.25,
+    cinematicZoom: 1.1,
+    x: 10,
+    y: 20,
+    z: 30,
+    targetX: 11,
+    targetY: 12,
+    targetZ: 13,
+  };
   const snapshot = createDrift3DInspectorSnapshot(
     vehicle,
     null,
     "top-down",
-    { drawCalls: 12, triangles: 3456, geometries: 18, textures: 9 }
+    { drawCalls: 12, triangles: 3456, geometries: 18, textures: 9 },
+    camera
   );
 
   assert.equal(snapshot.viewMode, "top-down");
@@ -76,6 +87,7 @@ test("inspector snapshot reads canonical spatial and renderer truth", () => {
   assert.equal(snapshot.vehicle.heading, target.heading);
   assert.equal(snapshot.ground.waterDepth, 0);
   assert.ok(snapshot.spatial.routeId);
+  assert.deepEqual(snapshot.camera, camera);
   assert.equal(snapshot.render.drawCalls, 12);
   assert.equal(snapshot.render.triangles, 3456);
   assert.equal(snapshot.render.geometries, 18);
