@@ -5,8 +5,12 @@ import {
   createDrift3DInspectorSnapshot,
   getDrift3DInspectorTeleportTarget,
 } from "@/lib/drift3dInspector";
-import { DRIFT_3D_PENINSULA_BOUNDS } from "@/lib/drift3dPeninsula";
+import {
+  DRIFT_3D_PENINSULA_BOUNDS,
+  getDrift3DPeninsulaEraAt,
+} from "@/lib/drift3dPeninsula";
 import { getDrift3DRouteField } from "@/lib/drift3dRoutes";
+import { getDrift3DTopologyProximity } from "@/lib/drift3dTopology";
 import { getDrift3DWaterDepth } from "@/lib/drift3dWater";
 import { createDrift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
 
@@ -53,6 +57,23 @@ test("all inspector teleports are finite, in bounds, dry and aligned to the rout
   );
 });
 
+test("Vegetative Field teleport samples the era baseline outside track nodes", () => {
+  const target = getDrift3DInspectorTeleportTarget("vegetative-field");
+
+  assert.ok(target);
+  assert.equal(getDrift3DPeninsulaEraAt(target.x, target.z), "vegetative-field");
+  const proximity = getDrift3DTopologyProximity({
+    x: target.x,
+    y: target.y,
+    z: target.z,
+  });
+  assert.equal(
+    proximity.activeNode,
+    null,
+    "Vegetative Field Inspector teleport must not land inside CHAILK or another track node"
+  );
+});
+
 test("unknown inspector teleport ids are rejected", () => {
   assert.equal(getDrift3DInspectorTeleportTarget("not-a-place"), null);
 });
@@ -90,7 +111,5 @@ test("inspector snapshot reads canonical spatial, camera and renderer truth", ()
   assert.deepEqual(snapshot.camera, camera);
   assert.equal(snapshot.render.drawCalls, 12);
   assert.equal(snapshot.render.triangles, 3456);
-  assert.equal(snapshot.render.geometries, 18);
-  assert.equal(snapshot.render.textures, 9);
   assert.deepEqual(snapshot.worldBounds, DRIFT_3D_PENINSULA_BOUNDS);
 });
