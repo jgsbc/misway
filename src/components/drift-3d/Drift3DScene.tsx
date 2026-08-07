@@ -26,9 +26,7 @@ import { getDrift3DChaseCameraRig } from "@/lib/drift3d";
 
 const DRIFT_3D_CHASE_CAMERA_POSITION_RESPONSE = 7.5;
 const DRIFT_3D_CHASE_CAMERA_TARGET_RESPONSE = 10;
-const DRIFT_3D_PRODUCTION_CAMERA_FAR = 200;
-const DRIFT_3D_INSPECTOR_CAMERA_FAR = 2500;
-const DRIFT_3D_INSPECTOR_TOP_DOWN_Y = 1500;
+const DRIFT_3D_INSPECTOR_TOP_DOWN_Y = 170;
 
 type Drift3DSceneProps = ComponentProps<typeof OriginalDrift3DScene>;
 
@@ -93,22 +91,15 @@ function ChaseCameraRig({
       previousTeleportRevisionRef.current = teleportRevision;
     }
 
-    if (camera instanceof THREE.PerspectiveCamera) {
-      const targetFar =
-        viewMode === "top-down"
-          ? DRIFT_3D_INSPECTOR_CAMERA_FAR
-          : DRIFT_3D_PRODUCTION_CAMERA_FAR;
-
-      if (camera.far !== targetFar) {
-        camera.far = targetFar;
-        camera.updateProjectionMatrix();
-      }
-    }
-
     if (viewMode === "top-down") {
+      const vehicle = vehicleStateRef.current.position;
       camera.up.set(0, 0, -1);
-      camera.position.set(0, DRIFT_3D_INSPECTOR_TOP_DOWN_Y, 0.1);
-      camera.lookAt(0, 0, 0);
+      camera.position.set(
+        vehicle.x,
+        vehicle.y + DRIFT_3D_INSPECTOR_TOP_DOWN_Y,
+        vehicle.z + 0.1
+      );
+      camera.lookAt(vehicle.x, vehicle.y, vehicle.z);
       gl.render(scene, camera);
       captureRenderMetrics();
       previousViewModeRef.current = viewMode;
@@ -192,7 +183,10 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
     textures: 0,
   });
   const proximityRef = useRef(props.proximity);
-  proximityRef.current = props.proximity;
+
+  useEffect(() => {
+    proximityRef.current = props.proximity;
+  }, [props.proximity]);
 
   useEffect(() => {
     const normalizedPath = window.location.pathname.replace(/\/+$/, "");
