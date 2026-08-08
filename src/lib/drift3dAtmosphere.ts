@@ -58,14 +58,14 @@ const entryState: Drift3DAtmosphereState = {
   skyColor: rgb("#05060a"),
   fogColor: rgb("#05060a"),
   fogDensity: 0.05,
-  exposure: 0.8,
+  exposure: 0.92,
   sunDirection: { x: 1, y: 0.32, z: 0.12 },
   sunColor: rgb("#b8d4e8"),
-  sunIntensity: 0.5,
+  sunIntensity: 0.8,
   hemiSkyColor: rgb("#182030"),
   hemiGroundColor: rgb("#0a0a0c"),
-  hemiIntensity: 0.25,
-  ambientIntensity: 0.05,
+  hemiIntensity: 0.38,
+  ambientIntensity: 0.09,
   groundColor: rgb("#26262b"),
 };
 
