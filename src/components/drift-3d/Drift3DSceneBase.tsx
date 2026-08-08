@@ -78,7 +78,7 @@ const DRIFT_3D_VEHICLE_MAX_TERRAIN_ROLL = 0.35;
 const DRIFT_3D_AIRBORNE_PITCH = -0.12;
 const DRIFT_3D_TERRAIN_TEXTURE_SIZE = 512;
 const DRIFT_3D_TERRAIN_SEGMENTS_X = 224;
-const DRIFT_3D_TERRAIN_SEGMENTS_Z = 224;
+const DRIFT_3D_TERRAIN_SEGMENTS_Z = 144;
 
 function terrainNoise(x: number, y: number) {
   const value = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
