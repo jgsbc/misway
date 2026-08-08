@@ -6,7 +6,10 @@ import {
   DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT,
   DRIFT_3D_BIRTH_YARD_PAVING_STRIPS,
 } from "@/lib/drift3dBirthYardHeroCrowd";
-import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
+import {
+  getDrift3DHeroLandmarkHeightScale,
+  shouldRenderDrift3DLegacyWater,
+} from "@/lib/drift3dBirthYardHeroPresentation";
 import { DRIFT_3D_SEA_LEVEL } from "@/lib/drift3dPeninsula";
 import { getDrift3DRouteField } from "@/lib/drift3dRoutes";
 import {
@@ -54,6 +57,11 @@ test("Birth Yard canal fades back to dry terrain beyond its authored ends", () =
 
   assert.ok(before > DRIFT_3D_SEA_LEVEL);
   assert.ok(after > DRIFT_3D_SEA_LEVEL);
+});
+
+test("Birth Yard canal uses the canonical world water instead of legacy reflector tiles", () => {
+  assert.equal(shouldRenderDrift3DLegacyWater("birth-zeeland-canal"), false);
+  assert.equal(shouldRenderDrift3DLegacyWater("birth-jazzypling-alley"), true);
 });
 
 test("Foolfoule Hero Slice skyline stays low-rise without changing other landmarks", () => {
