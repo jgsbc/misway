@@ -38,6 +38,8 @@ type Drift3DAtmosphereRegion = {
   radius: number;
   /** Weight multiplier — sub-regions (storm, quarry fog) override their era. */
   strength?: number;
+  /** Local effects fade to zero by their authored radius instead of leaking world-wide. */
+  local?: boolean;
   state: Drift3DAtmosphereState;
 };
 
@@ -226,6 +228,7 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
       z: drift3dThresholdNode.position.z,
     },
     radius: 12,
+    local: true,
     state: entryState,
   },
   ...drift3dEras.map((era) => ({
@@ -243,6 +246,7 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     },
     radius: 9,
     strength: 2.4,
+    local: true,
     state: zeelandSunsetState,
   },
   {
@@ -253,6 +257,7 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     },
     radius: 8,
     strength: 2.4,
+    local: true,
     state: jazzNightState,
   },
   {
@@ -263,6 +268,7 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     },
     radius: 9,
     strength: 2.6,
+    local: true,
     state: chalkFogState,
   },
   {
@@ -273,6 +279,7 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     },
     radius: 9,
     strength: 2.6,
+    local: true,
     state: stormState,
   },
   {
@@ -283,9 +290,15 @@ const atmosphereRegions: Drift3DAtmosphereRegion[] = [
     },
     radius: 10,
     strength: 2.5,
+    local: true,
     state: oceanDawnState,
   },
 ];
+
+function smoothstep01(value: number) {
+  const t = Math.min(1, Math.max(0, value));
+  return t * t * (3 - 2 * t);
+}
 
 function getRegionWeight(
   region: Drift3DAtmosphereRegion,
@@ -295,10 +308,24 @@ function getRegionWeight(
   const dx = x - region.center.x;
   const dz = z - region.center.z;
   const distance = Math.sqrt(dx * dx + dz * dz);
+  const strength = region.strength ?? 1;
   const inner = region.radius * 0.5;
-  const outside = Math.max(0, distance - inner);
 
-  return (region.strength ?? 1) / (1 + outside * outside * 0.02);
+  if (region.local) {
+    if (distance >= region.radius) {
+      return 0;
+    }
+
+    if (distance <= inner) {
+      return strength;
+    }
+
+    const fade = 1 - smoothstep01((distance - inner) / (region.radius - inner));
+    return strength * fade;
+  }
+
+  const outside = Math.max(0, distance - inner);
+  return strength / (1 + outside * outside * 0.02);
 }
 
 function lerp(a: number, b: number, t: number) {
