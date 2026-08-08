@@ -7,6 +7,7 @@ import {
   getDrift3DTerrainHeight,
 } from "@/lib/drift3dTerrain";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
+import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
 
 const canal = DRIFT_3D_BIRTH_YARD_CANAL;
 const middleZ = (canal.minZ + canal.maxZ) / 2;
@@ -47,4 +48,16 @@ test("Birth Yard canal fades back to dry terrain beyond its authored ends", () =
 
   assert.ok(before > DRIFT_3D_SEA_LEVEL);
   assert.ok(after > DRIFT_3D_SEA_LEVEL);
+});
+
+test("Foolfoule Hero Slice skyline stays low-rise without changing other landmarks", () => {
+  const scales = [0, 1, 2, 3].map((index) =>
+    getDrift3DHeroLandmarkHeightScale("birth-foolfoule-canyon", index)
+  );
+
+  assert.deepEqual(scales, [0.7, 0.72, 0.65, 0.7]);
+  assert.equal(
+    getDrift3DHeroLandmarkHeightScale("birth-eux-gainent-glass-gym", 0),
+    1
+  );
 });
