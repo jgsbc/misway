@@ -109,29 +109,72 @@ function StormRain({ vehicleStateRef }: EffectsProps) {
   );
 }
 
-const CROWD_COUNT = 130;
-const CROWD_BAND_HALF = 7;
+const CROWD_COUNT = 84;
+const CROWD_BAND_HALF = 10;
 const CROWD_MARCH_SPEED = 0.55;
+
+type CrowdFigure = {
+  x: number;
+  z: number;
+  scale: number;
+  phase: number;
+};
+
+function setCrowdPartMatrix(
+  mesh: THREE.InstancedMesh,
+  dummy: THREE.Object3D,
+  index: number,
+  x: number,
+  y: number,
+  z: number,
+  scale: number,
+  rotationX = 0
+) {
+  dummy.position.set(x, y, z);
+  dummy.scale.setScalar(scale);
+  dummy.rotation.set(rotationX, 0, 0);
+  dummy.updateMatrix();
+  mesh.setMatrixAt(index, dummy.matrix);
+}
 
 function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const center = drift3dTrackNodeBySlug.foolfoule.position;
   const centerGroundY = getDrift3DGroundY(center.x, center.z);
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const torsoRef = useRef<THREE.InstancedMesh>(null);
+  const headRef = useRef<THREE.InstancedMesh>(null);
+  const leftLegRef = useRef<THREE.InstancedMesh>(null);
+  const rightLegRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const figures = useMemo(
+  const figures = useMemo<CrowdFigure[]>(
     () =>
-      Array.from({ length: CROWD_COUNT }, (_, index) => ({
-        x: (effectNoise(index, 5) - 0.5) * 9,
-        z: (effectNoise(index, 6) - 0.5) * CROWD_BAND_HALF * 2,
-        scale: 0.88 + effectNoise(index, 7) * 0.24,
-      })),
+      Array.from({ length: CROWD_COUNT }, (_, index) => {
+        const westSide = index % 2 === 0;
+        const lateralNoise = effectNoise(index, 5);
+
+        // The recovered hero road runs just east of Foolfoule. Keep the crowd
+        // on two sidewalk bands instead of filling the carriageway with the
+        // old capsule placeholder field.
+        const x = westSide
+          ? -4.2 - lateralNoise * 2.1
+          : 7.9 + lateralNoise * 2.1;
+
+        return {
+          x,
+          z: (effectNoise(index, 6) - 0.5) * CROWD_BAND_HALF * 2,
+          scale: 0.92 + effectNoise(index, 7) * 0.16,
+          phase: index % 2 === 0 ? 0 : Math.PI,
+        };
+      }),
     []
   );
 
   useFrame(({ clock }) => {
-    const mesh = meshRef.current;
+    const torso = torsoRef.current;
+    const head = headRef.current;
+    const leftLeg = leftLegRef.current;
+    const rightLeg = rightLegRef.current;
 
-    if (!mesh) {
+    if (!torso || !head || !leftLeg || !rightLeg) {
       return;
     }
 
@@ -140,16 +183,18 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
       position.x - center.x,
       position.z - center.z
     );
+    const visible = vehicleDistance < 32;
 
-    mesh.visible = vehicleDistance < 32;
+    torso.visible = visible;
+    head.visible = visible;
+    leftLeg.visible = visible;
+    rightLeg.visible = visible;
 
-    if (!mesh.visible) {
+    if (!visible) {
       return;
     }
 
     const time = clock.elapsedTime;
-    // toute la foule au même pas — cadence mécanique, jamais de regard
-    const bob = Math.abs(Math.sin(time * 4.4)) * 0.045;
     const march = (time * CROWD_MARCH_SPEED) % (CROWD_BAND_HALF * 2);
 
     for (let index = 0; index < CROWD_COUNT; index += 1) {
@@ -160,41 +205,107 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         ((figure.z + march + CROWD_BAND_HALF) % (CROWD_BAND_HALF * 2)) -
         CROWD_BAND_HALF;
 
-      // la foule s'écarte du véhicule sans jamais le regarder
+      // People yield locally to the 4x4 but keep their collective direction.
       const dx = worldX - position.x;
       const dz = worldZ - position.z;
       const distance = Math.hypot(dx, dz);
 
-      if (distance > 0 && distance < 1.7) {
-        const push = (1.7 - distance) / distance;
+      if (distance > 0 && distance < 1.35) {
+        const push = (1.35 - distance) / distance;
         worldX += dx * push;
         worldZ += dz * push;
       }
 
-      dummy.position.set(
+      const stride = Math.sin(time * 4.4 + figure.phase) * 0.24;
+      const bob = Math.abs(Math.sin(time * 4.4 + figure.phase)) * 0.025;
+      const ground = centerGroundY;
+      const scale = figure.scale;
+
+      setCrowdPartMatrix(
+        torso,
+        dummy,
+        index,
         worldX,
-        centerGroundY + 0.24 * figure.scale + bob,
-        worldZ
+        ground + (1.08 + bob) * scale,
+        worldZ,
+        scale
       );
-      dummy.scale.set(figure.scale, figure.scale, figure.scale);
-      dummy.rotation.set(0, 0, 0);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(index, dummy.matrix);
+      setCrowdPartMatrix(
+        head,
+        dummy,
+        index,
+        worldX,
+        ground + (1.62 + bob) * scale,
+        worldZ,
+        scale
+      );
+      setCrowdPartMatrix(
+        leftLeg,
+        dummy,
+        index,
+        worldX - 0.1 * scale,
+        ground + 0.39 * scale,
+        worldZ,
+        scale,
+        stride
+      );
+      setCrowdPartMatrix(
+        rightLeg,
+        dummy,
+        index,
+        worldX + 0.1 * scale,
+        ground + 0.39 * scale,
+        worldZ,
+        scale,
+        -stride
+      );
     }
 
-    mesh.instanceMatrix.needsUpdate = true;
+    torso.instanceMatrix.needsUpdate = true;
+    head.instanceMatrix.needsUpdate = true;
+    leftLeg.instanceMatrix.needsUpdate = true;
+    rightLeg.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, CROWD_COUNT]}
-      frustumCulled={false}
-      castShadow
-    >
-      <capsuleGeometry args={[0.085, 0.34, 3, 6]} />
-      <meshStandardMaterial color="#33323a" roughness={0.92} />
-    </instancedMesh>
+    <group aria-hidden="true">
+      <instancedMesh
+        ref={torsoRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <boxGeometry args={[0.38, 0.72, 0.24]} />
+        <meshStandardMaterial color="#4a4748" roughness={0.92} />
+      </instancedMesh>
+      <instancedMesh
+        ref={headRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <sphereGeometry args={[0.13, 7, 6]} />
+        <meshStandardMaterial color="#a9927f" roughness={0.9} />
+      </instancedMesh>
+      <instancedMesh
+        ref={leftLegRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <boxGeometry args={[0.14, 0.72, 0.16]} />
+        <meshStandardMaterial color="#2e3034" roughness={0.94} />
+      </instancedMesh>
+      <instancedMesh
+        ref={rightLegRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <boxGeometry args={[0.14, 0.72, 0.16]} />
+        <meshStandardMaterial color="#2e3034" roughness={0.94} />
+      </instancedMesh>
+    </group>
   );
 }
 
