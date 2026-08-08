@@ -1,78 +1,139 @@
-export type Drift3DBirthYardCrowdLane = Readonly<{
+export type Drift3DBirthYardCrowdFlow = Readonly<{
   id: string;
-  minX: number;
-  maxX: number;
-  direction: 1 | -1;
+  start: readonly [number, number];
+  end: readonly [number, number];
+  halfWidth: number;
+  slots: number;
 }>;
 
 export type Drift3DBirthYardPavingStrip = Readonly<{
   id: string;
   centerX: number;
+  centerZ: number;
   width: number;
   depth: number;
   textureRepeat: readonly [number, number];
 }>;
 
 /**
- * Campaign B / Birth Yard Hero Slice — professional scale and density grammar.
+ * Campaign B / Birth Yard Hero Slice — crowd scale and circulation grammar.
  *
- * The safari vehicle is intentionally compact in the established runtime, so
- * secondary crowd silhouettes must read smaller than real-world adults to stay
- * visually proportional to the car, the low-rise Foolfoule blocks and the
- * existing camera. Density is then recovered through instancing and spatial
- * coverage, not by enlarging the figures.
+ * The established safari 4x4 is deliberately compact in production. Crowd
+ * silhouettes therefore stay below one runtime metre at the tallest authored
+ * variation so people remain visually subordinate to the car and low-rise
+ * buildings instead of reading as oversized mannequins.
  */
 export const DRIFT_3D_BIRTH_YARD_CROWD = Object.freeze({
-  count: 176,
-  zoneHalfZ: 18,
-  scaleMin: 0.78,
-  scaleMax: 0.87,
-  marchSpeed: 0.42,
+  count: 192,
+  scaleMin: 0.52,
+  scaleMax: 0.6,
+  marchSpeed: 0.44,
   visibilityRadius: 42,
-  avoidanceRadius: 1.15,
+  avoidanceRadius: 1.05,
 });
 
 /**
- * Four pedestrian flows cover the full Foolfoule song area while keeping the
- * recovered carriageway clear. Coordinates are relative to the Foolfoule node.
+ * Foolfoule is a compressed pedestrian pressure field, not two sidewalk
+ * queues. Most people move north/south through the central space between the
+ * west and east building rows. Two denser transverse streams use the narrow
+ * shared gap between the four blocks and visibly cross the drive route.
+ * Coordinates are relative to the Foolfoule node.
  */
-export const DRIFT_3D_BIRTH_YARD_CROWD_LANES: readonly Drift3DBirthYardCrowdLane[] =
+export const DRIFT_3D_BIRTH_YARD_CROWD_FLOWS: readonly Drift3DBirthYardCrowdFlow[] =
   Object.freeze([
-    Object.freeze({ id: "west-sidewalk", minX: -5.4, maxX: -1.9, direction: 1 as const }),
-    Object.freeze({ id: "quay-promenade", minX: -10.2, maxX: -8.4, direction: -1 as const }),
-    Object.freeze({ id: "east-sidewalk-in", minX: 9.2, maxX: 11, direction: -1 as const }),
-    Object.freeze({ id: "east-sidewalk-out", minX: 11.1, maxX: 13, direction: 1 as const }),
+    Object.freeze({
+      id: "interbuilding-northbound",
+      start: [-1.35, -18] as const,
+      end: [-0.15, 18] as const,
+      halfWidth: 0.62,
+      slots: 54,
+    }),
+    Object.freeze({
+      id: "interbuilding-southbound",
+      start: [1.3, 18] as const,
+      end: [0.2, -18] as const,
+      halfWidth: 0.62,
+      slots: 54,
+    }),
+    Object.freeze({
+      id: "building-gap-eastbound",
+      start: [-8, -0.42] as const,
+      end: [8, -0.32] as const,
+      halfWidth: 0.13,
+      slots: 42,
+    }),
+    Object.freeze({
+      id: "building-gap-westbound",
+      start: [7.9, -0.16] as const,
+      end: [-7.9, -0.24] as const,
+      halfWidth: 0.13,
+      slots: 42,
+    }),
   ]);
 
 /**
- * Paved pedestrian surfaces make the crowd belong to the same urban grammar
- * as the road, canal and low-rise blocks. They are presentation surfaces only;
- * terrain and vehicle physics remain authoritative.
+ * Only the actual inter-building passage gets an added pedestrian surface.
+ * The old long side strips are intentionally gone: the crowd now belongs to
+ * the street/courtyard void between buildings, with one narrow cross-passage
+ * marking the transverse flow through the block gap.
  */
 export const DRIFT_3D_BIRTH_YARD_PAVING_STRIPS: readonly Drift3DBirthYardPavingStrip[] =
   Object.freeze([
     Object.freeze({
-      id: "west-sidewalk",
-      centerX: -3.65,
-      width: 4.2,
-      depth: 36,
-      textureRepeat: [4, 12] as const,
-    }),
-    Object.freeze({
-      id: "quay-promenade",
-      centerX: -9.3,
-      width: 2.6,
-      depth: 32,
-      textureRepeat: [3, 10] as const,
-    }),
-    Object.freeze({
-      id: "east-sidewalk",
-      centerX: 11.1,
-      width: 4.4,
-      depth: 36,
-      textureRepeat: [4, 12] as const,
+      id: "building-gap-crossing",
+      centerX: 0,
+      centerZ: -0.3,
+      width: 16.4,
+      depth: 0.82,
+      textureRepeat: [12, 1] as const,
     }),
   ]);
 
 /** Top of the current procedural figure before per-instance scale. */
 export const DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT = 1.568;
+
+export function getDrift3DBirthYardCrowdFlowForIndex(
+  index: number
+): Drift3DBirthYardCrowdFlow {
+  const normalized =
+    ((Math.trunc(index) % DRIFT_3D_BIRTH_YARD_CROWD.count) +
+      DRIFT_3D_BIRTH_YARD_CROWD.count) %
+    DRIFT_3D_BIRTH_YARD_CROWD.count;
+  let cursor = 0;
+
+  for (const flow of DRIFT_3D_BIRTH_YARD_CROWD_FLOWS) {
+    cursor += flow.slots;
+
+    if (normalized < cursor) {
+      return flow;
+    }
+  }
+
+  return DRIFT_3D_BIRTH_YARD_CROWD_FLOWS[0];
+}
+
+export function getDrift3DBirthYardCrowdFlowLength(
+  flow: Drift3DBirthYardCrowdFlow
+) {
+  return Math.hypot(flow.end[0] - flow.start[0], flow.end[1] - flow.start[1]);
+}
+
+export function sampleDrift3DBirthYardCrowdFlow(
+  flow: Drift3DBirthYardCrowdFlow,
+  progress: number,
+  lateralOffset: number
+) {
+  const t = ((progress % 1) + 1) % 1;
+  const dx = flow.end[0] - flow.start[0];
+  const dz = flow.end[1] - flow.start[1];
+  const length = Math.hypot(dx, dz) || 1;
+  const lateral = Math.max(-flow.halfWidth, Math.min(flow.halfWidth, lateralOffset));
+  const rightX = dz / length;
+  const rightZ = -dx / length;
+
+  return {
+    x: flow.start[0] + dx * t + rightX * lateral,
+    z: flow.start[1] + dz * t + rightZ * lateral,
+    heading: Math.atan2(dx, dz),
+  };
+}
