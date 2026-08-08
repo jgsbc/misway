@@ -11,7 +11,10 @@ import type {
 } from "@/lib/drift3dLandmarks";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
-import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
+import {
+  getDrift3DHeroLandmarkHeightScale,
+  shouldRenderDrift3DLegacyWater,
+} from "@/lib/drift3dBirthYardHeroPresentation";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 
 type Drift3DLandmarkProps = {
@@ -209,6 +212,10 @@ export default function Drift3DLandmark({
     >
       {landmark.primitives.map((primitive, index) => {
         if (primitive.water) {
+          if (!shouldRenderDrift3DLegacyWater(landmark.id)) {
+            return null;
+          }
+
           return (
             <WaterPlane
               key={`${landmark.id}-${index}`}
