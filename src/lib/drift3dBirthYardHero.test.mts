@@ -115,8 +115,11 @@ test("Foolfoule pedestrian lanes sit on paving and remain outside the carriagewa
           foolfoule.z + relativeZ
         );
 
+        // Route-field distance is measured from the road edge, not its
+        // centerline. Keep at least a pedestrian-sized safety margin outside
+        // every sampled carriageway edge across the full song-area span.
         assert.ok(
-          route.distance > 4.45,
+          route.distance > 0.75,
           `${lane.id} intrudes into carriageway at ${relativeX}/${relativeZ}: ${route.distance}`
         );
       }
