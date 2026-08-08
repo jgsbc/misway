@@ -4,6 +4,12 @@ import { useMemo, useRef } from "react";
 import type { MutableRefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
+import {
+  DRIFT_3D_BIRTH_YARD_CROWD,
+  DRIFT_3D_BIRTH_YARD_CROWD_LANES,
+  DRIFT_3D_BIRTH_YARD_PAVING_STRIPS,
+} from "@/lib/drift3dBirthYardHeroCrowd";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
@@ -109,10 +115,6 @@ function StormRain({ vehicleStateRef }: EffectsProps) {
   );
 }
 
-const CROWD_COUNT = 72;
-const CROWD_BAND_HALF = 10;
-const CROWD_MARCH_SPEED = 0.48;
-
 type CrowdFigure = {
   x: number;
   z: number;
@@ -141,9 +143,47 @@ function setCrowdPartMatrix(
   mesh.setMatrixAt(index, dummy.matrix);
 }
 
+function FoolfoulePaving() {
+  const center = drift3dTrackNodeBySlug.foolfoule.position;
+  const groundY = getDrift3DGroundY(center.x, center.z);
+  const materialMaps = useMemo(
+    () =>
+      DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.map((strip) =>
+        getDriftMaterialMaps(
+          "concrete",
+          strip.textureRepeat[0],
+          strip.textureRepeat[1]
+        )
+      ),
+    []
+  );
+
+  return (
+    <group aria-hidden="true">
+      {DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.map((strip, index) => (
+        <mesh
+          key={strip.id}
+          position={[center.x + strip.centerX, groundY + 0.03, center.z]}
+          receiveShadow
+        >
+          <boxGeometry args={[strip.width, 0.06, strip.depth]} />
+          <meshStandardMaterial
+            map={materialMaps[index]?.map ?? undefined}
+            normalMap={materialMaps[index]?.normalMap ?? undefined}
+            normalScale={new THREE.Vector2(0.5, 0.5)}
+            color="#8f8a80"
+            roughness={0.92}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const center = drift3dTrackNodeBySlug.foolfoule.position;
   const centerGroundY = getDrift3DGroundY(center.x, center.z);
+  const pedestrianGroundY = centerGroundY + 0.06;
   const torsoRef = useRef<THREE.InstancedMesh>(null);
   const headRef = useRef<THREE.InstancedMesh>(null);
   const leftLegRef = useRef<THREE.InstancedMesh>(null);
@@ -153,25 +193,27 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const figures = useMemo<CrowdFigure[]>(
     () =>
-      Array.from({ length: CROWD_COUNT }, (_, index) => {
-        const westSide = index % 2 === 0;
+      Array.from({ length: DRIFT_3D_BIRTH_YARD_CROWD.count }, (_, index) => {
+        const lane =
+          DRIFT_3D_BIRTH_YARD_CROWD_LANES[
+            index % DRIFT_3D_BIRTH_YARD_CROWD_LANES.length
+          ];
         const lateralNoise = effectNoise(index, 5);
-        const secondaryNoise = effectNoise(index, 9);
-
-        // Two irregular sidewalk flows flank the recovered road. The wider
-        // lateral jitter removes the old military rows while preserving a
-        // clear carriageway through the Hero Slice.
-        const x = westSide
-          ? -4.4 - lateralNoise * 2.8 - secondaryNoise * 0.6
-          : 7.8 + lateralNoise * 2.8 + secondaryNoise * 0.6;
 
         return {
-          x,
-          z: (effectNoise(index, 6) - 0.5) * CROWD_BAND_HALF * 2,
-          scale: 1 + effectNoise(index, 7) * 0.12,
+          x: lane.minX + lateralNoise * (lane.maxX - lane.minX),
+          z:
+            (effectNoise(index, 6) - 0.5) *
+            DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ *
+            2,
+          scale:
+            DRIFT_3D_BIRTH_YARD_CROWD.scaleMin +
+            effectNoise(index, 7) *
+              (DRIFT_3D_BIRTH_YARD_CROWD.scaleMax -
+                DRIFT_3D_BIRTH_YARD_CROWD.scaleMin),
           phase: effectNoise(index, 8) * Math.PI * 2,
           pace: 0.82 + effectNoise(index, 10) * 0.32,
-          direction: westSide ? 1 : -1,
+          direction: lane.direction,
         };
       }),
     []
@@ -194,7 +236,8 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
       position.x - center.x,
       position.z - center.z
     );
-    const visible = vehicleDistance < 32;
+    const visible =
+      vehicleDistance < DRIFT_3D_BIRTH_YARD_CROWD.visibilityRadius;
 
     torso.visible = visible;
     head.visible = visible;
@@ -208,34 +251,44 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     }
 
     const time = clock.elapsedTime;
+    const zoneDiameter = DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ * 2;
 
-    for (let index = 0; index < CROWD_COUNT; index += 1) {
+    for (
+      let index = 0;
+      index < DRIFT_3D_BIRTH_YARD_CROWD.count;
+      index += 1
+    ) {
       const figure = figures[index];
       const travel =
-        time * CROWD_MARCH_SPEED * figure.pace * figure.direction;
+        time *
+        DRIFT_3D_BIRTH_YARD_CROWD.marchSpeed *
+        figure.pace *
+        figure.direction;
       let worldX = center.x + figure.x;
       let worldZ =
         center.z +
-        ((figure.z + travel + CROWD_BAND_HALF) % (CROWD_BAND_HALF * 2) +
-          CROWD_BAND_HALF * 2) %
-          (CROWD_BAND_HALF * 2) -
-        CROWD_BAND_HALF;
+        ((figure.z + travel + DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ) %
+          zoneDiameter +
+          zoneDiameter) %
+          zoneDiameter -
+        DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ;
 
-      // People yield locally to the 4x4 but keep their collective flow.
+      // The carriageway remains spatially clear; yielding is only a local
+      // safety valve if the 4x4 deliberately mounts a pedestrian surface.
       const dx = worldX - position.x;
       const dz = worldZ - position.z;
       const distance = Math.hypot(dx, dz);
+      const avoidanceRadius = DRIFT_3D_BIRTH_YARD_CROWD.avoidanceRadius;
 
-      if (distance > 0 && distance < 1.35) {
-        const push = (1.35 - distance) / distance;
+      if (distance > 0 && distance < avoidanceRadius) {
+        const push = (avoidanceRadius - distance) / distance;
         worldX += dx * push;
         worldZ += dz * push;
       }
 
       const gait = time * 4.1 * figure.pace + figure.phase;
-      const stride = Math.sin(gait) * 0.19;
-      const bob = Math.abs(Math.sin(gait)) * 0.018;
-      const ground = centerGroundY;
+      const stride = Math.sin(gait) * 0.17;
+      const bob = Math.abs(Math.sin(gait)) * 0.014;
       const scale = figure.scale;
       const facing = figure.direction === 1 ? 0 : Math.PI;
 
@@ -244,7 +297,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX,
-        ground + (1.02 + bob) * scale,
+        pedestrianGroundY + (1.02 + bob) * scale,
         worldZ,
         scale,
         0,
@@ -255,7 +308,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX,
-        ground + (1.47 + bob) * scale,
+        pedestrianGroundY + (1.47 + bob) * scale,
         worldZ,
         scale,
         0,
@@ -266,7 +319,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX - 0.075 * scale,
-        ground + 0.36 * scale,
+        pedestrianGroundY + 0.36 * scale,
         worldZ,
         scale,
         stride,
@@ -277,7 +330,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX + 0.075 * scale,
-        ground + 0.36 * scale,
+        pedestrianGroundY + 0.36 * scale,
         worldZ,
         scale,
         -stride,
@@ -288,7 +341,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX - 0.205 * scale,
-        ground + (1.03 + bob) * scale,
+        pedestrianGroundY + (1.03 + bob) * scale,
         worldZ,
         scale,
         -stride * 0.8,
@@ -300,7 +353,7 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         dummy,
         index,
         worldX + 0.205 * scale,
-        ground + (1.03 + bob) * scale,
+        pedestrianGroundY + (1.03 + bob) * scale,
         worldZ,
         scale,
         stride * 0.8,
@@ -321,56 +374,51 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     <group aria-hidden="true">
       <instancedMesh
         ref={torsoRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
         castShadow
       >
-        <cylinderGeometry args={[0.16, 0.22, 0.66, 6]} />
+        <cylinderGeometry args={[0.16, 0.22, 0.66, 5]} />
         <meshStandardMaterial color="#454448" roughness={0.94} />
       </instancedMesh>
       <instancedMesh
         ref={headRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
-        castShadow
       >
-        <sphereGeometry args={[0.098, 7, 6]} />
+        <sphereGeometry args={[0.098, 6, 5]} />
         <meshStandardMaterial color="#8c7664" roughness={0.94} />
       </instancedMesh>
       <instancedMesh
         ref={leftLegRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
-        castShadow
       >
-        <cylinderGeometry args={[0.052, 0.062, 0.7, 5]} />
+        <cylinderGeometry args={[0.052, 0.062, 0.7, 4]} />
         <meshStandardMaterial color="#2d3034" roughness={0.96} />
       </instancedMesh>
       <instancedMesh
         ref={rightLegRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
-        castShadow
       >
-        <cylinderGeometry args={[0.052, 0.062, 0.7, 5]} />
+        <cylinderGeometry args={[0.052, 0.062, 0.7, 4]} />
         <meshStandardMaterial color="#2d3034" roughness={0.96} />
       </instancedMesh>
       <instancedMesh
         ref={leftArmRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
-        castShadow
       >
-        <cylinderGeometry args={[0.042, 0.048, 0.56, 5]} />
+        <cylinderGeometry args={[0.042, 0.048, 0.56, 4]} />
         <meshStandardMaterial color="#454448" roughness={0.94} />
       </instancedMesh>
       <instancedMesh
         ref={rightArmRef}
-        args={[undefined, undefined, CROWD_COUNT]}
+        args={[undefined, undefined, DRIFT_3D_BIRTH_YARD_CROWD.count]}
         frustumCulled={false}
-        castShadow
       >
-        <cylinderGeometry args={[0.042, 0.048, 0.56, 5]} />
+        <cylinderGeometry args={[0.042, 0.048, 0.56, 4]} />
         <meshStandardMaterial color="#454448" roughness={0.94} />
       </instancedMesh>
     </group>
@@ -480,6 +528,7 @@ export default function Drift3DAmbientEffects({
   return (
     <>
       <StormRain vehicleStateRef={vehicleStateRef} />
+      <FoolfoulePaving />
       <FoolfouleCrowd vehicleStateRef={vehicleStateRef} />
       <FloatingParticles
         vehicleStateRef={vehicleStateRef}
