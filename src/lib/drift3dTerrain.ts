@@ -4,6 +4,7 @@ import { DRIFT_3D_FLOOR_Y } from "@/lib/drift3d";
 import {
   drift3dEras,
   drift3dThresholdNode,
+  drift3dTrackNodeBySlug,
   drift3dTrackNodes,
 } from "@/lib/drift3dTopology";
 import * as legacyTopology from "@/lib/drift3dTopologyBase";
@@ -143,7 +144,54 @@ const flattenPads: FlattenPad[] = [
   },
 ];
 
-export function getDrift3DTerrainHeight(x: number, z: number): number {
+const birthYardZeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
+export const DRIFT_3D_BIRTH_YARD_CANAL = Object.freeze({
+  centerX: birthYardZeeland.x - 4,
+  minZ: birthYardZeeland.z - 9,
+  maxZ: birthYardZeeland.z + 25,
+  innerHalfWidth: 2.05,
+  outerHalfWidth: 3.2,
+  endFade: 3,
+  bedHeight: DRIFT_3D_SEA_LEVEL - 0.9,
+});
+
+/**
+ * Campaign B Hero Slice: turn the already-authored Zeeland canal props into
+ * actual geography. The trench runs north/south between the existing west-bank
+ * houses and the east-bank Zeeland node, under the existing little bridge.
+ * It is carved only after node flattening so the canal cannot be filled back
+ * in by the legacy local pads. The one canonical sea-level surface therefore
+ * supplies its water automatically; no second local water authority is added.
+ */
+function applyBirthYardCanal(baseHeight: number, x: number, z: number) {
+  const canal = DRIFT_3D_BIRTH_YARD_CANAL;
+  const lateralDistance = Math.abs(x - canal.centerX);
+
+  if (
+    lateralDistance >= canal.outerHalfWidth ||
+    z <= canal.minZ ||
+    z >= canal.maxZ
+  ) {
+    return baseHeight;
+  }
+
+  const lateralInfluence =
+    1 - smoothstep(canal.innerHalfWidth, canal.outerHalfWidth, lateralDistance);
+  const startInfluence = smoothstep(canal.minZ, canal.minZ + canal.endFade, z);
+  const endInfluence =
+    1 - smoothstep(canal.maxZ - canal.endFade, canal.maxZ, z);
+  const influence = lateralInfluence * startInfluence * endInfluence;
+
+  if (influence <= 0) {
+    return baseHeight;
+  }
+
+  const target = Math.min(baseHeight, canal.bedHeight);
+
+  return baseHeight * (1 - influence) + target * influence;
+}
+
+function getFlattenedTerrainHeight(x: number, z: number): number {
   const raw = getRawTerrainHeight(x, z);
   let weightSum = 0;
   let weightedTarget = 0;
@@ -170,6 +218,10 @@ export function getDrift3DTerrainHeight(x: number, z: number): number {
   const blend = Math.min(1, weightSum);
 
   return raw * (1 - blend) + (weightedTarget / weightSum) * blend;
+}
+
+export function getDrift3DTerrainHeight(x: number, z: number): number {
+  return applyBirthYardCanal(getFlattenedTerrainHeight(x, z), x, z);
 }
 
 export function getDrift3DGroundY(x: number, z: number): number {
