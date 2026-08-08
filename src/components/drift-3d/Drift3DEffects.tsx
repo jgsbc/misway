@@ -7,8 +7,11 @@ import * as THREE from "three";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import {
   DRIFT_3D_BIRTH_YARD_CROWD,
-  DRIFT_3D_BIRTH_YARD_CROWD_LANES,
   DRIFT_3D_BIRTH_YARD_PAVING_STRIPS,
+  getDrift3DBirthYardCrowdFlowForIndex,
+  getDrift3DBirthYardCrowdFlowLength,
+  sampleDrift3DBirthYardCrowdFlow,
+  type Drift3DBirthYardCrowdFlow,
 } from "@/lib/drift3dBirthYardHeroCrowd";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
@@ -116,12 +119,12 @@ function StormRain({ vehicleStateRef }: EffectsProps) {
 }
 
 type CrowdFigure = {
-  x: number;
-  z: number;
+  flow: Drift3DBirthYardCrowdFlow;
+  progress: number;
+  lateralOffset: number;
   scale: number;
   phase: number;
   pace: number;
-  direction: 1 | -1;
 };
 
 function setCrowdPartMatrix(
@@ -145,7 +148,6 @@ function setCrowdPartMatrix(
 
 function FoolfoulePaving() {
   const center = drift3dTrackNodeBySlug.foolfoule.position;
-  const groundY = getDrift3DGroundY(center.x, center.z);
   const materialMaps = useMemo(
     () =>
       DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.map((strip) =>
@@ -160,30 +162,34 @@ function FoolfoulePaving() {
 
   return (
     <group aria-hidden="true">
-      {DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.map((strip, index) => (
-        <mesh
-          key={strip.id}
-          position={[center.x + strip.centerX, groundY + 0.03, center.z]}
-          receiveShadow
-        >
-          <boxGeometry args={[strip.width, 0.06, strip.depth]} />
-          <meshStandardMaterial
-            map={materialMaps[index]?.map ?? undefined}
-            normalMap={materialMaps[index]?.normalMap ?? undefined}
-            normalScale={new THREE.Vector2(0.5, 0.5)}
-            color="#8f8a80"
-            roughness={0.92}
-          />
-        </mesh>
-      ))}
+      {DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.map((strip, index) => {
+        const worldX = center.x + strip.centerX;
+        const worldZ = center.z + strip.centerZ;
+        const groundY = getDrift3DGroundY(worldX, worldZ);
+
+        return (
+          <mesh
+            key={strip.id}
+            position={[worldX, groundY + 0.03, worldZ]}
+            receiveShadow
+          >
+            <boxGeometry args={[strip.width, 0.06, strip.depth]} />
+            <meshStandardMaterial
+              map={materialMaps[index]?.map ?? undefined}
+              normalMap={materialMaps[index]?.normalMap ?? undefined}
+              normalScale={new THREE.Vector2(0.5, 0.5)}
+              color="#8f8a80"
+              roughness={0.92}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
 
 function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const center = drift3dTrackNodeBySlug.foolfoule.position;
-  const centerGroundY = getDrift3DGroundY(center.x, center.z);
-  const pedestrianGroundY = centerGroundY + 0.06;
   const torsoRef = useRef<THREE.InstancedMesh>(null);
   const headRef = useRef<THREE.InstancedMesh>(null);
   const leftLegRef = useRef<THREE.InstancedMesh>(null);
@@ -194,18 +200,13 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const figures = useMemo<CrowdFigure[]>(
     () =>
       Array.from({ length: DRIFT_3D_BIRTH_YARD_CROWD.count }, (_, index) => {
-        const lane =
-          DRIFT_3D_BIRTH_YARD_CROWD_LANES[
-            index % DRIFT_3D_BIRTH_YARD_CROWD_LANES.length
-          ];
-        const lateralNoise = effectNoise(index, 5);
+        const flow = getDrift3DBirthYardCrowdFlowForIndex(index);
 
         return {
-          x: lane.minX + lateralNoise * (lane.maxX - lane.minX),
-          z:
-            (effectNoise(index, 6) - 0.5) *
-            DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ *
-            2,
+          flow,
+          progress: effectNoise(index, 6),
+          lateralOffset:
+            (effectNoise(index, 5) - 0.5) * flow.halfWidth * 2,
           scale:
             DRIFT_3D_BIRTH_YARD_CROWD.scaleMin +
             effectNoise(index, 7) *
@@ -213,7 +214,6 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
                 DRIFT_3D_BIRTH_YARD_CROWD.scaleMin),
           phase: effectNoise(index, 8) * Math.PI * 2,
           pace: 0.82 + effectNoise(index, 10) * 0.32,
-          direction: lane.direction,
         };
       }),
     []
@@ -251,7 +251,6 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     }
 
     const time = clock.elapsedTime;
-    const zoneDiameter = DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ * 2;
 
     for (
       let index = 0;
@@ -259,22 +258,22 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
       index += 1
     ) {
       const figure = figures[index];
-      const travel =
-        time *
-        DRIFT_3D_BIRTH_YARD_CROWD.marchSpeed *
-        figure.pace *
-        figure.direction;
-      let worldX = center.x + figure.x;
-      let worldZ =
-        center.z +
-        ((figure.z + travel + DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ) %
-          zoneDiameter +
-          zoneDiameter) %
-          zoneDiameter -
-        DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ;
+      const flowLength = getDrift3DBirthYardCrowdFlowLength(figure.flow);
+      const progress =
+        figure.progress +
+        (time * DRIFT_3D_BIRTH_YARD_CROWD.marchSpeed * figure.pace) /
+          Math.max(1, flowLength);
+      const sample = sampleDrift3DBirthYardCrowdFlow(
+        figure.flow,
+        progress,
+        figure.lateralOffset
+      );
+      let worldX = center.x + sample.x;
+      let worldZ = center.z + sample.z;
 
-      // The carriageway remains spatially clear; yielding is only a local
-      // safety valve if the 4x4 deliberately mounts a pedestrian surface.
+      // Crossings are intentional now: pedestrians move through the block and
+      // may cross the carriageway. Local yielding protects the 4x4 without
+      // forcing the crowd back into two roadside bands.
       const dx = worldX - position.x;
       const dz = worldZ - position.z;
       const distance = Math.hypot(dx, dz);
@@ -286,11 +285,16 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         worldZ += dz * push;
       }
 
+      const pedestrianGroundY = getDrift3DGroundY(worldX, worldZ) + 0.06;
       const gait = time * 4.1 * figure.pace + figure.phase;
-      const stride = Math.sin(gait) * 0.17;
-      const bob = Math.abs(Math.sin(gait)) * 0.014;
+      const stride = Math.sin(gait) * 0.15;
+      const bob = Math.abs(Math.sin(gait)) * 0.012;
       const scale = figure.scale;
-      const facing = figure.direction === 1 ? 0 : Math.PI;
+      const facing = sample.heading;
+      const rightX = Math.cos(facing);
+      const rightZ = -Math.sin(facing);
+      const legOffset = 0.075 * scale;
+      const armOffset = 0.205 * scale;
 
       setCrowdPartMatrix(
         torso,
@@ -318,9 +322,9 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         leftLeg,
         dummy,
         index,
-        worldX - 0.075 * scale,
+        worldX - rightX * legOffset,
         pedestrianGroundY + 0.36 * scale,
-        worldZ,
+        worldZ - rightZ * legOffset,
         scale,
         stride,
         facing
@@ -329,9 +333,9 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         rightLeg,
         dummy,
         index,
-        worldX + 0.075 * scale,
+        worldX + rightX * legOffset,
         pedestrianGroundY + 0.36 * scale,
-        worldZ,
+        worldZ + rightZ * legOffset,
         scale,
         -stride,
         facing
@@ -340,9 +344,9 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         leftArm,
         dummy,
         index,
-        worldX - 0.205 * scale,
+        worldX - rightX * armOffset,
         pedestrianGroundY + (1.03 + bob) * scale,
-        worldZ,
+        worldZ - rightZ * armOffset,
         scale,
         -stride * 0.8,
         facing,
@@ -352,9 +356,9 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         rightArm,
         dummy,
         index,
-        worldX + 0.205 * scale,
+        worldX + rightX * armOffset,
         pedestrianGroundY + (1.03 + bob) * scale,
-        worldZ,
+        worldZ + rightZ * armOffset,
         scale,
         stride * 0.8,
         facing,
