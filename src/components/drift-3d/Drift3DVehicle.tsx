@@ -375,11 +375,11 @@ const Drift3DVehicle = forwardRef<Drift3DVehicleHandle, Drift3DVehicleProps>(
           ref={headlightRef}
           position={[0, 0.4, 0.5]}
           color="#ffe6b0"
-          intensity={14}
-          distance={18}
+          intensity={1200}
+          distance={22}
           angle={0.55}
           penumbra={0.6}
-          decay={1.5}
+          decay={2}
         />
         <object3D ref={headlightTargetRef} position={[0, 0.08, 4]} />
       </group>
