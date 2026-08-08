@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DRIFT_3D_BIRTH_YARD_CROWD,
-  DRIFT_3D_BIRTH_YARD_CROWD_LANES,
+  DRIFT_3D_BIRTH_YARD_CROWD_FLOWS,
   DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT,
   DRIFT_3D_BIRTH_YARD_PAVING_STRIPS,
+  getDrift3DBirthYardCrowdFlowLength,
+  sampleDrift3DBirthYardCrowdFlow,
 } from "@/lib/drift3dBirthYardHeroCrowd";
 import {
   getDrift3DHeroLandmarkHeightScale,
@@ -76,53 +78,103 @@ test("Foolfoule Hero Slice skyline stays low-rise without changing other landmar
   );
 });
 
-test("Foolfoule crowd is smaller than the old figures and dense across the song area", () => {
+test("Foolfoule crowd is compact, dense and covers the full song corridor", () => {
   const minHeight =
     DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT *
     DRIFT_3D_BIRTH_YARD_CROWD.scaleMin;
   const maxHeight =
     DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT *
     DRIFT_3D_BIRTH_YARD_CROWD.scaleMax;
+  const maxFlowLength = Math.max(
+    ...DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.map(getDrift3DBirthYardCrowdFlowLength)
+  );
 
-  assert.ok(DRIFT_3D_BIRTH_YARD_CROWD.count >= 160);
-  assert.ok(DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ * 2 >= 34);
-  assert.ok(minHeight >= 1.15, `crowd became too small: ${minHeight}`);
-  assert.ok(maxHeight <= 1.4, `crowd remains too large: ${maxHeight}`);
+  assert.ok(DRIFT_3D_BIRTH_YARD_CROWD.count >= 190);
+  assert.ok(maxFlowLength >= 34, `crowd corridor is too short: ${maxFlowLength}`);
+  assert.ok(minHeight >= 0.8, `crowd became implausibly tiny: ${minHeight}`);
+  assert.ok(maxHeight <= 0.95, `crowd remains too large: ${maxHeight}`);
 });
 
-test("Foolfoule pedestrian lanes sit on paving and remain outside the carriageway", () => {
-  const foolfoule = drift3dTrackNodeBySlug.foolfoule.position;
-  const sampleZs = [
-    -DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ,
-    0,
-    DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ,
-  ];
+test("Foolfoule crowd slots exactly fill the configured instance budget", () => {
+  const slotCount = DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.reduce(
+    (sum, flow) => sum + flow.slots,
+    0
+  );
 
-  for (const lane of DRIFT_3D_BIRTH_YARD_CROWD_LANES) {
-    const containingStrip = DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.find((strip) => {
-      const min = strip.centerX - strip.width / 2;
-      const max = strip.centerX + strip.width / 2;
+  assert.equal(slotCount, DRIFT_3D_BIRTH_YARD_CROWD.count);
+});
 
-      return lane.minX >= min && lane.maxX <= max;
-    });
+test("most Foolfoule pedestrians circulate inside the gap between the building rows", () => {
+  const centralFlows = DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.filter((flow) =>
+    flow.id.startsWith("interbuilding-")
+  );
+  const centralSlots = centralFlows.reduce((sum, flow) => sum + flow.slots, 0);
 
-    assert.ok(containingStrip, `${lane.id} is not supported by a paving strip`);
+  assert.ok(centralSlots >= DRIFT_3D_BIRTH_YARD_CROWD.count / 2);
 
-    for (const relativeX of [lane.minX, lane.maxX]) {
-      for (const relativeZ of sampleZs) {
-        const route = getDrift3DRouteField(
-          foolfoule.x + relativeX,
-          foolfoule.z + relativeZ
-        );
+  for (const flow of centralFlows) {
+    for (const progress of [0, 0.25, 0.5, 0.75]) {
+      const sample = sampleDrift3DBirthYardCrowdFlow(flow, progress, 0);
 
-        // Route-field distance is measured from the road edge, not its
-        // centerline. Keep at least a pedestrian-sized safety margin outside
-        // every sampled carriageway edge across the full song-area span.
-        assert.ok(
-          route.distance > 0.75,
-          `${lane.id} intrudes into carriageway at ${relativeX}/${relativeZ}: ${route.distance}`
-        );
-      }
+      assert.ok(
+        sample.x > -2.6 && sample.x < 2.6,
+        `${flow.id} escaped the inter-building corridor at x=${sample.x}`
+      );
+    }
+  }
+});
+
+test("transverse Foolfoule flows cross through the shared gap between all four blocks", () => {
+  const crossingFlows = DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.filter((flow) =>
+    flow.id.startsWith("building-gap-")
+  );
+
+  assert.equal(crossingFlows.length, 2);
+
+  for (const flow of crossingFlows) {
+    assert.ok(Math.abs(flow.start[0]) >= 7.5);
+    assert.ok(Math.abs(flow.end[0]) >= 7.5);
+
+    for (const z of [flow.start[1], flow.end[1]]) {
+      assert.ok(
+        z > -0.65 && z < -0.05,
+        `${flow.id} misses the authored building gap at z=${z}`
+      );
+    }
+
+    const midpoint = sampleDrift3DBirthYardCrowdFlow(flow, 0.5, 0);
+    assert.ok(Math.abs(midpoint.x) < 0.1);
+
+    const foolfoule = drift3dTrackNodeBySlug.foolfoule.position;
+    const route = getDrift3DRouteField(
+      foolfoule.x + midpoint.x,
+      foolfoule.z + midpoint.z
+    );
+
+    assert.ok(
+      route.distance <= 0.05,
+      `${flow.id} should visibly cross the drive route between buildings`
+    );
+  }
+});
+
+test("the remaining Foolfoule paving marks the transverse building-gap passage", () => {
+  assert.equal(DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.length, 1);
+  const strip = DRIFT_3D_BIRTH_YARD_PAVING_STRIPS[0];
+
+  assert.equal(strip.id, "building-gap-crossing");
+
+  const minX = strip.centerX - strip.width / 2;
+  const maxX = strip.centerX + strip.width / 2;
+  const minZ = strip.centerZ - strip.depth / 2;
+  const maxZ = strip.centerZ + strip.depth / 2;
+
+  for (const flow of DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.filter((candidate) =>
+    candidate.id.startsWith("building-gap-")
+  )) {
+    for (const point of [flow.start, flow.end]) {
+      assert.ok(point[0] >= minX && point[0] <= maxX);
+      assert.ok(point[1] >= minZ && point[1] <= maxZ);
     }
   }
 });
