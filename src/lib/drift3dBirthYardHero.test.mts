@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import {
+  DRIFT_3D_BIRTH_YARD_CROWD,
+  DRIFT_3D_BIRTH_YARD_CROWD_LANES,
+  DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT,
+  DRIFT_3D_BIRTH_YARD_PAVING_STRIPS,
+} from "@/lib/drift3dBirthYardHeroCrowd";
+import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
 import { DRIFT_3D_SEA_LEVEL } from "@/lib/drift3dPeninsula";
 import { getDrift3DRouteField } from "@/lib/drift3dRoutes";
 import {
@@ -7,7 +14,6 @@ import {
   getDrift3DTerrainHeight,
 } from "@/lib/drift3dTerrain";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
-import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
 
 const canal = DRIFT_3D_BIRTH_YARD_CANAL;
 const middleZ = (canal.minZ + canal.maxZ) / 2;
@@ -60,4 +66,52 @@ test("Foolfoule Hero Slice skyline stays low-rise without changing other landmar
     getDrift3DHeroLandmarkHeightScale("birth-eux-gainent-glass-gym", 0),
     1
   );
+});
+
+test("Foolfoule crowd is smaller than the old figures and dense across the song area", () => {
+  const minHeight =
+    DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT *
+    DRIFT_3D_BIRTH_YARD_CROWD.scaleMin;
+  const maxHeight =
+    DRIFT_3D_BIRTH_YARD_CROWD_REFERENCE_HEIGHT *
+    DRIFT_3D_BIRTH_YARD_CROWD.scaleMax;
+
+  assert.ok(DRIFT_3D_BIRTH_YARD_CROWD.count >= 160);
+  assert.ok(DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ * 2 >= 34);
+  assert.ok(minHeight >= 1.15, `crowd became too small: ${minHeight}`);
+  assert.ok(maxHeight <= 1.4, `crowd remains too large: ${maxHeight}`);
+});
+
+test("Foolfoule pedestrian lanes sit on paving and remain outside the carriageway", () => {
+  const foolfoule = drift3dTrackNodeBySlug.foolfoule.position;
+  const sampleZs = [
+    -DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ,
+    0,
+    DRIFT_3D_BIRTH_YARD_CROWD.zoneHalfZ,
+  ];
+
+  for (const lane of DRIFT_3D_BIRTH_YARD_CROWD_LANES) {
+    const containingStrip = DRIFT_3D_BIRTH_YARD_PAVING_STRIPS.find((strip) => {
+      const min = strip.centerX - strip.width / 2;
+      const max = strip.centerX + strip.width / 2;
+
+      return lane.minX >= min && lane.maxX <= max;
+    });
+
+    assert.ok(containingStrip, `${lane.id} is not supported by a paving strip`);
+
+    for (const relativeX of [lane.minX, lane.maxX]) {
+      for (const relativeZ of sampleZs) {
+        const route = getDrift3DRouteField(
+          foolfoule.x + relativeX,
+          foolfoule.z + relativeZ
+        );
+
+        assert.ok(
+          route.distance > 4.45,
+          `${lane.id} intrudes into carriageway at ${relativeX}/${relativeZ}: ${route.distance}`
+        );
+      }
+    }
+  }
 });
