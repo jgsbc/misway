@@ -109,15 +109,17 @@ function StormRain({ vehicleStateRef }: EffectsProps) {
   );
 }
 
-const CROWD_COUNT = 84;
+const CROWD_COUNT = 72;
 const CROWD_BAND_HALF = 10;
-const CROWD_MARCH_SPEED = 0.55;
+const CROWD_MARCH_SPEED = 0.48;
 
 type CrowdFigure = {
   x: number;
   z: number;
   scale: number;
   phase: number;
+  pace: number;
+  direction: 1 | -1;
 };
 
 function setCrowdPartMatrix(
@@ -128,11 +130,13 @@ function setCrowdPartMatrix(
   y: number,
   z: number,
   scale: number,
-  rotationX = 0
+  rotationX = 0,
+  rotationY = 0,
+  rotationZ = 0
 ) {
   dummy.position.set(x, y, z);
   dummy.scale.setScalar(scale);
-  dummy.rotation.set(rotationX, 0, 0);
+  dummy.rotation.set(rotationX, rotationY, rotationZ);
   dummy.updateMatrix();
   mesh.setMatrixAt(index, dummy.matrix);
 }
@@ -144,25 +148,30 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
   const headRef = useRef<THREE.InstancedMesh>(null);
   const leftLegRef = useRef<THREE.InstancedMesh>(null);
   const rightLegRef = useRef<THREE.InstancedMesh>(null);
+  const leftArmRef = useRef<THREE.InstancedMesh>(null);
+  const rightArmRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const figures = useMemo<CrowdFigure[]>(
     () =>
       Array.from({ length: CROWD_COUNT }, (_, index) => {
         const westSide = index % 2 === 0;
         const lateralNoise = effectNoise(index, 5);
+        const secondaryNoise = effectNoise(index, 9);
 
-        // The recovered hero road runs just east of Foolfoule. Keep the crowd
-        // on two sidewalk bands instead of filling the carriageway with the
-        // old capsule placeholder field.
+        // Two irregular sidewalk flows flank the recovered road. The wider
+        // lateral jitter removes the old military rows while preserving a
+        // clear carriageway through the Hero Slice.
         const x = westSide
-          ? -4.2 - lateralNoise * 2.1
-          : 7.9 + lateralNoise * 2.1;
+          ? -4.4 - lateralNoise * 2.8 - secondaryNoise * 0.6
+          : 7.8 + lateralNoise * 2.8 + secondaryNoise * 0.6;
 
         return {
           x,
           z: (effectNoise(index, 6) - 0.5) * CROWD_BAND_HALF * 2,
-          scale: 0.92 + effectNoise(index, 7) * 0.16,
-          phase: index % 2 === 0 ? 0 : Math.PI,
+          scale: 1 + effectNoise(index, 7) * 0.12,
+          phase: effectNoise(index, 8) * Math.PI * 2,
+          pace: 0.82 + effectNoise(index, 10) * 0.32,
+          direction: westSide ? 1 : -1,
         };
       }),
     []
@@ -173,8 +182,10 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     const head = headRef.current;
     const leftLeg = leftLegRef.current;
     const rightLeg = rightLegRef.current;
+    const leftArm = leftArmRef.current;
+    const rightArm = rightArmRef.current;
 
-    if (!torso || !head || !leftLeg || !rightLeg) {
+    if (!torso || !head || !leftLeg || !rightLeg || !leftArm || !rightArm) {
       return;
     }
 
@@ -189,23 +200,28 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     head.visible = visible;
     leftLeg.visible = visible;
     rightLeg.visible = visible;
+    leftArm.visible = visible;
+    rightArm.visible = visible;
 
     if (!visible) {
       return;
     }
 
     const time = clock.elapsedTime;
-    const march = (time * CROWD_MARCH_SPEED) % (CROWD_BAND_HALF * 2);
 
     for (let index = 0; index < CROWD_COUNT; index += 1) {
       const figure = figures[index];
+      const travel =
+        time * CROWD_MARCH_SPEED * figure.pace * figure.direction;
       let worldX = center.x + figure.x;
       let worldZ =
         center.z +
-        ((figure.z + march + CROWD_BAND_HALF) % (CROWD_BAND_HALF * 2)) -
+        ((figure.z + travel + CROWD_BAND_HALF) % (CROWD_BAND_HALF * 2) +
+          CROWD_BAND_HALF * 2) %
+          (CROWD_BAND_HALF * 2) -
         CROWD_BAND_HALF;
 
-      // People yield locally to the 4x4 but keep their collective direction.
+      // People yield locally to the 4x4 but keep their collective flow.
       const dx = worldX - position.x;
       const dz = worldZ - position.z;
       const distance = Math.hypot(dx, dz);
@@ -216,48 +232,80 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         worldZ += dz * push;
       }
 
-      const stride = Math.sin(time * 4.4 + figure.phase) * 0.24;
-      const bob = Math.abs(Math.sin(time * 4.4 + figure.phase)) * 0.025;
+      const gait = time * 4.1 * figure.pace + figure.phase;
+      const stride = Math.sin(gait) * 0.19;
+      const bob = Math.abs(Math.sin(gait)) * 0.018;
       const ground = centerGroundY;
       const scale = figure.scale;
+      const facing = figure.direction === 1 ? 0 : Math.PI;
 
       setCrowdPartMatrix(
         torso,
         dummy,
         index,
         worldX,
-        ground + (1.08 + bob) * scale,
+        ground + (1.02 + bob) * scale,
         worldZ,
-        scale
+        scale,
+        0,
+        facing
       );
       setCrowdPartMatrix(
         head,
         dummy,
         index,
         worldX,
-        ground + (1.62 + bob) * scale,
+        ground + (1.47 + bob) * scale,
         worldZ,
-        scale
+        scale,
+        0,
+        facing
       );
       setCrowdPartMatrix(
         leftLeg,
         dummy,
         index,
-        worldX - 0.1 * scale,
-        ground + 0.39 * scale,
+        worldX - 0.075 * scale,
+        ground + 0.36 * scale,
         worldZ,
         scale,
-        stride
+        stride,
+        facing
       );
       setCrowdPartMatrix(
         rightLeg,
         dummy,
         index,
-        worldX + 0.1 * scale,
-        ground + 0.39 * scale,
+        worldX + 0.075 * scale,
+        ground + 0.36 * scale,
         worldZ,
         scale,
-        -stride
+        -stride,
+        facing
+      );
+      setCrowdPartMatrix(
+        leftArm,
+        dummy,
+        index,
+        worldX - 0.205 * scale,
+        ground + (1.03 + bob) * scale,
+        worldZ,
+        scale,
+        -stride * 0.8,
+        facing,
+        0.04
+      );
+      setCrowdPartMatrix(
+        rightArm,
+        dummy,
+        index,
+        worldX + 0.205 * scale,
+        ground + (1.03 + bob) * scale,
+        worldZ,
+        scale,
+        stride * 0.8,
+        facing,
+        -0.04
       );
     }
 
@@ -265,6 +313,8 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
     head.instanceMatrix.needsUpdate = true;
     leftLeg.instanceMatrix.needsUpdate = true;
     rightLeg.instanceMatrix.needsUpdate = true;
+    leftArm.instanceMatrix.needsUpdate = true;
+    rightArm.instanceMatrix.needsUpdate = true;
   });
 
   return (
@@ -275,8 +325,8 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         frustumCulled={false}
         castShadow
       >
-        <boxGeometry args={[0.38, 0.72, 0.24]} />
-        <meshStandardMaterial color="#4a4748" roughness={0.92} />
+        <cylinderGeometry args={[0.16, 0.22, 0.66, 6]} />
+        <meshStandardMaterial color="#454448" roughness={0.94} />
       </instancedMesh>
       <instancedMesh
         ref={headRef}
@@ -284,8 +334,8 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         frustumCulled={false}
         castShadow
       >
-        <sphereGeometry args={[0.13, 7, 6]} />
-        <meshStandardMaterial color="#a9927f" roughness={0.9} />
+        <sphereGeometry args={[0.098, 7, 6]} />
+        <meshStandardMaterial color="#8c7664" roughness={0.94} />
       </instancedMesh>
       <instancedMesh
         ref={leftLegRef}
@@ -293,8 +343,8 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         frustumCulled={false}
         castShadow
       >
-        <boxGeometry args={[0.14, 0.72, 0.16]} />
-        <meshStandardMaterial color="#2e3034" roughness={0.94} />
+        <cylinderGeometry args={[0.052, 0.062, 0.7, 5]} />
+        <meshStandardMaterial color="#2d3034" roughness={0.96} />
       </instancedMesh>
       <instancedMesh
         ref={rightLegRef}
@@ -302,8 +352,26 @@ function FoolfouleCrowd({ vehicleStateRef }: EffectsProps) {
         frustumCulled={false}
         castShadow
       >
-        <boxGeometry args={[0.14, 0.72, 0.16]} />
-        <meshStandardMaterial color="#2e3034" roughness={0.94} />
+        <cylinderGeometry args={[0.052, 0.062, 0.7, 5]} />
+        <meshStandardMaterial color="#2d3034" roughness={0.96} />
+      </instancedMesh>
+      <instancedMesh
+        ref={leftArmRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <cylinderGeometry args={[0.042, 0.048, 0.56, 5]} />
+        <meshStandardMaterial color="#454448" roughness={0.94} />
+      </instancedMesh>
+      <instancedMesh
+        ref={rightArmRef}
+        args={[undefined, undefined, CROWD_COUNT]}
+        frustumCulled={false}
+        castShadow
+      >
+        <cylinderGeometry args={[0.042, 0.048, 0.56, 5]} />
+        <meshStandardMaterial color="#454448" roughness={0.94} />
       </instancedMesh>
     </group>
   );
