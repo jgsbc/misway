@@ -1,4 +1,5 @@
 const FOOLFOULE_LANDMARK_ID = "birth-foolfoule-canyon";
+const ZEELAND_CANAL_LANDMARK_ID = "birth-zeeland-canal";
 
 const FOOLFOULE_HEIGHT_SCALES = Object.freeze([0.7, 0.72, 0.65, 0.7] as const);
 
@@ -20,4 +21,13 @@ export function getDrift3DHeroLandmarkHeightScale(
   }
 
   return FOOLFOULE_HEIGHT_SCALES[primitiveIndex] ?? 1;
+}
+
+/**
+ * B2a established one canonical sea-level water authority and carved the
+ * Zeeland canal into terrain. The two old local Reflector tiles are retained
+ * in source data for provenance but must no longer render on top of that water.
+ */
+export function shouldRenderDrift3DLegacyWater(landmarkId: string): boolean {
+  return landmarkId !== ZEELAND_CANAL_LANDMARK_ID;
 }
