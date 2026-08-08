@@ -120,14 +120,14 @@ const newSignalState: Drift3DAtmosphereState = {
   skyColor: rgb("#0d1119"),
   fogColor: rgb("#10141f"),
   fogDensity: 0.014,
-  exposure: 0.86,
+  exposure: 0.98,
   sunDirection: { x: -0.32, y: 0.72, z: -0.42 },
   sunColor: rgb("#cdd8ee"),
-  sunIntensity: 0.6,
+  sunIntensity: 0.85,
   hemiSkyColor: rgb("#202839"),
   hemiGroundColor: rgb("#0b0d13"),
-  hemiIntensity: 0.32,
-  ambientIntensity: 0.06,
+  hemiIntensity: 0.48,
+  ambientIntensity: 0.1,
   groundColor: rgb("#3a3f49"),
 };
 
