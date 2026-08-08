@@ -11,6 +11,7 @@ import type {
 } from "@/lib/drift3dLandmarks";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
+import { getDrift3DHeroLandmarkHeightScale } from "@/lib/drift3dBirthYardHeroPresentation";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 
 type Drift3DLandmarkProps = {
@@ -45,26 +46,41 @@ function getPrimitiveHeight(primitive: Drift3DLandmarkPrimitive) {
 
 function PrimitiveGeometry({
   primitive,
+  heightScale,
 }: {
   primitive: Drift3DLandmarkPrimitive;
+  heightScale: number;
 }) {
   switch (primitive.kind) {
     case "box":
       return (
         <boxGeometry
-          args={[primitive.args[0], primitive.args[1], primitive.args[2]]}
+          args={[
+            primitive.args[0],
+            primitive.args[1] * heightScale,
+            primitive.args[2],
+          ]}
         />
       );
     case "cylinder":
       return (
         <cylinderGeometry
-          args={[primitive.args[0], primitive.args[1], primitive.args[2], 14]}
+          args={[
+            primitive.args[0],
+            primitive.args[1],
+            primitive.args[2] * heightScale,
+            14,
+          ]}
         />
       );
     case "cone":
       return (
         <coneGeometry
-          args={[primitive.args[0], primitive.args[1], primitive.args[2] ?? 12]}
+          args={[
+            primitive.args[0],
+            primitive.args[1] * heightScale,
+            primitive.args[2] ?? 12,
+          ]}
         />
       );
     case "sphere":
@@ -147,7 +163,9 @@ export default function Drift3DLandmark({
         continue;
       }
 
-      const height = getPrimitiveHeight(primitive) + primitive.offset[1];
+      const heightScale = getDrift3DHeroLandmarkHeightScale(landmark.id, index);
+      const height =
+        getPrimitiveHeight(primitive) * heightScale + primitive.offset[1];
 
       if (height < OCCLUSION_MIN_HEIGHT) {
         continue;
@@ -200,7 +218,11 @@ export default function Drift3DLandmark({
           );
         }
 
-        const height = getPrimitiveHeight(primitive);
+        const heightScale = getDrift3DHeroLandmarkHeightScale(
+          landmark.id,
+          index
+        );
+        const height = getPrimitiveHeight(primitive) * heightScale;
         const centerY = groundYs[index] + primitive.offset[1] + height / 2;
         const transparent = primitive.opacity !== undefined;
         const maps = primitive.material
@@ -222,7 +244,10 @@ export default function Drift3DLandmark({
               rotation={primitive.rotation ?? [0, 0, 0]}
             >
               <mesh castShadow receiveShadow>
-                <PrimitiveGeometry primitive={primitive} />
+                <PrimitiveGeometry
+                  primitive={primitive}
+                  heightScale={heightScale}
+                />
                 <meshStandardMaterial
                   ref={(material) => {
                     materialRefs.current[index] = material;
