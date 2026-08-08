@@ -135,7 +135,10 @@ function drawWindows(
   context.fillRect(0, 0, size, size);
 
   const columns = 5;
-  const rows = 8;
+  // One procedural tile represents two real building levels. Authored
+  // textureRepeat.y can add floors deliberately; the previous eight rows per
+  // tile made a six-metre Birth Yard block read as a 16-storey tower.
+  const rows = 2;
   const cellWidth = size / columns;
   const cellHeight = size / rows;
 
