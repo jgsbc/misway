@@ -17,8 +17,9 @@ import {
 export const DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH = 2.5;
 export const DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET = 0.72;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH = 3.45;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 2.15;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 3.8;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.85;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 2.35;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT = 0.32;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -119,7 +120,7 @@ export type DriftEvolutionCameraRig = {
 
 /**
  * Open world = canonical chase camera. Inside the west-ridge cave the camera
- * comes closer/lower and is clamped inside the same physical envelope.
+ * comes closer/lower and keeps the 4x4 clearly framed in the lower quarter.
  */
 export function getDriftEvolutionAdaptiveCameraRig(
   vehiclePosition: Drift3DPoint,
@@ -161,7 +162,7 @@ export function getDriftEvolutionAdaptiveCameraRig(
     DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD * Math.min(effectiveScale, 1.15);
   const enclosedTarget = {
     x: vehiclePosition.x + headingVector.x * lookAhead,
-    y: vehiclePosition.y + 0.64,
+    y: vehiclePosition.y + DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT,
     z: vehiclePosition.z + headingVector.z * lookAhead,
   };
 
