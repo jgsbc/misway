@@ -25,9 +25,9 @@ export const DRIFT_EVOLUTION_ENTRY_CAVE = Object.freeze({
   mouthZ: drift3dThresholdNode.position.z,
   halfWidth: 3.7,
   apexHeight: 5.4,
-  rings: 76,
+  rings: 64,
   around: 26,
-  portalDepth: 11,
+  portalDepth: 8,
   activationRadius: 96,
   dustCount: 220,
   dripCount: 44,
@@ -165,7 +165,7 @@ export function getDriftEvolutionEntryCaveIssues() {
   if (
     cave.centerX - 12 < worldMinX ||
     cave.centerX + 12 > worldMaxX ||
-    cave.mouthZ > worldMaxZ
+    cave.mouthZ + cave.portalDepth > worldMaxZ
   ) {
     issues.push("recovered Entry sequence must stay inside DRIFT world bounds");
   }
