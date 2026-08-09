@@ -17,11 +17,11 @@ type EvolutionSafari110VehicleVisualProps = {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
 };
 
-function findLegacyVehiclePoseGroup(scene: THREE.Scene) {
+function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
 
   scene.traverse((object) => {
-    if (candidate || !(object instanceof THREE.Group)) return;
+    if (candidate !== null || !(object instanceof THREE.Group)) return;
     if (object.renderOrder !== 10) return;
     if (Math.abs(object.scale.x - 1.34) > 0.001) return;
 
@@ -31,7 +31,7 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene) {
     if (hasDrivingHeadlight) candidate = object;
   });
 
-  return candidate;
+  return candidate as THREE.Group | null;
 }
 
 function disposeVehicle(root: THREE.Object3D) {
@@ -68,7 +68,7 @@ export default function EvolutionSafari110VehicleVisual({
   const model = useMemo(() => buildDrift3DSafari110FinalVehicle(), []);
 
   useLayoutEffect(() => {
-    const legacy = findLegacyVehiclePoseGroup(scene);
+    const legacy: THREE.Group | null = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
     if (legacy) legacy.visible = false;
 
@@ -77,7 +77,8 @@ export default function EvolutionSafari110VehicleVisual({
     }
 
     return () => {
-      if (legacyPoseRef.current) legacyPoseRef.current.visible = true;
+      const legacyPose: THREE.Group | null = legacyPoseRef.current;
+      if (legacyPose) legacyPose.visible = true;
       legacyPoseRef.current = null;
     };
   }, [scene]);
@@ -85,7 +86,7 @@ export default function EvolutionSafari110VehicleVisual({
   useEffect(() => () => disposeVehicle(model), [model]);
 
   useFrame((_, delta) => {
-    let legacy = legacyPoseRef.current;
+    let legacy: THREE.Group | null = legacyPoseRef.current;
     if (!legacy) {
       legacy = findLegacyVehiclePoseGroup(scene);
       if (legacy) {
