@@ -50,10 +50,10 @@ test("new MISWAY titles are registered once in their intended eras", () => {
 
 test("AMIDIR replaces ETEEAOOETE rather than duplicating the finale", () => {
   assert.equal(getTrackBySlug("eteeaooete"), undefined);
-  assert.equal(
-    drift3dTrackNodes.some((node) => node.trackSlug === "eteeaooete"),
-    false
+  const canonicalTrackSlugs = new Set<string>(
+    drift3dTrackNodes.map((node) => node.trackSlug)
   );
+  assert.equal(canonicalTrackSlugs.has("eteeaooete"), false);
   assert.equal(
     drift3dTrackNodeBySlug.eteeaooete.id,
     "retired-eteeaooete-landmark-tombstone"
