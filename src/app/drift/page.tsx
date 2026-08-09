@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Drift3DClient from "@/components/drift-3d/Drift3DClient";
+import DriftStartupVeil from "@/components/drift-3d/DriftStartupVeil";
 
 const siteUrl = "https://jgsbc.github.io/misway";
 
@@ -20,5 +21,10 @@ export const metadata: Metadata = {
 };
 
 export default function DriftPage() {
-  return <Drift3DClient />;
+  return (
+    <>
+      <Drift3DClient />
+      <DriftStartupVeil />
+    </>
+  );
 }
