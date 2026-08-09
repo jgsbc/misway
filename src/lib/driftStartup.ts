@@ -1,1 +1,1 @@
-export const DRIFT_SCENE_READY_EVENT = "misway:drift-scene-ready";
+export const DRIFT_STARTUP_RELEASE_EVENT = "misway:drift-startup-release";
