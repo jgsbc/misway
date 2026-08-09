@@ -2,6 +2,7 @@ import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import {
   DRIFT_3D_TOPOLOGY_WORLD_DEPTH,
   DRIFT_3D_TOPOLOGY_WORLD_WIDTH,
+  drift3dThresholdNode,
   drift3dTrackNodeBySlug,
 } from "@/lib/drift3dTopology";
 import { DRIFT_3D_VEHICLE_GROUND_CLEARANCE } from "@/lib/drift3dVehiclePhysics";
@@ -16,9 +17,13 @@ const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
  * deliberate: ~54 m of mineral gorge, then ~46 m from the mouth to the first
  * Birth Yard street. These values restore that spatial rhythm inside the
  * protected DRIFT bounds without moving production topology.
+ *
+ * EVO-22 keeps that setback but puts the recovered cave on the exact
+ * production Entry → Zeeland axis. The old +2.15 spawn offset was a vehicle
+ * convenience, not a world-design authority.
  */
 export const DRIFT_EVOLUTION_ENTRY_CAVE = Object.freeze({
-  centerX: zeeland.x + 2.15,
+  centerX: zeeland.x,
   startZ: -71.2,
   spawnZ: -68.5,
   mouthZ: zeeland.z - 46,
@@ -128,6 +133,13 @@ export function getDriftEvolutionEntryCaveIssues() {
   const worldMaxX = DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
   const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
   const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
+
+  if (
+    Math.abs(cave.centerX - zeeland.x) > 0.001 ||
+    Math.abs(cave.centerX - drift3dThresholdNode.position.x) > 0.001
+  ) {
+    issues.push("recovered cave must stay on the canonical Entry to Birth Yard axis");
+  }
 
   if (!(start.z > cave.startZ && start.z < cave.mouthZ)) {
     issues.push("evolution spawn must sit inside the recovered tunnel");
