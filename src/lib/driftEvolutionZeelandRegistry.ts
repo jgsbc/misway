@@ -5,7 +5,6 @@ import {
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 import {
   DRIFT_EVOLUTION_ZEELAND_GEOGRAPHY_LANDMARK_ID,
-  DRIFT_EVOLUTION_ZEELAND_OFFSET,
   DRIFT_EVOLUTION_ZEELAND_TARGET,
   buildDriftEvolutionZeelandGeographyLandmark,
 } from "@/lib/driftEvolutionZeelandGeography";
