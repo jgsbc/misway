@@ -10,6 +10,10 @@ import {
   suppressLegacyEntryForEvolution,
 } from "@/lib/driftEvolutionLegacyEntryRegistry";
 import {
+  restoreTrackPlacementAfterEvolution,
+  stageTrackPlacementForEvolution,
+} from "@/lib/driftEvolutionTrackPlacementRegistry";
+import {
   restoreZeelandAfterEvolution,
   stageZeelandForEvolution,
 } from "@/lib/driftEvolutionZeelandRegistry";
@@ -20,6 +24,7 @@ type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase>;
 // memo and topology nodes must already reflect the evolution-only staging.
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
+stageTrackPlacementForEvolution();
 
 /**
  * Copy-on-write scene: production DRIFT remains the complete base authority;
@@ -31,8 +36,10 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
     // evolution overrides after a cleanup replay, then restore on real unmount.
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
+    stageTrackPlacementForEvolution();
 
     return () => {
+      restoreTrackPlacementAfterEvolution();
       restoreZeelandAfterEvolution();
       restoreLegacyEntryAfterEvolution();
     };
