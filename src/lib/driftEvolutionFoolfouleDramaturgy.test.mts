@@ -88,14 +88,30 @@ test("pause preserves the visible state but stops advancement authority", () => 
   assert.equal(state.counterValue, 22);
 });
 
-test("panel yaw follows the crowd without turret-like rotation", () => {
-  const left = getDriftEvolutionFoolfoulePanelYaw(0, 5, -20, 0);
-  const right = getDriftEvolutionFoolfoulePanelYaw(0, -5, 20, 0);
+test("panel yaw follows the real north/south street geometry without turret rotation", () => {
+  const northPanel = DRIFT_EVOLUTION_FOOLFOULE_PANELS.find((panel) => panel.z > 0)!;
+  const southPanel = DRIFT_EVOLUTION_FOOLFOULE_PANELS.find((panel) => panel.z < 0)!;
+  const northYaw = getDriftEvolutionFoolfoulePanelYaw(
+    northPanel.x,
+    northPanel.z,
+    0,
+    0
+  );
+  const southYaw = getDriftEvolutionFoolfoulePanelYaw(
+    southPanel.x,
+    southPanel.z,
+    0,
+    0
+  );
 
-  assert.ok(left < 0);
-  assert.ok(right > 0);
-  assert.ok(Math.abs(left) <= DRIFT_EVOLUTION_FOOLFOULE_TRACKING_MAX_YAW);
-  assert.ok(Math.abs(right) <= DRIFT_EVOLUTION_FOOLFOULE_TRACKING_MAX_YAW);
+  assert.notEqual(northYaw, 0);
+  assert.notEqual(southYaw, 0);
+  assert.ok(Math.abs(northYaw) <= DRIFT_EVOLUTION_FOOLFOULE_TRACKING_MAX_YAW);
+  assert.ok(Math.abs(southYaw) <= DRIFT_EVOLUTION_FOOLFOULE_TRACKING_MAX_YAW);
+  assert.ok(
+    Math.sign(northYaw) !== Math.sign(southYaw),
+    "opposite pavements should cant toward the shared street focus from opposite sides"
+  );
 });
 
 test("crowd signal starts neutral at Foolfoule", () => {
