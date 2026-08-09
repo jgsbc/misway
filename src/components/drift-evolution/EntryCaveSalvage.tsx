@@ -6,10 +6,16 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
-import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
+import {
+  createDrift3DVehiclePhysicsState,
+  type Drift3DVehiclePhysicsState,
+} from "@/lib/drift3dVehiclePhysics";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
   DRIFT_EVOLUTION_ENTRY_PORTAL_OUTLINE,
+  getDriftEvolutionEntryPortalBounds,
+  getDriftEvolutionEntryStartPosition,
+  getDriftEvolutionEntryTunnelMix,
 } from "@/lib/driftEvolutionEntryCave";
 
 function noise2(x: number, y: number) {
@@ -25,6 +31,24 @@ function fbm(x: number, y: number) {
   );
 }
 
+function seededRng(seed: number) {
+  let state = seed >>> 0;
+
+  return () => {
+    state |= 0;
+    state = (state + 0x6d2b79f5) | 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function cavePathX(z: number) {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const progress = (z - cave.startZ) / (cave.mouthZ - cave.startZ);
+  return Math.sin(progress * Math.PI * 1.08) * 0.72;
+}
+
 function useEntryCaveGeometry() {
   return useMemo(() => {
     const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
@@ -32,40 +56,41 @@ function useEntryCaveGeometry() {
     const uvs: number[] = [];
     const colors: number[] = [];
     const indices: number[] = [];
+    const z0 = cave.startZ;
+    const z1 = cave.mouthZ + 1.6;
 
     for (let ring = 0; ring <= cave.rings; ring += 1) {
       const t = ring / cave.rings;
-      const z = cave.startZ + (cave.mouthZ - cave.startZ) * t;
-      const floorY = getDrift3DGroundY(cave.centerX, z) - 0.18;
-      const mouthOpen = THREE.MathUtils.smoothstep(t, 0.68, 1);
+      const z = z0 + (z1 - z0) * t;
+      const centerX = cavePathX(z);
+      const floorY = getDrift3DGroundY(cave.centerX + centerX, z) - 0.25;
 
       for (let around = 0; around <= cave.around; around += 1) {
         const s = around / cave.around;
         const angle = Math.PI * (1 - s);
-        const rockNoise = fbm(s * 5.2 + 3, z * 0.37);
-        const width =
-          cave.halfWidth *
-          (1 + rockNoise * 0.18 + mouthOpen * 0.09);
-        const apex =
-          cave.apexHeight *
-          (1 + fbm(s * 3.4 + 9, z * 0.24) * 0.14 + mouthOpen * 0.08);
-        const radialNoise = fbm(s * 9 + 21, z * 0.82) * 0.32;
+        const bulge = 1 + fbm(s * 5 + 3, z * 0.35) * 0.34;
+        const width = cave.halfWidth * bulge;
+        const apex = cave.apexHeight * (1 + fbm(s * 3 + 9, z * 0.22) * 0.22);
+        const radial = fbm(s * 9 + 21, z * 0.8) * 0.4;
         const nx = Math.cos(angle);
-        const ny = Math.max(0.16, Math.sin(angle));
-        const localX = nx * width + nx * radialNoise;
+        const ny = Math.max(0.15, Math.sin(angle));
+        const x = centerX + nx * width + nx * radial;
         const y =
           floorY +
           Math.pow(Math.max(0, Math.sin(angle)), 0.72) * apex +
-          ny * radialNoise * 0.52;
+          ny * radial * 0.6;
 
-        positions.push(localX, y, z);
-        uvs.push(s * 3.5, t * 5.2);
+        positions.push(x, y, z);
+        uvs.push(s * 3.4, z * 0.24);
 
-        const corner = 0.48 + Math.pow(Math.sin(angle), 0.7) * 0.42;
-        const depth = 0.68 + t * 0.24;
-        const variation = fbm(s * 13, z * 0.9) * 0.08;
-        const shade = THREE.MathUtils.clamp(corner * depth + variation, 0.24, 0.95);
-        colors.push(shade, shade * 0.985, shade * 0.97);
+        const cornerDark = 1 - 0.5 * Math.exp(-Math.pow(Math.sin(angle) * 3.4, 2));
+        const depthDark = 0.55 + 0.45 * t;
+        const shade = THREE.MathUtils.clamp(
+          0.55 * cornerDark * (0.7 + 0.3 * depthDark) + fbm(s * 13, z) * 0.08,
+          0.2,
+          0.92
+        );
+        colors.push(shade, shade, shade);
       }
     }
 
@@ -80,18 +105,11 @@ function useEntryCaveGeometry() {
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(positions, 3)
-    );
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-    geometry.setAttribute(
-      "color",
-      new THREE.Float32BufferAttribute(colors, 3)
-    );
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
-
     return geometry;
   }, []);
 }
@@ -101,15 +119,14 @@ function useFracturedPortalGeometry() {
     const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
     const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
     const wall = new THREE.Shape();
-    wall.moveTo(-9.2, -0.55);
-    wall.lineTo(9.2, -0.55);
-    wall.lineTo(9.2, 8.5);
-    wall.lineTo(6.8, 9.2);
-    wall.lineTo(3.9, 9.65);
-    wall.lineTo(0.9, 9.35);
-    wall.lineTo(-2.4, 9.72);
-    wall.lineTo(-5.8, 9.15);
-    wall.lineTo(-9.2, 8.15);
+    wall.moveTo(-24, 0);
+    wall.lineTo(24, 0);
+    wall.lineTo(24, 21);
+    wall.lineTo(15, 25);
+    wall.lineTo(5, 27);
+    wall.lineTo(-7, 26);
+    wall.lineTo(-16, 23.5);
+    wall.lineTo(-24, 20);
     wall.closePath();
 
     const hole = new THREE.Path();
@@ -128,35 +145,558 @@ function useFracturedPortalGeometry() {
       curveSegments: 1,
       steps: 1,
     });
-    geometry.translate(
-      0,
-      floorY + 0.02,
-      cave.mouthZ - cave.portalDepth * 0.5
-    );
+    geometry.translate(0, floorY - 0.3, cave.mouthZ - 1);
     geometry.computeVertexNormals();
-
     return geometry;
   }, []);
 }
 
-function useDustPositions() {
+function useRockGeometry() {
   return useMemo(() => {
-    const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-    const positions = new Float32Array(cave.dustCount * 3);
+    const geometry = new THREE.IcosahedronGeometry(1, 1);
+    const positions = geometry.attributes.position;
+    const point = new THREE.Vector3();
 
-    for (let index = 0; index < cave.dustCount; index += 1) {
-      const zT = noise2(index + 17, 4);
-      const z = cave.startZ + 1 + zT * (cave.mouthZ - cave.startZ - 2);
-      const floorY = getDrift3DGroundY(cave.centerX, z);
-      positions[index * 3] =
-        (noise2(index + 31, 7) - 0.5) * cave.halfWidth * 1.45;
-      positions[index * 3 + 1] =
-        floorY + 0.35 + noise2(index + 71, 9) * (cave.apexHeight * 0.7);
-      positions[index * 3 + 2] = z;
+    for (let index = 0; index < positions.count; index += 1) {
+      point.fromBufferAttribute(positions, index);
+      const displacement = 1 + fbm(point.x * 1.3 + 5, point.y * 1.3 + point.z) * 0.42;
+      positions.setXYZ(
+        index,
+        point.x * displacement,
+        point.y * displacement * 0.82,
+        point.z * displacement
+      );
     }
 
-    return positions;
+    geometry.computeVertexNormals();
+    return geometry;
   }, []);
+}
+
+function ScatterRocks() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const geometry = useRockGeometry();
+  const maps = getDriftMaterialMaps("rock", 1.6, 1.6);
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    const rng = seededRng(551177);
+    const matrix = new THREE.Matrix4();
+    const quaternion = new THREE.Quaternion();
+    const euler = new THREE.Euler();
+    let index = 0;
+
+    for (; index < 62; index += 1) {
+      const z = cave.startZ + rng() * (cave.mouthZ - cave.startZ - 4);
+      const centerX = cavePathX(z);
+      const side = rng() < 0.5 ? -1 : 1;
+      const scale = 2.1 + rng() * 3;
+      const overhead = rng() < 0.3 && z < cave.mouthZ - 10;
+      const localX = overhead
+        ? centerX + (rng() - 0.5) * 4.6
+        : centerX + side * (7 + scale + rng() * 3.5);
+      const groundY = getDrift3DGroundY(cave.centerX + localX, z);
+      const y = overhead
+        ? groundY + cave.apexHeight + scale * 0.8 + rng() * 1.5
+        : groundY + rng() * 5 - 1;
+      euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+      quaternion.setFromEuler(euler);
+      matrix.compose(
+        new THREE.Vector3(localX, y, z),
+        quaternion,
+        new THREE.Vector3(scale, scale * (0.7 + rng() * 0.5), scale)
+      );
+      mesh.setMatrixAt(index, matrix);
+    }
+
+    for (; index < 84; index += 1) {
+      const side = rng() < 0.5 ? -1 : 1;
+      const scale = 1.7 + rng() * 1.8;
+      const localX = side * (6 + rng() * 11);
+      const groundY = getDrift3DGroundY(cave.centerX + localX, cave.mouthZ);
+      const y = groundY + (rng() < 0.55 ? 14 + rng() * 8 : 6 + rng() * 7);
+      euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+      quaternion.setFromEuler(euler);
+      matrix.compose(
+        new THREE.Vector3(localX, y, cave.mouthZ - 4.2 - rng() * 2.5),
+        quaternion,
+        new THREE.Vector3(scale, scale * 0.8, scale)
+      );
+      mesh.setMatrixAt(index, matrix);
+    }
+
+    for (; index < cave.rockCount; index += 1) {
+      const localX = -7.1 + (rng() - 0.5) * 2.5;
+      const scale = 0.5 + rng() * 1.2;
+      const groundY = getDrift3DGroundY(cave.centerX + localX, cave.mouthZ);
+      euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+      quaternion.setFromEuler(euler);
+      matrix.compose(
+        new THREE.Vector3(
+          localX,
+          groundY + rng() * 1.4,
+          cave.mouthZ + (rng() - 0.5) * 1.6
+        ),
+        quaternion,
+        new THREE.Vector3(scale, scale, scale)
+      );
+      mesh.setMatrixAt(index, matrix);
+    }
+
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [cave]);
+
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[geometry, undefined, cave.rockCount]}
+      castShadow
+      receiveShadow
+      frustumCulled={false}
+    >
+      <meshStandardMaterial
+        map={maps.map ?? undefined}
+        normalMap={maps.normalMap ?? undefined}
+        color="#6b6156"
+        roughness={0.97}
+      />
+    </instancedMesh>
+  );
+}
+
+function Stalactites() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    const rng = seededRng(88332);
+    const matrix = new THREE.Matrix4();
+    const quaternion = new THREE.Quaternion();
+    quaternion.setFromEuler(new THREE.Euler(Math.PI, 0, 0));
+
+    for (let index = 0; index < cave.stalactiteCount; index += 1) {
+      const z = cave.startZ + 2 + rng() * (cave.mouthZ - cave.startZ - 5);
+      const centerX = cavePathX(z);
+      const localX = centerX + (rng() - 0.5) * 4.4;
+      const groundY = getDrift3DGroundY(cave.centerX + centerX, z);
+      const apexY =
+        groundY + cave.apexHeight * (0.72 + rng() * 0.2) -
+        Math.abs(localX - centerX) * 0.42;
+      const length = 0.4 + rng() * rng() * 1.45;
+      matrix.compose(
+        new THREE.Vector3(localX, apexY - length / 2, z),
+        quaternion,
+        new THREE.Vector3(0.09 + rng() * 0.13, length, 0.09 + rng() * 0.13)
+      );
+      mesh.setMatrixAt(index, matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [cave]);
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, cave.stalactiteCount]}>
+      <coneGeometry args={[1, 1, 6]} />
+      <meshStandardMaterial color="#4c463e" roughness={0.95} />
+    </instancedMesh>
+  );
+}
+
+function Drips() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const data = useMemo(() => {
+    const rng = seededRng(9911);
+    const positions = new Float32Array(cave.dripCount * 3);
+    const seeds: Array<{
+      x: number;
+      z: number;
+      top: number;
+      floor: number;
+      speed: number;
+      phase: number;
+    }> = [];
+
+    for (let index = 0; index < cave.dripCount; index += 1) {
+      const z = cave.startZ + 2 + rng() * (cave.mouthZ - cave.startZ - 4);
+      const centerX = cavePathX(z);
+      const x = centerX + (rng() - 0.5) * 5;
+      const floor = getDrift3DGroundY(cave.centerX + centerX, z);
+      const top = floor + 3.4 + rng() * 1.6;
+      seeds.push({ x, z, top, floor, speed: 5 + rng() * 3, phase: rng() * 10 });
+      positions[index * 3] = x;
+      positions[index * 3 + 1] = top;
+      positions[index * 3 + 2] = z;
+    }
+    return { positions, seeds };
+  }, [cave]);
+
+  useFrame(({ clock }) => {
+    const points = pointsRef.current;
+    if (!points) return;
+    const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
+    const time = clock.elapsedTime;
+
+    for (let index = 0; index < cave.dripCount; index += 1) {
+      const seed = data.seeds[index];
+      const span = seed.top - seed.floor;
+      const fall = (time * seed.speed + seed.phase * span) % (span + 2);
+      attribute.setY(index, seed.top - Math.min(fall, span));
+    }
+    attribute.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#9db4c4"
+        size={0.045}
+        sizeAttenuation
+        transparent
+        opacity={0.72}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+function DustMotes() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const data = useMemo(() => {
+    const rng = seededRng(40417);
+    const positions = new Float32Array(cave.dustCount * 3);
+    const drift = new Float32Array(cave.dustCount * 3);
+
+    for (let index = 0; index < cave.dustCount; index += 1) {
+      const z = cave.startZ + 1 + rng() * (cave.mouthZ - cave.startZ + 2);
+      const centerX = cavePathX(z);
+      positions[index * 3] = centerX + (rng() - 0.5) * 5.6;
+      positions[index * 3 + 1] =
+        getDrift3DGroundY(cave.centerX + centerX, z) + 0.2 + rng() * 3.6;
+      positions[index * 3 + 2] = z;
+      drift[index * 3] = (rng() - 0.5) * 0.08;
+      drift[index * 3 + 1] = (rng() - 0.5) * 0.035;
+      drift[index * 3 + 2] = (rng() - 0.5) * 0.08;
+    }
+    return { positions, drift };
+  }, [cave]);
+
+  useFrame((_, delta) => {
+    const points = pointsRef.current;
+    if (!points) return;
+    const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
+
+    for (let index = 0; index < cave.dustCount; index += 1) {
+      attribute.setXYZ(
+        index,
+        attribute.getX(index) + data.drift[index * 3] * delta,
+        attribute.getY(index) + data.drift[index * 3 + 1] * delta,
+        attribute.getZ(index) + data.drift[index * 3 + 2] * delta
+      );
+    }
+    attribute.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#cabb9d"
+        size={0.024}
+        sizeAttenuation
+        transparent
+        opacity={0.48}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+function CeilingCracks() {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const cracks = [
+    { z: cave.startZ + 20, tilt: 0.35 },
+    { z: cave.startZ + 33, tilt: -0.25 },
+  ];
+
+  return (
+    <>
+      {cracks.map((crack) => {
+        const centerX = cavePathX(crack.z);
+        const y =
+          getDrift3DGroundY(cave.centerX + centerX, crack.z) +
+          cave.apexHeight * 0.9;
+        return (
+          <group
+            key={crack.z}
+            position={[centerX + 0.6, y, crack.z]}
+            rotation={[0, 0, crack.tilt]}
+          >
+            <mesh rotation={[Math.PI / 2, 0, 0.7]}>
+              <planeGeometry args={[0.14, 2.2]} />
+              <meshBasicMaterial color="#fff0cf" toneMapped={false} side={THREE.DoubleSide} />
+            </mesh>
+            <mesh position={[0, -1.9, 0]} rotation={[0, 0.7, 0.12]}>
+              <planeGeometry args={[0.9, 4]} />
+              <meshBasicMaterial
+                color="#ffdfa8"
+                transparent
+                opacity={0.05}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+            <pointLight
+              color="#cfe0f2"
+              intensity={1.1}
+              distance={7}
+              decay={1.6}
+              position={[0, -0.6, 0]}
+            />
+          </group>
+        );
+      })}
+    </>
+  );
+}
+
+function usePortalGoboTexture() {
+  const texture = useMemo(() => {
+    if (typeof document === "undefined") return null;
+    const bounds = getDriftEvolutionEntryPortalBounds();
+    const size = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    context.fillStyle = "black";
+    context.fillRect(0, 0, size, size);
+    context.fillStyle = "white";
+    context.beginPath();
+    DRIFT_EVOLUTION_ENTRY_PORTAL_OUTLINE.forEach(([x, y], index) => {
+      const px = ((x - bounds.minX) / (bounds.maxX - bounds.minX)) * size * 0.82 + size * 0.09;
+      const py = size - (((y - bounds.minY) / (bounds.maxY - bounds.minY)) * size * 0.82 + size * 0.09);
+      if (index === 0) context.moveTo(px, py);
+      else context.lineTo(px, py);
+    });
+    context.closePath();
+    context.fill();
+
+    const result = new THREE.CanvasTexture(canvas);
+    result.colorSpace = THREE.NoColorSpace;
+    return result;
+  }, []);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+  return texture;
+}
+
+function PortalLight() {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const spotRef = useRef<THREE.SpotLight>(null);
+  const targetRef = useRef<THREE.Object3D>(null);
+  const skyCardRef = useRef<THREE.MeshBasicMaterial>(null);
+  const gobo = usePortalGoboTexture();
+  const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+
+  useEffect(() => {
+    if (spotRef.current && targetRef.current) {
+      spotRef.current.target = targetRef.current;
+    }
+  }, []);
+
+  useFrame(({ camera }) => {
+    if (!skyCardRef.current) return;
+    const distance = Math.abs(camera.position.z - cave.mouthZ);
+    skyCardRef.current.opacity = THREE.MathUtils.clamp((distance - 5) / 14, 0, 1) * 0.9;
+  });
+
+  return (
+    <group>
+      <spotLight
+        ref={spotRef}
+        position={[0.5, floorY + 18, cave.mouthZ + 25]}
+        color="#ffd39a"
+        intensity={2100}
+        distance={78}
+        angle={0.34}
+        penumbra={0.6}
+        decay={1.55}
+        map={gobo ?? undefined}
+      />
+      <object3D
+        ref={targetRef}
+        position={[cavePathX(cave.mouthZ - 18), floorY - 2.6, cave.mouthZ - 18]}
+      />
+
+      <spotLight
+        position={[0.5, floorY + 8.5, cave.mouthZ - 1]}
+        color="#ffcf94"
+        intensity={90}
+        distance={26}
+        angle={0.5}
+        penumbra={0.9}
+        decay={1.7}
+      />
+
+      {[0, 1, 2, 3].map((index) => (
+        <mesh
+          key={index}
+          position={[
+            0.2 + (index - 1.5) * 1.15,
+            floorY + 5.4 - index * 0.5,
+            cave.mouthZ - 4.5 - index * 2.4,
+          ]}
+          rotation={[0.62, 0.08 * (index - 1.5), 0]}
+        >
+          <planeGeometry args={[2.1 - index * 0.28, 15]} />
+          <meshBasicMaterial
+            color="#ffe6b8"
+            transparent
+            opacity={0.03}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
+
+      <mesh position={[-2.4, floorY + 8.2, cave.mouthZ + 9.6]}>
+        <planeGeometry args={[15, 18]} />
+        <meshBasicMaterial
+          ref={skyCardRef}
+          color="#ffc888"
+          transparent
+          opacity={0.9}
+          toneMapped={false}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <pointLight
+        position={[0.5, floorY + 1.2, cave.mouthZ - 4.5]}
+        color="#e8b070"
+        intensity={9}
+        distance={12}
+        decay={1.8}
+      />
+    </group>
+  );
+}
+
+function PortalFalls() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+  const data = useMemo(() => {
+    const rng = seededRng(770231);
+    const count = 220;
+    const positions = new Float32Array(count * 3);
+    const highEdges = DRIFT_EVOLUTION_ENTRY_PORTAL_OUTLINE.filter((point) => point[1] > 4);
+    const seeds: Array<{ x: number; z: number; top: number; speed: number; phase: number }> = [];
+
+    for (let index = 0; index < count; index += 1) {
+      const anchor = highEdges[Math.floor(rng() * highEdges.length)] ?? [0, 10];
+      const x = anchor[0] + (rng() - 0.5) * 1.2;
+      const top = floorY - 0.3 + anchor[1] - rng() * 1.5;
+      const z = cave.mouthZ - 1 + rng() * cave.portalDepth;
+      seeds.push({ x, z, top, speed: 2.4 + rng() * 3.6, phase: rng() });
+      positions[index * 3] = x;
+      positions[index * 3 + 1] = top;
+      positions[index * 3 + 2] = z;
+    }
+    return { count, positions, seeds };
+  }, [cave, floorY]);
+
+  useFrame(({ clock }) => {
+    const points = pointsRef.current;
+    if (!points) return;
+    const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
+    const time = clock.elapsedTime;
+
+    for (let index = 0; index < data.count; index += 1) {
+      const seed = data.seeds[index];
+      const drop = seed.top - floorY + 0.4;
+      const fall = (time * seed.speed + seed.phase * drop) % drop;
+      attribute.setY(index, seed.top - fall);
+      attribute.setX(index, seed.x + (fall / drop) * (seed.phase - 0.5) * 0.9);
+    }
+    attribute.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#e8c9a0"
+        size={0.05}
+        sizeAttenuation
+        transparent
+        opacity={0.52}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+function EntrySequenceRig({
+  vehicleStateRef,
+}: {
+  vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
+}) {
+  const spawnAppliedRef = useRef(false);
+  const dark = useMemo(() => new THREE.Color("#03040a"), []);
+
+  // Runs before production motion on the first frame. This preserves every
+  // production control/physics authority while giving the evolution route
+  // the recovered long Entry spawn.
+  useFrame(() => {
+    if (spawnAppliedRef.current) return;
+    vehicleStateRef.current = createDrift3DVehiclePhysicsState(
+      getDriftEvolutionEntryStartPosition(),
+      0
+    );
+    spawnAppliedRef.current = true;
+  }, -100);
+
+  // Production AtmosphereRig runs first at normal priority. This local pass
+  // then applies the historical tunnel eye-adaptation before the chase camera
+  // renders at priority 1. Outside the Entry mix it does nothing.
+  useFrame(({ gl, scene }) => {
+    const mix = getDriftEvolutionEntryTunnelMix(vehicleStateRef.current.position.z);
+    if (mix <= 0.001) return;
+
+    const factor = 1 - mix * (1 - DRIFT_EVOLUTION_ENTRY_CAVE.deepExposureFactor);
+    gl.toneMappingExposure *= factor;
+
+    if (scene.background instanceof THREE.Color) {
+      scene.background.lerp(dark, mix * 0.92);
+    }
+    if (scene.fog instanceof THREE.FogExp2) {
+      scene.fog.color.lerp(dark, mix * 0.9);
+      scene.fog.density = Math.max(scene.fog.density, 0.018 + mix * 0.018);
+    }
+  });
+
+  return null;
 }
 
 export default function EntryCaveSalvage({
@@ -165,13 +705,13 @@ export default function EntryCaveSalvage({
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const dustRef = useRef<THREE.Points>(null);
   const caveGeometry = useEntryCaveGeometry();
   const portalGeometry = useFracturedPortalGeometry();
-  const dustPositions = useDustPositions();
-  const rockMaps = getDriftMaterialMaps("rock", 4.2, 3.2);
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const mouthFloor = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+  const caveMaps = getDriftMaterialMaps("rock", 3, 2);
+  const wallMaps = getDriftMaterialMaps("rock", 0.14, 0.14);
+  const midZ = (cave.startZ + cave.mouthZ) * 0.5;
+  const floorY = getDrift3DGroundY(cave.centerX, midZ);
 
   useEffect(() => {
     return () => {
@@ -180,75 +720,62 @@ export default function EntryCaveSalvage({
     };
   }, [caveGeometry, portalGeometry]);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     const group = groupRef.current;
     if (!group) return;
-
     const vehicle = vehicleStateRef.current.position;
-    const centerZ = (cave.startZ + cave.mouthZ) * 0.5;
     group.visible =
-      Math.hypot(vehicle.x - cave.centerX, vehicle.z - centerZ) <
-      cave.activationRadius;
-
-    if (dustRef.current) {
-      dustRef.current.position.y = Math.sin(clock.elapsedTime * 0.22) * 0.035;
-    }
+      Math.hypot(vehicle.x - cave.centerX, vehicle.z - midZ) < cave.activationRadius;
   });
 
   return (
-    <group ref={groupRef} position={[cave.centerX, 0, 0]} aria-hidden="true">
-      <mesh geometry={caveGeometry} receiveShadow castShadow>
-        <meshStandardMaterial
-          color="#5c5852"
-          map={rockMaps.map}
-          normalMap={rockMaps.normalMap}
-          normalScale={new THREE.Vector2(0.72, 0.72)}
-          vertexColors
-          roughness={0.98}
-          metalness={0}
-          side={THREE.BackSide}
-        />
-      </mesh>
+    <>
+      <EntrySequenceRig vehicleStateRef={vehicleStateRef} />
+      <group ref={groupRef} position={[cave.centerX, 0, 0]} aria-hidden="true">
+        <mesh geometry={caveGeometry} receiveShadow castShadow>
+          <meshStandardMaterial
+            map={caveMaps.map ?? undefined}
+            normalMap={caveMaps.normalMap ?? undefined}
+            normalScale={new THREE.Vector2(1.5, 1.5)}
+            color="#7a7268"
+            roughness={0.98}
+            vertexColors
+            side={THREE.DoubleSide}
+          />
+        </mesh>
 
-      <mesh geometry={portalGeometry} receiveShadow castShadow>
-        <meshStandardMaterial
-          color="#5b5751"
-          map={rockMaps.map}
-          normalMap={rockMaps.normalMap}
-          normalScale={new THREE.Vector2(0.8, 0.8)}
-          roughness={0.99}
-          metalness={0}
-        />
-      </mesh>
+        <mesh geometry={portalGeometry} receiveShadow castShadow>
+          <meshStandardMaterial
+            map={wallMaps.map ?? undefined}
+            normalMap={wallMaps.normalMap ?? undefined}
+            normalScale={new THREE.Vector2(1.2, 1.2)}
+            color="#6d6459"
+            roughness={0.97}
+          />
+        </mesh>
 
-      <mesh
-        position={[0, mouthFloor + 3.05, cave.mouthZ + cave.portalDepth * 0.75]}
-        renderOrder={-2}
-      >
-        <planeGeometry args={[9.4, 6.6]} />
-        <meshBasicMaterial
-          color="#d7e6ec"
-          transparent
-          opacity={0.24}
-          depthWrite={false}
-          side={THREE.DoubleSide}
-          toneMapped={false}
-        />
-      </mesh>
+        <mesh
+          position={[0, floorY + 0.035, midZ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          receiveShadow
+        >
+          <planeGeometry args={[6.3, cave.mouthZ - cave.startZ]} />
+          <meshStandardMaterial
+            color="#17151c"
+            roughness={0.98}
+            transparent
+            opacity={0.78}
+          />
+        </mesh>
 
-      <points ref={dustRef} frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[dustPositions, 3]} />
-        </bufferGeometry>
-        <pointsMaterial
-          color="#d6d0c7"
-          size={0.055}
-          sizeAttenuation
-          transparent
-          opacity={0.32}
-          depthWrite={false}
-        />
-      </points>
-    </group>
+        <ScatterRocks />
+        <Stalactites />
+        <Drips />
+        <DustMotes />
+        <CeilingCracks />
+        <PortalLight />
+        <PortalFalls />
+      </group>
+    </>
   );
 }
