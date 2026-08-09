@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { getDrift3DVehicleStartPosition } from "./drift3dBase";
 import {
   DRIFT_3D_TOPOLOGY_WORLD_DEPTH,
-  drift3dThresholdNode,
   drift3dTrackNodeBySlug,
 } from "./drift3dTopology";
 import {
@@ -17,36 +17,46 @@ test("recovered evolution Entry cave is valid in protected DRIFT coordinates", (
   assert.deepEqual(getDriftEvolutionEntryCaveIssues(), []);
 });
 
-test("recovered cave replaces the legacy Entry at its exact threshold", () => {
-  const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
+test("cave exit is exactly the former production 4x4 start", () => {
+  const oldStart = getDrift3DVehicleStartPosition();
 
-  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.centerX, drift3dThresholdNode.position.x);
-  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.centerX, zeeland.x);
-  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.mouthZ, drift3dThresholdNode.position.z);
+  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.centerX, oldStart.x);
+  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.exitZ, oldStart.z);
   assert.equal(
-    DRIFT_EVOLUTION_ENTRY_CAVE.mouthZ + DRIFT_EVOLUTION_ENTRY_CAVE.portalDepth,
-    zeeland.z
+    DRIFT_EVOLUTION_ENTRY_CAVE.mouthZ -
+      1 +
+      DRIFT_EVOLUTION_ENTRY_CAVE.portalDepth,
+    oldStart.z
   );
 });
 
-test("evolution starts at the world edge deep inside the replacement tunnel", () => {
+test("world edge remains an exterior descent before the cave begins", () => {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
+  const descentLength = cave.startZ - worldMinZ;
+
+  assert.ok(descentLength >= 35);
+  assert.ok(descentLength <= 45);
+});
+
+test("cave keeps the exact EVO-21 validated total length", () => {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const start = getDriftEvolutionEntryStartPosition();
-  const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
 
-  assert.ok(cave.startZ - worldMinZ <= 1.5);
+  assert.ok(Math.abs(cave.exitZ - cave.startZ - 45.2) < 0.001);
   assert.equal(start.x, cave.centerX);
   assert.ok(start.z > cave.startZ);
   assert.ok(start.z < cave.mouthZ);
-  assert.ok(cave.mouthZ - start.z >= 70);
+  assert.ok(cave.exitZ - start.z >= 40);
 });
 
-test("portal hands directly from the legacy Entry footprint into Birth Yard", () => {
+test("exit reveals Birth Yard from the old vehicle staging point", () => {
   const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
-  const revealDistance = zeeland.z - DRIFT_EVOLUTION_ENTRY_CAVE.mouthZ;
+  const revealDistance = zeeland.z - DRIFT_EVOLUTION_ENTRY_CAVE.exitZ;
 
-  assert.equal(revealDistance, 8);
-  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.portalDepth, 8);
+  assert.ok(revealDistance >= 6);
+  assert.ok(revealDistance <= 10);
+  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.portalDepth, 11);
 });
 
 test("fractured portal keeps the monumental asymmetric Fable scale", () => {
@@ -57,17 +67,17 @@ test("fractured portal keeps the monumental asymmetric Fable scale", () => {
   assert.ok(bounds.maxY >= 14);
 });
 
-test("penumbra holds through the descent and resolves at Birth Yard", () => {
+test("penumbra holds deep in the cave and resolves after the Birth Yard reveal", () => {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
 
   assert.equal(getDriftEvolutionEntryTunnelMix(cave.startZ + 5), 1);
-  assert.ok(getDriftEvolutionEntryTunnelMix(cave.mouthZ) > 0.05);
-  assert.ok(getDriftEvolutionEntryTunnelMix(cave.mouthZ) < 0.2);
+  assert.ok(getDriftEvolutionEntryTunnelMix(cave.exitZ) > 0.05);
+  assert.ok(getDriftEvolutionEntryTunnelMix(cave.exitZ) < 0.5);
   assert.equal(getDriftEvolutionEntryTunnelMix(cave.revealFadeEndZ), 0);
   assert.ok(cave.deepExposureFactor <= 0.3);
 });
 
-test("recovered cave detail stays inside a bounded runtime budget", () => {
+test("recovered cave detail stays inside the validated runtime budget", () => {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const vertices = (cave.rings + 1) * (cave.around + 1);
   const triangles = cave.rings * cave.around * 2;
