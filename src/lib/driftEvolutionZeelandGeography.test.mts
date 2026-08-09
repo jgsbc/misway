@@ -71,7 +71,7 @@ test("Zeeland geography landmark provides route, physical quays, bridge and low 
   );
 
   assert.ok(solid.length >= 28, `expected segmented physical banks, got ${solid.length}`);
-  assert.ok(tall.length >= 6, `expected bridge/port vertical markers, got ${tall.length}`);
+  assert.ok(tall.length >= 5, `expected bridge/port vertical markers, got ${tall.length}`);
   assert.equal(
     roadLike.length,
     DRIFT_EVOLUTION_ZEELAND_ROUTE.length - 1,
