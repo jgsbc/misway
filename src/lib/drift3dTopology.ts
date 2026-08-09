@@ -446,7 +446,7 @@ export const drift3dTrackNodes = [
     trackSlug: "wo-ha",
     eraId: "new-signal",
     role: "track",
-    position: point(38, 0.13, 34),
+    position: point(22, 0.13, -44),
   },
   {
     id: "new-signal-amidir",
