@@ -4,6 +4,7 @@ import { useLayoutEffect, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
+import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
 import {
   restoreLegacyEntryAfterEvolution,
@@ -41,6 +42,7 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
   return (
     <>
       <Drift3DSceneBase {...props} />
+      <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
       <DriftEvolutionSpatialRig
