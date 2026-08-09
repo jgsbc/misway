@@ -2,11 +2,13 @@
 
 import { useLayoutEffect, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
+import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
 import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
+import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
 import {
   restoreFoolfouleAfterEvolution,
   stageFoolfouleForEvolution,
@@ -33,6 +35,8 @@ stageFoolfouleForEvolution();
  * evolution owns only the presentation/spatial layers that explicitly diverge.
  */
 export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
+  const evolutionStartPosition = getDriftEvolutionEntryStartPosition();
+
   useLayoutEffect(() => {
     // React Strict Mode may replay layout effects in development. Reassert the
     // evolution overrides after a cleanup replay, then restore on real unmount.
@@ -58,6 +62,12 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
+      />
+      <DriftSceneReadySignal
+        vehicleStateRef={props.vehicleStateRef}
+        expectedPosition={evolutionStartPosition}
+        stableFrames={5}
+        positionTolerance={0.35}
       />
     </>
   );

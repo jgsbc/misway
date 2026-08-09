@@ -41,12 +41,13 @@ import {
   type Drift3DFpsSampleToken,
   type Drift3DPerformanceSnapshotCandidate,
 } from "@/lib/drift3dEvidence";
+import { DRIFT_STARTUP_RELEASE_EVENT } from "@/lib/driftStartup";
 
 const DriftEvolutionCanvas = dynamic(
   () => import("@/components/drift-evolution/DriftEvolutionCanvas"),
   {
     ssr: false,
-    loading: () => <Drift3DFallback reason="checking" />,
+    loading: () => null,
   }
 );
 
@@ -198,9 +199,27 @@ export default function DriftEvolutionRuntimeClient() {
         : hasWebGL
           ? null
           : "no-webgl";
+  const isStaticFallback =
+    fallbackReason === "reduced-motion" || fallbackReason === "no-webgl";
+
+  useEffect(() => {
+    if (!isStaticFallback) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      window.dispatchEvent(new Event(DRIFT_STARTUP_RELEASE_EVENT));
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [isStaticFallback]);
 
   return (
-    <main className="fixed inset-0 isolate overflow-hidden bg-[#f5f0e7] text-neutral-950">
+    <main
+      className={`fixed inset-0 isolate overflow-hidden ${
+        isStaticFallback
+          ? "bg-[#f5f0e7] text-neutral-950"
+          : "bg-black text-white"
+      }`}
+    >
       <p id="drift-3d-description" className="sr-only">
         {DRIFT_3D_WORLD_SUMMARY} Keyboard, mouse drag or touch drag to drive,
         mouse wheel to adjust camera distance. Playable places expose an
@@ -208,13 +227,11 @@ export default function DriftEvolutionRuntimeClient() {
       </p>
 
       <div className="absolute inset-0">
-        {fallbackReason ? (
+        {fallbackReason === "checking" ? null : fallbackReason ? (
           <div className="absolute inset-0 flex items-center justify-center overflow-y-auto p-4 md:p-6">
             <div className="w-full max-w-2xl">
               <Drift3DFallback reason={fallbackReason} />
-              {fallbackReason === "reduced-motion" || fallbackReason === "no-webgl" ? (
-                <EuxGainentFallbackScene />
-              ) : null}
+              <EuxGainentFallbackScene />
             </div>
           </div>
         ) : (
@@ -230,31 +247,33 @@ export default function DriftEvolutionRuntimeClient() {
         )}
       </div>
 
-      <div className="pointer-events-none absolute left-[calc(1rem+env(safe-area-inset-left))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(52vw,15rem)] md:left-6 md:top-6 md:max-w-[15rem]">
-        <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
-          MISWΛY · Drift
-        </p>
-        {!fallbackReason ? (
-          <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
-            ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
-          </p>
-        ) : null}
-      </div>
+      {!fallbackReason ? (
+        <>
+          <div className="pointer-events-none absolute left-[calc(1rem+env(safe-area-inset-left))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(52vw,15rem)] md:left-6 md:top-6 md:max-w-[15rem]">
+            <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
+              MISWΛY · Drift
+            </p>
+            <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
+              ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
+            </p>
+          </div>
 
-      <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-20 flex flex-wrap gap-2 md:bottom-6 md:left-6 md:gap-3">
-        <Link
-          href="/"
-          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
-        >
-          MISWΛY
-        </Link>
-        <Link
-          href="/tracks"
-          className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/52 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950 md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
-        >
-          Tracks
-        </Link>
-      </div>
+          <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-20 flex flex-wrap gap-2 md:bottom-6 md:left-6 md:gap-3">
+            <Link
+              href="/"
+              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
+            >
+              MISWΛY
+            </Link>
+            <Link
+              href="/tracks"
+              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/52 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950 md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
+            >
+              Tracks
+            </Link>
+          </div>
+        </>
+      ) : null}
     </main>
   );
 }
