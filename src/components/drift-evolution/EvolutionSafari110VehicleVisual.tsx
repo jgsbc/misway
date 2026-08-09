@@ -10,8 +10,8 @@ import {
   buildDrift3DSafari110FinalVehicle,
   DRIFT_SAFARI_110_RUNTIME_SCALE,
   DRIFT_SAFARI_110_RUNTIME_Y_OFFSET,
-  DRIFT_SAFARI_110_WHEEL_PIVOT_NAMES,
 } from "@/lib/drift3dSafari110FinalGeometry";
+import { rotateDrift3DSafari110Wheels } from "@/lib/drift3dSafari110Runtime";
 
 type EvolutionSafari110VehicleVisualProps = {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
@@ -65,14 +65,9 @@ export default function EvolutionSafari110VehicleVisual({
   const legacyPoseRef = useRef<THREE.Group | null>(null);
   const headlightRef = useRef<THREE.SpotLight | null>(null);
   const headlightTargetRef = useRef<THREE.Object3D | null>(null);
-  const wheelPivotsRef = useRef<Array<THREE.Group | undefined>>([]);
   const model = useMemo(() => buildDrift3DSafari110FinalVehicle(), []);
 
   useLayoutEffect(() => {
-    wheelPivotsRef.current = DRIFT_SAFARI_110_WHEEL_PIVOT_NAMES.map(
-      (name) => model.getObjectByName(name) as THREE.Group | undefined
-    );
-
     const legacy = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
     if (legacy) legacy.visible = false;
@@ -82,11 +77,10 @@ export default function EvolutionSafari110VehicleVisual({
     }
 
     return () => {
-      wheelPivotsRef.current = [];
       if (legacyPoseRef.current) legacyPoseRef.current.visible = true;
       legacyPoseRef.current = null;
     };
-  }, [model, scene]);
+  }, [scene]);
 
   useEffect(() => () => disposeVehicle(model), [model]);
 
@@ -110,9 +104,7 @@ export default function EvolutionSafari110VehicleVisual({
     const wheelDelta =
       (vehicleStateRef.current.speed * frameDelta) /
       DRIFT_3D_VEHICLE_WHEEL_RADIUS;
-    for (const wheel of wheelPivotsRef.current) {
-      if (wheel) wheel.rotation.x += wheelDelta;
-    }
+    rotateDrift3DSafari110Wheels(model, wheelDelta);
   }, 0.62);
 
   return (
