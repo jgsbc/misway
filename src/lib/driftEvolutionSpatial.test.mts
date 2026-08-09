@@ -6,8 +6,10 @@ import { createDrift3DVehiclePhysicsState } from "./drift3dVehiclePhysics";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
   getDriftEvolutionEntryPathCenterZ,
+  getDriftEvolutionEntryStartPosition,
 } from "./driftEvolutionEntryCave";
 import {
+  DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH,
   DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH,
   constrainDriftEvolutionEntryVehicle,
   getDriftEvolutionAdaptiveCameraRig,
@@ -85,10 +87,47 @@ test("enclosed camera follows an east-facing 4x4 inside the cave envelope", () =
 
   assert.ok(adaptive.enclosure > 0.7);
   assert.ok(adaptiveDistance < canonicalDistance);
-  assert.ok(adaptive.position.x >= cameraEnvelope.minX);
+  assert.ok(adaptive.position.x >= DRIFT_EVOLUTION_ENTRY_CAVE.startX);
   assert.ok(adaptive.position.x <= cameraEnvelope.maxX);
   assert.ok(adaptive.position.z >= cameraEnvelope.minZ);
   assert.ok(adaptive.position.z <= cameraEnvelope.maxZ);
+});
+
+test("cave spawn camera shows the Safari immediately without requiring movement", () => {
+  const vehicle = getDriftEvolutionEntryStartPosition();
+  const adaptive = getDriftEvolutionAdaptiveCameraRig(
+    vehicle,
+    Math.PI / 2,
+    1,
+    1
+  );
+  const vehicleDistance = Math.hypot(
+    adaptive.position.x - vehicle.x,
+    adaptive.position.z - vehicle.z
+  );
+  const targetDistance = Math.hypot(
+    adaptive.position.x - adaptive.target.x,
+    adaptive.position.z - adaptive.target.z
+  );
+  const vehicleDownAngle = Math.atan2(
+    adaptive.position.y - vehicle.y,
+    vehicleDistance
+  );
+  const targetDownAngle = Math.atan2(
+    adaptive.position.y - adaptive.target.y,
+    targetDistance
+  );
+  const vehicleBelowCenter = vehicleDownAngle - targetDownAngle;
+
+  assert.ok(adaptive.enclosure > 0.95);
+  assert.ok(
+    vehicleDistance >= DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH * 0.92,
+    `spawn chase distance collapsed to ${vehicleDistance.toFixed(2)}m`
+  );
+  assert.ok(
+    vehicleBelowCenter < 0.22,
+    `vehicle sits ${(vehicleBelowCenter * 180 / Math.PI).toFixed(1)}° below camera center`
+  );
 });
 
 test("open-world evolution camera remains the canonical chase camera", () => {

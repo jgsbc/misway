@@ -17,9 +17,10 @@ import {
 export const DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH = 2.5;
 export const DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET = 0.72;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH = 3.45;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.85;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 2.35;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT = 0.32;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.68;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 1.25;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT = 0.18;
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET = 0.18;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -120,7 +121,7 @@ export type DriftEvolutionCameraRig = {
 
 /**
  * Open world = canonical chase camera. Inside the west-ridge cave the camera
- * comes closer/lower and keeps the 4x4 clearly framed in the lower quarter.
+ * comes closer/lower and keeps the 4x4 clearly framed in the lower third.
  */
 export function getDriftEvolutionAdaptiveCameraRig(
   vehiclePosition: Drift3DPoint,
@@ -141,13 +142,19 @@ export function getDriftEvolutionAdaptiveCameraRig(
 
   if (enclosure <= 0.0001) return { ...canonical, enclosure: 0 };
 
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const headingVector = getDrift3DHeadingVector(heading);
   const effectiveScale = clamp(cameraScale * cinematicScale, 0.78, 1.28);
   const depth = DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH * effectiveScale;
   const desiredX = vehiclePosition.x - headingVector.x * depth;
   const desiredZ = vehiclePosition.z - headingVector.z * depth;
   const cameraEnvelope = getDriftEvolutionEntryDriveEnvelope(desiredX);
-  const safeX = clamp(desiredX, cameraEnvelope.minX + 0.18, cameraEnvelope.maxX - 0.18);
+
+  // The camera may use the visual cave all the way to its rock back wall.
+  // Keeping it inside the vehicle drive envelope was shortening the chase
+  // distance at the initial spawn and pushing the Safari below the viewport.
+  const cameraMinX = cave.startX + DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET;
+  const safeX = clamp(desiredX, cameraMinX, cameraEnvelope.maxX - 0.18);
   const safeZ = clamp(desiredZ, cameraEnvelope.minZ + 0.12, cameraEnvelope.maxZ - 0.12);
   const ground = getDrift3DGroundY(safeX, safeZ);
   const enclosedPosition = {
