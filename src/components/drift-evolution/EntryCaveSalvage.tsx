@@ -13,6 +13,7 @@ import {
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
   DRIFT_EVOLUTION_ENTRY_PORTAL_OUTLINE,
+  getDriftEvolutionEntryPathCenterZ,
   getDriftEvolutionEntryPortalBounds,
   getDriftEvolutionEntryStartPosition,
   getDriftEvolutionEntryTunnelMix,
@@ -25,7 +26,8 @@ function noise2(x: number, y: number) {
 
 function fbm(x: number, y: number) {
   return (
-    (noise2(x, y) - 0.5) +
+    noise2(x, y) -
+    0.5 +
     (noise2(x * 2.7 + 11, y * 2.7) - 0.5) * 0.5 +
     (noise2(x * 6.1 + 41, y * 6.1) - 0.5) * 0.25
   );
@@ -33,7 +35,6 @@ function fbm(x: number, y: number) {
 
 function seededRng(seed: number) {
   let state = seed >>> 0;
-
   return () => {
     state |= 0;
     state = (state + 0x6d2b79f5) | 0;
@@ -43,10 +44,34 @@ function seededRng(seed: number) {
   };
 }
 
-function cavePathX(z: number) {
+function localMouth() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const progress = (z - cave.startZ) / (cave.mouthZ - cave.startZ);
-  return Math.sin(progress * Math.PI * 1.08) * 0.72;
+  return cave.mouthX - cave.startX;
+}
+
+function localExit() {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  return cave.exitX - cave.startX;
+}
+
+/** Local +z is world +x after the containing group rotates +90° around Y. */
+function localPathX(localZ: number) {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const worldX = cave.startX + localZ;
+  return -(getDriftEvolutionEntryPathCenterZ(worldX) - cave.centerZ);
+}
+
+function localToWorld(localX: number, localZ: number) {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  return {
+    x: cave.startX + localZ,
+    z: cave.centerZ - localX,
+  };
+}
+
+function caveGroundY(localX: number, localZ: number) {
+  const world = localToWorld(localX, localZ);
+  return getDrift3DGroundY(world.x, world.z);
 }
 
 function useEntryCaveGeometry() {
@@ -56,14 +81,14 @@ function useEntryCaveGeometry() {
     const uvs: number[] = [];
     const colors: number[] = [];
     const indices: number[] = [];
-    const z0 = cave.startZ;
-    const z1 = cave.mouthZ + 1.6;
+    const z0 = 0;
+    const z1 = localMouth() + 1.6;
 
     for (let ring = 0; ring <= cave.rings; ring += 1) {
       const t = ring / cave.rings;
       const z = z0 + (z1 - z0) * t;
-      const centerX = cavePathX(z);
-      const floorY = getDrift3DGroundY(cave.centerX + centerX, z) - 0.25;
+      const centerX = localPathX(z);
+      const floorY = caveGroundY(centerX, z) - 0.25;
 
       for (let around = 0; around <= cave.around; around += 1) {
         const s = around / cave.around;
@@ -117,7 +142,8 @@ function useEntryCaveGeometry() {
 function useFracturedPortalGeometry() {
   return useMemo(() => {
     const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-    const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+    const mouth = localMouth();
+    const floorY = caveGroundY(localPathX(mouth), mouth);
     const wall = new THREE.Shape();
     wall.moveTo(-24, 0);
     wall.lineTo(24, 0);
@@ -145,7 +171,7 @@ function useFracturedPortalGeometry() {
       curveSegments: 1,
       steps: 1,
     });
-    geometry.translate(0, floorY - 0.3, cave.mouthZ - 1);
+    geometry.translate(0, floorY - 0.3, mouth - 1);
     geometry.computeVertexNormals();
     return geometry;
   }, []);
@@ -187,21 +213,22 @@ function ScatterRocks() {
     const matrix = new THREE.Matrix4();
     const quaternion = new THREE.Quaternion();
     const euler = new THREE.Euler();
+    const mouth = localMouth();
     let index = 0;
 
-    for (; index < 62; index += 1) {
-      const z = cave.startZ + rng() * (cave.mouthZ - cave.startZ - 4);
-      const centerX = cavePathX(z);
+    for (; index < Math.min(50, cave.rockCount); index += 1) {
+      const z = 0.8 + rng() * Math.max(2, mouth - 4.8);
+      const centerX = localPathX(z);
       const side = rng() < 0.5 ? -1 : 1;
-      const scale = 2.1 + rng() * 3;
-      const overhead = rng() < 0.3 && z < cave.mouthZ - 10;
+      const scale = 1.7 + rng() * 2.4;
+      const overhead = rng() < 0.28 && z < mouth - 5;
       const localX = overhead
-        ? centerX + (rng() - 0.5) * 4.6
-        : centerX + side * (7 + scale + rng() * 3.5);
-      const groundY = getDrift3DGroundY(cave.centerX + localX, z);
+        ? centerX + (rng() - 0.5) * 4.2
+        : centerX + side * (6.3 + scale + rng() * 2.8);
+      const groundY = caveGroundY(localX, z);
       const y = overhead
-        ? groundY + cave.apexHeight + scale * 0.8 + rng() * 1.5
-        : groundY + rng() * 5 - 1;
+        ? groundY + cave.apexHeight + scale * 0.7 + rng()
+        : groundY + rng() * 3.8 - 0.8;
       euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
       quaternion.setFromEuler(euler);
       matrix.compose(
@@ -212,16 +239,17 @@ function ScatterRocks() {
       mesh.setMatrixAt(index, matrix);
     }
 
-    for (; index < 84; index += 1) {
+    for (; index < Math.min(66, cave.rockCount); index += 1) {
       const side = rng() < 0.5 ? -1 : 1;
-      const scale = 1.7 + rng() * 1.8;
-      const localX = side * (6 + rng() * 11);
-      const groundY = getDrift3DGroundY(cave.centerX + localX, cave.mouthZ);
-      const y = groundY + (rng() < 0.55 ? 14 + rng() * 8 : 6 + rng() * 7);
+      const scale = 1.3 + rng() * 1.5;
+      const localX = side * (5.5 + rng() * 8);
+      const z = mouth - 2.5 - rng() * 2.2;
+      const groundY = caveGroundY(localX, z);
+      const y = groundY + (rng() < 0.55 ? 9 + rng() * 7 : 4 + rng() * 5);
       euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
       quaternion.setFromEuler(euler);
       matrix.compose(
-        new THREE.Vector3(localX, y, cave.mouthZ - 4.2 - rng() * 2.5),
+        new THREE.Vector3(localX, y, z),
         quaternion,
         new THREE.Vector3(scale, scale * 0.8, scale)
       );
@@ -229,17 +257,14 @@ function ScatterRocks() {
     }
 
     for (; index < cave.rockCount; index += 1) {
-      const localX = -7.1 + (rng() - 0.5) * 2.5;
-      const scale = 0.5 + rng() * 1.2;
-      const groundY = getDrift3DGroundY(cave.centerX + localX, cave.mouthZ);
+      const localX = -6.7 + (rng() - 0.5) * 2.2;
+      const scale = 0.45 + rng();
+      const z = mouth + (rng() - 0.5) * 1.4;
+      const groundY = caveGroundY(localX, z);
       euler.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
       quaternion.setFromEuler(euler);
       matrix.compose(
-        new THREE.Vector3(
-          localX,
-          groundY + rng() * 1.4,
-          cave.mouthZ + (rng() - 0.5) * 1.6
-        ),
+        new THREE.Vector3(localX, groundY + rng() * 1.1, z),
         quaternion,
         new THREE.Vector3(scale, scale, scale)
       );
@@ -279,16 +304,17 @@ function Stalactites() {
     const matrix = new THREE.Matrix4();
     const quaternion = new THREE.Quaternion();
     quaternion.setFromEuler(new THREE.Euler(Math.PI, 0, 0));
+    const mouth = localMouth();
 
     for (let index = 0; index < cave.stalactiteCount; index += 1) {
-      const z = cave.startZ + 2 + rng() * (cave.mouthZ - cave.startZ - 5);
-      const centerX = cavePathX(z);
-      const localX = centerX + (rng() - 0.5) * 4.4;
-      const groundY = getDrift3DGroundY(cave.centerX + centerX, z);
+      const z = 1.3 + rng() * Math.max(2, mouth - 3);
+      const centerX = localPathX(z);
+      const localX = centerX + (rng() - 0.5) * 4.2;
+      const groundY = caveGroundY(centerX, z);
       const apexY =
         groundY + cave.apexHeight * (0.72 + rng() * 0.2) -
         Math.abs(localX - centerX) * 0.42;
-      const length = 0.4 + rng() * rng() * 1.45;
+      const length = 0.4 + rng() * rng() * 1.35;
       matrix.compose(
         new THREE.Vector3(localX, apexY - length / 2, z),
         quaternion,
@@ -321,12 +347,13 @@ function Drips() {
       speed: number;
       phase: number;
     }> = [];
+    const mouth = localMouth();
 
     for (let index = 0; index < cave.dripCount; index += 1) {
-      const z = cave.startZ + 2 + rng() * (cave.mouthZ - cave.startZ - 4);
-      const centerX = cavePathX(z);
-      const x = centerX + (rng() - 0.5) * 5;
-      const floor = getDrift3DGroundY(cave.centerX + centerX, z);
+      const z = 1.2 + rng() * Math.max(2, mouth - 2.4);
+      const centerX = localPathX(z);
+      const x = centerX + (rng() - 0.5) * 4.8;
+      const floor = caveGroundY(centerX, z);
       const top = floor + 3.4 + rng() * 1.6;
       seeds.push({ x, z, top, floor, speed: 5 + rng() * 3, phase: rng() * 10 });
       positions[index * 3] = x;
@@ -375,13 +402,13 @@ function DustMotes() {
     const rng = seededRng(40417);
     const positions = new Float32Array(cave.dustCount * 3);
     const drift = new Float32Array(cave.dustCount * 3);
+    const mouth = localMouth();
 
     for (let index = 0; index < cave.dustCount; index += 1) {
-      const z = cave.startZ + 1 + rng() * (cave.mouthZ - cave.startZ + 2);
-      const centerX = cavePathX(z);
-      positions[index * 3] = centerX + (rng() - 0.5) * 5.6;
-      positions[index * 3 + 1] =
-        getDrift3DGroundY(cave.centerX + centerX, z) + 0.2 + rng() * 3.6;
+      const z = 0.8 + rng() * (mouth + 1.2);
+      const centerX = localPathX(z);
+      positions[index * 3] = centerX + (rng() - 0.5) * 5.4;
+      positions[index * 3 + 1] = caveGroundY(centerX, z) + 0.2 + rng() * 3.5;
       positions[index * 3 + 2] = z;
       drift[index * 3] = (rng() - 0.5) * 0.08;
       drift[index * 3 + 1] = (rng() - 0.5) * 0.035;
@@ -426,18 +453,17 @@ function DustMotes() {
 
 function CeilingCracks() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const mouth = localMouth();
   const cracks = [
-    { z: cave.startZ + 20, tilt: 0.35 },
-    { z: cave.startZ + 33, tilt: -0.25 },
+    { z: mouth * 0.34, tilt: 0.35 },
+    { z: mouth * 0.66, tilt: -0.25 },
   ];
 
   return (
     <>
       {cracks.map((crack) => {
-        const centerX = cavePathX(crack.z);
-        const y =
-          getDrift3DGroundY(cave.centerX + centerX, crack.z) +
-          cave.apexHeight * 0.9;
+        const centerX = localPathX(crack.z);
+        const y = caveGroundY(centerX, crack.z) + cave.apexHeight * 0.9;
         return (
           <group
             key={crack.z}
@@ -445,11 +471,11 @@ function CeilingCracks() {
             rotation={[0, 0, crack.tilt]}
           >
             <mesh rotation={[Math.PI / 2, 0, 0.7]}>
-              <planeGeometry args={[0.14, 2.2]} />
+              <planeGeometry args={[0.14, 2]} />
               <meshBasicMaterial color="#fff0cf" toneMapped={false} side={THREE.DoubleSide} />
             </mesh>
-            <mesh position={[0, -1.9, 0]} rotation={[0, 0.7, 0.12]}>
-              <planeGeometry args={[0.9, 4]} />
+            <mesh position={[0, -1.7, 0]} rotation={[0, 0.7, 0.12]}>
+              <planeGeometry args={[0.85, 3.4]} />
               <meshBasicMaterial
                 color="#ffdfa8"
                 transparent
@@ -512,63 +538,63 @@ function PortalLight() {
   const targetRef = useRef<THREE.Object3D>(null);
   const skyCardRef = useRef<THREE.MeshBasicMaterial>(null);
   const gobo = usePortalGoboTexture();
-  const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+  const mouth = localMouth();
+  const exit = localExit();
+  const floorY = caveGroundY(localPathX(mouth), mouth);
 
   useEffect(() => {
-    if (spotRef.current && targetRef.current) {
-      spotRef.current.target = targetRef.current;
-    }
+    if (spotRef.current && targetRef.current) spotRef.current.target = targetRef.current;
   }, []);
 
   useFrame(({ camera }) => {
     if (!skyCardRef.current) return;
-    const distance = Math.abs(camera.position.z - cave.mouthZ);
-    skyCardRef.current.opacity = THREE.MathUtils.clamp((distance - 5) / 14, 0, 1) * 0.9;
+    const distance = Math.abs(camera.position.x - cave.exitX);
+    skyCardRef.current.opacity = THREE.MathUtils.clamp((distance - 3) / 10, 0, 1) * 0.88;
   });
 
   return (
     <group>
       <spotLight
         ref={spotRef}
-        position={[0.5, floorY + 18, cave.mouthZ + 25]}
+        position={[0.4, floorY + 14, exit + 12]}
         color="#ffd39a"
-        intensity={2100}
-        distance={78}
-        angle={0.34}
-        penumbra={0.6}
+        intensity={1800}
+        distance={58}
+        angle={0.38}
+        penumbra={0.65}
         decay={1.55}
         map={gobo ?? undefined}
       />
       <object3D
         ref={targetRef}
-        position={[cavePathX(cave.mouthZ - 18), floorY - 2.6, cave.mouthZ - 18]}
+        position={[localPathX(Math.max(1, mouth - 9)), floorY - 2, Math.max(1, mouth - 9)]}
       />
 
       <spotLight
-        position={[0.5, floorY + 8.5, cave.mouthZ - 1]}
+        position={[0.3, floorY + 7.5, mouth - 0.5]}
         color="#ffcf94"
-        intensity={90}
-        distance={26}
-        angle={0.5}
+        intensity={88}
+        distance={22}
+        angle={0.55}
         penumbra={0.9}
         decay={1.7}
       />
 
-      {[0, 1, 2, 3].map((index) => (
+      {[0, 1, 2].map((index) => (
         <mesh
           key={index}
           position={[
-            0.2 + (index - 1.5) * 1.15,
-            floorY + 5.4 - index * 0.5,
-            cave.mouthZ - 4.5 - index * 2.4,
+            (index - 1) * 1.05,
+            floorY + 4.8 - index * 0.45,
+            mouth - 2.5 - index * 1.7,
           ]}
-          rotation={[0.62, 0.08 * (index - 1.5), 0]}
+          rotation={[0.62, 0.07 * (index - 1), 0]}
         >
-          <planeGeometry args={[2.1 - index * 0.28, 15]} />
+          <planeGeometry args={[1.9 - index * 0.22, 10]} />
           <meshBasicMaterial
             color="#ffe6b8"
             transparent
-            opacity={0.03}
+            opacity={0.035}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
             side={THREE.DoubleSide}
@@ -576,13 +602,13 @@ function PortalLight() {
         </mesh>
       ))}
 
-      <mesh position={[-2.4, floorY + 8.2, cave.mouthZ + 9.6]}>
-        <planeGeometry args={[15, 18]} />
+      <mesh position={[-2.1, floorY + 7.2, exit + 4.5]}>
+        <planeGeometry args={[13, 15]} />
         <meshBasicMaterial
           ref={skyCardRef}
           color="#ffc888"
           transparent
-          opacity={0.9}
+          opacity={0.88}
           toneMapped={false}
           side={THREE.DoubleSide}
           depthWrite={false}
@@ -590,10 +616,10 @@ function PortalLight() {
       </mesh>
 
       <pointLight
-        position={[0.5, floorY + 1.2, cave.mouthZ - 4.5]}
+        position={[0.4, floorY + 1.2, mouth - 2.5]}
         color="#e8b070"
-        intensity={9}
-        distance={12}
+        intensity={8}
+        distance={10}
         decay={1.8}
       />
     </group>
@@ -603,26 +629,27 @@ function PortalLight() {
 function PortalFalls() {
   const pointsRef = useRef<THREE.Points>(null);
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const floorY = getDrift3DGroundY(cave.centerX, cave.mouthZ);
+  const mouth = localMouth();
+  const floorY = caveGroundY(localPathX(mouth), mouth);
   const data = useMemo(() => {
     const rng = seededRng(770231);
-    const count = 220;
+    const count = 160;
     const positions = new Float32Array(count * 3);
     const highEdges = DRIFT_EVOLUTION_ENTRY_PORTAL_OUTLINE.filter((point) => point[1] > 4);
     const seeds: Array<{ x: number; z: number; top: number; speed: number; phase: number }> = [];
 
     for (let index = 0; index < count; index += 1) {
       const anchor = highEdges[Math.floor(rng() * highEdges.length)] ?? [0, 10];
-      const x = anchor[0] + (rng() - 0.5) * 1.2;
-      const top = floorY - 0.3 + anchor[1] - rng() * 1.5;
-      const z = cave.mouthZ - 1 + rng() * cave.portalDepth;
+      const x = anchor[0] + (rng() - 0.5) * 1.1;
+      const top = floorY - 0.3 + anchor[1] - rng() * 1.4;
+      const z = mouth - 1 + rng() * cave.portalDepth;
       seeds.push({ x, z, top, speed: 2.4 + rng() * 3.6, phase: rng() });
       positions[index * 3] = x;
       positions[index * 3 + 1] = top;
       positions[index * 3 + 2] = z;
     }
     return { count, positions, seeds };
-  }, [cave, floorY]);
+  }, [cave, floorY, mouth]);
 
   useFrame(({ clock }) => {
     const points = pointsRef.current;
@@ -635,7 +662,7 @@ function PortalFalls() {
       const drop = seed.top - floorY + 0.4;
       const fall = (time * seed.speed + seed.phase * drop) % drop;
       attribute.setY(index, seed.top - fall);
-      attribute.setX(index, seed.x + (fall / drop) * (seed.phase - 0.5) * 0.9);
+      attribute.setX(index, seed.x + (fall / drop) * (seed.phase - 0.5) * 0.8);
     }
     attribute.needsUpdate = true;
   });
@@ -650,7 +677,7 @@ function PortalFalls() {
         size={0.05}
         sizeAttenuation
         transparent
-        opacity={0.52}
+        opacity={0.5}
         depthWrite={false}
       />
     </points>
@@ -665,31 +692,23 @@ function EntrySequenceRig({
   const spawnAppliedRef = useRef(false);
   const dark = useMemo(() => new THREE.Color("#03040a"), []);
 
-  // Runs before production motion on the first frame. This preserves every
-  // production control/physics authority while giving the evolution route
-  // the recovered long Entry spawn.
   useFrame(() => {
     if (spawnAppliedRef.current) return;
     vehicleStateRef.current = createDrift3DVehiclePhysicsState(
       getDriftEvolutionEntryStartPosition(),
-      0
+      Math.PI / 2
     );
     spawnAppliedRef.current = true;
   }, -100);
 
-  // Production AtmosphereRig runs first at normal priority. This local pass
-  // then applies the historical tunnel eye-adaptation before the chase camera
-  // renders at priority 1. Outside the Entry mix it does nothing.
   useFrame(({ gl, scene }) => {
-    const mix = getDriftEvolutionEntryTunnelMix(vehicleStateRef.current.position.z);
+    const mix = getDriftEvolutionEntryTunnelMix(vehicleStateRef.current.position.x);
     if (mix <= 0.001) return;
 
     const factor = 1 - mix * (1 - DRIFT_EVOLUTION_ENTRY_CAVE.deepExposureFactor);
     gl.toneMappingExposure *= factor;
 
-    if (scene.background instanceof THREE.Color) {
-      scene.background.lerp(dark, mix * 0.92);
-    }
+    if (scene.background instanceof THREE.Color) scene.background.lerp(dark, mix * 0.92);
     if (scene.fog instanceof THREE.FogExp2) {
       scene.fog.color.lerp(dark, mix * 0.9);
       scene.fog.density = Math.max(scene.fog.density, 0.018 + mix * 0.018);
@@ -710,8 +729,7 @@ export default function EntryCaveSalvage({
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const caveMaps = getDriftMaterialMaps("rock", 3, 2);
   const wallMaps = getDriftMaterialMaps("rock", 0.14, 0.14);
-  const midZ = (cave.startZ + cave.mouthZ) * 0.5;
-  const floorY = getDrift3DGroundY(cave.centerX, midZ);
+  const worldMidX = (cave.startX + cave.exitX) * 0.5;
 
   useEffect(() => {
     return () => {
@@ -725,13 +743,18 @@ export default function EntryCaveSalvage({
     if (!group) return;
     const vehicle = vehicleStateRef.current.position;
     group.visible =
-      Math.hypot(vehicle.x - cave.centerX, vehicle.z - midZ) < cave.activationRadius;
+      Math.hypot(vehicle.x - worldMidX, vehicle.z - cave.centerZ) < cave.activationRadius;
   });
 
   return (
     <>
       <EntrySequenceRig vehicleStateRef={vehicleStateRef} />
-      <group ref={groupRef} position={[cave.centerX, 0, 0]} aria-hidden="true">
+      <group
+        ref={groupRef}
+        position={[cave.startX, 0, cave.centerZ]}
+        rotation={[0, Math.PI / 2, 0]}
+        aria-hidden="true"
+      >
         <mesh geometry={caveGeometry} receiveShadow castShadow>
           <meshStandardMaterial
             map={caveMaps.map ?? undefined}
@@ -751,20 +774,6 @@ export default function EntryCaveSalvage({
             normalScale={new THREE.Vector2(1.2, 1.2)}
             color="#6d6459"
             roughness={0.97}
-          />
-        </mesh>
-
-        <mesh
-          position={[0, floorY + 0.035, midZ]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          receiveShadow
-        >
-          <planeGeometry args={[6.3, cave.mouthZ - cave.startZ]} />
-          <meshStandardMaterial
-            color="#17151c"
-            roughness={0.98}
-            transparent
-            opacity={0.78}
           />
         </mesh>
 
