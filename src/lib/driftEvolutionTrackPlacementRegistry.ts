@@ -1,5 +1,8 @@
 import { EUX_GAINENT_LANDMARK_ID } from "@/lib/drift3dEuxGainent";
-import { drift3dLandmarks } from "@/lib/drift3dLandmarks";
+import {
+  drift3dLandmarks,
+  type Drift3DLandmark,
+} from "@/lib/drift3dLandmarks";
 import {
   drift3dEraById,
   drift3dTrackNodeBySlug,
@@ -35,8 +38,8 @@ type TrackPlacementSnapshot = {
   euxEraId: "birth-yard" | "older-shadows" | "vegetative-field" | "new-signal";
   foolfouleLandmarkX: number;
   foolfouleLandmarkZ: number;
-  euxLandmarkX: number;
-  euxLandmarkZ: number;
+  euxLandmarkIndex: number;
+  euxSourceLandmark: Drift3DLandmark;
   birthYardTrackSlugs: TrackSlug[];
   newSignalTrackSlugs: TrackSlug[];
 };
@@ -54,11 +57,15 @@ function replaceTrackSlugs(
 /**
  * Owner spatial correction for /drift-evolution only:
  * - Foolfoule replaces EUX GAINENT at the existing Birth Yard map slot;
- * - EUX GAINENT moves with its complete landmark into a free New Signal pocket;
+ * - EUX GAINENT moves into a free New Signal pocket;
+ * - the landmark registry receives an evolution-only clone at the new EUX
+ *   position so collision/proximity authorities move without mutating the
+ *   accepted living scene's source object;
  * - EUX changes era authority to New Signal while its stable internal node id
  *   is preserved so the accepted cue/living-scene runtime does not fork.
  *
- * Production registries are restored exactly on unmount.
+ * The visible living scene is translated as one block by the evolution-only
+ * relocator. Production registries are restored exactly on unmount.
  */
 export function stageTrackPlacementForEvolution() {
   if (snapshot) return;
@@ -68,9 +75,10 @@ export function stageTrackPlacementForEvolution() {
   const foolfouleLandmark = drift3dLandmarks.find(
     (candidate) => candidate.id === DRIFT_EVOLUTION_FOOLFOULE_LANDMARK_ID
   );
-  const euxLandmark = drift3dLandmarks.find(
+  const euxLandmarkIndex = drift3dLandmarks.findIndex(
     (candidate) => candidate.id === EUX_GAINENT_LANDMARK_ID
   );
+  const euxSourceLandmark = drift3dLandmarks[euxLandmarkIndex];
   const birthYardEra = drift3dEraById["birth-yard"];
   const newSignalEra = drift3dEraById["new-signal"];
 
@@ -78,7 +86,8 @@ export function stageTrackPlacementForEvolution() {
     !foolfouleNode ||
     !euxNode ||
     !foolfouleLandmark ||
-    !euxLandmark ||
+    euxLandmarkIndex < 0 ||
+    !euxSourceLandmark ||
     !birthYardEra ||
     !newSignalEra
   ) {
@@ -94,8 +103,8 @@ export function stageTrackPlacementForEvolution() {
     euxEraId: euxNode.eraId,
     foolfouleLandmarkX: foolfouleLandmark.origin.x,
     foolfouleLandmarkZ: foolfouleLandmark.origin.z,
-    euxLandmarkX: euxLandmark.origin.x,
-    euxLandmarkZ: euxLandmark.origin.z,
+    euxLandmarkIndex,
+    euxSourceLandmark,
     birthYardTrackSlugs: [...birthYardEra.trackSlugs],
     newSignalTrackSlugs: [...newSignalEra.trackSlugs],
   };
@@ -109,8 +118,17 @@ export function stageTrackPlacementForEvolution() {
   euxNode.position.x = DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x;
   euxNode.position.z = DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z;
   euxNode.eraId = "new-signal";
-  euxLandmark.origin.x = DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x;
-  euxLandmark.origin.z = DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z;
+
+  // Do not mutate the source object captured by EuxGainentLivingScene at
+  // module load. A cloned registry entry moves collision/static authorities;
+  // the whole rendered living scene is translated by the evolution relocator.
+  drift3dLandmarks[euxLandmarkIndex] = {
+    ...euxSourceLandmark,
+    origin: {
+      x: DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x,
+      z: DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z,
+    },
+  };
 
   const birthYardTrackSlugs = snapshot.birthYardTrackSlugs.filter(
     (slug) => slug !== "foolfoule" && slug !== "eux-gainent"
@@ -143,7 +161,7 @@ export function restoreTrackPlacementAfterEvolution() {
   const foolfouleLandmark = drift3dLandmarks.find(
     (candidate) => candidate.id === DRIFT_EVOLUTION_FOOLFOULE_LANDMARK_ID
   );
-  const euxLandmark = drift3dLandmarks.find(
+  const currentEuxLandmarkIndex = drift3dLandmarks.findIndex(
     (candidate) => candidate.id === EUX_GAINENT_LANDMARK_ID
   );
   const birthYardEra = drift3dEraById["birth-yard"];
@@ -163,10 +181,17 @@ export function restoreTrackPlacementAfterEvolution() {
     foolfouleLandmark.origin.x = snapshot.foolfouleLandmarkX;
     foolfouleLandmark.origin.z = snapshot.foolfouleLandmarkZ;
   }
-  if (euxLandmark) {
-    euxLandmark.origin.x = snapshot.euxLandmarkX;
-    euxLandmark.origin.z = snapshot.euxLandmarkZ;
+
+  if (currentEuxLandmarkIndex >= 0) {
+    drift3dLandmarks[currentEuxLandmarkIndex] = snapshot.euxSourceLandmark;
+  } else {
+    drift3dLandmarks.splice(
+      Math.min(snapshot.euxLandmarkIndex, drift3dLandmarks.length),
+      0,
+      snapshot.euxSourceLandmark
+    );
   }
+
   if (birthYardEra) {
     replaceTrackSlugs(birthYardEra.trackSlugs, snapshot.birthYardTrackSlugs);
   }
