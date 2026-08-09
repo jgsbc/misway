@@ -91,3 +91,16 @@ The baseline-protection test intentionally fails if protected production files c
 Do not rebuild the world from zero.
 
 Start from the restored Drift map, inventory its strongest existing scenes, recover the best historical work one capability at a time, and evolve the duplicate until it clearly surpasses the protected artwork. The platform/general system is extracted only from patterns proven by the artwork.
+
+## 8. Current owner spatial correction
+
+For the evolving world, the owner has corrected the track-era placement:
+
+- **Foolfoule** remains in **Birth Yard** and takes the exact map slot previously occupied by EUX GAINENT;
+- **EUX GAINENT** belongs to **New Signal**, not Birth Yard;
+- its accepted living scene, cue behavior and local identity stay intact and move with the track;
+- the current evolution placement for EUX GAINENT is `(x=58, z=38)`, a free, naturally near-flat New Signal pocket with substantial clearance from the existing track nodes;
+- **ÉTÉÉAOOÉTÉ remains the New Signal conclusion**;
+- `/drift` remains byte-protected until a later explicit promotion decision.
+
+This is an owner-approved target correction for `/drift-evolution`, not a reason to reopen the rest of the map or redesign either era.
