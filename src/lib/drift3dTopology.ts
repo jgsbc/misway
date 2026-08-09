@@ -87,6 +87,9 @@ export const drift3dEras = [
       "a-walk-in-zeeland",
       "jazzypling",
       "play-it",
+      "funky-hoo",
+      "peut-etre",
+      "sugared-peach",
       "foolfoule",
     ],
     topologyHints: [
@@ -122,7 +125,14 @@ export const drift3dEras = [
     role: "macro-region",
     center: point(0, 0, 8),
     radius: 42,
-    trackSlugs: ["morne-et", "daymason", "chailk", "time", "tantitom"],
+    trackSlugs: [
+      "morne-et",
+      "daymason",
+      "chailk",
+      "time",
+      "tantitom",
+      "white-clouds",
+    ],
     topologyHints: [
       "flat horizontal spread",
       "low repeated modules",
@@ -148,7 +158,9 @@ export const drift3dEras = [
       "renee",
       "panthere",
       "eux-gainent",
-      "eteeaooete",
+      "assokam",
+      "wo-ha",
+      "amidir",
     ],
     topologyHints: [
       "archipelago spacing",
@@ -242,6 +254,27 @@ export const drift3dTrackNodes = [
     position: point(-54, 0.11, 26),
   },
   {
+    id: "birth-yard-funky-hoo",
+    trackSlug: "funky-hoo",
+    eraId: "birth-yard",
+    role: "track",
+    position: point(-96, 0.12, 40),
+  },
+  {
+    id: "birth-yard-peut-etre",
+    trackSlug: "peut-etre",
+    eraId: "birth-yard",
+    role: "track",
+    position: point(-96, 0.12, 0),
+  },
+  {
+    id: "birth-yard-sugared-peach",
+    trackSlug: "sugared-peach",
+    eraId: "birth-yard",
+    role: "track",
+    position: point(-48, 0.12, 46),
+  },
+  {
     id: "older-shadows-rise",
     trackSlug: "rise",
     eraId: "older-shadows",
@@ -310,6 +343,13 @@ export const drift3dTrackNodes = [
     eraId: "vegetative-field",
     role: "track",
     position: point(36, 0.1, 14),
+  },
+  {
+    id: "vegetative-field-white-clouds",
+    trackSlug: "white-clouds",
+    eraId: "vegetative-field",
+    role: "track",
+    position: point(-22, 0.1, 30),
   },
   {
     id: "new-signal-neektareum",
@@ -395,8 +435,22 @@ export const drift3dTrackNodes = [
     position: point(58, 0.13, 38),
   },
   {
-    id: "new-signal-eteeaooete",
-    trackSlug: "eteeaooete",
+    id: "new-signal-assokam",
+    trackSlug: "assokam",
+    eraId: "new-signal",
+    role: "track",
+    position: point(102, 0.13, -24),
+  },
+  {
+    id: "new-signal-wo-ha",
+    trackSlug: "wo-ha",
+    eraId: "new-signal",
+    role: "track",
+    position: point(22, 0.13, -44),
+  },
+  {
+    id: "new-signal-amidir",
+    trackSlug: "amidir",
     eraId: "new-signal",
     role: "track",
     position: point(56, 0.12, -66),
@@ -423,6 +477,21 @@ export const drift3dTrackNodeBySlug = drift3dTrackNodes.reduce(
   },
   {} as Record<Track["slug"], Drift3DTrackNode>
 );
+
+// Transitional compatibility only: an authored landmark still references the
+// retired ETEEAOOETE slug. Keep that obsolete landmark far outside the world
+// until its block is removed/replaced; it is not part of tracks, eras or nodes.
+const retiredEteeaooeteLandmarkNode: Drift3DTrackNode = {
+  id: "retired-eteeaooete-landmark-tombstone",
+  trackSlug: "eteeaooete",
+  eraId: "new-signal",
+  role: "track",
+  position: point(1000, 0, 1000),
+};
+Object.defineProperty(drift3dTrackNodeBySlug, "eteeaooete", {
+  value: retiredEteeaooeteLandmarkNode,
+  enumerable: false,
+});
 
 export function getDrift3DEraById(id: Drift3DEraId) {
   return drift3dEraById[id] ?? null;

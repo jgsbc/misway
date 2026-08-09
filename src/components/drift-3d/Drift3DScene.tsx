@@ -5,8 +5,10 @@ import type { ComponentProps, MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import OriginalDrift3DScene from "./Drift3DSceneBase";
+import Drift3DLandmark from "./Drift3DLandmark";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
+import { drift3dNewTrackLandmarks } from "@/lib/drift3dNewTrackLandmarks";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
 import { getDrift3DChaseCameraRig } from "@/lib/drift3d";
@@ -115,6 +117,13 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
   return (
     <>
       <OriginalDrift3DScene {...props} />
+      {drift3dNewTrackLandmarks.map((landmark) => (
+        <Drift3DLandmark
+          key={landmark.id}
+          landmark={landmark}
+          vehicleStateRef={props.vehicleStateRef}
+        />
+      ))}
       <ChaseCameraRig
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}

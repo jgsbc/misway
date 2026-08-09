@@ -33,7 +33,7 @@ test("Foolfoule replaces EUX in Birth Yard and EUX belongs to New Signal", () =>
   );
   assert.equal(eux.eraId, "new-signal");
   assert.equal(countSlug(newSignal.trackSlugs, "eux-gainent"), 1);
-  assert.equal(newSignal.trackSlugs.at(-1), "eteeaooete");
+  assert.equal(newSignal.trackSlugs.at(-1), "amidir");
 
   const distanceToEraCenter = Math.hypot(
     eux.position.x - newSignal.center.x,
