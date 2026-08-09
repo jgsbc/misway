@@ -8,7 +8,6 @@ import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.j
 import {
   DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS,
   DRIFT_3D_BIRTH_YARD_PEDESTRIAN_SOURCE,
-  type Drift3DBirthYardHeroActor,
 } from "@/lib/drift3dBirthYardHeroAssets";
 import {
   DRIFT_3D_BIRTH_YARD_CROWD,
@@ -19,52 +18,31 @@ import {
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 
-type RuntimeActor = {
-  root: THREE.Group;
-  mixer: THREE.AnimationMixer | null;
-  config: Drift3DBirthYardHeroActor;
-};
-
 function disposeMaterial(material: THREE.Material) {
   const candidate = material as THREE.Material & Record<string, unknown>;
-
   for (const value of Object.values(candidate)) {
-    if (value instanceof THREE.Texture) {
-      value.dispose();
-    }
+    if (value instanceof THREE.Texture) value.dispose();
   }
-
   material.dispose();
 }
 
 function disposeSourceScene(scene: THREE.Object3D) {
   const geometries = new Set<THREE.BufferGeometry>();
   const materials = new Set<THREE.Material>();
-
   scene.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) {
-      return;
-    }
-
+    if (!(child instanceof THREE.Mesh)) return;
     geometries.add(child.geometry);
-    const sourceMaterials = Array.isArray(child.material)
-      ? child.material
-      : [child.material];
+    const sourceMaterials = Array.isArray(child.material) ? child.material : [child.material];
     sourceMaterials.forEach((material) => materials.add(material));
   });
-
   geometries.forEach((geometry) => geometry.dispose());
   materials.forEach(disposeMaterial);
 }
 
 function applyActorMaterial(root: THREE.Object3D, color: string) {
   const materials: THREE.Material[] = [];
-
   root.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) {
-      return;
-    }
-
+    if (!(child instanceof THREE.Mesh)) return;
     child.castShadow = true;
     child.receiveShadow = true;
     const material = new THREE.MeshStandardMaterial({
@@ -75,33 +53,29 @@ function applyActorMaterial(root: THREE.Object3D, color: string) {
     child.material = material;
     materials.push(material);
   });
-
   return materials;
 }
 
 /**
- * Hero Asset Pass 02 foreground tier.
- *
- * The 186-instance primitive crowd remains the pressure/background layer.
- * Exactly six of the previous procedural slots are promoted to skinned,
- * authored-animation walkers moving through the same inter-building grammar.
- * This gives the camera a readable human silhouette without turning 192
- * pedestrians into 192 separately-skinned draw/animation costs.
+ * Six skinned walkers replace six primitive crowd slots. Their transform
+ * groups are owned by React refs, matching the mutation pattern used by the
+ * rest of the R3F runtime; the loaded GLB supplies only model/rig/animation.
  */
 export default function BirthYardHeroPedestrians() {
-  const rootRef = useRef<THREE.Group>(null);
-  const runtimeActorsRef = useRef<RuntimeActor[]>([]);
+  const actorGroupRefs = useRef<Array<THREE.Group | null>>(
+    new Array(DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.length).fill(null)
+  );
+  const actorModelRefs = useRef<Array<THREE.Object3D | null>>(
+    new Array(DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.length).fill(null)
+  );
+  const mixerRefs = useRef<Array<THREE.AnimationMixer | null>>(
+    new Array(DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.length).fill(null)
+  );
   const ownedMaterialsRef = useRef<THREE.Material[]>([]);
   const sourceSceneRef = useRef<THREE.Object3D | null>(null);
   const center = drift3dTrackNodeBySlug.foolfoule.position;
 
   useEffect(() => {
-    const root = rootRef.current;
-
-    if (!root) {
-      return;
-    }
-
     let active = true;
     const loader = new GLTFLoader();
 
@@ -115,8 +89,7 @@ export default function BirthYardHeroPedestrians() {
 
         gltf.scene.updateMatrixWorld(true);
         const sourceBounds = new THREE.Box3().setFromObject(gltf.scene);
-        const sourceSize = sourceBounds.getSize(new THREE.Vector3());
-        const sourceHeight = sourceSize.y;
+        const sourceHeight = sourceBounds.getSize(new THREE.Vector3()).y;
 
         if (!Number.isFinite(sourceHeight) || sourceHeight <= 0.001) {
           disposeSourceScene(gltf.scene);
@@ -125,39 +98,29 @@ export default function BirthYardHeroPedestrians() {
 
         sourceSceneRef.current = gltf.scene;
         const clip = gltf.animations[0] ?? null;
-        const actors: RuntimeActor[] = [];
 
-        for (const config of DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS) {
+        DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.forEach((config, index) => {
+          const host = actorGroupRefs.current[index];
+          if (!host) return;
+
           const model = cloneSkeleton(gltf.scene);
-          const scale = config.targetHeight / sourceHeight;
-          model.scale.setScalar(scale);
+          model.scale.setScalar(config.targetHeight / sourceHeight);
           model.updateMatrixWorld(true);
-
           const scaledBounds = new THREE.Box3().setFromObject(model);
           model.position.y -= scaledBounds.min.y;
           model.updateMatrixWorld(true);
-
-          ownedMaterialsRef.current.push(
-            ...applyActorMaterial(model, config.color)
-          );
-
-          const actorRoot = new THREE.Group();
-          actorRoot.add(model);
-          root.add(actorRoot);
-
-          let mixer: THREE.AnimationMixer | null = null;
+          ownedMaterialsRef.current.push(...applyActorMaterial(model, config.color));
+          host.add(model);
+          actorModelRefs.current[index] = model;
 
           if (clip) {
-            mixer = new THREE.AnimationMixer(model);
+            const mixer = new THREE.AnimationMixer(model);
             const action = mixer.clipAction(clip);
             action.play();
             action.time = clip.duration * config.phase;
+            mixerRefs.current[index] = mixer;
           }
-
-          actors.push({ root: actorRoot, mixer, config });
-        }
-
-        runtimeActorsRef.current = actors;
+        });
       },
       undefined,
       (error) => {
@@ -169,12 +132,14 @@ export default function BirthYardHeroPedestrians() {
 
     return () => {
       active = false;
+      mixerRefs.current.forEach((mixer) => mixer?.stopAllAction());
+      mixerRefs.current.fill(null);
 
-      for (const actor of runtimeActorsRef.current) {
-        actor.mixer?.stopAllAction();
-        root.remove(actor.root);
-      }
-      runtimeActorsRef.current = [];
+      actorModelRefs.current.forEach((model, index) => {
+        const host = actorGroupRefs.current[index];
+        if (model && host) host.remove(model);
+      });
+      actorModelRefs.current.fill(null);
 
       ownedMaterialsRef.current.forEach((material) => material.dispose());
       ownedMaterialsRef.current = [];
@@ -187,52 +152,53 @@ export default function BirthYardHeroPedestrians() {
   }, []);
 
   useFrame(({ camera, clock }, delta) => {
-    const actors = runtimeActorsRef.current;
-
-    if (actors.length === 0) {
-      return;
-    }
-
     const visible =
       Math.hypot(camera.position.x - center.x, camera.position.z - center.z) <
       DRIFT_3D_BIRTH_YARD_CROWD.visibilityRadius + 10;
 
-    for (const actor of actors) {
-      actor.root.visible = visible;
+    DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.forEach((config, index) => {
+      const group = actorGroupRefs.current[index];
+      if (!group) return;
 
-      if (!visible) {
-        continue;
-      }
+      group.visible = visible;
+      if (!visible) return;
 
       const flow = DRIFT_3D_BIRTH_YARD_CROWD_FLOWS.find(
-        (candidate) => candidate.id === actor.config.flowId
+        (candidate) => candidate.id === config.flowId
       );
-
       if (!flow) {
-        actor.root.visible = false;
-        continue;
+        group.visible = false;
+        return;
       }
 
       const flowLength = getDrift3DBirthYardCrowdFlowLength(flow);
       const progress =
-        actor.config.progress +
-        (clock.elapsedTime * DRIFT_3D_BIRTH_YARD_CROWD.marchSpeed *
-          actor.config.pace) /
+        config.progress +
+        (clock.elapsedTime * DRIFT_3D_BIRTH_YARD_CROWD.marchSpeed * config.pace) /
           Math.max(1, flowLength);
       const sample = sampleDrift3DBirthYardCrowdFlow(
         flow,
         progress,
-        actor.config.lateralOffset
+        config.lateralOffset
       );
       const worldX = center.x + sample.x;
       const worldZ = center.z + sample.z;
-      const groundY = getDrift3DGroundY(worldX, worldZ) + 0.045;
-
-      actor.root.position.set(worldX, groundY, worldZ);
-      actor.root.rotation.set(0, sample.heading, 0);
-      actor.mixer?.update(delta * actor.config.pace);
-    }
+      group.position.set(worldX, getDrift3DGroundY(worldX, worldZ) + 0.045, worldZ);
+      group.rotation.set(0, sample.heading, 0);
+      mixerRefs.current[index]?.update(delta * config.pace);
+    });
   });
 
-  return <group ref={rootRef} aria-hidden="true" />;
+  return (
+    <group aria-hidden="true">
+      {DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS.map((actor, index) => (
+        <group
+          key={actor.id}
+          ref={(group) => {
+            actorGroupRefs.current[index] = group;
+          }}
+        />
+      ))}
+    </group>
+  );
 }
