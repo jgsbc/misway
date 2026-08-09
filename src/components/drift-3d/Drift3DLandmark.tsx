@@ -5,6 +5,7 @@ import type { MutableRefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Reflector } from "three/examples/jsm/objects/Reflector.js";
+import BirthYardHeroUrbanScene from "@/components/drift-3d/BirthYardHeroUrbanScene";
 import type {
   Drift3DLandmark,
   Drift3DLandmarkPrimitive,
@@ -21,6 +22,8 @@ type Drift3DLandmarkProps = {
   landmark: Drift3DLandmark;
   vehicleStateRef?: MutableRefObject<Drift3DVehiclePhysicsState>;
 };
+
+const BIRTH_YARD_HERO_URBAN_ANCHOR_ID = "birth-foolfoule-canyon";
 
 /**
  * Fourth-wall comfort (realism bible + camera rule): any tall piece that
@@ -139,7 +142,6 @@ export default function Drift3DLandmark({
   vehicleStateRef,
 }: Drift3DLandmarkProps) {
   const materialRefs = useRef<Array<THREE.MeshStandardMaterial | null>>([]);
-  // hauteur du sol sous chaque primitive (le décor épouse le relief)
   const groundYs = useMemo(
     () =>
       landmark.primitives.map((primitive) =>
@@ -206,100 +208,106 @@ export default function Drift3DLandmark({
   });
 
   return (
-    <group
-      position={[landmark.origin.x, 0, landmark.origin.z]}
-      aria-hidden="true"
-    >
-      {landmark.primitives.map((primitive, index) => {
-        if (primitive.water) {
-          if (!shouldRenderDrift3DLegacyWater(landmark.id)) {
-            return null;
+    <>
+      <group
+        position={[landmark.origin.x, 0, landmark.origin.z]}
+        aria-hidden="true"
+      >
+        {landmark.primitives.map((primitive, index) => {
+          if (primitive.water) {
+            if (!shouldRenderDrift3DLegacyWater(landmark.id)) {
+              return null;
+            }
+
+            return (
+              <WaterPlane
+                key={`${landmark.id}-${index}`}
+                primitive={primitive}
+                groundY={groundYs[index]}
+              />
+            );
           }
 
-          return (
-            <WaterPlane
-              key={`${landmark.id}-${index}`}
-              primitive={primitive}
-              groundY={groundYs[index]}
-            />
+          const heightScale = getDrift3DHeroLandmarkHeightScale(
+            landmark.id,
+            index
           );
-        }
+          const height = getPrimitiveHeight(primitive) * heightScale;
+          const centerY = groundYs[index] + primitive.offset[1] + height / 2;
+          const transparent = primitive.opacity !== undefined;
+          const maps = primitive.material
+            ? getDriftMaterialMaps(
+                primitive.material,
+                primitive.textureRepeat?.[0] ?? 1,
+                primitive.textureRepeat?.[1] ?? 1
+              )
+            : null;
+          const hasRoofCap =
+            primitive.kind === "box" &&
+            (primitive.material === "windowsDay" ||
+              primitive.material === "windowsNight");
 
-        const heightScale = getDrift3DHeroLandmarkHeightScale(
-          landmark.id,
-          index
-        );
-        const height = getPrimitiveHeight(primitive) * heightScale;
-        const centerY = groundYs[index] + primitive.offset[1] + height / 2;
-        const transparent = primitive.opacity !== undefined;
-        const maps = primitive.material
-          ? getDriftMaterialMaps(
-              primitive.material,
-              primitive.textureRepeat?.[0] ?? 1,
-              primitive.textureRepeat?.[1] ?? 1
-            )
-          : null;
-        const hasRoofCap =
-          primitive.kind === "box" &&
-          (primitive.material === "windowsDay" ||
-            primitive.material === "windowsNight");
-
-        return (
-          <group key={`${landmark.id}-${index}`}>
-            <group
-              position={[primitive.offset[0], centerY, primitive.offset[2]]}
-              rotation={primitive.rotation ?? [0, 0, 0]}
-            >
-              <mesh castShadow receiveShadow>
-                <PrimitiveGeometry
-                  primitive={primitive}
-                  heightScale={heightScale}
-                />
-                <meshStandardMaterial
-                  ref={(material) => {
-                    materialRefs.current[index] = material;
-                  }}
-                  map={maps?.map ?? undefined}
-                  normalMap={maps?.normalMap ?? undefined}
-                  normalScale={new THREE.Vector2(0.8, 0.8)}
-                  color={primitive.color}
-                  emissive={primitive.emissive ?? "#000000"}
-                  emissiveIntensity={primitive.emissiveIntensity ?? 0}
-                  roughness={primitive.roughness ?? 0.9}
-                  transparent={transparent}
-                  opacity={primitive.opacity ?? 1}
-                  depthWrite={!transparent}
-                />
-              </mesh>
-              {hasRoofCap ? (
-                <mesh position={[0, height / 2 + 0.035, 0]} castShadow>
-                  <boxGeometry
-                    args={[
-                      primitive.args[0] + 0.06,
-                      0.07,
-                      primitive.args[2] + 0.06,
-                    ]}
+          return (
+            <group key={`${landmark.id}-${index}`}>
+              <group
+                position={[primitive.offset[0], centerY, primitive.offset[2]]}
+                rotation={primitive.rotation ?? [0, 0, 0]}
+              >
+                <mesh castShadow receiveShadow>
+                  <PrimitiveGeometry
+                    primitive={primitive}
+                    heightScale={heightScale}
                   />
-                  <meshStandardMaterial color="#393c42" roughness={0.92} />
+                  <meshStandardMaterial
+                    ref={(material) => {
+                      materialRefs.current[index] = material;
+                    }}
+                    map={maps?.map ?? undefined}
+                    normalMap={maps?.normalMap ?? undefined}
+                    normalScale={new THREE.Vector2(0.8, 0.8)}
+                    color={primitive.color}
+                    emissive={primitive.emissive ?? "#000000"}
+                    emissiveIntensity={primitive.emissiveIntensity ?? 0}
+                    roughness={primitive.roughness ?? 0.9}
+                    transparent={transparent}
+                    opacity={primitive.opacity ?? 1}
+                    depthWrite={!transparent}
+                  />
                 </mesh>
+                {hasRoofCap ? (
+                  <mesh position={[0, height / 2 + 0.035, 0]} castShadow>
+                    <boxGeometry
+                      args={[
+                        primitive.args[0] + 0.06,
+                        0.07,
+                        primitive.args[2] + 0.06,
+                      ]}
+                    />
+                    <meshStandardMaterial color="#393c42" roughness={0.92} />
+                  </mesh>
+                ) : null}
+              </group>
+              {primitive.pointLight ? (
+                <pointLight
+                  position={[
+                    primitive.offset[0],
+                    groundYs[index] + primitive.pointLight.y,
+                    primitive.offset[2],
+                  ]}
+                  color={primitive.pointLight.color}
+                  intensity={primitive.pointLight.intensity}
+                  distance={primitive.pointLight.distance}
+                  decay={2}
+                />
               ) : null}
             </group>
-            {primitive.pointLight ? (
-              <pointLight
-                position={[
-                  primitive.offset[0],
-                  groundYs[index] + primitive.pointLight.y,
-                  primitive.offset[2],
-                ]}
-                color={primitive.pointLight.color}
-                intensity={primitive.pointLight.intensity}
-                distance={primitive.pointLight.distance}
-                decay={2}
-              />
-            ) : null}
-          </group>
-        );
-      })}
-    </group>
+          );
+        })}
+      </group>
+
+      {landmark.id === BIRTH_YARD_HERO_URBAN_ANCHOR_ID ? (
+        <BirthYardHeroUrbanScene />
+      ) : null}
+    </>
   );
 }
