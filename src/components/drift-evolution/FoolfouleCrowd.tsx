@@ -13,6 +13,7 @@ import {
   getDriftEvolutionFoolfouleCrowdFlowLength,
   sampleDriftEvolutionFoolfouleCrowdFlow,
 } from "@/lib/driftEvolutionFoolfoule";
+import type { DriftEvolutionFoolfouleCrowdSignal } from "@/lib/driftEvolutionFoolfouleDramaturgy";
 
 const BODY_COLORS = [
   "#3d4247",
@@ -32,11 +33,17 @@ function hash01(seed: number) {
  * Activity proof only: 100 low-cost figures move through four deterministic
  * streams. They are not physics colliders; close to the 4x4 they part locally
  * so the street stays driveable instead of becoming an invisible wall.
+ *
+ * The shared signal is deliberately tiny: only the live centroid and a
+ * monotonic passage count escape this component. Foolfoule dramaturgy can
+ * therefore observe the crowd without owning or duplicating its simulation.
  */
 export default function FoolfouleCrowd({
   vehicleStateRef,
+  signalRef,
 }: {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
+  signalRef: MutableRefObject<DriftEvolutionFoolfouleCrowdSignal>;
 }) {
   const bodyRef = useRef<THREE.InstancedMesh>(null);
   const headRef = useRef<THREE.InstancedMesh>(null);
@@ -87,19 +94,25 @@ export default function FoolfouleCrowd({
       DRIFT_EVOLUTION_FOOLFOULE_CROWD.visibilityRadius;
     body.visible = visible;
     head.visible = visible;
-    if (!visible) return;
+    if (!visible) {
+      signalRef.current.sampleCount = 0;
+      return;
+    }
 
     const vehicle = vehicleStateRef.current.position;
+    let centroidX = 0;
+    let centroidZ = 0;
+    let totalCrossings = 0;
 
     seeds.forEach((seed, index) => {
       const flowLength = getDriftEvolutionFoolfouleCrowdFlowLength(seed.flow);
-      const progress =
+      const rawProgress =
         seed.phase +
         (clock.elapsedTime * DRIFT_EVOLUTION_FOOLFOULE_CROWD.speed * seed.pace) /
           Math.max(1, flowLength);
       const sample = sampleDriftEvolutionFoolfouleCrowdFlow(
         seed.flow,
-        progress,
+        rawProgress,
         seed.lateralOffset
       );
       let worldX = center.x + sample.x;
@@ -120,6 +133,10 @@ export default function FoolfouleCrowd({
         worldZ += (dz / distance) * push;
       }
 
+      centroidX += worldX;
+      centroidZ += worldZ;
+      totalCrossings += Math.max(0, Math.floor(rawProgress));
+
       const groundY = getDrift3DGroundY(worldX, worldZ) + 0.025;
       const scale = seed.scale;
 
@@ -135,6 +152,12 @@ export default function FoolfouleCrowd({
       dummy.updateMatrix();
       head.setMatrixAt(index, dummy.matrix);
     });
+
+    const sampleCount = seeds.length;
+    signalRef.current.centroidX = centroidX / sampleCount;
+    signalRef.current.centroidZ = centroidZ / sampleCount;
+    signalRef.current.totalCrossings = totalCrossings;
+    signalRef.current.sampleCount = sampleCount;
 
     body.instanceMatrix.needsUpdate = true;
     head.instanceMatrix.needsUpdate = true;
