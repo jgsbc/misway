@@ -12,21 +12,18 @@ export default function DriftStartupVeil() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    let timer = 0;
     let released = false;
 
     const release = () => {
       if (released) return;
       released = true;
       setLeaving(true);
-      timer = window.setTimeout(() => setRemoved(true), 220);
     };
 
     window.addEventListener(DRIFT_STARTUP_RELEASE_EVENT, release, { once: true });
 
     return () => {
       window.removeEventListener(DRIFT_STARTUP_RELEASE_EVENT, release);
-      window.clearTimeout(timer);
     };
   }, []);
 
@@ -42,6 +39,9 @@ export default function DriftStartupVeil() {
       }`}
       role="status"
       aria-label="Opening the Drift world"
+      onTransitionEnd={() => {
+        if (leaving) setRemoved(true);
+      }}
     >
       <style>{`
         @keyframes drift-lambda-shimmer {
