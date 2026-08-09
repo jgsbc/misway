@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
@@ -52,6 +52,7 @@ const waterFragment = /* glsl */ `
 `;
 
 function useZeelandWaterMaterial() {
+  const materialRef = useRef<THREE.ShaderMaterial | null>(null);
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -69,11 +70,21 @@ function useZeelandWaterMaterial() {
     []
   );
 
-  useEffect(() => () => material.dispose(), [material]);
+  useEffect(() => {
+    materialRef.current = material;
+
+    return () => {
+      materialRef.current = null;
+      material.dispose();
+    };
+  }, [material]);
 
   useFrame(({ camera, clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
-    (material.uniforms.uCameraPos.value as THREE.Vector3).copy(camera.position);
+    const current = materialRef.current;
+    if (!current) return;
+
+    current.uniforms.uTime.value = clock.elapsedTime;
+    (current.uniforms.uCameraPos.value as THREE.Vector3).copy(camera.position);
   });
 
   return material;
