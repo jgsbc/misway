@@ -204,7 +204,12 @@ export default function DriftEvolutionRuntimeClient() {
 
   useEffect(() => {
     if (!isStaticFallback) return;
-    window.dispatchEvent(new Event(DRIFT_STARTUP_RELEASE_EVENT));
+
+    const frame = window.requestAnimationFrame(() => {
+      window.dispatchEvent(new Event(DRIFT_STARTUP_RELEASE_EVENT));
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [isStaticFallback]);
 
   return (
