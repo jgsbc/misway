@@ -6,12 +6,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Drift3DAudioClockRef } from "@/lib/drift3dAudioClock";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
-import {
-  DRIFT_EVOLUTION_FOOLFOULE_CENTER,
-} from "@/lib/driftEvolutionFoolfoule";
+import { DRIFT_EVOLUTION_FOOLFOULE_CENTER } from "@/lib/driftEvolutionFoolfoule";
 import {
   DRIFT_EVOLUTION_FOOLFOULE_PANELS,
-  createDriftEvolutionFoolfouleCrowdSignal,
   getDriftEvolutionFoolfoulePanelYaw,
   isDriftEvolutionFoolfouleAudioSource,
   resolveDriftEvolutionFoolfouleDramaturgy,
@@ -41,7 +38,11 @@ function paintCounter(display: CounterDisplay, value: number) {
   context.font = "700 92px ui-monospace, SFMono-Regular, Menlo, monospace";
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(String(Math.min(999, Math.max(0, value))).padStart(3, "0"), 160, 86);
+  context.fillText(
+    String(Math.min(999, Math.max(0, value))).padStart(3, "0"),
+    160,
+    86
+  );
   texture.needsUpdate = true;
 }
 
@@ -70,6 +71,7 @@ export default function FoolfouleDramaturgy({
     new Array(DRIFT_EVOLUTION_FOOLFOULE_PANELS.length).fill(null)
   );
   const counterMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const counterDisplayRef = useRef<CounterDisplay | null>(null);
   const visualTrackingRef = useRef(0);
   const visualCounterRef = useRef(0);
   const sessionActiveRef = useRef(false);
@@ -103,24 +105,32 @@ export default function FoolfouleDramaturgy({
     []
   );
 
-  const counterDisplay = useMemo<CounterDisplay | null>(() => {
-    if (typeof document === "undefined") return null;
+  useEffect(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 320;
     canvas.height = 160;
     const context = canvas.getContext("2d");
-    if (!context) return null;
+    if (!context) return;
+
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    return { canvas, context, texture };
-  }, []);
+    const display = { canvas, context, texture };
+    counterDisplayRef.current = display;
+    paintCounter(display, 0);
 
-  useEffect(() => {
-    if (counterDisplay) paintCounter(counterDisplay, 0);
-    return () => counterDisplay?.texture.dispose();
-  }, [counterDisplay]);
+    const material = counterMaterialRef.current;
+    if (material) {
+      material.map = texture;
+      material.needsUpdate = true;
+    }
+
+    return () => {
+      texture.dispose();
+      counterDisplayRef.current = null;
+    };
+  }, []);
 
   useFrame((_, delta) => {
     const snapshot = audioClockRef.current;
@@ -220,6 +230,7 @@ export default function FoolfouleDramaturgy({
       counterMaterialRef.current.opacity = counting;
     }
 
+    const counterDisplay = counterDisplayRef.current;
     if (
       counterDisplay &&
       state.counterValue !== lastCounterValueRef.current
@@ -252,12 +263,11 @@ export default function FoolfouleDramaturgy({
               roughness={0.36}
             />
           </mesh>
-          {panel.heroCounter && counterDisplay ? (
+          {panel.heroCounter ? (
             <mesh position={[0, 0, panel.counterFaceZ]}>
               <planeGeometry args={[panel.width * 0.9, panel.height * 0.78]} />
               <meshBasicMaterial
                 ref={counterMaterialRef}
-                map={counterDisplay.texture}
                 transparent
                 opacity={0}
                 side={THREE.DoubleSide}
