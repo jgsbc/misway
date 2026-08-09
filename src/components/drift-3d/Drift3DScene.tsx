@@ -1,143 +1,88 @@
 "use client";
 
-import { useRef } from "react";
-import type { ComponentProps, MutableRefObject } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import OriginalDrift3DScene from "./Drift3DSceneBase";
-import Drift3DLandmark from "./Drift3DLandmark";
-import DriftSceneReadySignal from "./DriftSceneReadySignal";
-import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
-import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
-import { drift3dNewTrackLandmarks } from "@/lib/drift3dNewTrackLandmarks";
-import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
-import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
+import { useLayoutEffect, useRef, type ComponentProps } from "react";
+import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
+import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
+import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
+import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
+import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
+import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
+import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturgy";
+import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
+import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
+import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
+import { createDriftEvolutionFoolfouleCrowdSignal } from "@/lib/driftEvolutionFoolfouleDramaturgy";
 import {
-  getDrift3DChaseCameraRig,
-  getDrift3DVehicleStartPosition,
-} from "@/lib/drift3d";
+  restoreFoolfouleAfterEvolution,
+  stageFoolfouleForEvolution,
+} from "@/lib/driftEvolutionFoolfouleRegistry";
+import {
+  restoreLegacyEntryAfterEvolution,
+  suppressLegacyEntryForEvolution,
+} from "@/lib/driftEvolutionLegacyEntryRegistry";
+import {
+  restoreZeelandAfterEvolution,
+  stageZeelandForEvolution,
+} from "@/lib/driftEvolutionZeelandRegistry";
 
-const DRIFT_3D_CHASE_CAMERA_POSITION_RESPONSE = 7.5;
-const DRIFT_3D_CHASE_CAMERA_TARGET_RESPONSE = 10;
+type Drift3DSceneProps = ComponentProps<typeof Drift3DSceneBase>;
 
-type Drift3DSceneProps = ComponentProps<typeof OriginalDrift3DScene>;
+// The promoted world uses the approved Evolution staging before the base
+// scene computes landmark colliders and topology-dependent render state.
+suppressLegacyEntryForEvolution();
+stageZeelandForEvolution();
+stageFoolfouleForEvolution();
 
-type ChaseCameraRigProps = {
-  vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
-  cameraZoomTargetRef: MutableRefObject<number>;
-  proximity: Drift3DTopologyProximity | null;
-};
-
-function getActiveTrackSlug(proximity: Drift3DTopologyProximity | null) {
-  if (
-    !proximity?.isInside ||
-    !proximity.activeNode ||
-    !("trackSlug" in proximity.activeNode)
-  ) {
-    return null;
-  }
-
-  return proximity.activeNode.trackSlug;
-}
-
-function ChaseCameraRig({
-  vehicleStateRef,
-  cameraZoomTargetRef,
-  proximity,
-}: ChaseCameraRigProps) {
-  const camera = useThree((state) => state.camera);
-  const gl = useThree((state) => state.gl);
-  const scene = useThree((state) => state.scene);
-  const cinematicZoomRef = useRef(1);
-  const initializedRef = useRef(false);
-  const smoothedPositionRef = useRef(new THREE.Vector3());
-  const smoothedTargetRef = useRef(new THREE.Vector3());
-  const desiredPositionRef = useRef(new THREE.Vector3());
-  const desiredTargetRef = useRef(new THREE.Vector3());
-
-  // Positive priority guarantees this camera is applied after the legacy
-  // translation-follow callback, then renders the completed frame once.
-  useFrame((_, delta) => {
-    const activeTrackSlug = getActiveTrackSlug(proximity);
-    const trackMotion = getDrift3DTrackMotion(activeTrackSlug);
-    const motionEase = 1 - Math.exp(-delta * 2);
-
-    cinematicZoomRef.current +=
-      (trackMotion.zoomScale - cinematicZoomRef.current) * motionEase;
-
-    const rig = getDrift3DChaseCameraRig(
-      vehicleStateRef.current.position,
-      vehicleStateRef.current.heading,
-      cameraZoomTargetRef.current,
-      {
-        cinematicScale: cinematicZoomRef.current,
-        groundY: getDrift3DGroundY,
-      }
-    );
-    const desiredPosition = desiredPositionRef.current.set(
-      rig.position.x,
-      rig.position.y,
-      rig.position.z
-    );
-    const desiredTarget = desiredTargetRef.current.set(
-      rig.target.x,
-      rig.target.y,
-      rig.target.z
-    );
-
-    if (!initializedRef.current) {
-      smoothedPositionRef.current.copy(desiredPosition);
-      smoothedTargetRef.current.copy(desiredTarget);
-      initializedRef.current = true;
-    } else {
-      const positionEase =
-        1 - Math.exp(-delta * DRIFT_3D_CHASE_CAMERA_POSITION_RESPONSE);
-      const targetEase =
-        1 - Math.exp(-delta * DRIFT_3D_CHASE_CAMERA_TARGET_RESPONSE);
-
-      smoothedPositionRef.current.lerp(desiredPosition, positionEase);
-      smoothedTargetRef.current.lerp(desiredTarget, targetEase);
-    }
-
-    const terrainFloor =
-      getDrift3DGroundY(
-        smoothedPositionRef.current.x,
-        smoothedPositionRef.current.z
-      ) + 1.05;
-
-    if (smoothedPositionRef.current.y < terrainFloor) {
-      smoothedPositionRef.current.y = terrainFloor;
-    }
-
-    camera.position.copy(smoothedPositionRef.current);
-    camera.lookAt(smoothedTargetRef.current);
-    gl.render(scene, camera);
-  }, 1);
-
-  return null;
-}
-
+/**
+ * Production composition promoted from the validated Drift Evolution world.
+ * The underlying base scene remains shared, while the approved cave, Safari,
+ * Zeeland and Foolfoule layers now belong to the production experience.
+ */
 export default function Drift3DScene(props: Drift3DSceneProps) {
-  const startPosition = getDrift3DVehicleStartPosition();
+  const evolutionStartPosition = getDriftEvolutionEntryStartPosition();
+  const foolfouleCrowdSignalRef = useRef(
+    createDriftEvolutionFoolfouleCrowdSignal()
+  );
+  const isInsideFoolfoule =
+    props.proximity?.activeNode?.id === drift3dTrackNodeBySlug.foolfoule.id;
+
+  useLayoutEffect(() => {
+    // React Strict Mode may replay layout effects in development. Reassert the
+    // approved staging after a cleanup replay, then restore on real unmount.
+    suppressLegacyEntryForEvolution();
+    stageZeelandForEvolution();
+    stageFoolfouleForEvolution();
+
+    return () => {
+      restoreFoolfouleAfterEvolution();
+      restoreZeelandAfterEvolution();
+      restoreLegacyEntryAfterEvolution();
+    };
+  }, []);
 
   return (
     <>
-      <OriginalDrift3DScene {...props} />
-      {drift3dNewTrackLandmarks.map((landmark) => (
-        <Drift3DLandmark
-          key={landmark.id}
-          landmark={landmark}
-          vehicleStateRef={props.vehicleStateRef}
-        />
-      ))}
-      <ChaseCameraRig
+      <Drift3DSceneBase {...props} />
+      <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
+      <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
+      <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
+      <FoolfouleCrowd
+        vehicleStateRef={props.vehicleStateRef}
+        signalRef={foolfouleCrowdSignalRef}
+      />
+      <FoolfouleDramaturgy
+        audioClockRef={props.audioClockRef}
+        isInsideZone={isInsideFoolfoule}
+        crowdSignalRef={foolfouleCrowdSignalRef}
+      />
+      <DriftEvolutionSpatialRig
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
       />
       <DriftSceneReadySignal
         vehicleStateRef={props.vehicleStateRef}
-        expectedPosition={startPosition}
+        expectedPosition={evolutionStartPosition}
         stableFrames={5}
         positionTolerance={0.35}
       />

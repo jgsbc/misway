@@ -81,9 +81,7 @@ export default function Drift3DCanvas({
   audioClockRef,
   evidenceRuntimeRef,
 }: Drift3DCanvasProps) {
-  const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(
-    null
-  );
+  const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(null);
   const cameraZoomTargetRef = useRef(1);
   const vehicleStateRef = useRef<Drift3DVehiclePhysicsState>(
     createDrift3DVehiclePhysicsState(getDrift3DVehicleStartPosition(), 0)
@@ -94,36 +92,17 @@ export default function Drift3DCanvas({
     active: false,
     pointerId: null,
     origin: null,
-    input: {
-      x: 0,
-      z: 0,
-      active: false,
-    },
+    input: { x: 0, z: 0, active: false },
   });
-  // DRIFT-3D-20B: registre multi-pointeurs tactiles pour le pinch deux doigts.
-  const activeTouchPointersRef = useRef<Map<number, { x: number; y: number }>>(
-    new Map()
-  );
-  const pinchStateRef = useRef<{
-    startDistance: number;
-    startScale: number;
-  } | null>(null);
-  // `changedAtMs: 0` mirrors the AudioClock's deterministic init (no
-  // `performance.now()` call during render) — harmless, since the mount
-  // effect below stamps a real timestamp before any consumer reads it.
+  const activeTouchPointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStateRef = useRef<{ startDistance: number; startScale: number } | null>(null);
   const sceneLifecycleRef = useRef<Drift3DSceneLifecycleSnapshot>(
     createDrift3DSceneLifecycleSnapshot(0)
   );
-  // Bumped on every real invocation of the lifecycle effect's setup (see
-  // below), including a React 18 Strict Mode dev replay on the same
-  // component instance. Lets the deferred route-unmount decision (also
-  // below) tell a genuine unmount apart from a Strict Mode
-  // setup->cleanup->setup cycle on that same instance.
   const lifecycleEffectGenerationRef = useRef(0);
   const [sceneRuntimeActive, setSceneRuntimeActive] = useState(false);
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
-
     return getDrift3DFollowCameraRig(startPosition, 1);
   }, []);
 
@@ -132,50 +111,29 @@ export default function Drift3DCanvas({
       Math.max(nextZoom, DRIFT_3D_CAMERA_MIN_SCALE),
       DRIFT_3D_CAMERA_MAX_SCALE
     );
-
-    if (Math.abs(clamped - cameraZoomTargetRef.current) < 0.001) {
-      return;
-    }
-
+    if (Math.abs(clamped - cameraZoomTargetRef.current) < 0.001) return;
     cameraZoomTargetRef.current = clamped;
   }
 
   function handleWheelCapture(event: ReactWheelEvent<HTMLElement>) {
     event.preventDefault();
     event.stopPropagation();
-
-    const nextZoom = cameraZoomTargetRef.current + event.deltaY * 0.0011;
-    setCameraZoomValue(nextZoom);
+    setCameraZoomValue(cameraZoomTargetRef.current + event.deltaY * 0.0011);
   }
 
-  // ambiance diégétique opt-in : suit la position, se duck sous la musique
   useEffect(() => {
-    if (!isAmbienceOn) {
-      return;
-    }
-
+    if (!isAmbienceOn) return;
     const engine = ambienceEngineRef.current;
-
-    if (!engine) {
-      return;
-    }
-
+    if (!engine) return;
     const interval = window.setInterval(() => {
       engine.setMix(
         getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
         isPlaying ? 0.045 : 0.13
       );
     }, 280);
-
-    return () => {
-      window.clearInterval(interval);
-    };
+    return () => window.clearInterval(interval);
   }, [isAmbienceOn, isPlaying]);
 
-  // Scene lifecycle: mount, document-visibility-driven active/paused, and an
-  // explicit route-unmount reset. This is the only place that transitions
-  // `sceneLifecycleRef` for mount/visibility/unmount — the audio player is
-  // never touched here, and no track/cue vocabulary enters this effect.
   useEffect(() => {
     let cancelled = false;
     const activeTouchPointers = activeTouchPointersRef.current;
@@ -194,16 +152,13 @@ export default function Drift3DCanvas({
         performance.now()
       );
       queueMicrotask(() => {
-        if (!cancelled) {
-          setSceneRuntimeActive(true);
-        }
+        if (!cancelled) setSceneRuntimeActive(true);
       });
     }
 
     function onVisibilityChange() {
       const nowMs = performance.now();
       const state = sceneLifecycleRef.current.state;
-
       if (document.hidden) {
         if (state === "ACTIVE") {
           sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
@@ -213,10 +168,8 @@ export default function Drift3DCanvas({
           );
           setSceneRuntimeActive(false);
         }
-
         return;
       }
-
       if (state === "PAUSED") {
         sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
           sceneLifecycleRef.current,
@@ -235,15 +188,9 @@ export default function Drift3DCanvas({
     }
 
     document.addEventListener("visibilitychange", onVisibilityChange);
-
     return () => {
       cancelled = true;
       document.removeEventListener("visibilitychange", onVisibilityChange);
-
-      // Resource cleanup and transient-state clearing stay immediate and
-      // unconditional — they are cheap, idempotent, and correct whether
-      // this cleanup turns out to be a real unmount or a React 18 Strict
-      // Mode dev replay of the same instance.
       ambienceEngineRef.current?.stop();
       ambienceEngineRef.current = null;
       pointerDriveStateRef.current = {
@@ -254,27 +201,8 @@ export default function Drift3DCanvas({
       };
       activeTouchPointers.clear();
       pinchStateRef.current = null;
-
-      // The *logical* route-unmount transition is deferred to a microtask.
-      // Strict Mode's dev-only replay runs setup -> cleanup -> setup
-      // synchronously on the same instance: by the time this microtask
-      // runs, `lifecycleEffectGenerationRef.current` will already have
-      // been bumped again by that replay's setup, so this check tells a
-      // genuine unmount (no later setup ever bumps it again) apart from a
-      // phantom one. No setTimeout/setInterval/rAF — this is not a polling
-      // timer, just a way to let the (possible) next synchronous setup
-      // declare itself before this decision is made. No `setState` call in
-      // this deferred block either way — the component may already be
-      // unmounting for real.
       queueMicrotask(() => {
-        // Intentionally reading the *live* ref value here, not a value
-        // captured at cleanup time — that live read is exactly what tells
-        // a later setup apart from "no later setup ever ran".
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        if (lifecycleEffectGenerationRef.current !== effectGeneration) {
-          return;
-        }
-
+        if (lifecycleEffectGenerationRef.current !== effectGeneration) return;
         sceneLifecycleRef.current = transitionDrift3DSceneLifecycle(
           sceneLifecycleRef.current,
           "reset",
@@ -295,20 +223,10 @@ export default function Drift3DCanvas({
     };
   }, []);
 
-  // Dev-only, read-only cue resolver harness. Lives here (Drift3DCanvas)
-  // rather than inside the react-three-fiber tree so it never depends on
-  // the Canvas's internal mount or on `requestAnimationFrame`. It only
-  // proves the pure resolver against a caller-supplied timeline — it never
-  // interprets a real Cue Map, never names a track, and exposes no way to
-  // command playback or the scene lifecycle.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
-      validate: (phases: readonly Drift3DCuePhase[]) =>
-        getDrift3DCueTimelineIssues(phases),
+      validate: (phases: readonly Drift3DCuePhase[]) => getDrift3DCueTimelineIssues(phases),
       resolveAt: (
         phases: readonly Drift3DCuePhase[],
         timeSeconds: number,
@@ -325,75 +243,37 @@ export default function Drift3DCanvas({
           performance.now()
         ),
     });
-
-    Object.defineProperty(window, "__drift3dCueResolver", {
-      configurable: true,
-      value: probe,
-    });
-
+    Object.defineProperty(window, "__drift3dCueResolver", { configurable: true, value: probe });
     return () => {
-      // Simple identity check, no shared ownership registry: only remove
-      // the probe if it is still the exact object this effect installed —
-      // a late cleanup from a replaced instance can never delete a newer
-      // instance's probe.
-      if (
-        (window as unknown as Record<string, unknown>)
-          .__drift3dCueResolver === probe
-      ) {
-        delete (window as unknown as Record<string, unknown>)
-          .__drift3dCueResolver;
+      if ((window as unknown as Record<string, unknown>).__drift3dCueResolver === probe) {
+        delete (window as unknown as Record<string, unknown>).__drift3dCueResolver;
       }
     };
   }, [audioClockRef]);
 
-  // Dev-only, read-only signature arbitration harness. Same rationale as
-  // the cue resolver harness above: lives here (Drift3DCanvas) so it never
-  // depends on the Canvas's internal mount or on `requestAnimationFrame`.
-  // It only proves the pure arbiter against caller-supplied candidates — it
-  // is never wired to any real scene, track or lifecycle state in this lot,
-  // and exposes no way to command playback, the scene lifecycle or a scene.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
       validate: (candidates: readonly Drift3DSignatureCandidate[]) =>
         getDrift3DSignatureCandidateIssues(candidates),
       arbitrate: (candidates: readonly Drift3DSignatureCandidate[]) =>
         arbitrateDrift3DMajorSignature(candidates),
     });
-
     Object.defineProperty(window, "__drift3dSignatureArbitration", {
       configurable: true,
       value: probe,
     });
-
     return () => {
-      // Same simple identity check as the cue resolver probe — no shared
-      // ownership registry, no change to Drift3DScene's probe registry.
       if (
-        (window as unknown as Record<string, unknown>)
-          .__drift3dSignatureArbitration === probe
+        (window as unknown as Record<string, unknown>).__drift3dSignatureArbitration === probe
       ) {
-        delete (window as unknown as Record<string, unknown>)
-          .__drift3dSignatureArbitration;
+        delete (window as unknown as Record<string, unknown>).__drift3dSignatureArbitration;
       }
     };
   }, []);
 
-  // Dev-only, read-only quality tier harness. Same rationale as the cue
-  // resolver and signature arbitration harnesses above: lives here
-  // (Drift3DCanvas) so it never depends on the Canvas's internal mount. It
-  // only lets a caller CALCULATE a capability profile or a scaled
-  // count/dimension — it never applies a tier to the world: no setTier,
-  // no applyTier, no scene/audio/lifecycle command of any kind, and this
-  // lot does not pass any quality prop to Drift3DScene.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
       tiers: DRIFT_3D_QUALITY_TIERS,
       getProfile: (tier: string) =>
@@ -401,10 +281,6 @@ export default function Drift3DCanvas({
       validate: (profile: Drift3DQualityProfileCandidate) =>
         getDrift3DQualityProfileIssues(profile),
       validateCanonical: () => getDrift3DCanonicalQualityIssues(),
-      // Same underlying pure validator as `validateCanonical`, but accepts
-      // any caller-supplied profile set — lets a test prove monotonicity
-      // detection against a synthetic, deliberately non-monotone fixture
-      // without ever touching the real canonical profiles.
       validateSet: (profiles: readonly Drift3DQualityProfileCandidate[]) =>
         getDrift3DQualityProfileSetIssues(profiles),
       scaleCount: (
@@ -413,12 +289,8 @@ export default function Drift3DCanvas({
         capability: keyof Drift3DQualityCapabilities,
         minimumCount?: number
       ) => {
-        if (!isDrift3DQualityTier(tier)) {
-          return null;
-        }
-
+        if (!isDrift3DQualityTier(tier)) return null;
         const profile = getDrift3DQualityProfile(tier);
-
         return scaleDrift3DQualityCount(
           baseCount,
           profile.capabilities[capability],
@@ -431,12 +303,8 @@ export default function Drift3DCanvas({
         capability: keyof Drift3DQualityCapabilities,
         minimumDimension?: number
       ) => {
-        if (!isDrift3DQualityTier(tier)) {
-          return null;
-        }
-
+        if (!isDrift3DQualityTier(tier)) return null;
         const profile = getDrift3DQualityProfile(tier);
-
         return scaleDrift3DQualityDimension(
           baseDimension,
           profile.capabilities[capability],
@@ -444,18 +312,9 @@ export default function Drift3DCanvas({
         );
       },
     });
-
-    Object.defineProperty(window, "__drift3dQuality", {
-      configurable: true,
-      value: probe,
-    });
-
+    Object.defineProperty(window, "__drift3dQuality", { configurable: true, value: probe });
     return () => {
-      // Same simple identity check as the other dev probes above.
-      if (
-        (window as unknown as Record<string, unknown>).__drift3dQuality ===
-        probe
-      ) {
+      if ((window as unknown as Record<string, unknown>).__drift3dQuality === probe) {
         delete (window as unknown as Record<string, unknown>).__drift3dQuality;
       }
     };
@@ -466,10 +325,8 @@ export default function Drift3DCanvas({
       ambienceEngineRef.current?.stop();
       ambienceEngineRef.current = null;
       setIsAmbienceOn(false);
-
       return;
     }
-
     const engine = new Drift3DAmbienceEngine();
     engine.start();
     engine.setMix(
@@ -482,54 +339,33 @@ export default function Drift3DCanvas({
 
   useEffect(() => {
     function releasePointerDriveState() {
-      // DRIFT-3D-20B: perte de focus / onglet caché → on relâche aussi le
-      // registre tactile et le pinch pour éviter un état bloqué.
       activeTouchPointersRef.current.clear();
       pinchStateRef.current = null;
-
       const pointerDriveState = pointerDriveStateRef.current;
-
       if (
         !pointerDriveState.active &&
         !pointerDriveState.input.active &&
         pointerDriveState.pointerId === null &&
         pointerDriveState.origin === null
-      ) {
-        return;
-      }
-
+      ) return;
       pointerDriveStateRef.current = {
         active: false,
         pointerId: null,
         origin: null,
-        input: {
-          x: 0,
-          z: 0,
-          active: false,
-        },
+        input: { x: 0, z: 0, active: false },
       };
     }
-
     window.addEventListener("blur", releasePointerDriveState);
     document.addEventListener("visibilitychange", releasePointerDriveState);
-
     return () => {
       window.removeEventListener("blur", releasePointerDriveState);
       document.removeEventListener("visibilitychange", releasePointerDriveState);
     };
   }, []);
 
-  function setPointerDriveInput(
-    pointerId: number,
-    clientX: number,
-    clientY: number
-  ) {
+  function setPointerDriveInput(pointerId: number, clientX: number, clientY: number) {
     const pointerDriveState = pointerDriveStateRef.current;
-
-    if (pointerDriveState.pointerId !== pointerId || !pointerDriveState.origin) {
-      return;
-    }
-
+    if (pointerDriveState.pointerId !== pointerId || !pointerDriveState.origin) return;
     const nextInput = getDrift3DDragDriveInput(pointerDriveState.origin, {
       x: clientX,
       y: clientY,
@@ -538,74 +374,44 @@ export default function Drift3DCanvas({
       active: nextInput.active,
       pointerId,
       origin: pointerDriveState.origin,
-      input: nextInput.active
-        ? nextInput
-        : {
-            x: 0,
-            z: 0,
-            active: false,
-          },
+      input: nextInput.active ? nextInput : { x: 0, z: 0, active: false },
     };
-
     const changed =
       nextState.active !== pointerDriveState.active ||
       nextState.input.active !== pointerDriveState.input.active ||
       Math.abs(nextState.input.x - pointerDriveState.input.x) > 0.001 ||
       Math.abs(nextState.input.z - pointerDriveState.input.z) > 0.001;
-
-    if (!changed) {
-      return;
-    }
-
-    pointerDriveStateRef.current = nextState;
+    if (changed) pointerDriveStateRef.current = nextState;
   }
 
   function clearPointerDriveInput(pointerId?: number) {
     const pointerDriveState = pointerDriveStateRef.current;
-
     if (
       pointerId !== undefined &&
       pointerDriveState.pointerId !== null &&
       pointerDriveState.pointerId !== pointerId
-    ) {
-      return;
-    }
-
+    ) return;
     if (
       !pointerDriveState.active &&
       !pointerDriveState.input.active &&
       pointerDriveState.pointerId === null &&
       pointerDriveState.origin === null
-    ) {
-      return;
-    }
-
+    ) return;
     pointerDriveStateRef.current = {
       active: false,
       pointerId: null,
       origin: null,
-      input: {
-        x: 0,
-        z: 0,
-        active: false,
-      },
+      input: { x: 0, z: 0, active: false },
     };
   }
 
-  // DRIFT-3D-20B: distance entre les deux doigts actifs pendant un pinch.
   function getActiveTouchDistance() {
     const points = Array.from(activeTouchPointersRef.current.values());
-
-    if (points.length < 2) {
-      return 0;
-    }
-
+    if (points.length < 2) return 0;
     return Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
   }
 
   function enterPinchMode() {
-    // Le pinch prend le pas sur la conduite : on gèle l'input véhicule à zéro
-    // et on mémorise la distance + le zoom de départ (mapping ratio).
     clearPointerDriveInput();
     pinchStateRef.current = {
       startDistance: getActiveTouchDistance(),
@@ -616,11 +422,7 @@ export default function Drift3DCanvas({
   function exitPinchMode() {
     pinchStateRef.current = null;
     clearPointerDriveInput();
-
-    // S'il reste un doigt, on ré-arme l'origine de conduite sur sa position
-    // courante pour éviter tout saut du véhicule à la reprise.
     const remaining = Array.from(activeTouchPointersRef.current.entries());
-
     if (remaining.length === 1) {
       const [pointerId, point] = remaining[0];
       pointerDriveStateRef.current = {
@@ -633,48 +435,29 @@ export default function Drift3DCanvas({
   }
 
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
-    if (event.defaultPrevented) {
-      return;
-    }
-
+    if (event.defaultPrevented) return;
     const isTouch = event.pointerType === "touch";
-
     if (isTouch) {
       activeTouchPointersRef.current.set(event.pointerId, {
         x: event.clientX,
         y: event.clientY,
       });
-
-      // Deux doigts posés : on bascule en pinch zoom.
       if (activeTouchPointersRef.current.size >= 2) {
         event.preventDefault();
         event.stopPropagation();
         enterPinchMode();
-
         return;
       }
-    } else if (event.button !== 0) {
-      return;
-    }
-
-    if (pointerDriveStateRef.current.pointerId !== null) {
-      return;
-    }
-
+    } else if (event.button !== 0) return;
+    if (pointerDriveStateRef.current.pointerId !== null) return;
     event.preventDefault();
     event.stopPropagation();
-
     pointerDriveStateRef.current = {
       active: false,
       pointerId: event.pointerId,
       origin: { x: event.clientX, y: event.clientY },
-      input: {
-        x: 0,
-        z: 0,
-        active: false,
-      },
+      input: { x: 0, z: 0, active: false },
     };
-
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
     } catch {
@@ -685,35 +468,22 @@ export default function Drift3DCanvas({
   function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.pointerType === "touch") {
       const tracked = activeTouchPointersRef.current.get(event.pointerId);
-
       if (tracked) {
         tracked.x = event.clientX;
         tracked.y = event.clientY;
       }
-
-      // En pinch, la distance inter-doigts pilote le zoom (jamais la conduite).
       if (pinchStateRef.current) {
         event.preventDefault();
         event.stopPropagation();
-
         const pinch = pinchStateRef.current;
         const distance = getActiveTouchDistance();
-
         if (pinch.startDistance > 0 && distance > 0) {
-          // Écarter les doigts (distance ↑) rapproche la caméra (scale ↓).
-          setCameraZoomValue(
-            pinch.startScale * (pinch.startDistance / distance)
-          );
+          setCameraZoomValue(pinch.startScale * (pinch.startDistance / distance));
         }
-
         return;
       }
     }
-
-    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
-      return;
-    }
-
+    if (pointerDriveStateRef.current.pointerId !== event.pointerId) return;
     event.preventDefault();
     event.stopPropagation();
     setPointerDriveInput(event.pointerId, event.clientX, event.clientY);
@@ -722,29 +492,21 @@ export default function Drift3DCanvas({
   function releasePointer(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.pointerType === "touch") {
       activeTouchPointersRef.current.delete(event.pointerId);
-
       if (pinchStateRef.current && activeTouchPointersRef.current.size < 2) {
         event.preventDefault();
         event.stopPropagation();
         exitPinchMode();
-
         return;
       }
     }
-
-    if (pointerDriveStateRef.current.pointerId !== event.pointerId) {
-      return;
-    }
-
+    if (pointerDriveStateRef.current.pointerId !== event.pointerId) return;
     event.preventDefault();
     event.stopPropagation();
-
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch {
       // Ignore pointer capture errors on unsupported or synthetic sequences.
     }
-
     clearPointerDriveInput(event.pointerId);
   }
 
@@ -762,15 +524,10 @@ export default function Drift3DCanvas({
   }
 
   const activeTrack = useMemo(() => {
-    if (!proximity?.activeNode || !("trackSlug" in proximity.activeNode)) {
-      return null;
-    }
-
+    if (!proximity?.activeNode || !("trackSlug" in proximity.activeNode)) return null;
     return getTrackBySlug(proximity.activeNode.trackSlug) ?? null;
   }, [proximity]);
-  const isActiveTrackCurrent = activeTrack
-    ? isCurrentTrack(activeTrack)
-    : false;
+  const isActiveTrackCurrent = activeTrack ? isCurrentTrack(activeTrack) : false;
   const isActiveTrackPlaying = isActiveTrackCurrent && isPlaying;
   const activeNodeTrackSlug =
     proximity?.activeNode && "trackSlug" in proximity.activeNode
@@ -781,11 +538,7 @@ export default function Drift3DCanvas({
     (!proximity?.isInside || activeNodeTrackSlug !== currentTrack?.slug);
 
   function handleToggleActiveTrack() {
-    if (!activeTrack) {
-      return;
-    }
-
-    toggleTrack(activeTrack);
+    if (activeTrack) toggleTrack(activeTrack);
   }
 
   return (
@@ -831,8 +584,6 @@ export default function Drift3DCanvas({
           ) : null}
         </Canvas>
 
-        {/* post-processing sobre (bible §6) : vignette douce + grain fin,
-            sans toucher au pipeline d'exposition scriptée du renderer */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[5]"
@@ -874,9 +625,7 @@ export default function Drift3DCanvas({
           onPointerUp={(event) => event.stopPropagation()}
           className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center gap-2 rounded-full border border-neutral-400/60 bg-white/30 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20 md:px-3"
           aria-pressed={isAmbienceOn}
-          aria-label={
-            isAmbienceOn ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore"
-          }
+          aria-label={isAmbienceOn ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore"}
         >
           {isAmbienceOn ? (
             <Volume2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
@@ -912,7 +661,6 @@ export default function Drift3DCanvas({
                 {currentTrack.title}
               </p>
             </div>
-
             <button
               type="button"
               onClick={(event) => {
@@ -925,9 +673,7 @@ export default function Drift3DCanvas({
               onPointerUp={(event) => event.stopPropagation()}
               onPointerCancel={(event) => event.stopPropagation()}
               className="pointer-events-auto inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-neutral-300/80 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
-              aria-label={
-                isPlaying ? "Pause current track" : "Resume current track"
-              }
+              aria-label={isPlaying ? "Pause current track" : "Resume current track"}
             >
               {isPlaying ? "PAUSE" : "RESUME"}
             </button>
