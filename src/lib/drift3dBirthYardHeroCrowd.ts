@@ -16,15 +16,15 @@ export type Drift3DBirthYardPavingStrip = Readonly<{
 }>;
 
 /**
- * Campaign B / Birth Yard Hero Slice — crowd scale and circulation grammar.
+ * Campaign B / Birth Yard Hero Slice — mass-crowd circulation grammar.
  *
- * The established safari 4x4 is deliberately compact in production. Crowd
- * silhouettes therefore stay below one runtime metre at the tallest authored
- * variation so people remain visually subordinate to the car and low-rise
- * buildings instead of reading as oversized mannequins.
+ * Hero Asset Pass 02 promotes six nearest/readable pedestrians to real
+ * skinned GLB actors. This procedural layer therefore owns 186 secondary
+ * silhouettes only; combined population remains 192 and the established
+ * pressure/density does not change while foreground fidelity improves.
  */
 export const DRIFT_3D_BIRTH_YARD_CROWD = Object.freeze({
-  count: 192,
+  count: 186,
   scaleMin: 0.52,
   scaleMax: 0.6,
   marchSpeed: 0.44,
@@ -46,28 +46,28 @@ export const DRIFT_3D_BIRTH_YARD_CROWD_FLOWS: readonly Drift3DBirthYardCrowdFlow
       start: [-1.35, -18] as const,
       end: [-0.15, 18] as const,
       halfWidth: 0.62,
-      slots: 54,
+      slots: 52,
     }),
     Object.freeze({
       id: "interbuilding-southbound",
       start: [1.3, 18] as const,
       end: [0.2, -18] as const,
       halfWidth: 0.62,
-      slots: 54,
+      slots: 52,
     }),
     Object.freeze({
       id: "building-gap-eastbound",
       start: [-8, -0.42] as const,
       end: [8, -0.32] as const,
       halfWidth: 0.13,
-      slots: 42,
+      slots: 41,
     }),
     Object.freeze({
       id: "building-gap-westbound",
       start: [7.9, -0.16] as const,
       end: [-7.9, -0.24] as const,
       halfWidth: 0.13,
-      slots: 42,
+      slots: 41,
     }),
   ]);
 
