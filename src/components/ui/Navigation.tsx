@@ -13,19 +13,20 @@ const links = [
   { href: "/about", label: "About", icon: Info },
 ];
 
-function isDrift3DLabPath(pathname: string | null) {
+function isDriftFullscreenPath(pathname: string | null) {
   if (!pathname) return false;
 
   const normalizedPathname = pathname.replace(/\/+$/, "") || "/";
 
-  // le monde 3D plein écran vit désormais sur /drift (l'ancien lab redirige)
-  return /(^|\/)(drift|drift-3d-lab)(\/|$)/.test(normalizedPathname);
+  return /(^|\/)(drift|drift-evolution|drift-3d-lab)(\/|$)/.test(
+    normalizedPathname
+  );
 }
 
 export default function Navigation() {
   const pathname = usePathname();
 
-  if (pathname === "/" || isDrift3DLabPath(pathname)) return null;
+  if (pathname === "/" || isDriftFullscreenPath(pathname)) return null;
 
   return (
     <motion.nav
