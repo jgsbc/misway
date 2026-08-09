@@ -42,8 +42,8 @@ import {
   type Drift3DPerformanceSnapshotCandidate,
 } from "@/lib/drift3dEvidence";
 
-const Drift3DCanvas = dynamic(
-  () => import("@/components/drift-3d/Drift3DCanvas"),
+const DriftEvolutionCanvas = dynamic(
+  () => import("@/components/drift-evolution/DriftEvolutionCanvas"),
   {
     ssr: false,
     loading: () => <Drift3DFallback reason="checking" />,
@@ -63,7 +63,7 @@ function canUseWebGL() {
   }
 }
 
-export default function Drift3DClient() {
+export default function DriftEvolutionRuntimeClient() {
   const {
     current,
     isPlaying,
@@ -72,30 +72,18 @@ export default function Drift3DClient() {
     isCurrentTrack,
     audioClockRef,
   } = useAudioPlayerRuntime();
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<
-    boolean | null
-  >(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean | null>(null);
   const [hasWebGL, setHasWebGL] = useState<boolean | null>(null);
   const currentTrack = current.kind === "track" ? current : null;
-  // Owned here (the shell), not inside Drift3DCanvas, so the harness below
-  // stays available even when the Canvas is absent (reduced-motion,
-  // no-WebGL, still checking) — it honestly reports canvasPresent=false in
-  // that case rather than disappearing. `useState`'s lazy initializer (not
-  // `useRef().current`) keeps this stable across renders without reading a
-  // ref during render.
   const [evidenceRuntimeRef] = useState<Drift3DEvidenceRuntimeRef>(
     createDrift3DEvidenceRuntimeRef
   );
 
   useEffect(() => {
     let cancelled = false;
-
     queueMicrotask(() => {
-      if (!cancelled) {
-        setHasWebGL(canUseWebGL());
-      }
+      if (!cancelled) setHasWebGL(canUseWebGL());
     });
-
     return () => {
       cancelled = true;
     };
@@ -103,126 +91,71 @@ export default function Drift3DClient() {
 
   useEffect(() => {
     let cancelled = false;
-
     if (!window.matchMedia) {
       queueMicrotask(() => {
-        if (!cancelled) {
-          setPrefersReducedMotion(false);
-        }
+        if (!cancelled) setPrefersReducedMotion(false);
       });
-
       return () => {
         cancelled = true;
       };
     }
-
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
     function syncReducedMotionPreference() {
       queueMicrotask(() => {
-        if (!cancelled) {
-          setPrefersReducedMotion(mediaQuery.matches);
-        }
+        if (!cancelled) setPrefersReducedMotion(mediaQuery.matches);
       });
     }
-
     syncReducedMotionPreference();
     mediaQuery.addEventListener("change", syncReducedMotionPreference);
-
     return () => {
       cancelled = true;
       mediaQuery.removeEventListener("change", syncReducedMotionPreference);
     };
   }, []);
 
-  // Dev-only, read-only reduced-motion harness. Lives here (Drift3DClient,
-  // the shell) rather than in Drift3DCanvas: the Canvas is intentionally
-  // absent whenever reduced motion is active, so a probe installed there
-  // would disappear exactly when it is most useful to inspect. It only
-  // lets a caller CALCULATE a mode/policy — it never applies a mode, never
-  // toggles the system preference, and issues no scene/audio/lifecycle/
-  // quality command of any kind.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
       modes: DRIFT_3D_REDUCED_MOTION_MODES,
-      resolveMode: (prefersReducedMotionValue: boolean) =>
-        resolveDrift3DReducedMotionMode(prefersReducedMotionValue),
+      resolveMode: (value: boolean) => resolveDrift3DReducedMotionMode(value),
       getPolicy: (mode: string) =>
-        isDrift3DReducedMotionMode(mode)
-          ? getDrift3DReducedMotionPolicy(mode)
-          : null,
+        isDrift3DReducedMotionMode(mode) ? getDrift3DReducedMotionPolicy(mode) : null,
       validate: (policy: Drift3DReducedMotionPolicyCandidate) =>
         getDrift3DReducedMotionPolicyIssues(policy),
       validateCanonical: () => getDrift3DCanonicalReducedMotionIssues(),
     });
-
     Object.defineProperty(window, "__drift3dReducedMotion", {
       configurable: true,
       value: probe,
     });
-
     return () => {
-      // Same simple identity check as the SYS-20/SYS-30/SYS-40 probes.
-      if (
-        (window as unknown as Record<string, unknown>)
-          .__drift3dReducedMotion === probe
-      ) {
-        delete (window as unknown as Record<string, unknown>)
-          .__drift3dReducedMotion;
+      if ((window as unknown as Record<string, unknown>).__drift3dReducedMotion === probe) {
+        delete (window as unknown as Record<string, unknown>).__drift3dReducedMotion;
       }
     };
   }, []);
 
-  // Dev-only, read-only no-WebGL narrative path harness. Same rationale as
-  // the reduced-motion harness above: lives at the shell level because the
-  // Canvas is intentionally absent whenever this fallback is active. It
-  // only lets a caller CALCULATE the contract/validate a candidate — it
-  // never applies anything: no forceNoWebGL, no disableWebGL, no
-  // setFallback, no navigate, no play/pause.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
       getPath: () => getDrift3DNoWebGLNarrativePath(),
       validate: (path: Drift3DNoWebGLNarrativePathCandidate) =>
         getDrift3DNoWebGLPathIssues(path),
       validateCanonical: () => getDrift3DCanonicalNoWebGLIssues(),
     });
-
     Object.defineProperty(window, "__drift3dNoWebGL", {
       configurable: true,
       value: probe,
     });
-
     return () => {
-      // Same simple identity check as the other dev probes above.
-      if (
-        (window as unknown as Record<string, unknown>).__drift3dNoWebGL ===
-        probe
-      ) {
-        delete (window as unknown as Record<string, unknown>)
-          .__drift3dNoWebGL;
+      if ((window as unknown as Record<string, unknown>).__drift3dNoWebGL === probe) {
+        delete (window as unknown as Record<string, unknown>).__drift3dNoWebGL;
       }
     };
   }, []);
 
-  // Dev-only evidence/performance harness (DRIFT-IV-SYS-70). Lives here (the
-  // shell), reading `evidenceRuntimeRef` — owned above — so it stays present
-  // even when Drift3DCanvas is unmounted. It only measures and records: no
-  // setTier/forceLow/forceReduced/forceNoWebGL/teleport/play/pause/seek/
-  // resetScene/setQuality/setPerformanceTarget/autoOptimize is exposed here
-  // or anywhere in drift3dEvidence.ts.
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") {
-      return;
-    }
-
+    if (process.env.NODE_ENV === "production") return;
     const probe = Object.freeze({
       classifications: DRIFT_3D_EVIDENCE_CLASSIFICATIONS,
       snapshot: () =>
@@ -240,23 +173,15 @@ export default function Drift3DClient() {
         getDrift3DPerformanceSnapshotIssues(snapshot),
       validateFpsSample: (sample: Drift3DFpsSampleCandidate) =>
         getDrift3DFpsSampleIssues(sample),
-      validateClassification: (value: unknown) =>
-        isDrift3DEvidenceClassification(value),
+      validateClassification: (value: unknown) => isDrift3DEvidenceClassification(value),
     });
-
     Object.defineProperty(window, "__drift3dEvidence", {
       configurable: true,
       value: probe,
     });
-
     return () => {
-      // Same simple identity check as the other dev probes above.
-      if (
-        (window as unknown as Record<string, unknown>).__drift3dEvidence ===
-        probe
-      ) {
-        delete (window as unknown as Record<string, unknown>)
-          .__drift3dEvidence;
+      if ((window as unknown as Record<string, unknown>).__drift3dEvidence === probe) {
+        delete (window as unknown as Record<string, unknown>).__drift3dEvidence;
       }
     };
   }, [evidenceRuntimeRef]);
@@ -265,7 +190,6 @@ export default function Drift3DClient() {
     prefersReducedMotion === null
       ? null
       : resolveDrift3DReducedMotionMode(prefersReducedMotion);
-
   const fallbackReason: Drift3DFallbackReason | null =
     reducedMotionMode === null || hasWebGL === null
       ? "checking"
@@ -288,22 +212,13 @@ export default function Drift3DClient() {
           <div className="absolute inset-0 flex items-center justify-center overflow-y-auto p-4 md:p-6">
             <div className="w-full max-w-2xl">
               <Drift3DFallback reason={fallbackReason} />
-              {/* DRIFT-IV-BY-EUX-20: enriches the reduced-motion/no-WebGL
-                  panels above with a static EUX GAINENT representation
-                  when it is the current track — renders nothing otherwise.
-                  Deliberately excluded from "checking" (not yet a settled
-                  fallback reason) so the gate order checking → reduced-
-                  motion → no-webgl → Canvas is preserved exactly. Never
-                  replaces the SYS-50/SYS-60 destinations or accessibility
-                  above. */}
-              {fallbackReason === "reduced-motion" ||
-              fallbackReason === "no-webgl" ? (
+              {fallbackReason === "reduced-motion" || fallbackReason === "no-webgl" ? (
                 <EuxGainentFallbackScene />
               ) : null}
             </div>
           </div>
         ) : (
-          <Drift3DCanvas
+          <DriftEvolutionCanvas
             isCurrentTrack={isCurrentTrack}
             isPlaying={isPlaying}
             currentTrack={currentTrack}
@@ -319,10 +234,6 @@ export default function Drift3DClient() {
         <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
           MISWΛY · Drift
         </p>
-        {/* DRIFT-3D-20B: le tutoriel permanent est masqué sur mobile pour
-            dégager la vue ; il reste sur desktop. DRIFT-IV-SYS-60: masqué
-            aussi quand un fallback est actif (Canvas absent) pour ne
-            jamais promettre une interaction de conduite indisponible. */}
         {!fallbackReason ? (
           <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
             ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
@@ -337,7 +248,6 @@ export default function Drift3DClient() {
         >
           MISWΛY
         </Link>
-
         <Link
           href="/tracks"
           className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/52 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950 md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
