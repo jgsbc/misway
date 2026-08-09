@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   drift3dEraById,
   drift3dTrackNodeBySlug,
+  drift3dTrackNodes,
   validateDrift3DTopology,
 } from "./drift3dTopology";
 import { getTrackBySlug } from "./tracks";
@@ -49,7 +50,14 @@ test("new MISWAY titles are registered once in their intended eras", () => {
 
 test("AMIDIR replaces ETEEAOOETE rather than duplicating the finale", () => {
   assert.equal(getTrackBySlug("eteeaooete"), undefined);
-  assert.equal(drift3dTrackNodeBySlug.eteeaooete, undefined);
+  assert.equal(
+    drift3dTrackNodes.some((node) => node.trackSlug === "eteeaooete"),
+    false
+  );
+  assert.equal(
+    drift3dTrackNodeBySlug.eteeaooete.id,
+    "retired-eteeaooete-landmark-tombstone"
+  );
   assert.equal(drift3dEraById["new-signal"].trackSlugs.at(-1), "amidir");
   assert.equal(getTrackBySlug("amidir")?.audioSrc, "/audio/amidir.mp3");
 });
