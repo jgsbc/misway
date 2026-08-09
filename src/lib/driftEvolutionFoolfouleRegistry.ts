@@ -3,6 +3,7 @@ import {
   type Drift3DLandmark,
 } from "@/lib/drift3dLandmarks";
 import {
+  DRIFT_EVOLUTION_FOOLFOULE_LANDMARK_ID,
   DRIFT_EVOLUTION_FOOLFOULE_SOURCE_LANDMARK_ID,
   buildDriftEvolutionFoolfouleLandmark,
 } from "@/lib/driftEvolutionFoolfoule";
@@ -38,7 +39,7 @@ export function restoreFoolfouleAfterEvolution() {
   const currentIndex = drift3dLandmarks.findIndex(
     (candidate) =>
       candidate.id === DRIFT_EVOLUTION_FOOLFOULE_SOURCE_LANDMARK_ID ||
-      candidate.id === "evolution-foolfoule-commercial-canyon"
+      candidate.id === DRIFT_EVOLUTION_FOOLFOULE_LANDMARK_ID
   );
 
   if (currentIndex >= 0) {
