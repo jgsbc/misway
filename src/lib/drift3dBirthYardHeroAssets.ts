@@ -53,11 +53,7 @@ export const DRIFT_3D_BIRTH_YARD_DELIVERY_TRUCK = Object.freeze({
 
 export type Drift3DBirthYardHeroActor = Readonly<{
   id: string;
-  flowId:
-    | "interbuilding-northbound"
-    | "interbuilding-southbound"
-    | "building-gap-eastbound"
-    | "building-gap-westbound";
+  flowId: "interbuilding-northbound" | "interbuilding-southbound";
   progress: number;
   lateralOffset: number;
   pace: number;
@@ -68,17 +64,18 @@ export type Drift3DBirthYardHeroActor = Readonly<{
 
 /**
  * Six readable foreground walkers replace six procedural mannequins rather
- * than adding population. Their starting phases cluster around the central
- * inter-building/crossing read, but they continue to use the exact established
- * Foolfoule circulation grammar once the scene runs.
+ * than adding population. They stay in the longitudinal inter-building void,
+ * where they are closest/readable but do not introduce a second collision or
+ * road-crossing authority. The existing procedural mass still owns the two
+ * transverse crossing streams and its vehicle-yield behaviour.
  */
 export const DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS: readonly Drift3DBirthYardHeroActor[] =
   Object.freeze([
     Object.freeze({
       id: "foreground-north-a",
       flowId: "interbuilding-northbound" as const,
-      progress: 0.44,
-      lateralOffset: -0.22,
+      progress: 0.41,
+      lateralOffset: -0.24,
       pace: 0.94,
       targetHeight: 0.88,
       phase: 0.08,
@@ -87,18 +84,28 @@ export const DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS: readonly Drift3DBirthYardHer
     Object.freeze({
       id: "foreground-north-b",
       flowId: "interbuilding-northbound" as const,
-      progress: 0.56,
-      lateralOffset: 0.24,
+      progress: 0.51,
+      lateralOffset: 0.18,
       pace: 1.04,
       targetHeight: 0.92,
       phase: 0.46,
       color: "#4b5357",
     }),
     Object.freeze({
+      id: "foreground-north-c",
+      flowId: "interbuilding-northbound" as const,
+      progress: 0.6,
+      lateralOffset: -0.05,
+      pace: 0.98,
+      targetHeight: 0.89,
+      phase: 0.67,
+      color: "#625b53",
+    }),
+    Object.freeze({
       id: "foreground-south-a",
       flowId: "interbuilding-southbound" as const,
-      progress: 0.47,
-      lateralOffset: -0.2,
+      progress: 0.43,
+      lateralOffset: -0.18,
       pace: 0.9,
       targetHeight: 0.86,
       phase: 0.7,
@@ -107,28 +114,18 @@ export const DRIFT_3D_BIRTH_YARD_FOREGROUND_ACTORS: readonly Drift3DBirthYardHer
     Object.freeze({
       id: "foreground-south-b",
       flowId: "interbuilding-southbound" as const,
-      progress: 0.59,
-      lateralOffset: 0.2,
+      progress: 0.53,
+      lateralOffset: 0.22,
       pace: 1.06,
       targetHeight: 0.93,
       phase: 0.24,
       color: "#444b50",
     }),
     Object.freeze({
-      id: "foreground-east-crossing",
-      flowId: "building-gap-eastbound" as const,
-      progress: 0.42,
-      lateralOffset: 0.04,
-      pace: 0.98,
-      targetHeight: 0.89,
-      phase: 0.57,
-      color: "#625b53",
-    }),
-    Object.freeze({
-      id: "foreground-west-crossing",
-      flowId: "building-gap-westbound" as const,
-      progress: 0.56,
-      lateralOffset: -0.04,
+      id: "foreground-south-c",
+      flowId: "interbuilding-southbound" as const,
+      progress: 0.62,
+      lateralOffset: 0.02,
       pace: 1.02,
       targetHeight: 0.91,
       phase: 0.34,
