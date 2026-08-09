@@ -1,41 +1,54 @@
+import { getDrift3DVehicleStartPosition } from "@/lib/drift3dBase";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import {
   DRIFT_3D_TOPOLOGY_WORLD_DEPTH,
   DRIFT_3D_TOPOLOGY_WORLD_WIDTH,
-  drift3dThresholdNode,
   drift3dTrackNodeBySlug,
 } from "@/lib/drift3dTopology";
 import { DRIFT_3D_VEHICLE_GROUND_CLEARANCE } from "@/lib/drift3dVehiclePhysics";
 
 const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
+const legacyVehicleStart = getDrift3DVehicleStartPosition();
 const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
 
+// Exact spatial dimensions from the EVO-21 state the owner validated visually.
+const VALIDATED_TOTAL_CAVE_LENGTH = 45.2;
+const VALIDATED_PORTAL_DEPTH = 11;
+const VALIDATED_SPAWN_INSET = 2.7;
+const caveStartZ = legacyVehicleStart.z - VALIDATED_TOTAL_CAVE_LENGTH;
+const portalInnerZ =
+  legacyVehicleStart.z - VALIDATED_PORTAL_DEPTH + 1;
+
 /**
- * DRIFT-EVO-23 — the recovered cave fully replaces the legacy Entry.
+ * DRIFT-EVO-24 — restore the validated cave scale and stage it correctly.
  *
- * The exterior face now sits on the exact production threshold coordinates.
- * The tunnel runs backwards to the south world edge, using the existing
- * descent as the hidden mineral approach. Birth Yard therefore begins where
- * it always did; only the Entry experience is replaced in evolution.
+ * The south edge remains open terrain. Roughly forty metres of the existing
+ * descent lead from the map edge to the cave mass. The cave itself keeps the
+ * exact total depth of the EVO-21 composition the owner had validated, and
+ * its exterior opening lands on the old production 4x4 spawn: the point from
+ * which Birth Yard used to be discovered before the cave salvage existed.
  */
 export const DRIFT_EVOLUTION_ENTRY_CAVE = Object.freeze({
-  centerX: drift3dThresholdNode.position.x,
-  startZ: worldMinZ + 0.8,
-  spawnZ: worldMinZ + 3.5,
-  mouthZ: drift3dThresholdNode.position.z,
+  centerX: legacyVehicleStart.x,
+  startZ: caveStartZ,
+  spawnZ: caveStartZ + VALIDATED_SPAWN_INSET,
+  // Inner face of the thick fractured portal. EntryCaveSalvage extrudes from
+  // mouthZ - 1 through portalDepth, so its exterior face is exactly exitZ.
+  mouthZ: portalInnerZ,
+  exitZ: legacyVehicleStart.z,
   halfWidth: 3.7,
   apexHeight: 5.4,
   rings: 64,
   around: 26,
-  portalDepth: 8,
-  activationRadius: 96,
+  portalDepth: VALIDATED_PORTAL_DEPTH,
+  activationRadius: 70,
   dustCount: 220,
   dripCount: 44,
   stalactiteCount: 44,
   rockCount: 96,
   deepExposureFactor: 0.28,
-  revealFadeStartZ: drift3dThresholdNode.position.z - 32,
-  revealFadeEndZ: zeeland.z,
+  revealFadeStartZ: legacyVehicleStart.z - 14,
+  revealFadeEndZ: legacyVehicleStart.z + 10,
 });
 
 /**
@@ -128,44 +141,55 @@ export function getDriftEvolutionEntryCaveIssues() {
   const worldMinX = -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
   const worldMaxX = DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
   const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
+  const descentLength = cave.startZ - worldMinZ;
+  const totalCaveLength = cave.exitZ - cave.startZ;
+  const portalExteriorZ = cave.mouthZ - 1 + cave.portalDepth;
 
   if (
-    Math.abs(cave.centerX - zeeland.x) > 0.001 ||
-    Math.abs(cave.centerX - drift3dThresholdNode.position.x) > 0.001 ||
-    Math.abs(cave.mouthZ - drift3dThresholdNode.position.z) > 0.001
+    Math.abs(cave.centerX - legacyVehicleStart.x) > 0.001 ||
+    Math.abs(cave.exitZ - legacyVehicleStart.z) > 0.001
   ) {
-    issues.push("recovered cave must exactly replace the legacy Entry threshold");
+    issues.push("cave opening must equal the former production vehicle spawn");
   }
 
-  if (cave.startZ - worldMinZ > 1.5 || cave.startZ < worldMinZ) {
-    issues.push("recovered cave must originate at the south world edge");
+  if (descentLength < 35 || descentLength > 45) {
+    issues.push("south world edge must remain an open descent before the cave");
+  }
+
+  if (Math.abs(totalCaveLength - VALIDATED_TOTAL_CAVE_LENGTH) > 0.001) {
+    issues.push("cave must keep the owner-validated EVO-21 total length");
   }
 
   if (!(start.z > cave.startZ && start.z < cave.mouthZ)) {
-    issues.push("evolution spawn must sit inside the recovered tunnel");
+    issues.push("evolution spawn must sit at the back of the recovered tunnel");
   }
 
-  if (cave.mouthZ - start.z < 70) {
-    issues.push("edge-to-Entry tunnel must preserve the long penumbra descent");
+  if (cave.exitZ - start.z < 40) {
+    issues.push("spawn must preserve the validated deep-cave reveal run");
   }
 
-  const mouthToBirthYard = zeeland.z - cave.mouthZ;
-  if (mouthToBirthYard < 6 || mouthToBirthYard > 10) {
-    issues.push("recovered cave mouth must hand directly into canonical Birth Yard");
+  if (Math.abs(portalExteriorZ - cave.exitZ) > 0.001) {
+    issues.push("fractured portal exterior must terminate at the old 4x4 spawn");
+  }
+
+  const exitToBirthYard = zeeland.z - cave.exitZ;
+  if (exitToBirthYard < 6 || exitToBirthYard > 10) {
+    issues.push("cave exit must reveal Birth Yard from the former vehicle start");
   }
 
   if (bounds.maxX - bounds.minX < 9 || bounds.maxY < 14) {
     issues.push("fractured portal lost its historical monumental scale");
   }
 
-  if (cave.portalDepth < 8) {
-    issues.push("portal wall must be thick enough to create traversal parallax");
+  if (cave.portalDepth < 8 || cave.portalDepth > 12) {
+    issues.push("portal thickness must preserve the validated traversal parallax");
   }
 
   if (
     cave.centerX - 12 < worldMinX ||
     cave.centerX + 12 > worldMaxX ||
-    cave.mouthZ + cave.portalDepth > worldMaxZ
+    cave.startZ < worldMinZ ||
+    cave.exitZ > worldMaxZ
   ) {
     issues.push("recovered Entry sequence must stay inside DRIFT world bounds");
   }
