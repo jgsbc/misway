@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import type { MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { DRIFT_3D_VEHICLE_WHEEL_RADIUS } from "@/components/drift-3d/Drift3DVehicle";
@@ -11,7 +12,6 @@ import {
   DRIFT_SAFARI_110_RUNTIME_Y_OFFSET,
   DRIFT_SAFARI_110_WHEEL_PIVOT_NAMES,
 } from "@/lib/drift3dSafari110FinalGeometry";
-import type { MutableRefObject } from "react";
 
 type EvolutionSafari110VehicleVisualProps = {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
@@ -65,16 +65,14 @@ export default function EvolutionSafari110VehicleVisual({
   const legacyPoseRef = useRef<THREE.Group | null>(null);
   const headlightRef = useRef<THREE.SpotLight | null>(null);
   const headlightTargetRef = useRef<THREE.Object3D | null>(null);
+  const wheelPivotsRef = useRef<Array<THREE.Group | undefined>>([]);
   const model = useMemo(() => buildDrift3DSafari110FinalVehicle(), []);
-  const wheelPivots = useMemo(
-    () =>
-      DRIFT_SAFARI_110_WHEEL_PIVOT_NAMES.map(
-        (name) => model.getObjectByName(name) as THREE.Group | undefined
-      ),
-    [model]
-  );
 
   useLayoutEffect(() => {
+    wheelPivotsRef.current = DRIFT_SAFARI_110_WHEEL_PIVOT_NAMES.map(
+      (name) => model.getObjectByName(name) as THREE.Group | undefined
+    );
+
     const legacy = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
     if (legacy) legacy.visible = false;
@@ -84,10 +82,11 @@ export default function EvolutionSafari110VehicleVisual({
     }
 
     return () => {
+      wheelPivotsRef.current = [];
       if (legacyPoseRef.current) legacyPoseRef.current.visible = true;
       legacyPoseRef.current = null;
     };
-  }, [scene]);
+  }, [model, scene]);
 
   useEffect(() => () => disposeVehicle(model), [model]);
 
@@ -111,7 +110,7 @@ export default function EvolutionSafari110VehicleVisual({
     const wheelDelta =
       (vehicleStateRef.current.speed * frameDelta) /
       DRIFT_3D_VEHICLE_WHEEL_RADIUS;
-    for (const wheel of wheelPivots) {
+    for (const wheel of wheelPivotsRef.current) {
       if (wheel) wheel.rotation.x += wheelDelta;
     }
   }, 0.62);
