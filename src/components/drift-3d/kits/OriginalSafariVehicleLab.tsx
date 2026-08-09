@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
 import { ACESFilmicToneMapping } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { disposeDrift3DKitObject3D } from "@/lib/drift3dKitGltfLoader";
 import { DRIFT_3D_ORIGINAL_VEHICLE } from "@/lib/drift3dOriginalVehicle";
 import {
   buildDrift3DOriginalVehicle,
@@ -60,25 +58,10 @@ function VehicleOrbitControls({ view }: { view: OriginalVehicleView }) {
   return null;
 }
 
-function OriginalSafariVehicle({ onStatus }: { onStatus: (status: string) => void }) {
-  const [root, setRoot] = useState<THREE.Group | null>(null);
-
-  useEffect(() => {
-    const vehicleRoot = buildDrift3DOriginalVehicle();
-    const stats = getDrift3DOriginalVehicleGeometryStats(vehicleRoot);
-    setRoot(vehicleRoot);
-    onStatus(
-      `Geometry ready · ${stats.meshCount} meshes · ${Math.round(stats.triangleCount).toLocaleString("en-US")} triangles · inspect silhouette, glazing, wheels and safari equipment.`
-    );
-    return () => disposeDrift3DKitObject3D(vehicleRoot);
-  }, [onStatus]);
-
-  return root ? <primitive object={root} position={[0, -0.1475, 0]} /> : null;
-}
-
 export default function OriginalSafariVehicleLab() {
   const [view, setView] = useState<OriginalVehicleView>("rear-three-quarter");
-  const [status, setStatus] = useState("Building MISWAY original geometry…");
+  const vehicle = useMemo(() => buildDrift3DOriginalVehicle(), []);
+  const stats = useMemo(() => getDrift3DOriginalVehicleGeometryStats(vehicle), [vehicle]);
   const asset = DRIFT_3D_ORIGINAL_VEHICLE;
 
   return (
@@ -97,7 +80,7 @@ export default function OriginalSafariVehicleLab() {
           <directionalLight position={[-4.5, 3.2, -5]} intensity={0.65} color="#aabac2" />
           <directionalLight position={[0, 4, -6]} intensity={0.35} color="#e8cf9c" />
 
-          <OriginalSafariVehicle onStatus={setStatus} />
+          <primitive object={vehicle} position={[0, -0.1475, 0]} />
           <VehicleOrbitControls view={view} />
 
           <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
@@ -117,13 +100,13 @@ export default function OriginalSafariVehicleLab() {
             <div><dt>Length</dt><dd className="mt-1 text-black/80">{asset.dimensionsMeters.length.toFixed(2)} m</dd></div>
             <div><dt>Width</dt><dd className="mt-1 text-black/80">{asset.dimensionsMeters.width.toFixed(2)} m</dd></div>
             <div><dt>Height</dt><dd className="mt-1 text-black/80">{asset.dimensionsMeters.height.toFixed(2)} m</dd></div>
-            <div><dt>Budget</dt><dd className="mt-1 text-black/80">≤ {(asset.triangleBudget / 1000).toFixed(0)}k tris</dd></div>
+            <div><dt>Triangles</dt><dd className="mt-1 text-black/80">{Math.round(stats.triangleCount).toLocaleString("en-US")}</dd></div>
           </dl>
           <div className="mt-3 flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.12em] text-black/48">
             <span className="h-5 w-5 rounded-full border border-black/20" style={{ backgroundColor: asset.bodyColor }} />
             <span>Safari sand {asset.bodyColor}</span>
           </div>
-          <p className="mt-3 font-mono text-[8px] uppercase tracking-[0.11em] text-black/48">{status}</p>
+          <p className="mt-3 font-mono text-[8px] uppercase tracking-[0.11em] text-black/48">Geometry ready · {stats.meshCount} render meshes · no external asset fetch.</p>
         </div>
       </section>
 
