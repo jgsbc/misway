@@ -40,7 +40,7 @@ export default function FoolfouleCrowd({
 }) {
   const bodyRef = useRef<THREE.InstancedMesh>(null);
   const headRef = useRef<THREE.InstancedMesh>(null);
-  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const dummyRef = useRef(new THREE.Object3D());
   const seeds = useMemo(
     () =>
       Array.from({ length: DRIFT_EVOLUTION_FOOLFOULE_CROWD.count }, (_, index) => {
@@ -80,6 +80,7 @@ export default function FoolfouleCrowd({
     const head = headRef.current;
     if (!body || !head) return;
 
+    const dummy = dummyRef.current;
     const center = DRIFT_EVOLUTION_FOOLFOULE_CENTER;
     const visible =
       Math.hypot(camera.position.x - center.x, camera.position.z - center.z) <
