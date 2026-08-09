@@ -1,61 +1,95 @@
-import { drift3dLandmarks } from "@/lib/drift3dLandmarks";
+import {
+  drift3dLandmarks,
+  type Drift3DLandmark,
+} from "@/lib/drift3dLandmarks";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
+import {
+  DRIFT_EVOLUTION_ZEELAND_GEOGRAPHY_LANDMARK_ID,
+  DRIFT_EVOLUTION_ZEELAND_TARGET,
+  buildDriftEvolutionZeelandGeographyLandmark,
+} from "@/lib/driftEvolutionZeelandGeography";
 
-export const DRIFT_EVOLUTION_ZEELAND_OFFSET = Object.freeze({ x: 12, z: 3 });
+export { DRIFT_EVOLUTION_ZEELAND_OFFSET } from "@/lib/driftEvolutionZeelandGeography";
+
 export const DRIFT_EVOLUTION_ZEELAND_LANDMARK_ID = "birth-zeeland-canal";
 
 type ZeelandSnapshot = {
   nodeX: number;
   nodeZ: number;
-  landmarkX: number;
-  landmarkZ: number;
+  landmarkIndex: number;
+  sourceLandmark: Drift3DLandmark;
 };
 
 let snapshot: ZeelandSnapshot | null = null;
 
 /**
- * Entry now occupies the former west-side staging volume. In evolution only,
- * move the first Birth Yard beat and its complete landmark together so the
- * recovered cave can reveal Zeeland rather than burying it inside the portal.
- * Production source data is restored on unmount.
+ * Evolution-only Zeeland staging.
+ *
+ * The inherited houses, small bridge and quay details remain useful, but the
+ * two tiny Reflector water cards are not geography. Move the inherited scene
+ * to the Entry-cleared target, remove only those local water cards, and append
+ * a bounded port/canal geography landmark before Drift3DSceneBase builds its
+ * visual and collider authorities.
  */
 export function stageZeelandForEvolution() {
   if (snapshot) return;
 
   const node = drift3dTrackNodeBySlug["a-walk-in-zeeland"];
-  const landmark = drift3dLandmarks.find(
+  const landmarkIndex = drift3dLandmarks.findIndex(
     (candidate) => candidate.id === DRIFT_EVOLUTION_ZEELAND_LANDMARK_ID
   );
-  if (!node || !landmark) return;
+  const sourceLandmark = drift3dLandmarks[landmarkIndex];
+  if (!node || landmarkIndex < 0 || !sourceLandmark) return;
 
   snapshot = {
     nodeX: node.position.x,
     nodeZ: node.position.z,
-    landmarkX: landmark.origin.x,
-    landmarkZ: landmark.origin.z,
+    landmarkIndex,
+    sourceLandmark,
   };
 
-  node.position.x += DRIFT_EVOLUTION_ZEELAND_OFFSET.x;
-  node.position.z += DRIFT_EVOLUTION_ZEELAND_OFFSET.z;
-  landmark.origin.x += DRIFT_EVOLUTION_ZEELAND_OFFSET.x;
-  landmark.origin.z += DRIFT_EVOLUTION_ZEELAND_OFFSET.z;
+  node.position.x = DRIFT_EVOLUTION_ZEELAND_TARGET.x;
+  node.position.z = DRIFT_EVOLUTION_ZEELAND_TARGET.z;
+
+  drift3dLandmarks[landmarkIndex] = {
+    ...sourceLandmark,
+    origin: {
+      x: DRIFT_EVOLUTION_ZEELAND_TARGET.x,
+      z: DRIFT_EVOLUTION_ZEELAND_TARGET.z,
+    },
+    primitives: sourceLandmark.primitives.filter((primitive) => !primitive.water),
+  };
+
+  drift3dLandmarks.push(buildDriftEvolutionZeelandGeographyLandmark());
 }
 
 export function restoreZeelandAfterEvolution() {
   if (!snapshot) return;
 
   const node = drift3dTrackNodeBySlug["a-walk-in-zeeland"];
-  const landmark = drift3dLandmarks.find(
-    (candidate) => candidate.id === DRIFT_EVOLUTION_ZEELAND_LANDMARK_ID
-  );
-
   if (node) {
     node.position.x = snapshot.nodeX;
     node.position.z = snapshot.nodeZ;
   }
-  if (landmark) {
-    landmark.origin.x = snapshot.landmarkX;
-    landmark.origin.z = snapshot.landmarkZ;
+
+  const geographyIndex = drift3dLandmarks.findIndex(
+    (candidate) => candidate.id === DRIFT_EVOLUTION_ZEELAND_GEOGRAPHY_LANDMARK_ID
+  );
+  if (geographyIndex >= 0) {
+    drift3dLandmarks.splice(geographyIndex, 1);
+  }
+
+  const currentLandmarkIndex = drift3dLandmarks.findIndex(
+    (candidate) => candidate.id === DRIFT_EVOLUTION_ZEELAND_LANDMARK_ID
+  );
+  if (currentLandmarkIndex >= 0) {
+    drift3dLandmarks[currentLandmarkIndex] = snapshot.sourceLandmark;
+  } else {
+    drift3dLandmarks.splice(
+      Math.min(snapshot.landmarkIndex, drift3dLandmarks.length),
+      0,
+      snapshot.sourceLandmark
+    );
   }
 
   snapshot = null;
