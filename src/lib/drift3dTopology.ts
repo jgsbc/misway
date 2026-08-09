@@ -478,6 +478,21 @@ export const drift3dTrackNodeBySlug = drift3dTrackNodes.reduce(
   {} as Record<Track["slug"], Drift3DTrackNode>
 );
 
+// Transitional compatibility only: an authored landmark still references the
+// retired ETEEAOOETE slug. Keep that obsolete landmark far outside the world
+// until its block is removed/replaced; it is not part of tracks, eras or nodes.
+const retiredEteeaooeteLandmarkNode: Drift3DTrackNode = {
+  id: "retired-eteeaooete-landmark-tombstone",
+  trackSlug: "eteeaooete",
+  eraId: "new-signal",
+  role: "track",
+  position: point(1000, 0, 1000),
+};
+Object.defineProperty(drift3dTrackNodeBySlug, "eteeaooete", {
+  value: retiredEteeaooeteLandmarkNode,
+  enumerable: false,
+});
+
 export function getDrift3DEraById(id: Drift3DEraId) {
   return drift3dEraById[id] ?? null;
 }
