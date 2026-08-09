@@ -1,4 +1,7 @@
-import { getDrift3DVehicleStartPosition } from "@/lib/drift3dBase";
+import {
+  getDrift3DMovementBounds,
+  getDrift3DVehicleStartPosition,
+} from "@/lib/drift3dBase";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import {
   DRIFT_3D_TOPOLOGY_WORLD_DEPTH,
@@ -9,54 +12,52 @@ import { DRIFT_3D_VEHICLE_GROUND_CLEARANCE } from "@/lib/drift3dVehiclePhysics";
 
 const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
 const legacyVehicleStart = getDrift3DVehicleStartPosition();
+const movementBounds = getDrift3DMovementBounds();
+const worldMinX = -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
 const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
-
-// Exact spatial dimensions from the EVO-21 state the owner validated visually.
-const VALIDATED_TOTAL_CAVE_LENGTH = 45.2;
-const VALIDATED_PORTAL_DEPTH = 11;
-const VALIDATED_SPAWN_INSET = 2.7;
-const caveStartZ = legacyVehicleStart.z - VALIDATED_TOTAL_CAVE_LENGTH;
-const portalInnerZ =
-  legacyVehicleStart.z - VALIDATED_PORTAL_DEPTH + 1;
+const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
 
 /**
- * DRIFT-EVO-24 — restore the validated cave scale and stage it correctly.
+ * DRIFT-EVO-25 — spatial contract derived from the restored map itself.
  *
- * The south edge remains open terrain. Roughly forty metres of the existing
- * descent lead from the map edge to the cave mass. The cave itself keeps the
- * exact total depth of the EVO-21 composition the owner had validated, and
- * its exterior opening lands on the old production 4x4 spawn: the point from
- * which Birth Yard used to be discovered before the cave salvage existed.
+ * The west border is already a high natural ridge. Its ground falls from
+ * roughly seven metres at x≈-112 to the flat Entry/Birth Yard apron around
+ * x≈-88. The recovered cave is bored through that existing west ridge instead
+ * of being stretched north/south across the map.
+ *
+ * Contract:
+ * - visual rock mass begins just inside the west world edge;
+ * - 4x4 starts at the back of the cave, inside movement bounds;
+ * - travel direction is west -> east;
+ * - exterior opening is exactly the former production 4x4 start;
+ * - Birth Yard, topology and production `/drift` never move.
  */
+const WEST_RIDGE_VISUAL_INSET = 0.8;
+const SPAWN_INSET_FROM_WORLD_EDGE = 4.5;
+const PORTAL_DEPTH = 4.2;
+const PORTAL_GEOMETRY_LEAD = 1;
+
 export const DRIFT_EVOLUTION_ENTRY_CAVE = Object.freeze({
-  centerX: legacyVehicleStart.x,
-  startZ: caveStartZ,
-  spawnZ: caveStartZ + VALIDATED_SPAWN_INSET,
-  // Inner face of the thick fractured portal. EntryCaveSalvage extrudes from
-  // mouthZ - 1 through portalDepth, so its exterior face is exactly exitZ.
-  mouthZ: portalInnerZ,
-  exitZ: legacyVehicleStart.z,
+  startX: worldMinX + WEST_RIDGE_VISUAL_INSET,
+  spawnX: Math.max(worldMinX + SPAWN_INSET_FROM_WORLD_EDGE, movementBounds.minX + 1.1),
+  mouthX: legacyVehicleStart.x - PORTAL_DEPTH + PORTAL_GEOMETRY_LEAD,
+  exitX: legacyVehicleStart.x,
+  centerZ: legacyVehicleStart.z,
   halfWidth: 3.7,
   apexHeight: 5.4,
-  rings: 64,
+  rings: 56,
   around: 26,
-  portalDepth: VALIDATED_PORTAL_DEPTH,
-  activationRadius: 70,
-  dustCount: 220,
-  dripCount: 44,
-  stalactiteCount: 44,
-  rockCount: 96,
+  portalDepth: PORTAL_DEPTH,
+  activationRadius: 52,
+  dustCount: 180,
+  dripCount: 36,
+  stalactiteCount: 34,
+  rockCount: 84,
   deepExposureFactor: 0.28,
-  revealFadeStartZ: legacyVehicleStart.z - 14,
-  revealFadeEndZ: legacyVehicleStart.z + 10,
+  revealFadeStartX: legacyVehicleStart.x - 10,
+  revealFadeEndX: legacyVehicleStart.x + 6,
 });
 
-/**
- * The historical Fable portal was not a symmetric logo-shaped arch. Its
- * outline was a noisy geological fracture that happened to read as Λ. The
- * anchors below preserve that asymmetry and monumental height while keeping
- * the right-hand leg driveable.
- */
 const PORTAL_ANCHORS = [
   [-8.45, 0],
   [-6.05, 0],
@@ -106,26 +107,38 @@ export function getDriftEvolutionEntryPortalBounds() {
   };
 }
 
+export function getDriftEvolutionEntryProgress(x: number) {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  return Math.min(1, Math.max(0, (x - cave.startX) / (cave.exitX - cave.startX)));
+}
+
+export function getDriftEvolutionEntryPathCenterZ(x: number) {
+  const progress = getDriftEvolutionEntryProgress(x);
+  return (
+    DRIFT_EVOLUTION_ENTRY_CAVE.centerZ +
+    Math.sin(progress * Math.PI * 1.08) * 0.55
+  );
+}
+
 export function getDriftEvolutionEntryStartPosition() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const z = getDriftEvolutionEntryPathCenterZ(cave.spawnX);
 
   return {
-    x: cave.centerX,
-    y:
-      getDrift3DGroundY(cave.centerX, cave.spawnZ) +
-      DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
-    z: cave.spawnZ,
+    x: cave.spawnX,
+    y: getDrift3DGroundY(cave.spawnX, z) + DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
+    z,
   };
 }
 
-export function getDriftEvolutionEntryTunnelMix(z: number) {
+export function getDriftEvolutionEntryTunnelMix(x: number) {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const t = Math.min(
     1,
     Math.max(
       0,
-      (z - cave.revealFadeStartZ) /
-        (cave.revealFadeEndZ - cave.revealFadeStartZ)
+      (x - cave.revealFadeStartX) /
+        (cave.revealFadeEndX - cave.revealFadeStartX)
     )
   );
   const smooth = t * t * (3 - 2 * t);
@@ -138,66 +151,71 @@ export function getDriftEvolutionEntryCaveIssues() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const start = getDriftEvolutionEntryStartPosition();
   const bounds = getDriftEvolutionEntryPortalBounds();
-  const worldMinX = -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
-  const worldMaxX = DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
-  const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
-  const descentLength = cave.startZ - worldMinZ;
-  const totalCaveLength = cave.exitZ - cave.startZ;
-  const portalExteriorZ = cave.mouthZ - 1 + cave.portalDepth;
+  const visualLength = cave.exitX - cave.startX;
+  const portalExteriorX = cave.mouthX - PORTAL_GEOMETRY_LEAD + cave.portalDepth;
+  const exitToBirthYard = Math.hypot(
+    zeeland.x - cave.exitX,
+    zeeland.z - cave.centerZ
+  );
+  const ridgeFloor = getDrift3DGroundY(cave.spawnX, start.z);
+  const exitFloor = getDrift3DGroundY(cave.exitX, cave.centerZ);
 
   if (
-    Math.abs(cave.centerX - legacyVehicleStart.x) > 0.001 ||
-    Math.abs(cave.exitZ - legacyVehicleStart.z) > 0.001
+    Math.abs(cave.exitX - legacyVehicleStart.x) > 0.001 ||
+    Math.abs(cave.centerZ - legacyVehicleStart.z) > 0.001
   ) {
-    issues.push("cave opening must equal the former production vehicle spawn");
+    issues.push("cave exterior opening must equal the former production vehicle spawn");
   }
 
-  if (descentLength < 35 || descentLength > 45) {
-    issues.push("south world edge must remain an open descent before the cave");
+  if (cave.startX - worldMinX < 0.4 || cave.startX - worldMinX > 1.5) {
+    issues.push("cave rock mass must begin at the existing west ridge");
   }
 
-  if (Math.abs(totalCaveLength - VALIDATED_TOTAL_CAVE_LENGTH) > 0.001) {
-    issues.push("cave must keep the owner-validated EVO-21 total length");
+  if (visualLength < 22 || visualLength > 28) {
+    issues.push("west-ridge cave must stay compact rather than crossing the map");
   }
 
-  if (!(start.z > cave.startZ && start.z < cave.mouthZ)) {
-    issues.push("evolution spawn must sit at the back of the recovered tunnel");
+  if (!(start.x > cave.startX && start.x < cave.mouthX)) {
+    issues.push("4x4 must start at the back of the west-ridge cave");
   }
 
-  if (cave.exitZ - start.z < 40) {
-    issues.push("spawn must preserve the validated deep-cave reveal run");
+  if (start.x < movementBounds.minX || start.x > movementBounds.maxX) {
+    issues.push("evolution spawn must remain inside production movement bounds");
   }
 
-  if (Math.abs(portalExteriorZ - cave.exitZ) > 0.001) {
+  if (Math.abs(portalExteriorX - cave.exitX) > 0.001) {
     issues.push("fractured portal exterior must terminate at the old 4x4 spawn");
   }
 
-  const exitToBirthYard = zeeland.z - cave.exitZ;
   if (exitToBirthYard < 6 || exitToBirthYard > 10) {
     issues.push("cave exit must reveal Birth Yard from the former vehicle start");
+  }
+
+  if (ridgeFloor - exitFloor < 2.5) {
+    issues.push("west-ridge tunnel must use the map's existing downhill terrain");
   }
 
   if (bounds.maxX - bounds.minX < 9 || bounds.maxY < 14) {
     issues.push("fractured portal lost its historical monumental scale");
   }
 
-  if (cave.portalDepth < 8 || cave.portalDepth > 12) {
-    issues.push("portal thickness must preserve the validated traversal parallax");
+  if (cave.portalDepth < 3 || cave.portalDepth > 6) {
+    issues.push("portal thickness must create parallax without becoming a second tunnel");
   }
 
   if (
-    cave.centerX - 12 < worldMinX ||
-    cave.centerX + 12 > worldMaxX ||
-    cave.startZ < worldMinZ ||
-    cave.exitZ > worldMaxZ
+    cave.centerZ - 12 < worldMinZ ||
+    cave.centerZ + 12 > worldMaxZ ||
+    cave.startX < worldMinX ||
+    cave.exitX > DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2
   ) {
-    issues.push("recovered Entry sequence must stay inside DRIFT world bounds");
+    issues.push("west-ridge Entry must remain inside DRIFT world bounds");
   }
 
   if (
     cave.deepExposureFactor <= 0.15 ||
     cave.deepExposureFactor >= 0.5 ||
-    cave.revealFadeStartZ >= cave.revealFadeEndZ
+    cave.revealFadeStartX >= cave.revealFadeEndX
   ) {
     issues.push("penumbra-to-daylight exposure staging is invalid");
   }
