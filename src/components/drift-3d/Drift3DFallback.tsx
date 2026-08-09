@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import Drift3DNoWebGLPath from "@/components/drift-3d/Drift3DNoWebGLPath";
+import { DRIFT_STARTUP_RELEASE_EVENT } from "@/lib/driftStartup";
 
 export type Drift3DFallbackReason =
   | "checking"
@@ -27,6 +31,14 @@ export default function Drift3DFallback({
 }: {
   reason: Drift3DFallbackReason;
 }) {
+  useEffect(() => {
+    if (reason === "checking") return;
+
+    queueMicrotask(() => {
+      window.dispatchEvent(new Event(DRIFT_STARTUP_RELEASE_EVENT));
+    });
+  }, [reason]);
+
   // Startup is a transient technical state, not a user-facing fallback.
   // The page-level startup veil owns the visible loading experience; this
   // neutral layer only prevents legacy fallback UI from flashing underneath.
