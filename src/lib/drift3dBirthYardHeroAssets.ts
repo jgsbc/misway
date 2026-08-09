@@ -30,13 +30,13 @@ const forecourt = DRIFT_3D_BIRTH_YARD_HERO_URBAN.euxForecourt;
 /**
  * The source truck is approximately real-world sized while MISWAY's already
  * validated safari 4x4 is intentionally compact in the recovered runtime.
- * Scale the imported model to the established vehicle grammar instead of
+ * Normalize the imported model to the established vehicle grammar instead of
  * changing world or player-vehicle scale.
  */
 export const DRIFT_3D_BIRTH_YARD_DELIVERY_TRUCK = Object.freeze({
   x: forecourt.centerX + 2.05,
   z: forecourt.centerZ - 0.3,
-  scale: 0.38,
+  targetLength: 1.72,
   rotationY: Math.PI / 2,
   maxDistanceFromEux: 7,
 });
