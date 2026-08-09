@@ -85,10 +85,9 @@ export const drift3dEras = [
     radius: 36,
     trackSlugs: [
       "a-walk-in-zeeland",
-      "foolfoule",
       "jazzypling",
       "play-it",
-      "eux-gainent",
+      "foolfoule",
     ],
     topologyHints: [
       "dense urban compression",
@@ -148,6 +147,7 @@ export const drift3dEras = [
       "le-monde-s-endort",
       "renee",
       "panthere",
+      "eux-gainent",
       "eteeaooete",
     ],
     topologyHints: [
@@ -224,7 +224,7 @@ export const drift3dTrackNodes = [
     trackSlug: "foolfoule",
     eraId: "birth-yard",
     role: "anchor",
-    position: point(-78, 0.14, 34),
+    position: point(-62, 0.14, 42),
     driftZoneId: "birth-yard",
   },
   {
@@ -240,13 +240,6 @@ export const drift3dTrackNodes = [
     eraId: "birth-yard",
     role: "track",
     position: point(-54, 0.11, 26),
-  },
-  {
-    id: "birth-yard-eux-gainent",
-    trackSlug: "eux-gainent",
-    eraId: "birth-yard",
-    role: "track",
-    position: point(-62, 0.13, 42),
   },
   {
     id: "older-shadows-rise",
@@ -392,6 +385,14 @@ export const drift3dTrackNodes = [
     eraId: "new-signal",
     role: "track",
     position: point(90, 0.14, 28),
+  },
+  {
+    // Keep the stable internal id: eraId is the canonical era authority.
+    id: "birth-yard-eux-gainent",
+    trackSlug: "eux-gainent",
+    eraId: "new-signal",
+    role: "track",
+    position: point(58, 0.13, 38),
   },
   {
     id: "new-signal-eteeaooete",
