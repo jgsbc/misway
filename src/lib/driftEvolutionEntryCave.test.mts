@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDrift3DVehicleStartPosition } from "./drift3d.ts";
+import { getDrift3DVehicleStartPosition } from "./drift3d";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
   getDriftEvolutionEntryCaveIssues,
   getDriftEvolutionEntryPortalBounds,
-} from "./driftEvolutionEntryCave.ts";
+} from "./driftEvolutionEntryCave";
 
 test("evolution Entry cave is valid in restored production coordinates", () => {
   assert.deepEqual(getDriftEvolutionEntryCaveIssues(), []);
