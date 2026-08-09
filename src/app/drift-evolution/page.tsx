@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DriftEvolutionClient from "@/components/drift-evolution/DriftEvolutionClient";
+import DriftStartupVeil from "@/components/drift-3d/DriftStartupVeil";
 
 export const metadata: Metadata = {
   title: "Drift Evolution — internal MISWΛY world lab",
@@ -12,5 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default function DriftEvolutionPage() {
-  return <DriftEvolutionClient />;
+  return (
+    <>
+      <DriftEvolutionClient />
+      <DriftStartupVeil />
+    </>
+  );
 }
