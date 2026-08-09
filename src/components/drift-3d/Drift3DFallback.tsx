@@ -27,9 +27,26 @@ export default function Drift3DFallback({
 }: {
   reason: Drift3DFallbackReason;
 }) {
+  // Startup is a transient technical state, not a user-facing fallback.
+  // Cover the whole shell with the same dark tone as the 3D world so SSR,
+  // capability checks and the dynamic Canvas import cannot flash the beige
+  // fallback card, navigation or 2D-lab actions before the world is ready.
+  if (reason === "checking") {
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-[#05060a]"
+        role="status"
+        aria-live="polite"
+        aria-label="Opening the Drift 3D world"
+      >
+        <span className="sr-only">Opening the Drift 3D world.</span>
+      </div>
+    );
+  }
+
   // DRIFT-IV-SYS-60: the no-WebGL path gets its own dedicated static panel
   // (map/tracks destinations, honest 3D-unavailable summary) instead of the
-  // generic template below — checking/reduced-motion stay unchanged.
+  // generic template below — reduced-motion stays unchanged.
   if (reason === "no-webgl") {
     return <Drift3DNoWebGLPath />;
   }
