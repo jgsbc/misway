@@ -1,3 +1,5 @@
+"use client";
+
 import { withBasePath } from "@/lib/basePath";
 
 const desktopHero = withBasePath("/images/tracks-hero-1920x1080-v3.webp");
