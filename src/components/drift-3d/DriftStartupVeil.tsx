@@ -21,6 +21,19 @@ export default function DriftStartupVeil() {
 
     window.addEventListener(DRIFT_STARTUP_RELEASE_EVENT, release, { once: true });
 
+    const reduced =
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    const probe = document.createElement("canvas");
+    const webgl = Boolean(
+      probe.getContext("webgl2") ||
+        probe.getContext("webgl") ||
+        probe.getContext("experimental-webgl")
+    );
+
+    if (reduced || !webgl) {
+      window.requestAnimationFrame(release);
+    }
+
     return () => {
       window.removeEventListener(DRIFT_STARTUP_RELEASE_EVENT, release);
       window.clearTimeout(timer);
