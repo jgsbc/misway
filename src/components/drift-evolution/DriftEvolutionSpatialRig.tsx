@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type { MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import LegacyEntryAuthoritySuppressor from "@/components/drift-evolution/LegacyEntryAuthoritySuppressor";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
@@ -293,6 +294,7 @@ export default function DriftEvolutionSpatialRig(
 ) {
   return (
     <>
+      <LegacyEntryAuthoritySuppressor />
       <LegacyFlatFloorSuppressor />
       <CaveGroundRibbon />
       <CaveCollisionRig vehicleStateRef={props.vehicleStateRef} />
