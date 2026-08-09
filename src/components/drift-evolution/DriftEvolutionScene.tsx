@@ -1,14 +1,17 @@
 "use client";
 
-import { useLayoutEffect, type ComponentProps } from "react";
+import { useLayoutEffect, useRef, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
 import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
+import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturgy";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
+import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
+import { createDriftEvolutionFoolfouleCrowdSignal } from "@/lib/driftEvolutionFoolfouleDramaturgy";
 import {
   restoreFoolfouleAfterEvolution,
   stageFoolfouleForEvolution,
@@ -36,6 +39,11 @@ stageFoolfouleForEvolution();
  */
 export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
   const evolutionStartPosition = getDriftEvolutionEntryStartPosition();
+  const foolfouleCrowdSignalRef = useRef(
+    createDriftEvolutionFoolfouleCrowdSignal()
+  );
+  const isInsideFoolfoule =
+    props.proximity?.activeNode?.id === drift3dTrackNodeBySlug.foolfoule.id;
 
   useLayoutEffect(() => {
     // React Strict Mode may replay layout effects in development. Reassert the
@@ -57,7 +65,15 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
       <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
-      <FoolfouleCrowd vehicleStateRef={props.vehicleStateRef} />
+      <FoolfouleCrowd
+        vehicleStateRef={props.vehicleStateRef}
+        signalRef={foolfouleCrowdSignalRef}
+      />
+      <FoolfouleDramaturgy
+        audioClockRef={props.audioClockRef}
+        isInsideZone={isInsideFoolfoule}
+        crowdSignalRef={foolfouleCrowdSignalRef}
+      />
       <DriftEvolutionSpatialRig
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
