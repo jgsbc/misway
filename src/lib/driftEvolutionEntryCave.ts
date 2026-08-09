@@ -8,38 +8,34 @@ import {
 import { DRIFT_3D_VEHICLE_GROUND_CLEARANCE } from "@/lib/drift3dVehiclePhysics";
 
 const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
+const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
 
 /**
- * DRIFT-EVO-20R — recovered Entry dramaturgy for `/drift-evolution`.
+ * DRIFT-EVO-23 — the recovered cave fully replaces the legacy Entry.
  *
- * The first salvage recovered Fable's mesh idea but compressed the sequence
- * to roughly twenty metres. The historical Fable slice was much more
- * deliberate: ~54 m of mineral gorge, then ~46 m from the mouth to the first
- * Birth Yard street. These values restore that spatial rhythm inside the
- * protected DRIFT bounds without moving production topology.
- *
- * EVO-22 keeps that setback but puts the recovered cave on the exact
- * production Entry → Zeeland axis. The old +2.15 spawn offset was a vehicle
- * convenience, not a world-design authority.
+ * The exterior face now sits on the exact production threshold coordinates.
+ * The tunnel runs backwards to the south world edge, using the existing
+ * descent as the hidden mineral approach. Birth Yard therefore begins where
+ * it always did; only the Entry experience is replaced in evolution.
  */
 export const DRIFT_EVOLUTION_ENTRY_CAVE = Object.freeze({
-  centerX: zeeland.x,
-  startZ: -71.2,
-  spawnZ: -68.5,
-  mouthZ: zeeland.z - 46,
+  centerX: drift3dThresholdNode.position.x,
+  startZ: worldMinZ + 0.8,
+  spawnZ: worldMinZ + 3.5,
+  mouthZ: drift3dThresholdNode.position.z,
   halfWidth: 3.7,
   apexHeight: 5.4,
   rings: 64,
   around: 26,
-  portalDepth: 11,
-  activationRadius: 70,
+  portalDepth: 8,
+  activationRadius: 96,
   dustCount: 220,
   dripCount: 44,
   stalactiteCount: 44,
   rockCount: 96,
   deepExposureFactor: 0.28,
-  revealFadeStartZ: zeeland.z - 60,
-  revealFadeEndZ: zeeland.z - 36,
+  revealFadeStartZ: drift3dThresholdNode.position.z - 32,
+  revealFadeEndZ: zeeland.z,
 });
 
 /**
@@ -131,27 +127,31 @@ export function getDriftEvolutionEntryCaveIssues() {
   const bounds = getDriftEvolutionEntryPortalBounds();
   const worldMinX = -DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
   const worldMaxX = DRIFT_3D_TOPOLOGY_WORLD_WIDTH / 2;
-  const worldMinZ = -DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
   const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
 
   if (
     Math.abs(cave.centerX - zeeland.x) > 0.001 ||
-    Math.abs(cave.centerX - drift3dThresholdNode.position.x) > 0.001
+    Math.abs(cave.centerX - drift3dThresholdNode.position.x) > 0.001 ||
+    Math.abs(cave.mouthZ - drift3dThresholdNode.position.z) > 0.001
   ) {
-    issues.push("recovered cave must stay on the canonical Entry to Birth Yard axis");
+    issues.push("recovered cave must exactly replace the legacy Entry threshold");
+  }
+
+  if (cave.startZ - worldMinZ > 1.5 || cave.startZ < worldMinZ) {
+    issues.push("recovered cave must originate at the south world edge");
   }
 
   if (!(start.z > cave.startZ && start.z < cave.mouthZ)) {
     issues.push("evolution spawn must sit inside the recovered tunnel");
   }
 
-  if (cave.mouthZ - start.z < 40) {
-    issues.push("recovered tunnel must preserve a long penumbra run");
+  if (cave.mouthZ - start.z < 70) {
+    issues.push("edge-to-Entry tunnel must preserve the long penumbra descent");
   }
 
   const mouthToBirthYard = zeeland.z - cave.mouthZ;
-  if (mouthToBirthYard < 42 || mouthToBirthYard > 50) {
-    issues.push("cave mouth must remain roughly 46 m before Birth Yard");
+  if (mouthToBirthYard < 6 || mouthToBirthYard > 10) {
+    issues.push("recovered cave mouth must hand directly into canonical Birth Yard");
   }
 
   if (bounds.maxX - bounds.minX < 9 || bounds.maxY < 14) {
@@ -165,7 +165,6 @@ export function getDriftEvolutionEntryCaveIssues() {
   if (
     cave.centerX - 12 < worldMinX ||
     cave.centerX + 12 > worldMaxX ||
-    cave.startZ < worldMinZ ||
     cave.mouthZ + cave.portalDepth > worldMaxZ
   ) {
     issues.push("recovered Entry sequence must stay inside DRIFT world bounds");
