@@ -689,11 +689,25 @@ function EntrySequenceRig({
 }: {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
 }) {
+  const spawnInitializationReadyRef = useRef(false);
   const spawnAppliedRef = useRef(false);
   const dark = useMemo(() => new THREE.Color("#03040a"), []);
 
+  useEffect(() => {
+    // Drift3DSceneBase initializes the shared vehicle state from the protected
+    // production spawn in a passive effect. Arm the evolution override only
+    // after passive initialization has settled, then apply it on the next
+    // render frame so the standard initializer cannot overwrite the cave spawn.
+    spawnInitializationReadyRef.current = true;
+
+    return () => {
+      spawnInitializationReadyRef.current = false;
+      spawnAppliedRef.current = false;
+    };
+  }, []);
+
   useFrame(() => {
-    if (spawnAppliedRef.current) return;
+    if (!spawnInitializationReadyRef.current || spawnAppliedRef.current) return;
     vehicleStateRef.current = createDrift3DVehiclePhysicsState(
       getDriftEvolutionEntryStartPosition(),
       Math.PI / 2
