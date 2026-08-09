@@ -1,15 +1,14 @@
 "use client";
 
-import Drift3DClient from "@/components/drift-3d/Drift3DClient";
+import DriftEvolutionRuntimeClient from "@/components/drift-evolution/DriftEvolutionRuntimeClient";
 
 /**
- * DRIFT Evolution starts as an exact production clone.
+ * Copy-on-write entrypoint for the evolving world.
  *
- * Copy-on-write rule: this component may diverge, production Drift may not.
- * When an evolution needs a different scene authority, fork only that
- * authority into `drift-evolution/` or `driftEvolution*`; do not edit the
- * production `drift-3d/` / `drift3d*` source just to make the lab change.
+ * Production `/drift` stays on its protected runtime. Evolution owns its
+ * orchestration layer so scene experiments cannot silently leak back into
+ * the artwork baseline.
  */
 export default function DriftEvolutionClient() {
-  return <Drift3DClient />;
+  return <DriftEvolutionRuntimeClient />;
 }
