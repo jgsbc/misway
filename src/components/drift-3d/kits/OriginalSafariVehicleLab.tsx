@@ -6,14 +6,12 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { ACESFilmicToneMapping } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import {
-  disposeDrift3DKitObject3D,
-  loadDrift3DKitGltf,
-} from "@/lib/drift3dKitGltfLoader";
+import { disposeDrift3DKitObject3D } from "@/lib/drift3dKitGltfLoader";
 import {
   DRIFT_3D_ORIGINAL_VEHICLE,
   getDrift3DOriginalVehicleUrl,
 } from "@/lib/drift3dOriginalVehicle";
+import { loadDrift3DOriginalVehicleGlb } from "@/lib/drift3dOriginalVehicleGlb";
 
 export type OriginalVehicleView = "rear-three-quarter" | "side" | "front-three-quarter";
 
@@ -75,35 +73,19 @@ function OriginalSafariVehicle({ onStatus }: { onStatus: (status: string) => voi
     let active = true;
     let loadedRoot: THREE.Group | null = null;
 
-    loadDrift3DKitGltf(getDrift3DOriginalVehicleUrl())
-      .then((gltf) => {
-        loadedRoot = gltf.scene;
+    loadDrift3DOriginalVehicleGlb(getDrift3DOriginalVehicleUrl())
+      .then((vehicleRoot) => {
+        loadedRoot = vehicleRoot;
 
         if (!active) {
           disposeDrift3DKitObject3D(loadedRoot);
           return;
         }
 
-        loadedRoot.traverse((object) => {
-          if (!(object instanceof THREE.Mesh)) return;
-          object.castShadow = true;
-          object.receiveShadow = true;
-
-          const materials = Array.isArray(object.material)
-            ? object.material
-            : [object.material];
-          for (const material of materials) {
-            if (material.name === "SMOKED_GLASS" && material instanceof THREE.MeshStandardMaterial) {
-              material.transparent = true;
-              material.opacity = 0.62;
-              material.depthWrite = false;
-              material.roughness = 0.12;
-            }
-          }
-        });
-
         setRoot(loadedRoot);
-        onStatus("Original GLB loaded · inspect silhouette, glazing, wheels and safari equipment.");
+        onStatus(
+          `Original GLB loaded · ${loadedRoot.children.length} render meshes · inspect silhouette, glazing, wheels and safari equipment.`
+        );
       })
       .catch((error: unknown) => {
         onStatus(`GLB load failed: ${String(error)}`);
