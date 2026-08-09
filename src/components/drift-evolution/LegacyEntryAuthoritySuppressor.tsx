@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { drift3dThresholdNode } from "@/lib/drift3dTopology";
 
@@ -15,10 +15,12 @@ import { drift3dThresholdNode } from "@/lib/drift3dTopology";
  * production landmark registry.
  */
 export default function LegacyEntryAuthoritySuppressor() {
-  const scene = useThree((state) => state.scene);
+  const initializedRef = useRef(false);
+  const hiddenRef = useRef<THREE.Group[]>([]);
 
-  useEffect(() => {
-    const hidden: THREE.Group[] = [];
+  useFrame(({ scene }) => {
+    if (initializedRef.current) return;
+
     const targetX = drift3dThresholdNode.position.x;
     const targetZ = drift3dThresholdNode.position.z;
 
@@ -32,13 +34,20 @@ export default function LegacyEntryAuthoritySuppressor() {
       }
 
       object.visible = false;
-      hidden.push(object);
+      hiddenRef.current.push(object);
     }
 
-    return () => {
-      for (const object of hidden) object.visible = true;
-    };
-  }, [scene]);
+    initializedRef.current = true;
+  }, -90);
+
+  useEffect(
+    () => () => {
+      for (const object of hiddenRef.current) object.visible = true;
+      hiddenRef.current = [];
+      initializedRef.current = false;
+    },
+    []
+  );
 
   return null;
 }
