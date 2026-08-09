@@ -29,14 +29,14 @@ test("Foolfoule replaces EUX in Birth Yard and EUX moves into free New Signal sp
   const foolfouleLandmark = drift3dLandmarks.find(
     (candidate) => candidate.id === DRIFT_EVOLUTION_FOOLFOULE_LANDMARK_ID
   );
-  const euxLandmark = drift3dLandmarks.find(
+  const euxSourceLandmark = drift3dLandmarks.find(
     (candidate) => candidate.id === EUX_GAINENT_LANDMARK_ID
   );
   const birthYardEra = drift3dEraById["birth-yard"];
   const newSignalEra = drift3dEraById["new-signal"];
 
   assert.ok(foolfouleLandmark);
-  assert.ok(euxLandmark);
+  assert.ok(euxSourceLandmark);
 
   const original = {
     foolfouleNodeX: foolfouleNode.position.x,
@@ -47,8 +47,8 @@ test("Foolfoule replaces EUX in Birth Yard and EUX moves into free New Signal sp
     euxEraId: euxNode.eraId,
     foolfouleLandmarkX: foolfouleLandmark.origin.x,
     foolfouleLandmarkZ: foolfouleLandmark.origin.z,
-    euxLandmarkX: euxLandmark.origin.x,
-    euxLandmarkZ: euxLandmark.origin.z,
+    euxLandmarkX: euxSourceLandmark.origin.x,
+    euxLandmarkZ: euxSourceLandmark.origin.z,
     birthYardTrackSlugs: [...birthYardEra.trackSlugs],
     newSignalTrackSlugs: [...newSignalEra.trackSlugs],
   };
@@ -74,12 +74,28 @@ test("Foolfoule replaces EUX in Birth Yard and EUX moves into free New Signal sp
       DRIFT_EVOLUTION_FOOLFOULE_TARGET.z
     );
 
-    // EUX migrates as a complete scene and its actual era authority changes.
+    // EUX node/era authority moves. The accepted living-scene source object
+    // stays untouched while the global landmark registry exposes a target clone
+    // for collision/static authority on /drift-evolution.
     assert.equal(euxNode.position.x, DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x);
     assert.equal(euxNode.position.z, DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z);
     assert.equal(euxNode.eraId, "new-signal");
-    assert.equal(euxLandmark.origin.x, DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x);
-    assert.equal(euxLandmark.origin.z, DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z);
+    assert.equal(euxSourceLandmark.origin.x, original.euxLandmarkX);
+    assert.equal(euxSourceLandmark.origin.z, original.euxLandmarkZ);
+
+    const stagedEuxLandmark = drift3dLandmarks.find(
+      (candidate) => candidate.id === EUX_GAINENT_LANDMARK_ID
+    );
+    assert.ok(stagedEuxLandmark);
+    assert.notEqual(stagedEuxLandmark, euxSourceLandmark);
+    assert.equal(
+      stagedEuxLandmark.origin.x,
+      DRIFT_EVOLUTION_EUX_GAINENT_TARGET.x
+    );
+    assert.equal(
+      stagedEuxLandmark.origin.z,
+      DRIFT_EVOLUTION_EUX_GAINENT_TARGET.z
+    );
 
     assert.equal(countSlug(birthYardEra.trackSlugs, "eux-gainent"), 0);
     assert.equal(countSlug(birthYardEra.trackSlugs, "foolfoule"), 1);
@@ -135,8 +151,13 @@ test("Foolfoule replaces EUX in Birth Yard and EUX moves into free New Signal sp
   assert.equal(euxNode.eraId, original.euxEraId);
   assert.equal(foolfouleLandmark.origin.x, original.foolfouleLandmarkX);
   assert.equal(foolfouleLandmark.origin.z, original.foolfouleLandmarkZ);
-  assert.equal(euxLandmark.origin.x, original.euxLandmarkX);
-  assert.equal(euxLandmark.origin.z, original.euxLandmarkZ);
+
+  const restoredEuxLandmark = drift3dLandmarks.find(
+    (candidate) => candidate.id === EUX_GAINENT_LANDMARK_ID
+  );
+  assert.equal(restoredEuxLandmark, euxSourceLandmark);
+  assert.equal(restoredEuxLandmark?.origin.x, original.euxLandmarkX);
+  assert.equal(restoredEuxLandmark?.origin.z, original.euxLandmarkZ);
   assert.deepEqual(birthYardEra.trackSlugs, original.birthYardTrackSlugs);
   assert.deepEqual(newSignalEra.trackSlugs, original.newSignalTrackSlugs);
 });
