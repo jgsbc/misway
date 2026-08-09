@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import BirthYardHeroAssets from "@/components/drift-3d/BirthYardHeroAssets";
 import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
 import {
   DRIFT_3D_BIRTH_YARD_HERO_URBAN,
@@ -186,6 +187,9 @@ export default function BirthYardHeroUrbanScene() {
           <meshStandardMaterial color="#292c30" roughness={0.72} metalness={0.5} />
         </mesh>
       </group>
+
+      {/* First real hero asset: mundane delivery pressure at the EUX forecourt. */}
+      <BirthYardHeroAssets />
 
       <pointLight
         position={[
