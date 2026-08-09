@@ -5,7 +5,12 @@ import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
 import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
+import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
+import {
+  restoreFoolfouleAfterEvolution,
+  stageFoolfouleForEvolution,
+} from "@/lib/driftEvolutionFoolfouleRegistry";
 import {
   restoreLegacyEntryAfterEvolution,
   suppressLegacyEntryForEvolution,
@@ -21,6 +26,7 @@ type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase>;
 // memo and topology nodes must already reflect the evolution-only staging.
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
+stageFoolfouleForEvolution();
 
 /**
  * Copy-on-write scene: production DRIFT remains the complete base authority;
@@ -32,8 +38,10 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
     // evolution overrides after a cleanup replay, then restore on real unmount.
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
+    stageFoolfouleForEvolution();
 
     return () => {
+      restoreFoolfouleAfterEvolution();
       restoreZeelandAfterEvolution();
       restoreLegacyEntryAfterEvolution();
     };
@@ -45,6 +53,7 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
       <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
+      <FoolfouleCrowd vehicleStateRef={props.vehicleStateRef} />
       <DriftEvolutionSpatialRig
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
