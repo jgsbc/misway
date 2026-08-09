@@ -6,12 +6,16 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import OriginalDrift3DScene from "./Drift3DSceneBase";
 import Drift3DLandmark from "./Drift3DLandmark";
+import DriftSceneReadySignal from "./DriftSceneReadySignal";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import { drift3dNewTrackLandmarks } from "@/lib/drift3dNewTrackLandmarks";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
-import { getDrift3DChaseCameraRig } from "@/lib/drift3d";
+import {
+  getDrift3DChaseCameraRig,
+  getDrift3DVehicleStartPosition,
+} from "@/lib/drift3d";
 
 const DRIFT_3D_CHASE_CAMERA_POSITION_RESPONSE = 7.5;
 const DRIFT_3D_CHASE_CAMERA_TARGET_RESPONSE = 10;
@@ -114,6 +118,8 @@ function ChaseCameraRig({
 }
 
 export default function Drift3DScene(props: Drift3DSceneProps) {
+  const startPosition = getDrift3DVehicleStartPosition();
+
   return (
     <>
       <OriginalDrift3DScene {...props} />
@@ -128,6 +134,12 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
         vehicleStateRef={props.vehicleStateRef}
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
+      />
+      <DriftSceneReadySignal
+        vehicleStateRef={props.vehicleStateRef}
+        expectedPosition={startPosition}
+        stableFrames={5}
+        positionTolerance={0.35}
       />
     </>
   );
