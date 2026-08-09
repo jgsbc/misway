@@ -10,6 +10,7 @@ import {
 } from "./drift3dVehiclePhysics";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
+  getDriftEvolutionEntryPathCenterZ,
   getDriftEvolutionEntryTunnelMix,
 } from "./driftEvolutionEntryCave";
 
@@ -28,36 +29,21 @@ function smoothstep01(value: number) {
   return t * t * (3 - 2 * t);
 }
 
-export function getDriftEvolutionEntryPathOffsetX(z: number) {
+export function getDriftEvolutionEntryDriveEnvelope(x: number) {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const progress = clamp((z - cave.startZ) / (cave.mouthZ - cave.startZ), 0, 1);
-
-  return Math.sin(progress * Math.PI * 1.08) * 0.72;
-}
-
-export function getDriftEvolutionEntryPathCenterX(z: number) {
-  return DRIFT_EVOLUTION_ENTRY_CAVE.centerX + getDriftEvolutionEntryPathOffsetX(z);
-}
-
-export function getDriftEvolutionEntryDriveEnvelope(z: number) {
-  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const centerX = getDriftEvolutionEntryPathCenterX(z);
-  const minZ = cave.startZ + DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET;
-  const maxZ = cave.mouthZ + cave.portalDepth - 0.35;
+  const centerZ = getDriftEvolutionEntryPathCenterZ(x);
+  const minX = cave.startX + DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET;
+  const maxX = cave.exitX + 0.3;
+  const lateralRadius =
+    DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH - DRIFT_3D_VEHICLE_COLLISION_RADIUS;
 
   return {
-    centerX,
-    minX:
-      centerX -
-      DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH +
-      DRIFT_3D_VEHICLE_COLLISION_RADIUS,
-    maxX:
-      centerX +
-      DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH -
-      DRIFT_3D_VEHICLE_COLLISION_RADIUS,
-    minZ,
-    maxZ,
-    active: z >= cave.startZ - 0.5 && z <= maxZ,
+    centerZ,
+    minX,
+    maxX,
+    minZ: centerZ - lateralRadius,
+    maxZ: centerZ + lateralRadius,
+    active: x >= cave.startX - 0.5 && x <= maxX,
   };
 }
 
@@ -66,11 +52,11 @@ export function getDriftEvolutionEntryEnclosureMix(point: {
   z: number;
 }) {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const envelope = getDriftEvolutionEntryDriveEnvelope(point.z);
+  const envelope = getDriftEvolutionEntryDriveEnvelope(point.x);
 
   if (!envelope.active) return 0;
 
-  const lateralDistance = Math.abs(point.x - envelope.centerX);
+  const lateralDistance = Math.abs(point.z - envelope.centerZ);
   const lateral =
     1 -
     smoothstep01(
@@ -78,44 +64,42 @@ export function getDriftEvolutionEntryEnclosureMix(point: {
         (DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH * 0.42)
     );
   const portalFade =
-    point.z <= cave.mouthZ
+    point.x <= cave.mouthX
       ? 1
-      : 1 - smoothstep01((point.z - cave.mouthZ) / Math.max(1, cave.portalDepth));
-  const deepMix = getDriftEvolutionEntryTunnelMix(point.z);
+      : 1 -
+        smoothstep01(
+          (point.x - cave.mouthX) /
+            Math.max(0.8, cave.exitX - cave.mouthX)
+        );
+  const deepMix = getDriftEvolutionEntryTunnelMix(point.x);
   const thresholdPresence = Math.max(portalFade, deepMix * 0.82);
 
   return clamp(lateral * thresholdPresence, 0, 1);
 }
 
-/**
- * Evolution-only cave wall authority.
- * Production physics remains untouched; this post-step constraint makes the
- * recovered cave behave like the solid space it visually represents.
- */
+/** Evolution-only solid envelope for the recovered west-ridge cave. */
 export function constrainDriftEvolutionEntryVehicle(
   state: Drift3DVehiclePhysicsState
 ) {
-  const envelope = getDriftEvolutionEntryDriveEnvelope(state.position.z);
+  const envelope = getDriftEvolutionEntryDriveEnvelope(state.position.x);
 
-  if (!envelope.active) {
-    return false;
-  }
+  if (!envelope.active) return false;
 
   let collided = false;
-
-  if (state.position.x < envelope.minX) {
-    state.position.x = envelope.minX;
-    if (state.velocityX < 0) state.velocityX *= -0.12;
-    collided = true;
-  } else if (state.position.x > envelope.maxX) {
-    state.position.x = envelope.maxX;
-    if (state.velocityX > 0) state.velocityX *= -0.12;
-    collided = true;
-  }
 
   if (state.position.z < envelope.minZ) {
     state.position.z = envelope.minZ;
     if (state.velocityZ < 0) state.velocityZ *= -0.12;
+    collided = true;
+  } else if (state.position.z > envelope.maxZ) {
+    state.position.z = envelope.maxZ;
+    if (state.velocityZ > 0) state.velocityZ *= -0.12;
+    collided = true;
+  }
+
+  if (state.position.x < envelope.minX) {
+    state.position.x = envelope.minX;
+    if (state.velocityX < 0) state.velocityX *= -0.12;
     collided = true;
   }
 
@@ -134,9 +118,8 @@ export type DriftEvolutionCameraRig = {
 };
 
 /**
- * Context camera authority for `/drift-evolution`.
- * Open world = canonical chase camera. Enclosed volumes progressively pull
- * the camera closer, lower it, and keep it inside the driveable envelope.
+ * Open world = canonical chase camera. Inside the west-ridge cave the camera
+ * comes closer/lower and is clamped inside the same physical envelope.
  */
 export function getDriftEvolutionAdaptiveCameraRig(
   vehiclePosition: Drift3DPoint,
@@ -155,18 +138,16 @@ export function getDriftEvolutionAdaptiveCameraRig(
   );
   const enclosure = getDriftEvolutionEntryEnclosureMix(vehiclePosition);
 
-  if (enclosure <= 0.0001) {
-    return { ...canonical, enclosure: 0 };
-  }
+  if (enclosure <= 0.0001) return { ...canonical, enclosure: 0 };
 
   const headingVector = getDrift3DHeadingVector(heading);
   const effectiveScale = clamp(cameraScale * cinematicScale, 0.78, 1.28);
   const depth = DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH * effectiveScale;
-  const desiredZ = vehiclePosition.z - headingVector.z * depth;
   const desiredX = vehiclePosition.x - headingVector.x * depth;
-  const cameraEnvelope = getDriftEvolutionEntryDriveEnvelope(desiredZ);
-  const safeX = clamp(desiredX, cameraEnvelope.minX + 0.12, cameraEnvelope.maxX - 0.12);
-  const safeZ = clamp(desiredZ, cameraEnvelope.minZ + 0.18, cameraEnvelope.maxZ - 0.18);
+  const desiredZ = vehiclePosition.z - headingVector.z * depth;
+  const cameraEnvelope = getDriftEvolutionEntryDriveEnvelope(desiredX);
+  const safeX = clamp(desiredX, cameraEnvelope.minX + 0.18, cameraEnvelope.maxX - 0.18);
+  const safeZ = clamp(desiredZ, cameraEnvelope.minZ + 0.12, cameraEnvelope.maxZ - 0.12);
   const ground = getDrift3DGroundY(safeX, safeZ);
   const enclosedPosition = {
     x: safeX,
@@ -176,7 +157,8 @@ export function getDriftEvolutionAdaptiveCameraRig(
     ),
     z: safeZ,
   };
-  const lookAhead = DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD * Math.min(effectiveScale, 1.15);
+  const lookAhead =
+    DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD * Math.min(effectiveScale, 1.15);
   const enclosedTarget = {
     x: vehiclePosition.x + headingVector.x * lookAhead,
     y: vehiclePosition.y + 0.64,
