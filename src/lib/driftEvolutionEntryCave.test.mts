@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { drift3dTrackNodeBySlug } from "./drift3dTopology";
+import {
+  drift3dThresholdNode,
+  drift3dTrackNodeBySlug,
+} from "./drift3dTopology";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
   getDriftEvolutionEntryCaveIssues,
@@ -11,6 +14,13 @@ import {
 
 test("recovered evolution Entry cave is valid in protected DRIFT coordinates", () => {
   assert.deepEqual(getDriftEvolutionEntryCaveIssues(), []);
+});
+
+test("recovered cave replaces the legacy Entry on the canonical Birth Yard axis", () => {
+  const zeeland = drift3dTrackNodeBySlug["a-walk-in-zeeland"].position;
+
+  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.centerX, drift3dThresholdNode.position.x);
+  assert.equal(DRIFT_EVOLUTION_ENTRY_CAVE.centerX, zeeland.x);
 });
 
 test("evolution starts deep in a long tunnel rather than beside Birth Yard", () => {
