@@ -32,7 +32,7 @@ export const DRIFT_JAZZYPLING_ROUTE = Object.freeze([
   Object.freeze({ x: DRIFT_JAZZYPLING_CENTER.x, z: DRIFT_JAZZYPLING_CENTER.z }),
   Object.freeze({ x: -64.5, z: 12.6 }),
   Object.freeze({ x: -60.7, z: 14.6 }),
-  Object.freeze({ x: -57.4, z: 18.4 }),
+  Object.freeze({ x: -57.4, z: 20.8 }),
 ]);
 
 type BuildingSpec = Readonly<{
