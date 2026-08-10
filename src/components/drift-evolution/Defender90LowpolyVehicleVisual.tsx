@@ -257,9 +257,7 @@ function installSourceRoofRack(root: THREE.Group) {
   );
 
   for (let index = 0; index < ROOF_RACK_CROSSBAR_COUNT; index += 1) {
-    const t = ROOF_RACK_CROSSBAR_COUNT === 1
-      ? 0.5
-      : index / (ROOF_RACK_CROSSBAR_COUNT - 1);
+    const t = index / (ROOF_RACK_CROSSBAR_COUNT - 1);
     const z = -rackLength * 0.42 + rackLength * 0.84 * t;
     rack.add(
       makeRoofRackBar([rackWidth, bar, bar], [0, 0, z], rackMaterial)
