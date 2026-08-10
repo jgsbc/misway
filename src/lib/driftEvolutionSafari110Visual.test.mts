@@ -56,7 +56,7 @@ test("VEH-FD-V1 keeps texture detail while separating sand body and dark tyres",
   assert.match(evolutionVehicleSource, /cloneWheelMaterial/);
   assert.match(evolutionVehicleSource, /material\.clone\(\)/);
   assert.match(evolutionVehicleSource, /material\.color\.set\(MISWAY_DEFENDER_1966_BODY_TINT\)/);
-  assert.doesNotMatch(evolutionVehicleSource, /geometry\.dispose\(\).*geometry\.clone/s);
+  assert.doesNotMatch(evolutionVehicleSource, /geometry\.clone\(/);
 });
 
 test("VEH-FD-V1 adds only the three approved expedition cues", () => {
