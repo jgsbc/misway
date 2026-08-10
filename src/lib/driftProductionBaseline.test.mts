@@ -6,7 +6,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/app/drift/page.tsx": "03a26ccec4a50042497688120171e4558722f34c",
   "src/components/drift-3d/Drift3DClient.tsx": "03f05fe01c08a5345ba5ad824ac9ec7d3811c8bf",
   "src/components/drift-3d/Drift3DCanvas.tsx": "fe8b4d5ea72598b7c7cb59f2f0af8ae156b8bcfa",
-  "src/components/drift-3d/Drift3DScene.tsx": "15d99298954ef6e58bed9e7c63d1c4187b16ce39",
+  "src/components/drift-3d/Drift3DScene.tsx": "b8dc73b165a96e2a26693d7a93c07d82ab454ae5",
   "src/components/drift-3d/Drift3DSceneBase.tsx": "f71e78b325efb26353868209422a396c852ddb09",
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
@@ -45,6 +45,8 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/driftEvolutionFoolfouleRegistry.ts": "f6e74b35e6a32fed517b303fd954257c3aca8145",
   "src/lib/driftEvolutionLegacyEntryRegistry.ts": "aadbde106b578df6c1bea9406fc366c006098281",
   "src/lib/driftEvolutionZeelandRegistry.ts": "348dace4ce3a956c93e411842348e843ce2069a8",
+  "src/lib/driftJazzyplingDistrict.ts": "792c9856b6fd48adff242e1b17796042a910945b",
+  "src/lib/driftJazzyplingRegistry.ts": "1de784eb698fecc2c752f4e54d834a47815be33b",
 });
 
 function readHeadBlob(path: string) {
