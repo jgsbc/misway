@@ -44,7 +44,7 @@ test("VEH-SOURCE-03 pilots Defender 90 only in Drift Evolution", () => {
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });
 
-test("VEH-SOURCE-03 remains a raw visual follower", () => {
+test("VEH-VIS-V1A keeps the approved pose, size and source-first geometry", () => {
   assert.match(evolutionVehicleSource, /findLegacyVehiclePoseGroup/);
   assert.match(evolutionVehicleSource, /legacy\.visible = false/);
   assert.match(evolutionVehicleSource, /poseGroup\.position\.copy\(legacy\.position\)/);
@@ -54,13 +54,26 @@ test("VEH-SOURCE-03 remains a raw visual follower", () => {
   assert.match(evolutionVehicleSource, /4\.84276/);
   assert.match(evolutionVehicleSource, /-0\.09198/);
   assert.match(evolutionVehicleSource, /-0\.24755/);
-  assert.doesNotMatch(evolutionVehicleSource, /BODY_TINT|TIRE_TINT|expedition_/);
   assert.doesNotMatch(
     evolutionVehicleSource,
     /boxGeometry|torusGeometry|cylinderGeometry|meshStandardMaterial/
   );
   assert.doesNotMatch(evolutionVehicleSource, /stepDrift3DVehiclePhysics/);
   assert.doesNotMatch(evolutionVehicleSource, /constrainDriftEvolutionEntryVehicle/);
+});
+
+test("VEH-VIS-V1A retunes only the identified body and roof materials", () => {
+  assert.match(evolutionVehicleSource, /BODY_COLOR = "#c5aa76"/);
+  assert.match(evolutionVehicleSource, /ROOF_COLOR = "#d3c39f"/);
+  assert.match(evolutionVehicleSource, /SOURCE_BODY_MATERIAL = "Material\.002"/);
+  assert.match(evolutionVehicleSource, /SOURCE_ROOF_MATERIAL = "Material\.003"/);
+  assert.match(evolutionVehicleSource, /tuneMiswayMaterial/);
+  assert.match(evolutionVehicleSource, /material\.metalness = 0\.08/);
+  assert.match(evolutionVehicleSource, /material\.roughness = 0\.72/);
+  assert.match(evolutionVehicleSource, /material\.metalness = 0\.05/);
+  assert.match(evolutionVehicleSource, /material\.roughness = 0\.78/);
+  assert.doesNotMatch(evolutionVehicleSource, /SOURCE_(?:TIRE|GLASS)_MATERIAL/);
+  assert.doesNotMatch(evolutionVehicleSource, /expedition_/);
 });
 
 test("VEH-SOURCE-03 hides the inherited visual during load but restores it on failure", () => {
