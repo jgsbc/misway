@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "lot": "DRIFT-ASSET-GOV-00",
+  "era": "birth-yard",
+  "status": "PROPOSED",
+  "principle": "One continuous northern-European port city with a shared era palette and bounded track mutations, not seven independent dioramas.",
+  "sharedPalette": {
+    "requiredRoles": [
+      "road-curb-sidewalk grammar",
+      "modular urban facades and massing",
+      "industrial-quay vocabulary",
+      "commercial frontage vocabulary",
+      "reusable street furniture",
+      "low-cost population vocabulary",
+      "shared PBR materials",
+      "shared decals",
+      "lightweight distant landmarks"
+    ],
+    "candidateAssetIds": [
+      "birth-yard-downtown-city-megakit",
+      "birth-yard-kenney-roads",
+      "birth-yard-kenney-industrial",
+      "birth-yard-kenney-commercial",
+      "birth-yard-quaternius-animated-characters"
+    ],
+    "antiGoals": [
+      "paste complete library city unchanged",
+      "close-range low-poly style overriding realism authority",
+      "duplicate shared assets per track",
+      "separate road/material systems per song",
+      "second harbour or water authority"
+    ]
+  },
+  "tracks": [
+    {
+      "slug": "a-walk-in-zeeland",
+      "role": "first open Birth Yard reveal; canal and working harbour at dusk",
+      "heroNeeds": [
+        "Dutch canal facade vocabulary",
+        "one distant Dutch landmark silhouette",
+        "selective quay-port props"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-dutch-house-01",
+        "birth-yard-windmill-01",
+        "birth-yard-port-pack-01"
+      ],
+      "transformIntent": [
+        "extract facade vocabulary",
+        "material-consolidate as required",
+        "keep landmark distant and subordinate",
+        "retain only useful port props",
+        "preserve existing structural water authority"
+      ],
+      "antiGoals": [
+        "second harbour",
+        "decorative water rectangle",
+        "dense prop wall",
+        "tourist-Holland theme park",
+        "water-road contradiction"
+      ]
+    },
+    {
+      "slug": "foolfoule",
+      "role": "dense commercial canyon and social pressure",
+      "heroNeeds": [
+        "dense vertical street fragments",
+        "cheap animated distant crowd",
+        "repeated billboard structures"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-street-city-7",
+        "birth-yard-crowd-distant-01",
+        "birth-yard-billboard-pack-01"
+      ],
+      "transformIntent": [
+        "verify Street City 7 before use",
+        "extract only useful facades and masses",
+        "keep low-detail crowd at distance",
+        "instance repeated crowd/sign geometry where suitable",
+        "replace source/branded billboard imagery when required"
+      ],
+      "antiGoals": [
+        "whole source city imported unchanged",
+        "unique material per sign",
+        "close-up low-detail crowd",
+        "route-obscuring clutter",
+        "excess transparent or emissive signage"
+      ]
+    },
+    {
+      "slug": "sugared-peach",
+      "role": "small comic release pocket between Foolfoule and Play It",
+      "heroNeeds": [
+        "lightweight trumpet prop",
+        "three hopping performers or reusable varied rig"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-trumpet-01",
+        "birth-yard-quaternius-animated-characters"
+      ],
+      "transformIntent": [
+        "reuse or instance trumpet geometry",
+        "keep animation readable and low-cost",
+        "replace character source if close-range realism fails"
+      ],
+      "antiGoals": [
+        "circus or stage world",
+        "large crowd",
+        "blocked road",
+        "three unnecessary heavy unique characters"
+      ]
+    },
+    {
+      "slug": "play-it",
+      "role": "ordered commuter-business district",
+      "heroNeeds": [
+        "station or metro entrance language",
+        "rail-train components",
+        "ordered pedestrian and crossing cues"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-subway-pasha-01",
+        "birth-yard-subway-victorianblue-01",
+        "birth-yard-kenney-train"
+      ],
+      "selectionRule": "Inspect both subway sources and choose the smallest convincing modular derivative.",
+      "transformIntent": [
+        "extract only visible station fragments",
+        "avoid unused full interior",
+        "reuse rail and commuter elements rhythmically",
+        "show ordering before track center"
+      ],
+      "antiGoals": [
+        "full underground environment without visible value",
+        "isolated station diorama",
+        "unused transport assets",
+        "expensive crowd simulation"
+      ]
+    },
+    {
+      "slug": "jazzypling",
+      "role": "crooked nocturnal cellar and alley district",
+      "heroNeeds": [
+        "selected club-cellar fragments",
+        "small musical landmark if needed",
+        "restrained signage and door lighting"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-jazz-club-01"
+      ],
+      "openNeeds": [
+        "alley source only if shared city palette cannot satisfy the role"
+      ],
+      "transformIntent": [
+        "mine only convincing interior fragments",
+        "prefer shallow door-window interiors",
+        "imply larger musical space through light and audio"
+      ],
+      "antiGoals": [
+        "standalone jazz-club diorama",
+        "neon theme park",
+        "large hidden interiors",
+        "generic widened boulevard"
+      ]
+    },
+    {
+      "slug": "funky-hoo",
+      "role": "west-quay nightlife spur using Zeeland harbour geography",
+      "heroNeeds": [
+        "selected Dutch facades",
+        "quay-service props",
+        "local night-frontage details"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-dutch-house-01",
+        "birth-yard-port-pack-01",
+        "birth-yard-kenney-industrial"
+      ],
+      "transformIntent": [
+        "reuse Zeeland water and harbour authority",
+        "mutate frontage activity wetness light and density",
+        "prefer shallow interiors",
+        "share Dutch facade and material derivatives with Zeeland"
+      ],
+      "antiGoals": [
+        "second canal network",
+        "Amsterdam postcard",
+        "red-light theme park",
+        "duplicate water shader or authority",
+        "full heavy city pack resident for one spur"
+      ]
+    },
+    {
+      "slug": "peut-etre",
+      "role": "southern urban fringe where Parisian fabric is partially buried by accumulated sand",
+      "heroNeeds": [
+        "modular Haussmann fragments",
+        "light sand-dune geometry or material language",
+        "partially buried shared civic and street props"
+      ],
+      "candidateAssetIds": [
+        "birth-yard-haussmann-building-03",
+        "birth-yard-dunes-01"
+      ],
+      "transformIntent": [
+        "deconstruct Haussmann source into facade modules",
+        "partially bury modules rather than build full Paris",
+        "use lightweight sand geometry or terrain-material blend",
+        "preserve Birth Yard road continuity"
+      ],
+      "antiGoals": [
+        "separate desert biome",
+        "Sahara teleport",
+        "full Paris recreation",
+        "Eiffel Tower requirement",
+        "sand breaking driving or collision authority"
+      ]
+    }
+  ],
+  "acquisitionPriority": {
+    "P0": [
+      "verify birth-yard-street-city-7 license author formats textures and stats",
+      "inspect free Quaternius Downtown City MegaKit subset",
+      "inspect Kenney City Kit Roads",
+      "inspect Kenney City Kit Industrial",
+      "obtain and inspect birth-yard-dutch-house-01",
+      "obtain and inspect birth-yard-port-pack-01",
+      "select small CC0 Poly Haven material subset as needed"
+    ],
+    "P1": [
+      "only gap-closing shared background modules after P0 inspection"
+    ],
+    "P2": [
+      "Foolfoule crowd and billboard sources",
+      "one selected subway source plus train kit",
+      "Jazz Club fragments",
+      "Haussmann and Dunes sources",
+      "Trumpet plus selected character-animation solution"
+    ]
+  },
+  "runtimeCapsuleRule": "Track capsules contain only track-specific hero geometry, decals, animation data and material-light variants. Shared era resources are not duplicated per track.",
+  "developmentGate": {
+    "beforeBroadIntegration": [
+      "desktop baseline measured",
+      "smartphone baseline measured",
+      "acceptance envelope populated",
+      "P0 licenses verified",
+      "P0 candidates inspected",
+      "exact vertical-slice source subset selected",
+      "estimated runtime payload documented"
+    ],
+    "recommendedNextLot": "DRIFT-ASSET-BY-10 — Funky Hoo Vertical Slice",
+    "reason": "Reuses Zeeland water and harbour authority while exercising shared architecture, port props, external asset intake, texture optimization, night materials and spur residency without replacing all seven tracks."
+  }
+}
