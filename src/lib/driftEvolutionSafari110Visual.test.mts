@@ -10,21 +10,19 @@ const evolutionVehicleSource = readFileSync(
   new URL("../components/drift-evolution/EvolutionSafari110VehicleVisual.tsx", import.meta.url),
   "utf8"
 );
-const productionSceneSource = readFileSync(
-  new URL("../components/drift-3d/Drift3DScene.tsx", import.meta.url),
-  "utf8"
-);
 const productionBaseSource = readFileSync(
   new URL("../components/drift-3d/Drift3DSceneBase.tsx", import.meta.url),
   "utf8"
 );
 
-test("Evolution may pilot a successor vehicle without changing production", () => {
-  assert.match(evolutionSceneSource, /MiswaySafariVehicleVisual/);
-  assert.doesNotMatch(evolutionSceneSource, /<EvolutionSafari110VehicleVisual/);
-  assert.match(productionSceneSource, /<EvolutionSafari110VehicleVisual/);
-  assert.doesNotMatch(productionSceneSource, /MiswaySafariVehicleVisual/);
-  assert.doesNotMatch(productionBaseSource, /MiswaySafariVehicleVisual/);
+test("VEH-B03 promotes Safari 110 through the evolution scene", () => {
+  assert.match(evolutionSceneSource, /EvolutionSafari110VehicleVisual/);
+  assert.match(
+    evolutionSceneSource,
+    /<EvolutionSafari110VehicleVisual vehicleStateRef=\{props\.vehicleStateRef\} \/>/
+  );
+  assert.doesNotMatch(evolutionSceneSource, /MiswaySafariVehicleVisual/);
+  assert.doesNotMatch(productionBaseSource, /EvolutionSafari110VehicleVisual/);
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });
 
