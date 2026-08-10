@@ -6,10 +6,13 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
-import assetPart0 from "@/components/drift-evolution/miswaySafariGzipPart0";
-import assetPart1 from "@/components/drift-evolution/miswaySafariGzipPart1";
+import { withBasePath } from "@/lib/basePath";
 
-const MISWAY_SAFARI_GZIP_BASE64 = `${assetPart0}${assetPart1}`;
+const MISWAY_SAFARI_ASSET_PARTS = Object.freeze(
+  [0, 1, 2, 3].map((index) =>
+    withBasePath(`/models/misway-safari/misway-safari-v1.gltf.gz.part${index}`)
+  )
+);
 
 export const MISWAY_SAFARI_RUNTIME_SCALE = 0.32;
 export const MISWAY_SAFARI_RUNTIME_Y_OFFSET = -0.048;
@@ -43,17 +46,28 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
-function decodeBase64(encoded: string) {
-  const binary = window.atob(encoded);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-  return bytes;
-}
-
 async function inflateMiswaySafariAsset() {
-  const compressed = decodeBase64(MISWAY_SAFARI_GZIP_BASE64);
+  const partBuffers = await Promise.all(
+    MISWAY_SAFARI_ASSET_PARTS.map(async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Unable to load MISWAY safari asset part: ${url}`);
+      }
+      return new Uint8Array(await response.arrayBuffer());
+    })
+  );
+
+  const byteLength = partBuffers.reduce(
+    (sum, bytes) => sum + bytes.byteLength,
+    0
+  );
+  const compressed = new Uint8Array(byteLength);
+  let offset = 0;
+  for (const bytes of partBuffers) {
+    compressed.set(bytes, offset);
+    offset += bytes.byteLength;
+  }
+
   const stream = new Blob([compressed.buffer])
     .stream()
     .pipeThrough(new DecompressionStream("gzip"));
