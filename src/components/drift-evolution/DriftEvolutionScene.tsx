@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
+import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
@@ -9,6 +10,7 @@ import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/Evolut
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
 import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturgy";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
+import { drift3dNewTrackLandmarks } from "@/lib/drift3dNewTrackLandmarks";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
 import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
 import { createDriftEvolutionFoolfouleCrowdSignal } from "@/lib/driftEvolutionFoolfouleDramaturgy";
@@ -62,6 +64,13 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
   return (
     <>
       <Drift3DSceneBase {...props} />
+      {drift3dNewTrackLandmarks.map((landmark) => (
+        <Drift3DLandmark
+          key={landmark.id}
+          landmark={landmark}
+          vehicleStateRef={props.vehicleStateRef}
+        />
+      ))}
       <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
