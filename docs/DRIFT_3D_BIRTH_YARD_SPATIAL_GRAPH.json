@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "lot": "DRIFT-SPATIAL-BY-00",
+  "status": "PROPOSED_OWNER_LAB_GATE_REQUIRED",
+  "coordinatePolicy": "REUSE_CURRENT_ANCHORS_NO_NODE_MOVE",
+  "entryPolicy": "ENTRY_REVEALS_ZEELAND_FIRST_NO_BYPASS",
+  "mainLoop": [
+    "a-walk-in-zeeland",
+    "foolfoule",
+    "sugared-peach",
+    "play-it",
+    "jazzypling",
+    "a-walk-in-zeeland"
+  ],
+  "nodes": [
+    {
+      "slug": "a-walk-in-zeeland",
+      "graphRole": "gateway_anchor",
+      "topologyPosition": {"x": -88, "z": 20},
+      "graphAnchorPosition": {"x": -76, "z": 23},
+      "placementBasis": "production_promoted",
+      "territoryDecision": "accepted canal/harbour geography and dry east-bank route"
+    },
+    {
+      "slug": "foolfoule",
+      "graphRole": "pressure_anchor",
+      "topologyPosition": {"x": -62, "z": 42},
+      "graphAnchorPosition": {"x": -62, "z": 42},
+      "placementBasis": "production_promoted",
+      "territoryDecision": "accepted commercial canyon and crowd pressure"
+    },
+    {
+      "slug": "jazzypling",
+      "graphRole": "backstreet_connector",
+      "topologyPosition": {"x": -68, "z": 14},
+      "graphAnchorPosition": {"x": -68, "z": 14},
+      "placementBasis": "lab_implemented",
+      "territoryDecision": "reuse crooked cellar district as lower loop connector"
+    },
+    {
+      "slug": "play-it",
+      "graphRole": "ordered_connector",
+      "topologyPosition": {"x": -54, "z": 26},
+      "graphAnchorPosition": {"x": -54, "z": 26},
+      "placementBasis": "proposed_from_current_runtime",
+      "territoryDecision": "commuter/business district closes loop between Sugared Peach and Jazzypling"
+    },
+    {
+      "slug": "funky-hoo",
+      "graphRole": "west_quay_spur",
+      "topologyPosition": {"x": -96, "z": 40},
+      "graphAnchorPosition": {"x": -96, "z": 40},
+      "placementBasis": "proposed_from_current_runtime",
+      "territoryDecision": "dockside nightlife spur reusing Zeeland harbour and lifting-bridge language"
+    },
+    {
+      "slug": "peut-etre",
+      "graphRole": "southern_fringe_spur",
+      "topologyPosition": {"x": -96, "z": 0},
+      "graphAnchorPosition": {"x": -96, "z": 0},
+      "placementBasis": "proposed_from_current_runtime",
+      "territoryDecision": "urban boulevard/service fringe partially buried by accumulated sand"
+    },
+    {
+      "slug": "sugared-peach",
+      "graphRole": "relief_pocket",
+      "topologyPosition": {"x": -48, "z": 46},
+      "graphAnchorPosition": {"x": -48, "z": 46},
+      "placementBasis": "proposed_from_current_runtime",
+      "territoryDecision": "small irregular street widening between Foolfoule pressure and Play It order"
+    }
+  ],
+  "junctions": [
+    {
+      "id": "zeeland-south-junction",
+      "position": {"x": -74.8, "z": 18},
+      "status": "production_promoted_route_fact",
+      "purpose": "shared Zeeland/Jazzypling southern branch point"
+    },
+    {
+      "id": "zeeland-lifting-bridge",
+      "position": {"x": -80, "z": 36},
+      "status": "production_promoted_geography_fact",
+      "purpose": "candidate west-quay connector for Funky Hoo without inventing a second water system"
+    },
+    {
+      "id": "foolfoule-east-mouth",
+      "position": {"x": -48.5, "z": 42},
+      "status": "production_promoted_geometry_fact",
+      "purpose": "natural release point toward Sugared Peach"
+    },
+    {
+      "id": "jazzypling-playit-approach",
+      "position": {"x": -57.4, "z": 20.8},
+      "status": "lab_implemented",
+      "purpose": "existing lab route endpoint to extend into Play It"
+    }
+  ],
+  "edges": [
+    {
+      "id": "entry-zeeland",
+      "from": "entry",
+      "to": "a-walk-in-zeeland",
+      "status": "production_promoted",
+      "role": "mandatory_gateway",
+      "bidirectional": false,
+      "constraint": "no Birth Yard track bypass before Zeeland reveal"
+    },
+    {
+      "id": "zeeland-foolfoule",
+      "from": "a-walk-in-zeeland",
+      "to": "foolfoule",
+      "status": "production_promoted",
+      "role": "main_loop",
+      "bidirectional": true,
+      "constraint": "keep accepted dry east-bank route and structural water authority"
+    },
+    {
+      "id": "foolfoule-sugared-peach",
+      "from": "foolfoule",
+      "to": "sugared-peach",
+      "status": "proposed",
+      "role": "main_loop",
+      "bidirectional": true,
+      "constraint": "release pressure without blocking Foolfoule east mouth"
+    },
+    {
+      "id": "sugared-peach-play-it",
+      "from": "sugared-peach",
+      "to": "play-it",
+      "status": "proposed",
+      "role": "main_loop",
+      "bidirectional": true,
+      "constraint": "irregular street progressively becomes ordered commuter fabric"
+    },
+    {
+      "id": "play-it-jazzypling",
+      "from": "play-it",
+      "to": "jazzypling",
+      "status": "proposed",
+      "role": "main_loop",
+      "bidirectional": true,
+      "constraint": "reuse Jazzypling lab approach instead of authoring a second corridor"
+    },
+    {
+      "id": "jazzypling-zeeland",
+      "from": "jazzypling",
+      "to": "a-walk-in-zeeland",
+      "status": "lab_implemented",
+      "role": "main_loop",
+      "bidirectional": true,
+      "constraint": "preserve cellar district scale and Zeeland south dry junction"
+    },
+    {
+      "id": "zeeland-funky-hoo",
+      "from": "a-walk-in-zeeland",
+      "to": "funky-hoo",
+      "status": "proposed",
+      "role": "spur",
+      "bidirectional": true,
+      "constraint": "same harbour/water authority; use quay/lifting-bridge language; provide turnaround"
+    },
+    {
+      "id": "jazzypling-peut-etre",
+      "from": "jazzypling",
+      "to": "peut-etre",
+      "status": "proposed",
+      "role": "spur",
+      "bidirectional": true,
+      "constraint": "urban fringe first, partial sand burial second; no Entry bypass"
+    }
+  ],
+  "futureOpenDecisions": [
+    "exact lab polylines for proposed edges",
+    "whether Peut-etre becomes the later Birth Yard to Older Shadows handoff",
+    "production promotion of Jazzypling and all proposed graph pieces"
+  ],
+  "nextLot": "DRIFT-SPATIAL-BY-10 — Birth Yard Route Lab"
+}
