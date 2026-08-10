@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const evolutionSceneSource = readFileSync(
@@ -21,6 +22,10 @@ const productionBaseSource = readFileSync(
   new URL("../components/drift-3d/Drift3DSceneBase.tsx", import.meta.url),
   "utf8"
 );
+const defenderAssetUrl = new URL(
+  "../../public/models/misway-defender-1966/misway-defender-1966-full.glb",
+  import.meta.url
+);
 
 test("Evolution pilots the full-fidelity Defender without changing production", () => {
   assert.match(evolutionSceneSource, /FullFidelityDefenderVehicleVisual/);
@@ -30,6 +35,20 @@ test("Evolution pilots the full-fidelity Defender without changing production", 
   assert.doesNotMatch(productionSceneSource, /FullFidelityDefenderVehicleVisual/);
   assert.doesNotMatch(productionBaseSource, /FullFidelityDefenderVehicleVisual/);
   assert.match(productionBaseSource, /<Drift3DVehicle/);
+});
+
+test("full-fidelity Defender asset is physically present and exact", () => {
+  assert.ok(
+    existsSync(defenderAssetUrl),
+    "missing public/models/misway-defender-1966/misway-defender-1966-full.glb"
+  );
+
+  const assetBytes = readFileSync(defenderAssetUrl);
+  assert.equal(assetBytes.byteLength, 353_760);
+  assert.equal(
+    createHash("sha256").update(assetBytes).digest("hex"),
+    "d276186aab8cccaaff5401a4231b191745add3528e40f2694f96e68ee1784a56"
+  );
 });
 
 test("full-fidelity Defender mirrors pose and preserves source-first policy", () => {
