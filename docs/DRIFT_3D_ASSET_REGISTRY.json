@@ -1,0 +1,399 @@
+{
+  "schemaVersion": 1,
+  "lot": "DRIFT-ASSET-GOV-00",
+  "status": "PROPOSED",
+  "policy": {
+    "preferredLicenses": [
+      "CC0-1.0",
+      "CC-BY-4.0"
+    ],
+    "rejectByDefault": [
+      "CC-BY-NC",
+      "CC-BY-ND",
+      "UNCLEAR",
+      "SUSPICIOUS_PROVENANCE"
+    ],
+    "sourceAssetIsRuntimeAsset": false
+  },
+  "assets": [
+    {
+      "id": "birth-yard-downtown-city-megakit",
+      "provider": "Quaternius",
+      "title": "Downtown City MegaKit",
+      "author": "Quaternius",
+      "url": "https://quaternius.com/packs/downtowncitymegakit.html",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "models": 315
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "shared"
+        ],
+        "role": "urban modular vocabulary"
+      },
+      "notes": [
+        "Free tier reports 60-70% of pack available.",
+        "Close-range realism review required."
+      ]
+    },
+    {
+      "id": "birth-yard-kenney-roads",
+      "provider": "Kenney",
+      "title": "City Kit (Roads)",
+      "author": "Kenney",
+      "url": "https://kenney.nl/assets/city-kit-roads",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "files": 70
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "shared"
+        ],
+        "role": "road/module source"
+      }
+    },
+    {
+      "id": "birth-yard-kenney-industrial",
+      "provider": "Kenney",
+      "title": "City Kit (Industrial)",
+      "author": "Kenney",
+      "url": "https://kenney.nl/assets/city-kit-industrial",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "files": 25
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "a-walk-in-zeeland",
+          "funky-hoo"
+        ],
+        "role": "industrial/port module source"
+      }
+    },
+    {
+      "id": "birth-yard-kenney-commercial",
+      "provider": "Kenney",
+      "title": "City Kit (Commercial)",
+      "author": "Kenney",
+      "url": "https://kenney.nl/assets/city-kit-commercial",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "files": 50
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "foolfoule",
+          "play-it"
+        ],
+        "role": "commercial module source"
+      }
+    },
+    {
+      "id": "birth-yard-kenney-train",
+      "provider": "Kenney",
+      "title": "Train Kit",
+      "author": "Kenney",
+      "url": "https://kenney.nl/assets/train-kit",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "files": 100
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "play-it"
+        ],
+        "role": "rail/commuter vocabulary"
+      }
+    },
+    {
+      "id": "birth-yard-quaternius-animated-characters",
+      "provider": "Quaternius",
+      "title": "Ultimate Animated Character Pack",
+      "author": "Quaternius",
+      "url": "https://quaternius.com/packs/ultimatedanimatedcharacter.html",
+      "license": "CC0-1.0",
+      "status": "CANDIDATE",
+      "reported": {
+        "models": 52
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "foolfoule",
+          "play-it",
+          "sugared-peach"
+        ],
+        "role": "prototype/background character vocabulary"
+      },
+      "notes": [
+        "Final close-range realism review required."
+      ]
+    },
+    {
+      "id": "birth-yard-dutch-house-01",
+      "provider": "Sketchfab",
+      "title": "Dutch Canals House Amsterdam #1",
+      "author": "ustoopia",
+      "url": "https://sketchfab.com/3d-models/dutch-canals-house-amsterdam-1-e81a1b1f7fa54214983fa884fde76b46",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 74200,
+        "vertices": 40400
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "a-walk-in-zeeland",
+          "funky-hoo"
+        ],
+        "role": "Dutch facade/building source"
+      }
+    },
+    {
+      "id": "birth-yard-windmill-01",
+      "provider": "Sketchfab",
+      "title": "Windmill",
+      "author": "Yury Misiyuk",
+      "url": "https://sketchfab.com/3d-models/windmill-0730705327e045bd8cb98a888bd0f954",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 2900,
+        "vertices": 2000,
+        "textureMax": 1024,
+        "animated": true,
+        "lod": true
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "a-walk-in-zeeland"
+        ],
+        "role": "distant landmark"
+      }
+    },
+    {
+      "id": "birth-yard-port-pack-01",
+      "provider": "Sketchfab",
+      "title": "Port pack [Update 1]",
+      "author": "inpakgames",
+      "url": "https://sketchfab.com/3d-models/port-pack-update-1-67d6108926014f31806969c6b1111d57",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 8400,
+        "vertices": 4900
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "a-walk-in-zeeland",
+          "funky-hoo"
+        ],
+        "role": "selective port props"
+      }
+    },
+    {
+      "id": "birth-yard-crowd-distant-01",
+      "provider": "Sketchfab",
+      "title": "Low Detail Animated Crowd",
+      "author": "Shahriar Shahrabi",
+      "url": "https://sketchfab.com/3d-models/low-detail-animated-crowd-4fe76fdec12d456f9b0db06b45cc53d6",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 10300,
+        "vertices": 5200,
+        "singleMaterial": true,
+        "animated": true
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "foolfoule",
+          "play-it"
+        ],
+        "role": "distant crowd"
+      }
+    },
+    {
+      "id": "birth-yard-billboard-pack-01",
+      "provider": "Sketchfab",
+      "title": "Low-poly Billboard Pack",
+      "author": "staticcc",
+      "url": "https://sketchfab.com/3d-models/low-poly-billboard-pack-f5da73b8050a4e7d9fce53b6171ccbc7",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 2000,
+        "vertices": 1200
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "foolfoule"
+        ],
+        "role": "billboard geometry"
+      },
+      "notes": [
+        "Replace source/branded imagery with MISWAY-owned graphics unless separately cleared."
+      ]
+    },
+    {
+      "id": "birth-yard-jazz-club-01",
+      "provider": "Sketchfab",
+      "title": "Jazz Club",
+      "author": "22079319",
+      "url": "https://sketchfab.com/3d-models/jazz-club-1d9eb862d31d46b081e568718b4d3396",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 76900,
+        "vertices": 39800
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "jazzypling"
+        ],
+        "role": "selected club/interior fragments"
+      }
+    },
+    {
+      "id": "birth-yard-subway-pasha-01",
+      "provider": "Sketchfab",
+      "title": "Subway station",
+      "author": "Pasha",
+      "url": "https://sketchfab.com/3d-models/subway-station-fa31f1ebe8cb437f9c753b22b3fdfc55",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 32400,
+        "vertices": 24200
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "play-it"
+        ],
+        "role": "station/commuter source"
+      }
+    },
+    {
+      "id": "birth-yard-subway-victorianblue-01",
+      "provider": "Sketchfab",
+      "title": "Subway Station Scene",
+      "author": "VictorianBlue",
+      "url": "https://sketchfab.com/3d-models/subway-station-scene-be5ac5b18d0e4103ac8f8c9baff6c30c",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 28100,
+        "vertices": 17000,
+        "describedKitTris": 4475
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "play-it"
+        ],
+        "role": "alternative modular station source"
+      }
+    },
+    {
+      "id": "birth-yard-haussmann-building-03",
+      "provider": "Sketchfab",
+      "title": "Haussmannien building 3",
+      "author": "pacpak",
+      "url": "https://sketchfab.com/3d-models/haussmannien-building-3-9c028403d5894752bffba7b25b1b2266",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 37800,
+        "vertices": 18800,
+        "modularPieces": true
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "peut-etre"
+        ],
+        "role": "Paris facade kitbash source"
+      }
+    },
+    {
+      "id": "birth-yard-dunes-01",
+      "provider": "Sketchfab",
+      "title": "Dunes Landscape",
+      "author": "arpermopi1971",
+      "url": "https://sketchfab.com/3d-models/dunes-landscape-c81be12f8ea846e2a938466d33244489",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 2800,
+        "vertices": 1500
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "peut-etre"
+        ],
+        "role": "sand/dune geometry reference"
+      }
+    },
+    {
+      "id": "birth-yard-trumpet-01",
+      "provider": "Sketchfab",
+      "title": "Trumpet_Free",
+      "author": "AlvaWong",
+      "url": "https://sketchfab.com/3d-models/trumpet-free-02d9fe6d3fed47d886f1e9f2a9491faa",
+      "license": "CC-BY",
+      "status": "CANDIDATE",
+      "reported": {
+        "triangles": 1000,
+        "vertices": 551
+      },
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "sugared-peach"
+        ],
+        "role": "repeated trumpet prop"
+      }
+    },
+    {
+      "id": "birth-yard-street-city-7",
+      "provider": "Sketchfab",
+      "title": "Street City 7 for Games Free",
+      "author": null,
+      "url": "https://sketchfab.com/3d-models/street-city-7-for-games-free-493a69b451284ff88346c7b3e4e1b5a7",
+      "license": "UNVERIFIED",
+      "status": "DISCOVERED",
+      "reported": {},
+      "usage": {
+        "era": "birth-yard",
+        "tracks": [
+          "foolfoule",
+          "shared"
+        ],
+        "role": "urban street/canyon fragments"
+      },
+      "notes": [
+        "Owner-supplied candidate. License, author, textures and source stats must be inspected before acceptance."
+      ]
+    }
+  ]
+}

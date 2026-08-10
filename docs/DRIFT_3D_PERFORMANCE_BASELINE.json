@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "lot": "DRIFT-ASSET-GOV-00",
+  "status": "UNMEASURED",
+  "reason": "Governance deliberately does not invent current performance values. Capture production-equivalent desktop and smartphone evidence before asset-heavy implementation.",
+  "gitSha": null,
+  "capturedAt": null,
+  "devices": [],
+  "scenarios": [],
+  "acceptanceEnvelope": {
+    "status": "TBD_BASELINE",
+    "coldStartRegression": null,
+    "warmStartRegression": null,
+    "mobileFrameTimeP95": null,
+    "mobileFrameTimeP99": null,
+    "revealStallLimit": null,
+    "resourceResidencyLimit": null
+  },
+  "protocol": "docs/DRIFT_3D_PERFORMANCE_BASELINE_PROTOCOL.md"
+}
