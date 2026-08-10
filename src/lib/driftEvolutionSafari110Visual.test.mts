@@ -7,7 +7,14 @@ const evolutionSceneSource = readFileSync(
   "utf8"
 );
 const evolutionVehicleSource = readFileSync(
-  new URL("../components/drift-evolution/EvolutionSafari110VehicleVisual.tsx", import.meta.url),
+  new URL(
+    "../components/drift-evolution/FullFidelityDefenderVehicleVisual.tsx",
+    import.meta.url
+  ),
+  "utf8"
+);
+const productionSceneSource = readFileSync(
+  new URL("../components/drift-3d/Drift3DScene.tsx", import.meta.url),
   "utf8"
 );
 const productionBaseSource = readFileSync(
@@ -15,22 +22,28 @@ const productionBaseSource = readFileSync(
   "utf8"
 );
 
-test("VEH-B03 promotes Safari 110 through the evolution scene", () => {
-  assert.match(evolutionSceneSource, /EvolutionSafari110VehicleVisual/);
-  assert.match(
-    evolutionSceneSource,
-    /<EvolutionSafari110VehicleVisual vehicleStateRef=\{props\.vehicleStateRef\} \/>/
-  );
-  assert.doesNotMatch(evolutionSceneSource, /MiswaySafariVehicleVisual/);
-  assert.doesNotMatch(productionBaseSource, /EvolutionSafari110VehicleVisual/);
+test("Evolution pilots the full-fidelity Defender without changing production", () => {
+  assert.match(evolutionSceneSource, /FullFidelityDefenderVehicleVisual/);
+  assert.match(evolutionSceneSource, /<FullFidelityDefenderVehicleVisual \/>/);
+  assert.doesNotMatch(evolutionSceneSource, /<EvolutionSafari110VehicleVisual/);
+  assert.match(productionSceneSource, /<EvolutionSafari110VehicleVisual/);
+  assert.doesNotMatch(productionSceneSource, /FullFidelityDefenderVehicleVisual/);
+  assert.doesNotMatch(productionBaseSource, /FullFidelityDefenderVehicleVisual/);
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });
 
-test("VEH-B03 mirrors the existing vehicle pose instead of replacing physics", () => {
+test("full-fidelity Defender mirrors pose and preserves source-first policy", () => {
   assert.match(evolutionVehicleSource, /findLegacyVehiclePoseGroup/);
   assert.match(evolutionVehicleSource, /legacy\.visible = false/);
   assert.match(evolutionVehicleSource, /poseGroup\.position\.copy\(legacy\.position\)/);
   assert.match(evolutionVehicleSource, /poseGroup\.quaternion\.copy\(legacy\.quaternion\)/);
+  assert.match(
+    evolutionVehicleSource,
+    /misway-defender-1966\/misway-defender-1966-full\.glb/
+  );
+  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 1\.68/);
+  assert.match(evolutionVehicleSource, /No decimation or replacement geometry is used/);
   assert.doesNotMatch(evolutionVehicleSource, /stepDrift3DVehiclePhysics/);
   assert.doesNotMatch(evolutionVehicleSource, /constrainDriftEvolutionEntryVehicle/);
+  assert.doesNotMatch(evolutionVehicleSource, /rotateDrift3DSafari110Wheels/);
 });
