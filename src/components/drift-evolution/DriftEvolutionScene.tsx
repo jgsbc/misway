@@ -19,6 +19,10 @@ import {
   stageFoolfouleForEvolution,
 } from "@/lib/driftEvolutionFoolfouleRegistry";
 import {
+  restoreJazzyplingAfterEvolution,
+  stageJazzyplingForEvolution,
+} from "@/lib/driftEvolutionJazzyplingRegistry";
+import {
   restoreLegacyEntryAfterEvolution,
   suppressLegacyEntryForEvolution,
 } from "@/lib/driftEvolutionLegacyEntryRegistry";
@@ -34,6 +38,7 @@ type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase>;
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
 stageFoolfouleForEvolution();
+stageJazzyplingForEvolution();
 
 /**
  * Copy-on-write scene: production DRIFT remains the complete base authority;
@@ -53,8 +58,10 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
     stageFoolfouleForEvolution();
+    stageJazzyplingForEvolution();
 
     return () => {
+      restoreJazzyplingAfterEvolution();
       restoreFoolfouleAfterEvolution();
       restoreZeelandAfterEvolution();
       restoreLegacyEntryAfterEvolution();
