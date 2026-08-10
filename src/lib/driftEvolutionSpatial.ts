@@ -16,6 +16,7 @@ import {
 
 export const DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH = 2.5;
 export const DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET = 0.72;
+export const DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN = 0.42;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH = 3.45;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.68;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 1.25;
@@ -47,6 +48,27 @@ export function getDriftEvolutionEntryDriveEnvelope(x: number) {
     maxZ: centerZ + lateralRadius,
     active: x >= cave.startX - 0.5 && x <= maxX,
   };
+}
+
+/**
+ * The cave is a local corridor, not a world-spanning X slab. The small capture
+ * margin is only wide enough to catch a normal one-frame wall overshoot from
+ * a vehicle already driving inside the tunnel. A vehicle travelling around the
+ * outside of the ridge must remain completely unaffected even if its X happens
+ * to line up with the cave.
+ */
+export function isDriftEvolutionEntryConstraintActive(point: {
+  x: number;
+  z: number;
+}) {
+  const envelope = getDriftEvolutionEntryDriveEnvelope(point.x);
+  if (!envelope.active) return false;
+
+  const lateralRadius = envelope.maxZ - envelope.centerZ;
+  return (
+    Math.abs(point.z - envelope.centerZ) <=
+    lateralRadius + DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN
+  );
 }
 
 export function getDriftEvolutionEntryEnclosureMix(point: {
@@ -83,10 +105,9 @@ export function getDriftEvolutionEntryEnclosureMix(point: {
 export function constrainDriftEvolutionEntryVehicle(
   state: Drift3DVehiclePhysicsState
 ) {
+  if (!isDriftEvolutionEntryConstraintActive(state.position)) return false;
+
   const envelope = getDriftEvolutionEntryDriveEnvelope(state.position.x);
-
-  if (!envelope.active) return false;
-
   let collided = false;
 
   if (state.position.z < envelope.minZ) {
