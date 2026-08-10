@@ -44,7 +44,7 @@ test("VEH-SOURCE-03 pilots Defender 90 only in Drift Evolution", () => {
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });
 
-test("VEH-VIS-V1A keeps the approved pose, size and source-first geometry", () => {
+test("VEH-VIS-V1B keeps the approved pose, size and source-first geometry", () => {
   assert.match(evolutionVehicleSource, /findLegacyVehiclePoseGroup/);
   assert.match(evolutionVehicleSource, /legacy\.visible = false/);
   assert.match(evolutionVehicleSource, /poseGroup\.position\.copy\(legacy\.position\)/);
@@ -73,7 +73,21 @@ test("VEH-VIS-V1A retunes only the identified body and roof materials", () => {
   assert.match(evolutionVehicleSource, /material\.metalness = 0\.05/);
   assert.match(evolutionVehicleSource, /material\.roughness = 0\.78/);
   assert.doesNotMatch(evolutionVehicleSource, /SOURCE_(?:TIRE|GLASS)_MATERIAL/);
-  assert.doesNotMatch(evolutionVehicleSource, /expedition_/);
+});
+
+test("VEH-VIS-V1B reuses one authored wheel assembly as the rear spare", () => {
+  assert.match(evolutionVehicleSource, /SOURCE_REAR_WHEEL_GROUP = "Plane\.025_30"/);
+  assert.match(evolutionVehicleSource, /REAR_SPARE_CENTER = Object\.freeze/);
+  assert.match(evolutionVehicleSource, /sourceWheel\.clone\(true\)/);
+  assert.match(evolutionVehicleSource, /new THREE\.Box3\(\)/);
+  assert.match(evolutionVehicleSource, /pivot\.attach\(spareWheel\)/);
+  assert.match(evolutionVehicleSource, /pivot\.rotation\.y = Math\.PI \/ 2/);
+  assert.match(evolutionVehicleSource, /misway_rear_spare_source_clone/);
+  assert.doesNotMatch(evolutionVehicleSource, /new THREE\.Mesh\(/);
+  assert.doesNotMatch(
+    evolutionVehicleSource,
+    /roof_rack|roof_roll|bullbar|ladder|snorkel/
+  );
 });
 
 test("VEH-SOURCE-03 hides the inherited visual during load but restores it on failure", () => {
