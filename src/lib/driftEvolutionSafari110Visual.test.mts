@@ -86,7 +86,24 @@ test("VEH-VIS-V1B-FIX2 only accepts wheel-sized source assemblies", () => {
   assert.match(evolutionVehicleSource, /pivot\.rotation\.y = Math\.PI \/ 2/);
   assert.match(evolutionVehicleSource, /misway_rear_spare_source_clone/);
   assert.doesNotMatch(evolutionVehicleSource, /getObjectByName\(/);
-  assert.doesNotMatch(evolutionVehicleSource, /new THREE\.Mesh\(/);
+});
+
+test("VEH-VIS-V1C derives a restrained roof rack from the authored roof mesh", () => {
+  assert.match(evolutionVehicleSource, /RACK_COLOR = "#1b1d1c"/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_WIDTH_RATIO = 0\.9/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_LENGTH_RATIO = 0\.88/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_BAR_THICKNESS = 0\.025/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_CLEARANCE = 0\.035/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_SIDE_HEIGHT = 0\.055/);
+  assert.match(evolutionVehicleSource, /ROOF_RACK_CROSSBAR_COUNT = 4/);
+  assert.match(evolutionVehicleSource, /findSourceRoofMesh/);
+  assert.match(evolutionVehicleSource, /meshUsesMaterialName\(object, SOURCE_ROOF_MATERIAL\)/);
+  assert.match(evolutionVehicleSource, /new THREE\.BoxGeometry/);
+  assert.match(evolutionVehicleSource, /misway_roof_rack/);
+  assert.match(
+    evolutionVehicleSource,
+    /installSourceRearSpare\(root\);[\s\S]*installSourceRoofRack\(root\);/
+  );
 });
 
 test("Defender source exposes exactly four three-part rubber road-wheel assemblies", () => {
