@@ -1,16 +1,15 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
-import { useFrame, useLoader, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
-import { withBasePath } from "@/lib/basePath";
+import assetPart0 from "@/components/drift-evolution/miswaySafariGzipPart0";
+import assetPart1 from "@/components/drift-evolution/miswaySafariGzipPart1";
 
-const MISWAY_SAFARI_MODEL_URL = withBasePath(
-  "/models/misway-safari/misway-safari-v1.gltf"
-);
+const MISWAY_SAFARI_GZIP_BASE64 = `${assetPart0}${assetPart1}`;
 
 export const MISWAY_SAFARI_RUNTIME_SCALE = 0.32;
 export const MISWAY_SAFARI_RUNTIME_Y_OFFSET = -0.048;
@@ -44,6 +43,36 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
+function decodeBase64(encoded: string) {
+  const binary = window.atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+async function inflateMiswaySafariAsset() {
+  const compressed = decodeBase64(MISWAY_SAFARI_GZIP_BASE64);
+  const stream = new Blob([compressed.buffer])
+    .stream()
+    .pipeThrough(new DecompressionStream("gzip"));
+  return new Response(stream).text();
+}
+
+function disposeModel(root: THREE.Object3D) {
+  const materials = new Set<THREE.Material>();
+  root.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    object.geometry.dispose();
+    const meshMaterials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of meshMaterials) materials.add(material);
+  });
+  for (const material of materials) material.dispose();
+}
+
 /**
  * Evolution-only candidate vehicle built from the lightweight old Land Rover
  * sub-model supplied under the Sketchfab Standard license, then adapted into
@@ -56,21 +85,54 @@ export default function MiswaySafariVehicleVisual({
   vehicleStateRef,
 }: MiswaySafariVehicleVisualProps) {
   const scene = useThree((state) => state.scene);
-  const gltf = useLoader(GLTFLoader, MISWAY_SAFARI_MODEL_URL);
   const poseGroupRef = useRef<THREE.Group>(null);
   const legacyPoseRef = useRef<THREE.Group | null>(null);
   const headlightRef = useRef<THREE.SpotLight>(null);
   const headlightTargetRef = useRef<THREE.Object3D>(null);
-  const model = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const [model, setModel] = useState<THREE.Group | null>(null);
   const wheels = useMemo(
     () =>
-      MISWAY_SAFARI_WHEEL_NAMES.map((name) => model.getObjectByName(name)).filter(
-        (object): object is THREE.Object3D => Boolean(object)
-      ),
+      model
+        ? MISWAY_SAFARI_WHEEL_NAMES.map((name) => model.getObjectByName(name)).filter(
+            (object): object is THREE.Object3D => Boolean(object)
+          )
+        : [],
     [model]
   );
 
+  useEffect(() => {
+    let cancelled = false;
+    const loader = new GLTFLoader();
+
+    void inflateMiswaySafariAsset()
+      .then(
+        (assetText) =>
+          new Promise<THREE.Group>((resolve, reject) => {
+            loader.parse(
+              assetText,
+              "",
+              (gltf) => resolve(gltf.scene),
+              (error) => reject(error)
+            );
+          })
+      )
+      .then((loadedModel) => {
+        if (cancelled) {
+          disposeModel(loadedModel);
+          return;
+        }
+        setModel(loadedModel);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useLayoutEffect(() => {
+    if (!model) return;
+
     const legacy = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
     if (legacy) legacy.visible = false;
@@ -93,7 +155,16 @@ export default function MiswaySafariVehicleVisual({
     };
   }, [model, scene]);
 
+  useEffect(
+    () => () => {
+      if (model) disposeModel(model);
+    },
+    [model]
+  );
+
   useFrame((_, delta) => {
+    if (!model) return;
+
     let legacy = legacyPoseRef.current;
     if (!legacy) {
       legacy = findLegacyVehiclePoseGroup(scene);
@@ -117,6 +188,8 @@ export default function MiswaySafariVehicleVisual({
 
     for (const wheel of wheels) wheel.rotation.x += wheelDelta;
   }, 0.62);
+
+  if (!model) return null;
 
   return (
     <group ref={poseGroupRef} renderOrder={12} aria-hidden="true">
