@@ -46,6 +46,13 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
+function rotateMiswaySafariWheels(root: THREE.Object3D, deltaAngle: number) {
+  for (const name of MISWAY_SAFARI_WHEEL_NAMES) {
+    const wheel = root.getObjectByName(name);
+    if (wheel) wheel.rotation.x += deltaAngle;
+  }
+}
+
 async function inflateMiswaySafariAsset() {
   const partBuffers = await Promise.all(
     MISWAY_SAFARI_ASSET_PARTS.map(async (url) => {
@@ -101,7 +108,6 @@ export default function MiswaySafariVehicleVisual({
   const scene = useThree((state) => state.scene);
   const poseGroupRef = useRef<THREE.Group>(null);
   const legacyPoseRef = useRef<THREE.Group | null>(null);
-  const wheelsRef = useRef<THREE.Object3D[]>([]);
   const headlightRef = useRef<THREE.SpotLight>(null);
   const headlightTargetRef = useRef<THREE.Object3D>(null);
   const [model, setModel] = useState<THREE.Group | null>(null);
@@ -143,10 +149,6 @@ export default function MiswaySafariVehicleVisual({
     legacyPoseRef.current = legacy;
     if (legacy) legacy.visible = false;
 
-    wheelsRef.current = MISWAY_SAFARI_WHEEL_NAMES.map((name) =>
-      model.getObjectByName(name)
-    ).filter((object): object is THREE.Object3D => Boolean(object));
-
     model.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
       object.castShadow = true;
@@ -162,7 +164,6 @@ export default function MiswaySafariVehicleVisual({
       const previous = legacyPoseRef.current;
       if (previous) previous.visible = true;
       legacyPoseRef.current = null;
-      wheelsRef.current = [];
     };
   }, [model, scene]);
 
@@ -197,7 +198,7 @@ export default function MiswaySafariVehicleVisual({
     const wheelDelta =
       (vehicleStateRef.current.speed * frameDelta) / visualWheelRadius;
 
-    for (const wheel of wheelsRef.current) wheel.rotation.x += wheelDelta;
+    rotateMiswaySafariWheels(model, wheelDelta);
   }, 0.62);
 
   if (!model) return null;
