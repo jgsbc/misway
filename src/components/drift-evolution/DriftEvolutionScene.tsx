@@ -4,9 +4,9 @@ import { useLayoutEffect, useRef, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
+import Defender90LowpolyVehicleVisual from "@/components/drift-evolution/Defender90LowpolyVehicleVisual";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
-import FullFidelityDefenderVehicleVisual from "@/components/drift-evolution/FullFidelityDefenderVehicleVisual";
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
 import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturgy";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
@@ -78,7 +78,7 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
           vehicleStateRef={props.vehicleStateRef}
         />
       ))}
-      <FullFidelityDefenderVehicleVisual />
+      <Defender90LowpolyVehicleVisual />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
       <FoolfouleCrowd
