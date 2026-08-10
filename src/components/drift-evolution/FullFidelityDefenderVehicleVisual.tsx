@@ -8,10 +8,19 @@ import { withBasePath } from "@/lib/basePath";
 
 export const MISWAY_DEFENDER_1966_ASSET_PATH =
   "/models/misway-defender-1966/misway-defender-1966-full.glb";
-export const MISWAY_DEFENDER_1966_RUNTIME_SCALE = 1.68;
-export const MISWAY_DEFENDER_1966_RUNTIME_Y_OFFSET = -0.04;
+export const MISWAY_DEFENDER_1966_RUNTIME_SCALE = 0.84;
+export const MISWAY_DEFENDER_1966_RUNTIME_Y_OFFSET = -0.02;
+export const MISWAY_DEFENDER_1966_BODY_TINT = "#d8c39a";
+export const MISWAY_DEFENDER_1966_TIRE_TINT = "#4a4540";
 
 const assetUrl = withBasePath(MISWAY_DEFENDER_1966_ASSET_PATH);
+const SOURCE_PROJECTION_MATERIAL = "defender_projection";
+const SOURCE_DARK_MATERIAL = "Material";
+const SOURCE_WHEEL_MESHES = Object.freeze([
+  "Plane.008_defender_projection_0",
+  "Plane.009_defender_projection_0",
+  "Plane.010_defender_projection_0",
+] as const);
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -30,11 +39,62 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
+function tuneProjectedMaterial(material: THREE.Material) {
+  if (!(material instanceof THREE.MeshStandardMaterial)) return;
+
+  if (material.name === SOURCE_PROJECTION_MATERIAL) {
+    // Keep the authored projection map as the visual authority and multiply it
+    // by a warm sand tint. Texture detail, dirt and baked variation survive.
+    material.color.set(MISWAY_DEFENDER_1966_BODY_TINT);
+    material.roughness = Math.max(material.roughness, 0.78);
+    material.metalness = 0;
+  } else if (material.name === SOURCE_DARK_MATERIAL) {
+    material.color.set("#171717");
+    material.roughness = 0.42;
+    material.metalness = 0;
+  }
+}
+
+function cloneWheelMaterial(material: THREE.Material) {
+  const clone = material.clone();
+  if (clone instanceof THREE.MeshStandardMaterial) {
+    clone.name = `${material.name}__misway_tire`;
+    clone.color.set(MISWAY_DEFENDER_1966_TIRE_TINT);
+    clone.roughness = 0.96;
+    clone.metalness = 0;
+  }
+  return clone;
+}
+
 function prepareSourceModel(root: THREE.Object3D) {
+  const wheelMeshes: THREE.Mesh[] = [];
+
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     object.castShadow = true;
     object.receiveShadow = true;
+    if (SOURCE_WHEEL_MESHES.includes(object.name as (typeof SOURCE_WHEEL_MESHES)[number])) {
+      wheelMeshes.push(object);
+    }
+  });
+
+  // Wheels share the same projected material as the body in the source file.
+  // Clone only their materials before tinting the shared body material so tyres
+  // remain dark without touching geometry, UVs or the authored texture map.
+  for (const wheel of wheelMeshes) {
+    wheel.material = Array.isArray(wheel.material)
+      ? wheel.material.map(cloneWheelMaterial)
+      : cloneWheelMaterial(wheel.material);
+  }
+
+  root.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) {
+      if (!material.name.endsWith("__misway_tire")) tuneProjectedMaterial(material);
+    }
   });
 }
 
@@ -62,13 +122,54 @@ function disposeSourceModel(root: THREE.Object3D) {
   for (const material of materials) material.dispose();
 }
 
+function DefenderExpeditionAccessories() {
+  return (
+    <group name="misway_defender_expedition_accessories">
+      <group name="expedition_roof_rack">
+        {[-0.43, 0.43].map((x) => (
+          <mesh key={`rack-rail-${x}`} position={[x, 1.245, -0.04]} castShadow>
+            <boxGeometry args={[0.035, 0.045, 1.55]} />
+            <meshStandardMaterial color="#242321" roughness={0.84} metalness={0.18} />
+          </mesh>
+        ))}
+        {[-0.58, 0, 0.58].map((z) => (
+          <mesh key={`rack-cross-${z}`} position={[0, 1.255, z]} castShadow>
+            <boxGeometry args={[0.9, 0.035, 0.035]} />
+            <meshStandardMaterial color="#242321" roughness={0.84} metalness={0.18} />
+          </mesh>
+        ))}
+      </group>
+
+      <group name="expedition_roof_roll">
+        <mesh position={[0, 1.395, -0.16]} rotation={[0, 0, Math.PI / 2]} castShadow>
+          <cylinderGeometry args={[0.12, 0.12, 0.58, 12]} />
+          <meshStandardMaterial color="#9f8962" roughness={0.94} metalness={0} />
+        </mesh>
+      </group>
+
+      <group name="expedition_rear_spare" position={[0, 0.55, -1.105]}>
+        <mesh castShadow>
+          <torusGeometry args={[0.18, 0.058, 10, 22]} />
+          <meshStandardMaterial color="#302e2b" roughness={0.98} metalness={0} />
+        </mesh>
+        <mesh position={[0, 0, -0.035]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.075, 0.075, 0.055, 12]} />
+          <meshStandardMaterial color="#4b4a46" roughness={0.72} metalness={0.35} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 /**
  * Full-fidelity Evolution-only vehicle candidate.
  *
  * The source vehicle geometry, UVs, texture and material structure are kept
  * intact. The extraction only removes the unrelated redesign vehicle from the
  * downloaded Sketchfab scene and normalises the old 1966 vehicle to Y-up,
- * ground-centred coordinates. No decimation or replacement geometry is used.
+ * ground-centred coordinates. No decimation or replacement body geometry is
+ * used. V1 alignment is deliberately non-destructive: material multiplication
+ * plus three additive expedition cues only.
  *
  * Motion remains owned by the hidden production vehicle. This component only
  * mirrors that pose, so physics, collisions, terrain pitch/roll, controls and
@@ -146,20 +247,22 @@ export default function FullFidelityDefenderVehicleVisual() {
       poseGroup.quaternion.copy(legacy.quaternion);
     }
 
-    // Deliberately no wheel surgery in the first full-fidelity pass. The old
-    // source groups both rear wheels in one authored mesh; preserving the
-    // source exactly is more important than cosmetic wheel spin at this stage.
+    // Deliberately no wheel surgery: the source groups both rear wheels in one
+    // authored mesh, and source fidelity remains more important than cosmetic
+    // wheel spin in this alignment pass.
   }, 0.62);
 
   if (!model) return null;
 
   return (
     <group ref={poseGroupRef} renderOrder={12} aria-hidden="true">
-      <primitive
-        object={model}
+      <group
         scale={MISWAY_DEFENDER_1966_RUNTIME_SCALE}
         position={[0, MISWAY_DEFENDER_1966_RUNTIME_Y_OFFSET, 0]}
-      />
+      >
+        <primitive object={model} />
+        <DefenderExpeditionAccessories />
+      </group>
       <spotLight
         ref={headlightRef}
         position={[0, 0.42, 0.78]}

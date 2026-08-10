@@ -41,9 +41,29 @@ test("full-fidelity Defender mirrors pose and preserves source-first policy", ()
     evolutionVehicleSource,
     /misway-defender-1966\/misway-defender-1966-full\.glb/
   );
-  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 1\.68/);
-  assert.match(evolutionVehicleSource, /No decimation or replacement geometry is used/);
+  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 0\.84/);
+  assert.match(evolutionVehicleSource, /RUNTIME_Y_OFFSET = -0\.02/);
+  assert.match(evolutionVehicleSource, /No decimation or replacement body geometry/);
   assert.doesNotMatch(evolutionVehicleSource, /stepDrift3DVehiclePhysics/);
   assert.doesNotMatch(evolutionVehicleSource, /constrainDriftEvolutionEntryVehicle/);
   assert.doesNotMatch(evolutionVehicleSource, /rotateDrift3DSafari110Wheels/);
+});
+
+test("VEH-FD-V1 keeps texture detail while separating sand body and dark tyres", () => {
+  assert.match(evolutionVehicleSource, /BODY_TINT = "#d8c39a"/);
+  assert.match(evolutionVehicleSource, /TIRE_TINT = "#4a4540"/);
+  assert.match(evolutionVehicleSource, /SOURCE_PROJECTION_MATERIAL = "defender_projection"/);
+  assert.match(evolutionVehicleSource, /cloneWheelMaterial/);
+  assert.match(evolutionVehicleSource, /material\.clone\(\)/);
+  assert.match(evolutionVehicleSource, /material\.color\.set\(MISWAY_DEFENDER_1966_BODY_TINT\)/);
+  assert.doesNotMatch(evolutionVehicleSource, /geometry\.clone\(/);
+});
+
+test("VEH-FD-V1 adds only the three approved expedition cues", () => {
+  assert.match(evolutionVehicleSource, /expedition_roof_rack/);
+  assert.match(evolutionVehicleSource, /expedition_roof_roll/);
+  assert.match(evolutionVehicleSource, /expedition_rear_spare/);
+  assert.doesNotMatch(evolutionVehicleSource, /expedition_ladder/);
+  assert.doesNotMatch(evolutionVehicleSource, /expedition_bullbar/);
+  assert.doesNotMatch(evolutionVehicleSource, /expedition_snorkel/);
 });
