@@ -16,6 +16,7 @@ export const DEFENDER_90_LOWPOLY_SOURCE_OFFSET = Object.freeze([
 ] as const);
 export const DEFENDER_90_LOWPOLY_BODY_COLOR = "#c5aa76";
 export const DEFENDER_90_LOWPOLY_ROOF_COLOR = "#d3c39f";
+export const DEFENDER_90_LOWPOLY_RACK_COLOR = "#1b1d1c";
 
 const assetUrl = withBasePath(DEFENDER_90_LOWPOLY_ASSET_PATH);
 const SOURCE_BODY_MATERIAL = "Material.002";
@@ -28,6 +29,12 @@ const WHEEL_MAX_THICKNESS = 0.32;
 const WHEEL_ROUNDNESS_TOLERANCE = 0.08;
 const REAR_SPARE_HEIGHT_RATIO = 0.56;
 const REAR_SPARE_DEPTH_FACTOR = 0.6;
+const ROOF_RACK_WIDTH_RATIO = 0.9;
+const ROOF_RACK_LENGTH_RATIO = 0.88;
+const ROOF_RACK_BAR_THICKNESS = 0.025;
+const ROOF_RACK_CLEARANCE = 0.035;
+const ROOF_RACK_SIDE_HEIGHT = 0.055;
+const ROOF_RACK_CROSSBAR_COUNT = 4;
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -109,9 +116,6 @@ function findSourceWheelAssembly(root: THREE.Group): THREE.Object3D | null {
     }
   });
 
-  // Any of the four authored road wheels is a valid source. Prefer a rear wheel
-  // (lowest Z in the imported +Z-forward model) so its source orientation is
-  // closest to the intended rear-door spare transform.
   let rearWheel: THREE.Object3D | null = null;
   let rearMostZ = Infinity;
   for (const candidate of candidates) {
@@ -140,8 +144,6 @@ function installSourceRearSpare(root: THREE.Group) {
 
   sourceWheel.updateWorldMatrix(true, true);
 
-  // Clone one actual authored road-wheel group only (three direct meshes:
-  // rim/hub/tyre). Never walk upward into body-sized rubber-bearing assemblies.
   const spareWheel = sourceWheel.clone(true);
   spareWheel.name = "misway_rear_spare_source_clone";
   const rootInverse = root.matrixWorld.clone().invert();
@@ -165,9 +167,6 @@ function installSourceRearSpare(root: THREE.Group) {
   root.add(pivot);
   pivot.attach(spareWheel);
 
-  // The imported Defender faces +Z, so the rear door is the -Z face. Keep the
-  // spare centred laterally, around the lower-middle rear door, and one tyre
-  // half-thickness outside the body envelope.
   const targetWorld = new THREE.Vector3(
     vehicleCenter.x,
     vehicleBounds.min.y + vehicleSize.y * REAR_SPARE_HEIGHT_RATIO,
@@ -177,6 +176,114 @@ function installSourceRearSpare(root: THREE.Group) {
   pivot.rotation.y = Math.PI / 2;
   pivot.updateMatrixWorld(true);
 
+  return true;
+}
+
+function findSourceRoofMesh(root: THREE.Group): THREE.Mesh | null {
+  let roof: THREE.Mesh | null = null;
+  let largestFootprint = -Infinity;
+
+  root.updateMatrixWorld(true);
+  root.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    if (!meshUsesMaterialName(object, SOURCE_ROOF_MATERIAL)) return;
+
+    const size = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+    const footprint = size.x * size.z;
+    if (footprint > largestFootprint) {
+      roof = object;
+      largestFootprint = footprint;
+    }
+  });
+
+  return roof;
+}
+
+function makeRoofRackBar(
+  size: readonly [number, number, number],
+  position: readonly [number, number, number],
+  material: THREE.MeshStandardMaterial
+) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), material);
+  mesh.position.set(...position);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function installSourceRoofRack(root: THREE.Group) {
+  const roof = findSourceRoofMesh(root);
+  if (!roof) return false;
+
+  root.updateMatrixWorld(true);
+  const roofBounds = new THREE.Box3().setFromObject(roof);
+  const roofSize = roofBounds.getSize(new THREE.Vector3());
+  const roofCenter = roofBounds.getCenter(new THREE.Vector3());
+  const rackWidth = roofSize.x * ROOF_RACK_WIDTH_RATIO;
+  const rackLength = roofSize.z * ROOF_RACK_LENGTH_RATIO;
+  const bar = ROOF_RACK_BAR_THICKNESS;
+
+  const rackMaterial = new THREE.MeshStandardMaterial({
+    name: "misway_roof_rack_material",
+    color: DEFENDER_90_LOWPOLY_RACK_COLOR,
+    metalness: 0.18,
+    roughness: 0.76,
+  });
+
+  const rack = new THREE.Group();
+  rack.name = "misway_roof_rack";
+  const rackCenterWorld = new THREE.Vector3(
+    roofCenter.x,
+    roofBounds.max.y + ROOF_RACK_CLEARANCE + bar * 0.5,
+    roofCenter.z
+  );
+  rack.position.copy(root.worldToLocal(rackCenterWorld));
+
+  const sideX = rackWidth * 0.5 - bar * 0.5;
+  const sideY = bar * 0.5 + ROOF_RACK_SIDE_HEIGHT * 0.5;
+  rack.add(
+    makeRoofRackBar(
+      [bar, ROOF_RACK_SIDE_HEIGHT, rackLength],
+      [-sideX, sideY, 0],
+      rackMaterial
+    )
+  );
+  rack.add(
+    makeRoofRackBar(
+      [bar, ROOF_RACK_SIDE_HEIGHT, rackLength],
+      [sideX, sideY, 0],
+      rackMaterial
+    )
+  );
+
+  for (let index = 0; index < ROOF_RACK_CROSSBAR_COUNT; index += 1) {
+    const t = ROOF_RACK_CROSSBAR_COUNT === 1
+      ? 0.5
+      : index / (ROOF_RACK_CROSSBAR_COUNT - 1);
+    const z = -rackLength * 0.42 + rackLength * 0.84 * t;
+    rack.add(
+      makeRoofRackBar([rackWidth, bar, bar], [0, 0, z], rackMaterial)
+    );
+  }
+
+  const footHeight = ROOF_RACK_CLEARANCE;
+  const footY = -(footHeight + bar) * 0.5;
+  const footX = rackWidth * 0.44;
+  const footZ = rackLength * 0.4;
+  for (const x of [-footX, footX]) {
+    for (const z of [-footZ, footZ]) {
+      rack.add(
+        makeRoofRackBar(
+          [bar * 1.25, footHeight, bar * 1.25],
+          [x, footY, z],
+          rackMaterial
+        )
+      );
+    }
+  }
+
+  root.add(rack);
+  rack.updateMatrixWorld(true);
   return true;
 }
 
@@ -192,7 +299,10 @@ function prepareSourceModel(root: THREE.Group) {
     for (const material of materials) tuneMiswayMaterial(material);
   });
 
+  // Keep the already-approved rear spare placement independent from the new
+  // roof equipment by installing the rack only after the spare is resolved.
   installSourceRearSpare(root);
+  installSourceRoofRack(root);
 }
 
 function disposeSourceModel(root: THREE.Object3D) {
@@ -213,13 +323,13 @@ function disposeSourceModel(root: THREE.Object3D) {
 }
 
 /**
- * VEH-VIS-V1B-FIX2 — converged Evolution-only MISWAY Defender visual.
+ * VEH-VIS-V1C — bounded expedition silhouette pass for the Evolution Defender.
  *
- * Keeps the owner-approved 0.82 scale and V1A sand/roof materials. The rear
- * spare is constrained to one wheel-sized authored source assembly before it is
- * cloned and mounted. This prevents body-sized rubber-bearing groups from ever
- * becoming the spare. Physics, collisions, controls, terrain pose and camera
- * remain owned by the existing hidden vehicle runtime.
+ * Keeps the approved 0.82 scale, V1A materials and source-native rear spare.
+ * Adds one low-profile roof rack whose dimensions are derived from the authored
+ * roof mesh itself: two side rails, four crossbars and four short feet. No
+ * luggage, ladder, bullbar, snorkel or other accessory is introduced here.
+ * Physics, collisions, controls, terrain pose and camera remain unchanged.
  */
 export default function Defender90LowpolyVehicleVisual() {
   const scene = useThree((state) => state.scene);
