@@ -40,7 +40,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/driftEvolutionEntryCave.ts": "31a171bf263737f6efd377593f63c1c825c3dc2f",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
-  "src/lib/driftEvolutionSpatial.ts": "4fcedbce349b5c296fc698244aa51c809295c9da",
+  "src/lib/driftEvolutionSpatial.ts": "c21f9bb3e8997e7bb0c1b50dfbb28b508c6e78ab",
   "src/lib/driftEvolutionZeelandGeography.ts": "d0cc3f6e64208e30818ec3c4ce31db2c634962bc",
   "src/lib/driftEvolutionFoolfouleRegistry.ts": "f6e74b35e6a32fed517b303fd954257c3aca8145",
   "src/lib/driftEvolutionLegacyEntryRegistry.ts": "aadbde106b578df6c1bea9406fc366c006098281",
