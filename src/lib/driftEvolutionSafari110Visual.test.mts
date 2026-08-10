@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
+// Keep the rear-spare guard source-driven: exactly four three-part road-wheel
+// assemblies are valid candidates in the supplied Defender glTF.
 const evolutionSceneSource = readFileSync(
   new URL("../components/drift-evolution/DriftEvolutionScene.tsx", import.meta.url),
   "utf8"
