@@ -6,7 +6,7 @@ import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
-import MiswaySafariVehicleVisual from "@/components/drift-evolution/MiswaySafariVehicleVisual";
+import EvolutionSafari110VehicleVisual from "@/components/drift-evolution/EvolutionSafari110VehicleVisual";
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
 import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturgy";
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
@@ -78,7 +78,7 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
           vehicleStateRef={props.vehicleStateRef}
         />
       ))}
-      <MiswaySafariVehicleVisual vehicleStateRef={props.vehicleStateRef} />
+      <EvolutionSafari110VehicleVisual vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
       <FoolfouleCrowd
