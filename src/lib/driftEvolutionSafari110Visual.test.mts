@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
 const evolutionSceneSource = readFileSync(
@@ -8,7 +8,7 @@ const evolutionSceneSource = readFileSync(
 );
 const evolutionVehicleSource = readFileSync(
   new URL(
-    "../components/drift-evolution/FullFidelityDefenderVehicleVisual.tsx",
+    "../components/drift-evolution/Defender90LowpolyVehicleVisual.tsx",
     import.meta.url
   ),
   "utf8"
@@ -22,48 +22,83 @@ const productionBaseSource = readFileSync(
   "utf8"
 );
 
-test("Evolution pilots the full-fidelity Defender without changing production", () => {
-  assert.match(evolutionSceneSource, /FullFidelityDefenderVehicleVisual/);
-  assert.match(evolutionSceneSource, /<FullFidelityDefenderVehicleVisual \/>/);
-  assert.doesNotMatch(evolutionSceneSource, /<EvolutionSafari110VehicleVisual/);
-  assert.match(productionSceneSource, /<EvolutionSafari110VehicleVisual/);
-  assert.doesNotMatch(productionSceneSource, /FullFidelityDefenderVehicleVisual/);
-  assert.doesNotMatch(productionBaseSource, /FullFidelityDefenderVehicleVisual/);
+const assetGltfUrl = new URL(
+  "../../public/models/defender90-lowpoly/scene.gltf",
+  import.meta.url
+);
+const assetBinUrl = new URL(
+  "../../public/models/defender90-lowpoly/scene.bin",
+  import.meta.url
+);
+const assetLicenseUrl = new URL(
+  "../../public/models/defender90-lowpoly/license.txt",
+  import.meta.url
+);
+
+test("VEH-SOURCE-03 pilots Defender 90 only in Drift Evolution", () => {
+  assert.match(evolutionSceneSource, /Defender90LowpolyVehicleVisual/);
+  assert.match(evolutionSceneSource, /<Defender90LowpolyVehicleVisual \/>/);
+  assert.doesNotMatch(evolutionSceneSource, /<FullFidelityDefenderVehicleVisual/);
+  assert.doesNotMatch(productionSceneSource, /Defender90LowpolyVehicleVisual/);
+  assert.doesNotMatch(productionBaseSource, /Defender90LowpolyVehicleVisual/);
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });
 
-test("full-fidelity Defender mirrors pose and preserves source-first policy", () => {
+test("VEH-SOURCE-03 remains a raw visual follower", () => {
   assert.match(evolutionVehicleSource, /findLegacyVehiclePoseGroup/);
   assert.match(evolutionVehicleSource, /legacy\.visible = false/);
   assert.match(evolutionVehicleSource, /poseGroup\.position\.copy\(legacy\.position\)/);
   assert.match(evolutionVehicleSource, /poseGroup\.quaternion\.copy\(legacy\.quaternion\)/);
-  assert.match(
+  assert.match(evolutionVehicleSource, /defender90-lowpoly\/scene\.gltf/);
+  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 0\.82/);
+  assert.match(evolutionVehicleSource, /4\.84276/);
+  assert.match(evolutionVehicleSource, /-0\.09198/);
+  assert.match(evolutionVehicleSource, /-0\.24755/);
+  assert.doesNotMatch(evolutionVehicleSource, /BODY_TINT|TIRE_TINT|expedition_/);
+  assert.doesNotMatch(
     evolutionVehicleSource,
-    /misway-defender-1966\/misway-defender-1966-full\.glb/
+    /boxGeometry|torusGeometry|cylinderGeometry|meshStandardMaterial/
   );
-  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 0\.84/);
-  assert.match(evolutionVehicleSource, /RUNTIME_Y_OFFSET = -0\.02/);
-  assert.match(evolutionVehicleSource, /No decimation or replacement body geometry/);
   assert.doesNotMatch(evolutionVehicleSource, /stepDrift3DVehiclePhysics/);
   assert.doesNotMatch(evolutionVehicleSource, /constrainDriftEvolutionEntryVehicle/);
-  assert.doesNotMatch(evolutionVehicleSource, /rotateDrift3DSafari110Wheels/);
 });
 
-test("VEH-FD-V1 keeps texture detail while separating sand body and dark tyres", () => {
-  assert.match(evolutionVehicleSource, /BODY_TINT = "#d8c39a"/);
-  assert.match(evolutionVehicleSource, /TIRE_TINT = "#4a4540"/);
-  assert.match(evolutionVehicleSource, /SOURCE_PROJECTION_MATERIAL = "defender_projection"/);
-  assert.match(evolutionVehicleSource, /cloneWheelMaterial/);
-  assert.match(evolutionVehicleSource, /material\.clone\(\)/);
-  assert.match(evolutionVehicleSource, /material\.color\.set\(MISWAY_DEFENDER_1966_BODY_TINT\)/);
-  assert.doesNotMatch(evolutionVehicleSource, /geometry\.clone\(/);
+test("VEH-SOURCE-03 hides the inherited visual during load but restores it on failure", () => {
+  assert.match(
+    evolutionVehicleSource,
+    /useLayoutEffect\(\(\) => \{[\s\S]*legacy\.visible = false;[\s\S]*\}, \[scene\]\);/
+  );
+  assert.match(evolutionVehicleSource, /Loading failure is the only case/);
+  assert.match(evolutionVehicleSource, /legacy\.visible = true/);
 });
 
-test("VEH-FD-V1 adds only the three approved expedition cues", () => {
-  assert.match(evolutionVehicleSource, /expedition_roof_rack/);
-  assert.match(evolutionVehicleSource, /expedition_roof_roll/);
-  assert.match(evolutionVehicleSource, /expedition_rear_spare/);
-  assert.doesNotMatch(evolutionVehicleSource, /expedition_ladder/);
-  assert.doesNotMatch(evolutionVehicleSource, /expedition_bullbar/);
-  assert.doesNotMatch(evolutionVehicleSource, /expedition_snorkel/);
+test("VEH-SOURCE-03 source asset is complete and attribution-ready", () => {
+  const gltf = JSON.parse(readFileSync(assetGltfUrl, "utf8")) as {
+    asset?: { extras?: { title?: string; author?: string; license?: string } };
+    accessors: Array<{ count: number }>;
+    meshes: Array<{
+      primitives: Array<{ indices?: number }>;
+    }>;
+    buffers?: Array<{ uri?: string; byteLength?: number }>;
+  };
+  const license = readFileSync(assetLicenseUrl, "utf8");
+  const triangles = gltf.meshes.reduce(
+    (total, mesh) =>
+      total +
+      mesh.primitives.reduce((meshTotal, primitive) => {
+        if (primitive.indices === undefined) return meshTotal;
+        return meshTotal + gltf.accessors[primitive.indices].count / 3;
+      }, 0),
+    0
+  );
+
+  assert.equal(gltf.asset?.extras?.title, "Land Rover Defender 90 Lowpoly");
+  assert.match(gltf.asset?.extras?.author ?? "", /kekis69/);
+  assert.match(gltf.asset?.extras?.license ?? "", /CC-BY-4\.0/);
+  assert.equal(gltf.buffers?.[0]?.uri, "scene.bin");
+  assert.equal(gltf.buffers?.[0]?.byteLength, 4_111_684);
+  assert.equal(statSync(assetBinUrl).size, 4_111_684);
+  assert.equal(triangles, 100_075);
+  assert.match(license, /CC-BY-4\.0/);
+  assert.match(license, /kekis69/);
 });
