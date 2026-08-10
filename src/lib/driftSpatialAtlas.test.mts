@@ -82,9 +82,10 @@ test("spatial atlas owns current era membership instead of the retired 26-track 
 });
 
 test("raw topology coordinates are recorded without pretending they are accepted final placement", () => {
-  const topologyBySlug = new Map(
-    drift3dTrackNodes.map((node) => [node.trackSlug, node.position] as const)
-  );
+  const topologyBySlug = new Map<
+    string,
+    { readonly x: number; readonly y: number; readonly z: number }
+  >(drift3dTrackNodes.map((node) => [node.trackSlug, node.position]));
 
   for (const track of atlas.tracks) {
     const topology = topologyBySlug.get(track.slug);
