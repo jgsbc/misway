@@ -8,7 +8,7 @@ import { withBasePath } from "@/lib/basePath";
 
 export const DEFENDER_90_LOWPOLY_ASSET_PATH =
   "/models/defender90-lowpoly/scene.gltf";
-export const DEFENDER_90_LOWPOLY_RUNTIME_SCALE = 1.25;
+export const DEFENDER_90_LOWPOLY_RUNTIME_SCALE = 0.82;
 export const DEFENDER_90_LOWPOLY_SOURCE_OFFSET = Object.freeze([
   4.84276,
   -0.09198,
@@ -76,6 +76,21 @@ export default function Defender90LowpolyVehicleVisual() {
   const headlightTargetRef = useRef<THREE.Object3D | null>(null);
   const [model, setModel] = useState<THREE.Group | null>(null);
 
+  // Hide the inherited vehicle before the first painted Evolution frame so the
+  // raw candidate does not appear to morph from the previous 4x4 while loading.
+  // The inherited vehicle remains the pose/physics authority while hidden.
+  useLayoutEffect(() => {
+    const legacy = findLegacyVehiclePoseGroup(scene);
+    legacyPoseRef.current = legacy;
+    if (legacy) legacy.visible = false;
+
+    return () => {
+      const previous = legacyPoseRef.current;
+      if (previous) previous.visible = true;
+      legacyPoseRef.current = null;
+    };
+  }, [scene]);
+
   useEffect(() => {
     let cancelled = false;
     let loadedModel: THREE.Group | null = null;
@@ -94,7 +109,13 @@ export default function Defender90LowpolyVehicleVisual() {
       },
       undefined,
       () => {
-        // Keep the canonical vehicle visible if this raw candidate cannot load.
+        // Loading failure is the only case where the inherited visual returns.
+        const legacy =
+          legacyPoseRef.current ?? findLegacyVehiclePoseGroup(scene);
+        if (legacy) {
+          legacy.visible = true;
+          legacyPoseRef.current = legacy;
+        }
       }
     );
 
@@ -102,25 +123,14 @@ export default function Defender90LowpolyVehicleVisual() {
       cancelled = true;
       if (loadedModel) disposeSourceModel(loadedModel);
     };
-  }, []);
+  }, [scene]);
 
   useLayoutEffect(() => {
     if (!model) return;
-
-    const legacy = findLegacyVehiclePoseGroup(scene);
-    legacyPoseRef.current = legacy;
-    if (legacy) legacy.visible = false;
-
     if (headlightRef.current && headlightTargetRef.current) {
       headlightRef.current.target = headlightTargetRef.current;
     }
-
-    return () => {
-      const previous = legacyPoseRef.current;
-      if (previous) previous.visible = true;
-      legacyPoseRef.current = null;
-    };
-  }, [model, scene]);
+  }, [model]);
 
   useFrame(() => {
     if (!model) return;
