@@ -19,6 +19,11 @@ La hiérarchie documentaire suivante fait foi, de la plus factuelle à la plus d
 RUNTIME CODE
   vérité factuelle de ce qui est livré
 
+DRIFT 3D SPATIAL BIBLE / SPATIAL ATLAS
+  autorité active et bornée pour chemins, placement, statut spatial et catalogue courant
+  distingue topologyPosition / effectiveProductionPosition / owner acceptance
+  n'autorise jamais à réinterpréter une identité artistique ou une cue map
+
 MISWAY SITE IDENTITY DOCTRINE / FINAL REVIEW
   positionnement public du site
 
@@ -38,7 +43,8 @@ DRIFT 3D GLOBAL ART DIRECTION
   doctrine transversale (ratio réalisme/contamination/impossible, densité, λ, anti-patterns) — active, reconciled in GOV-40 ; index/synthèse, ne contredit jamais la Realism Bible ou la Living World Bible
 
 DRIFT 3D ERA TRACK ATLAS
-  atlas complet des 27 segments (15 champs) — active preliminary matrix, GOV-40 ; à lire avant DRIFT_3D_ERA_TRACK_IMPLEMENTATION_MATRIX_V2.md pour tout futur Identity Contract
+  atlas artistique détaillé du corpus juillet 2026 ; reste une source par-track pour les entrées qu'il décrit
+  ses anciens comptes/membres 26 tracks ne gouvernent plus le catalogue spatial courant
 
 APPROVED TRACK IDENTITY CONTRACTS
   autorité artistique locale
@@ -54,31 +60,62 @@ DRIFT 3D SHARED KIT ARCHITECTURE
   architecture cible (couche actifs/contenu : 15 kits), jamais vérité runtime automatique — GOV-40, complémentaire de l'Integral Systems Architecture
 
 ERA / TRANSITION CONTRACTS
-  active era-level authorities created in GOV-20
+  active era-level artistic authorities created in GOV-20
+  leurs inventaires de tracks datés ne remplacent pas le catalogue runtime/spatial courant
 
 APPROVED CUE MAPS
   autorité temporelle et musicale
   EUX GAINENT cue map: OWNER-APPROVED INITIAL TEMPORAL BASELINE, human listening follow-up closed out under BY-EUX-30's acceptance — runtime build: DRIFT-IV-BY-EUX-20 (DONE, merged PR #31) ; owner acceptance: DRIFT-IV-BY-EUX-30 (DONE, merged PR #32 at b069d09)
 
 DRIFT 3D INTEGRAL BACKLOG
-  FINALIZED ACTIVE DIRECTOR BACKLOG, resequenced by GOV-40 — 153 canonical executable lots (147 + GOV-40 + 5 new PRE-* reuse-first gates), 5 retired VS aliases
+  directeur historique/fondation ; ne peut pas écraser un lot plus récent explicitement autorisé par le propriétaire
 
-ACTIVE LOT
+ACTIVE LOT / EXPLICIT CURRENT OWNER TASK
   unique périmètre exécutable immédiat
 ```
 
 Le programme organise la livraison. Il ne réinterprète jamais un contrat artistique déjà accepté.
 Le code reste l'autorité de l'état réellement livré.
 Une autorité artistique ou temporelle approuvée (Living World Bible, Living Track Matrix, Identity Contract, Cue Map) ne prouve jamais que son runtime est livré sur `main` — voir `docs/DRIFT_3D_LIVING_WORLD_RECONCILIATION.md`.
-Depuis `DRIFT-IV-GOV-40` : un ensemble de kits d'actifs/contenu partagés (`docs/DRIFT_3D_SHARED_KIT_ARCHITECTURE.md`) est désormais défini et priorisé **avant** la reprise du travail track par track, via le groupe de gates `DRIFT-IV-PRE-00` à `PRE-40` — voir `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` §8.2 et `docs/DRIFT_3D_GOV40_RECONCILIATION.md` §1.1. Aucune décision artistique déjà approuvée n'est réouverte par ce changement de séquencement.
 
-Voir `docs/DRIFT_DOCUMENTATION_MAP.md` pour le rôle, le statut et l'autorité de chaque document.
+Pour toute question de catalogue courant, chemin, placement ou statut spatial, lire `docs/DRIFT_3D_SPATIAL_BIBLE.md` et `docs/DRIFT_3D_SPATIAL_ATLAS.json` avant d'interpréter les anciens comptes de tracks. Le catalogue courant est 32 tracks : Birth Yard 7, Older Shadows 5, Vegetative Field 6, New Signal 14 ; EUX GAINENT appartient à New Signal ; `eteeaooete` est retiré.
+
+Voir `docs/DRIFT_DOCUMENTATION_MAP.md` pour le rôle historique et général des autres documents.
 
 ---
 
 ## Read packs
 
-Pour toute tâche Drift, lire dans l'ordre le read pack obligatoire immédiat — uniquement des documents présents et actifs sur `main` :
+### Fast path obligatoire — tâches spatiales
+
+Pour toute tâche dont l'objectif principal est **chemin, route, placement, reachability, topologie de circulation, voisinage de tracks ou continuité spatiale**, **ne pas charger automatiquement le gros read pack générique ci-dessous**. Lire uniquement :
+
+```text
+1. AGENTS.md
+2. docs/DRIFT_3D_SPATIAL_BIBLE.md
+3. docs/DRIFT_3D_SPATIAL_ATLAS.json
+4. contrat de l'ère concernée uniquement
+5. entrée Track Atlas / Identity Contract de la track concernée uniquement
+6. src/lib/tracks.ts
+7. src/lib/drift3dTopology.ts
+8. src/lib/drift3dTerrain.ts
+9. implémentation spatiale production/lab directement concernée
+```
+
+Ajouter la Realism Bible, Living World Bible, Cue Map, architecture système ou autres documents uniquement si le patch touche réellement leur domaine.
+
+Règles du fast path spatial :
+
+- une coordonnée runtime est un `RUNTIME_FACT`, pas une acceptation artistique finale ;
+- `topologyPosition` peut différer de `effectiveProductionPosition` ; ne pas les confondre ;
+- `OPEN`, `PROPOSAL` et `DERIVED` ne deviennent jamais une décision propriétaire parce qu'un agent les code ;
+- exploration spatiale dans `/drift-evolution` par défaut ; promotion `/drift` dans un lot/PR séparé après acceptation propriétaire ;
+- vérifier route + terrain + eau + colliders + braquage/freinage + caméra + reveal/exit avant de déclarer un placement valide ;
+- ne jamais ressusciter le catalogue 26 tracks pour corriger le runtime courant.
+
+### Read pack générique
+
+Pour une tâche Drift globale/non spatiale qui nécessite réellement le corpus complet, lire dans l'ordre :
 
 ```text
 AGENTS.md
@@ -105,13 +142,13 @@ Puis, selon le lot, ajouter :
 - `docs/DRIFT_3D_AUDIO_CLOCK_CONTRACT.md` pour tout lot `SYS-10`/`SYS-20` ou tout code consommant `audioClockRef` ;
 - `docs/DRIFT_3D_SCENE_LIFECYCLE_CONTRACT.md` pour tout lot `SYS-20`+ ou tout code consommant `sceneLifecycleRef` ;
 - `docs/DRIFT_3D_CUE_RESOLVER_CONTRACT.md` pour tout lot `SYS-30`+ ou tout Build track consommant un Cue Resolver ;
-- `docs/DRIFT_3D_SIGNATURE_ARBITRATION_CONTRACT.md` pour tout lot `SYS-40`+ ou tout futur Build consommant l'arbitrage de signature.
-- `docs/DRIFT_3D_QUALITY_TIER_CONTRACT.md` pour tout lot `SYS-50`+ ou tout futur Build consommant un Quality Tier.
-- `docs/DRIFT_3D_REDUCED_MOTION_CONTRACT.md` pour tout lot `SYS-60`+ ou tout futur Build implémentant un chemin reduced-motion.
-- `docs/DRIFT_3D_NO_WEBGL_NARRATIVE_PATH_CONTRACT.md` pour tout lot `SYS-70`+ ou tout futur Build implémentant un fallback no-WebGL local.
+- `docs/DRIFT_3D_SIGNATURE_ARBITRATION_CONTRACT.md` pour tout lot `SYS-40`+ ou tout futur Build consommant l'arbitrage de signature ;
+- `docs/DRIFT_3D_QUALITY_TIER_CONTRACT.md` pour tout lot `SYS-50`+ ou tout futur Build consommant un Quality Tier ;
+- `docs/DRIFT_3D_REDUCED_MOTION_CONTRACT.md` pour tout lot `SYS-60`+ ou tout futur Build implémentant un chemin reduced-motion ;
+- `docs/DRIFT_3D_NO_WEBGL_NARRATIVE_PATH_CONTRACT.md` pour tout lot `SYS-70`+ ou tout futur Build implémentant un fallback no-WebGL local ;
 - `docs/DRIFT_3D_EVIDENCE_PERFORMANCE_HARNESS_CONTRACT.md` pour tout futur Build promettant une preuve de performance/render-cost/FPS/avant-après-optimisation.
 
-Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné ; ils n'entrent jamais dans le read pack obligatoire immédiat ci-dessus.
+Le contrat d'identité et la cue map d'une track restent des lectures conditionnelles au lot concerné.
 
 ### Mapping conditionnel des contrats d'ères
 
@@ -132,33 +169,31 @@ Règles de lecture :
 
 - un lot track lit le contrat de son ère ;
 - un lot de transition lit le contrat source et le contrat destination ;
-- `GOV-30`, `BASE-00` et les audits globaux lisent les cinq ;
-- les cinq contrats ne doivent pas tous être chargés automatiquement pour une modification locale sans rapport.
+- les cinq contrats ne doivent pas tous être chargés automatiquement pour une modification locale sans rapport ;
+- pour l'appartenance actuelle d'une track à une ère, le runtime + Spatial Atlas prévalent sur les inventaires datés des contrats d'ère.
 
-### Règles du backlog directeur finalisé
+### Backlog historique et lot courant
 
-- Un seul identifiant canonique de `docs/DRIFT_3D_INTEGRAL_BACKLOG.md` peut devenir `ACTIVE_LOT` à la fois.
-- `VS1` / `VS2` / `VS3` (« vertical slice ») désignent des rôles de preuve, jamais des lots exécutables.
-- Les anciens identifiants `DRIFT-IV-VS1-00`, `DRIFT-IV-VS2-00`, `DRIFT-IV-VS2-10`, `DRIFT-IV-VS3-00`, `DRIFT-IV-VS3-10` sont `RETIRED_ALIAS — DO NOT EXECUTE` : ils ne peuvent plus nommer une branche, une PR ni un commit.
-- `DRIFT-IV-BASE-00`, `DRIFT-IV-SYS-00`, `DRIFT-IV-SYS-10`, `DRIFT-IV-SYS-20`, `DRIFT-IV-SYS-30`, `DRIFT-IV-SYS-40`, `DRIFT-IV-SYS-50`, `DRIFT-IV-SYS-60`, `DRIFT-IV-SYS-70`, `DRIFT-IV-BY-EUX-20`, `DRIFT-IV-BY-EUX-30` **et `DRIFT-IV-GOV-40`** sont `DONE` (`BY-EUX-30` mergé PR #32 à `b069d09` ; `GOV-40` mergé PR #33 à `99eacbe`, owner-accepted) — **SHARED PRE-GATE FOUNDATION COMPLETE.** **Le lot actif est désormais `DRIFT-IV-PRE-00`** (réconciliation artistique canonique et acceptation propriétaire, `DRIFT_3D_INTEGRAL_BACKLOG.md` §8.2/§20) — pas directement une nouvelle track.
-- Pour comprendre l'origine et le mapping des aliases retirés, lire conditionnellement `docs/DRIFT_3D_DIRECTOR_BACKLOG_FINALIZATION.md` (rapport de réconciliation de gouvernance, pas un backlog).
-- `docs/DRIFT_3D_RUNTIME_BASELINE.md` fait autorité comme baseline runtime jusqu'à révision par la preuve propre d'un lot Build ; il distingue explicitement ce qui est `MEASURED` de ce qui est `INFERRED_FROM_REPRESENTATIVE_SAMPLE` — voir `docs/evidence/DRIFT-IV-BASE-00/runtime-evidence.md` pour le détail.
-- **Aucun lot d'implémentation de track ne peut commencer avant l'acceptation propriétaire de `docs/DRIFT_3D_ERA_TRACK_ATLAS.md` et `docs/DRIFT_3D_MASTERFRAME_BRIEFS.md`** (`DRIFT-IV-PRE-00`) — règle explicite de `DRIFT-IV-GOV-40`.
+Les lots `DRIFT-IV-*` et leur historique restent utiles pour comprendre les preuves et autorités déjà acquises. Cependant, le repository a continué d'évoluer après les statuts PRE enregistrés dans `ACTIVE_LOT.md` et le backlog. Un lot plus récent explicitement autorisé par JG, tel que `DRIFT-SPATIAL-GOV-00`, peut donc devenir le périmètre courant sans qu'un ancien champ `Current lot` soit traité comme une interdiction absolue.
+
+Ne jamais réinterpréter cette règle comme une autorisation de travailler hors périmètre : **un seul lot/tâche propriétaire explicite à la fois**.
 
 ---
 
 ## Non-négociables produit
 
 - `/drift` reste la route 3D de production.
+- `/drift-evolution` est la zone d'exploration/pilotage avant promotion lorsqu'un lot le prévoit.
 - Un seul player global.
 - Aucun autoplay lors de l'entrée dans une zone.
 - Le monde diégétique reste distinct de la track.
 - Mobile, reduced motion, no-WebGL, export statique et `basePath` sont des chemins produit de première classe, jamais secondaires.
-- Aucune invention artistique runtime sans contrat accepté.
-- Aucune abstraction de scène ou de continuité mondiale n'est partagée avant le gate d'industrialisation. Seuls les huit services d'infrastructure minces explicitement autorisés par `DRIFT-IV-SYS-00` à `DRIFT-IV-SYS-70` peuvent être réalisés avant les proof slices.
+- Aucune invention artistique runtime sans contrat accepté ou décision propriétaire explicite.
 - Aucun lot track `PASS` sans décision propriétaire explicite.
 - Aucune QA déclarée sans preuve.
 - Aucune modification hors lot.
+- Un lot spatial ne mélange pas textures/détails, audio, caméra, véhicule ou dramaturgie sauf nécessité démontrée et explicitement incluse au scope.
+- Un lot spatial ne promeut pas automatiquement sa propre exploration vers `/drift`.
 
 ---
 
@@ -169,10 +204,12 @@ Un seul lot actif à la fois. Pour chaque lot :
 1. préflight ;
 2. scope strict ;
 3. patch borné ;
-4. validations ;
-5. evidence package ;
-6. mise à jour du Decision Log et de l'Active Lot ;
+4. validations proportionnées au risque ;
+5. evidence/constat compact ;
+6. décision propriétaire quand le résultat est artistique ou spatial ;
 7. arrêt sur contradiction ou régression.
+
+Éviter les suites de tests complètes répétées sans raison. Pour un lot documentaire/spatial sans runtime modifié, préférer les validations ciblées, puis laisser la CI du PR fournir la couverture standard.
 
 ---
 
@@ -180,15 +217,15 @@ Un seul lot actif à la fois. Pour chaque lot :
 
 Arrêter et rapporter clairement si l'une de ces conditions survient :
 
-- travail hors branche ;
-- working tree non propre ;
-- autorité documentaire contradictoire ;
-- modification d'un fichier protégé ;
-- build ou lint en échec ;
+- travail hors branche/périmètre ;
+- autorité documentaire réellement contradictoire et non réconciliée ;
+- modification d'un fichier protégé hors scope ;
+- build/lint/test ciblé en échec après le patch concerné ;
 - second player ou autoplay ;
 - perte de fallback ;
 - abstraction prématurée ;
-- invention artistique ;
+- invention artistique silencieuse ;
+- `OPEN` transformé en canon sans décision ;
 - impossible de produire les preuves annoncées.
 
 Ne pas poursuivre aveuglément après un échec.
