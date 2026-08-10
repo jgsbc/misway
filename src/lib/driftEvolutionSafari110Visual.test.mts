@@ -70,23 +70,49 @@ test("VEH-VIS convergence includes the owner-approved V1A materials", () => {
   assert.match(evolutionVehicleSource, /material\.roughness = 0\.78/);
 });
 
-test("VEH-VIS-V1B-FIX discovers and places a source-native rear spare geometrically", () => {
+test("VEH-VIS-V1B-FIX2 only accepts wheel-sized source assemblies", () => {
   assert.match(evolutionVehicleSource, /SOURCE_TIRE_MATERIAL = "rubber"/);
-  assert.match(evolutionVehicleSource, /findSourceWheelAssembly/);
-  assert.match(evolutionVehicleSource, /meshUsesMaterialName/);
+  assert.match(evolutionVehicleSource, /WHEEL_DIRECT_MESH_CHILDREN = 3/);
+  assert.match(evolutionVehicleSource, /WHEEL_MIN_DIAMETER = 0\.5/);
+  assert.match(evolutionVehicleSource, /WHEEL_MAX_DIAMETER = 0\.75/);
+  assert.match(evolutionVehicleSource, /WHEEL_MAX_THICKNESS = 0\.32/);
+  assert.match(evolutionVehicleSource, /WHEEL_ROUNDNESS_TOLERANCE = 0\.08/);
+  assert.match(evolutionVehicleSource, /isWheelLikeAssembly/);
+  assert.match(evolutionVehicleSource, /directMeshChildren !== WHEEL_DIRECT_MESH_CHILDREN/);
   assert.match(evolutionVehicleSource, /sourceWheel\.clone\(true\)/);
-  assert.match(evolutionVehicleSource, /vehicleBounds = new THREE\.Box3\(\)\.setFromObject\(root\)/);
   assert.match(evolutionVehicleSource, /vehicleBounds\.min\.z/);
-  assert.match(evolutionVehicleSource, /root\.worldToLocal/);
   assert.match(evolutionVehicleSource, /pivot\.rotation\.y = Math\.PI \/ 2/);
   assert.match(evolutionVehicleSource, /misway_rear_spare_source_clone/);
-  assert.doesNotMatch(evolutionVehicleSource, /getObjectByName\(SOURCE_REAR_WHEEL_GROUP\)/);
-  assert.doesNotMatch(evolutionVehicleSource, /REAR_SPARE_CENTER = Object\.freeze/);
+  assert.doesNotMatch(evolutionVehicleSource, /getObjectByName\(/);
   assert.doesNotMatch(evolutionVehicleSource, /new THREE\.Mesh\(/);
-  assert.doesNotMatch(
-    evolutionVehicleSource,
-    /roof_rack|roof_roll|bullbar|ladder|snorkel/
+});
+
+test("Defender source exposes exactly four three-part rubber road-wheel assemblies", () => {
+  const gltf = JSON.parse(readFileSync(assetGltfUrl, "utf8")) as {
+    materials: Array<{ name?: string }>;
+    nodes: Array<{ children?: number[]; mesh?: number }>;
+    meshes: Array<{ primitives: Array<{ material?: number }> }>;
+  };
+  const rubberMaterialIndex = gltf.materials.findIndex(
+    (material) => material.name === "rubber"
   );
+  assert.notEqual(rubberMaterialIndex, -1);
+
+  const wheelAssemblies = gltf.nodes.filter((node) => {
+    const children = node.children ?? [];
+    if (children.length !== 3) return false;
+    const meshChildren = children
+      .map((childIndex) => gltf.nodes[childIndex]?.mesh)
+      .filter((meshIndex): meshIndex is number => meshIndex !== undefined);
+    if (meshChildren.length !== 3) return false;
+    return meshChildren.some((meshIndex) =>
+      gltf.meshes[meshIndex].primitives.some(
+        (primitive) => primitive.material === rubberMaterialIndex
+      )
+    );
+  });
+
+  assert.equal(wheelAssemblies.length, 4);
 });
 
 test("Defender hides the inherited visual during load but restores it on failure", () => {
@@ -94,7 +120,6 @@ test("Defender hides the inherited visual during load but restores it on failure
     evolutionVehicleSource,
     /useLayoutEffect\(\(\) => \{[\s\S]*legacy\.visible = false;[\s\S]*\}, \[scene\]\);/
   );
-  assert.match(evolutionVehicleSource, /Loading failure is the only case/);
   assert.match(evolutionVehicleSource, /legacy\.visible = true/);
 });
 
