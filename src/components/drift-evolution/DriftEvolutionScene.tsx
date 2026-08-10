@@ -12,6 +12,7 @@ import FoolfouleDramaturgy from "@/components/drift-evolution/FoolfouleDramaturg
 import DriftEvolutionSpatialRig from "@/components/drift-evolution/DriftEvolutionSpatialRig";
 import { drift3dNewTrackLandmarks } from "@/lib/drift3dNewTrackLandmarks";
 import { drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
+import { buildDriftEvolutionBirthYardRouteLabLandmark } from "@/lib/driftEvolutionBirthYardRouteLab";
 import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
 import { createDriftEvolutionFoolfouleCrowdSignal } from "@/lib/driftEvolutionFoolfouleDramaturgy";
 import {
@@ -39,6 +40,9 @@ suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
 stageFoolfouleForEvolution();
 stageJazzyplingForEvolution();
+
+const birthYardRouteLabLandmark =
+  buildDriftEvolutionBirthYardRouteLabLandmark();
 
 /**
  * Copy-on-write scene: production DRIFT remains the complete base authority;
@@ -71,6 +75,10 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
   return (
     <>
       <Drift3DSceneBase {...props} />
+      <Drift3DLandmark
+        landmark={birthYardRouteLabLandmark}
+        vehicleStateRef={props.vehicleStateRef}
+      />
       {drift3dNewTrackLandmarks.map((landmark) => (
         <Drift3DLandmark
           key={landmark.id}
