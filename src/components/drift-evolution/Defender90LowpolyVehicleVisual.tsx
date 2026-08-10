@@ -21,8 +21,13 @@ const assetUrl = withBasePath(DEFENDER_90_LOWPOLY_ASSET_PATH);
 const SOURCE_BODY_MATERIAL = "Material.002";
 const SOURCE_ROOF_MATERIAL = "Material.003";
 const SOURCE_TIRE_MATERIAL = "rubber";
+const WHEEL_DIRECT_MESH_CHILDREN = 3;
+const WHEEL_MIN_DIAMETER = 0.5;
+const WHEEL_MAX_DIAMETER = 0.75;
+const WHEEL_MAX_THICKNESS = 0.32;
+const WHEEL_ROUNDNESS_TOLERANCE = 0.08;
 const REAR_SPARE_HEIGHT_RATIO = 0.56;
-const REAR_SPARE_DEPTH_FACTOR = 0.44;
+const REAR_SPARE_DEPTH_FACTOR = 0.6;
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -63,40 +68,63 @@ function meshUsesMaterialName(mesh: THREE.Mesh, materialName: string) {
   return materials.some((material) => material.name === materialName);
 }
 
+function wheelLikeDimensions(object: THREE.Object3D) {
+  const size = new THREE.Box3().setFromObject(object).getSize(new THREE.Vector3());
+  const dimensions = [size.x, size.y, size.z].sort((a, b) => a - b);
+  return {
+    thickness: dimensions[0],
+    diameterA: dimensions[1],
+    diameterB: dimensions[2],
+  };
+}
+
+function isWheelLikeAssembly(object: THREE.Object3D) {
+  const directMeshChildren = object.children.filter(
+    (child) => child instanceof THREE.Mesh
+  ).length;
+  if (directMeshChildren !== WHEEL_DIRECT_MESH_CHILDREN) return false;
+
+  const { thickness, diameterA, diameterB } = wheelLikeDimensions(object);
+  const roundnessError = Math.abs(diameterA - diameterB) / diameterB;
+
+  return (
+    thickness <= WHEEL_MAX_THICKNESS &&
+    diameterA >= WHEEL_MIN_DIAMETER &&
+    diameterB <= WHEEL_MAX_DIAMETER &&
+    roundnessError <= WHEEL_ROUNDNESS_TOLERANCE
+  );
+}
+
 function findSourceWheelAssembly(root: THREE.Group): THREE.Object3D | null {
   const candidates = new Set<THREE.Object3D>();
 
+  root.updateMatrixWorld(true);
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     if (!meshUsesMaterialName(object, SOURCE_TIRE_MATERIAL)) return;
 
-    let current = object.parent;
-    while (current && current !== root) {
-      const directMeshChildren = current.children.filter(
-        (child) => child instanceof THREE.Mesh
-      ).length;
-      if (directMeshChildren >= 2) {
-        candidates.add(current);
-        break;
-      }
-      current = current.parent;
+    const parent = object.parent;
+    if (parent && parent !== root && isWheelLikeAssembly(parent)) {
+      candidates.add(parent);
     }
   });
 
-  let best: THREE.Object3D | null = null;
-  let bestVolume = -Infinity;
+  // Any of the four authored road wheels is a valid source. Prefer a rear wheel
+  // (lowest Z in the imported +Z-forward model) so its source orientation is
+  // closest to the intended rear-door spare transform.
+  let rearWheel: THREE.Object3D | null = null;
+  let rearMostZ = Infinity;
   for (const candidate of candidates) {
-    const size = new THREE.Box3()
+    const center = new THREE.Box3()
       .setFromObject(candidate)
-      .getSize(new THREE.Vector3());
-    const volume = size.x * size.y * size.z;
-    if (volume > bestVolume) {
-      best = candidate;
-      bestVolume = volume;
+      .getCenter(new THREE.Vector3());
+    if (center.z < rearMostZ) {
+      rearWheel = candidate;
+      rearMostZ = center.z;
     }
   }
 
-  return best;
+  return rearWheel;
 }
 
 function installSourceRearSpare(root: THREE.Group) {
@@ -108,11 +136,12 @@ function installSourceRearSpare(root: THREE.Group) {
   const vehicleBounds = new THREE.Box3().setFromObject(root);
   const vehicleSize = vehicleBounds.getSize(new THREE.Vector3());
   const vehicleCenter = vehicleBounds.getCenter(new THREE.Vector3());
+  const { thickness } = wheelLikeDimensions(sourceWheel);
 
   sourceWheel.updateWorldMatrix(true, true);
 
-  // Keep the complete authored wheel assembly (rim + hub + tyre), but express
-  // its current world transform in root-local space before cloning it.
+  // Clone one actual authored road-wheel group only (three direct meshes:
+  // rim/hub/tyre). Never walk upward into body-sized rubber-bearing assemblies.
   const spareWheel = sourceWheel.clone(true);
   spareWheel.name = "misway_rear_spare_source_clone";
   const rootInverse = root.matrixWorld.clone().invert();
@@ -126,9 +155,9 @@ function installSourceRearSpare(root: THREE.Group) {
   root.add(spareWheel);
   spareWheel.updateWorldMatrix(true, true);
 
-  const spareBounds = new THREE.Box3().setFromObject(spareWheel);
-  const sourceCenterWorld = spareBounds.getCenter(new THREE.Vector3());
-  const spareSize = spareBounds.getSize(new THREE.Vector3());
+  const sourceCenterWorld = new THREE.Box3()
+    .setFromObject(spareWheel)
+    .getCenter(new THREE.Vector3());
 
   const pivot = new THREE.Group();
   pivot.name = "misway_rear_spare_pivot";
@@ -136,13 +165,13 @@ function installSourceRearSpare(root: THREE.Group) {
   root.add(pivot);
   pivot.attach(spareWheel);
 
-  // The imported Defender faces +Z, so the rear door is the -Z face. Derive
-  // the mounting point from the live model bounds instead of relying on a
-  // Sketchfab node name or hand-authored world coordinate.
+  // The imported Defender faces +Z, so the rear door is the -Z face. Keep the
+  // spare centred laterally, around the lower-middle rear door, and one tyre
+  // half-thickness outside the body envelope.
   const targetWorld = new THREE.Vector3(
     vehicleCenter.x,
     vehicleBounds.min.y + vehicleSize.y * REAR_SPARE_HEIGHT_RATIO,
-    vehicleBounds.min.z - spareSize.x * REAR_SPARE_DEPTH_FACTOR
+    vehicleBounds.min.z - thickness * REAR_SPARE_DEPTH_FACTOR
   );
   pivot.position.copy(root.worldToLocal(targetWorld));
   pivot.rotation.y = Math.PI / 2;
@@ -184,14 +213,13 @@ function disposeSourceModel(root: THREE.Object3D) {
 }
 
 /**
- * VEH-VIS-V1B-FIX — converged Evolution-only MISWAY Defender visual.
+ * VEH-VIS-V1B-FIX2 — converged Evolution-only MISWAY Defender visual.
  *
  * Keeps the owner-approved 0.82 scale and V1A sand/roof materials. The rear
- * spare reuses a complete authored source wheel assembly, discovered from the
- * rubber material and positioned from the loaded vehicle bounds. This avoids
- * fragile GLTF node-name lookup and hand-authored rear-door coordinates.
- * Physics, collisions, controls, terrain pose and camera remain owned by the
- * existing hidden vehicle runtime.
+ * spare is constrained to one wheel-sized authored source assembly before it is
+ * cloned and mounted. This prevents body-sized rubber-bearing groups from ever
+ * becoming the spare. Physics, collisions, controls, terrain pose and camera
+ * remain owned by the existing hidden vehicle runtime.
  */
 export default function Defender90LowpolyVehicleVisual() {
   const scene = useThree((state) => state.scene);
@@ -201,9 +229,6 @@ export default function Defender90LowpolyVehicleVisual() {
   const headlightTargetRef = useRef<THREE.Object3D | null>(null);
   const [model, setModel] = useState<THREE.Group | null>(null);
 
-  // Hide the inherited vehicle before the first painted Evolution frame so the
-  // candidate does not appear to morph from the previous 4x4 while loading.
-  // The inherited vehicle remains the pose/physics authority while hidden.
   useLayoutEffect(() => {
     const legacy = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
@@ -234,7 +259,6 @@ export default function Defender90LowpolyVehicleVisual() {
       },
       undefined,
       () => {
-        // Loading failure is the only case where the inherited visual returns.
         const legacy =
           legacyPoseRef.current ?? findLegacyVehiclePoseGroup(scene);
         if (legacy) {
