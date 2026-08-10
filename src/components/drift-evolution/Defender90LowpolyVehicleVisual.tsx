@@ -16,10 +16,16 @@ export const DEFENDER_90_LOWPOLY_SOURCE_OFFSET = Object.freeze([
 ] as const);
 export const DEFENDER_90_LOWPOLY_BODY_COLOR = "#c5aa76";
 export const DEFENDER_90_LOWPOLY_ROOF_COLOR = "#d3c39f";
+export const DEFENDER_90_LOWPOLY_REAR_SPARE_CENTER = Object.freeze([
+  0,
+  0.8,
+  -1.58,
+] as const);
 
 const assetUrl = withBasePath(DEFENDER_90_LOWPOLY_ASSET_PATH);
 const SOURCE_BODY_MATERIAL = "Material.002";
 const SOURCE_ROOF_MATERIAL = "Material.003";
+const SOURCE_REAR_WHEEL_GROUP = "Plane.025_30";
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -55,7 +61,48 @@ function tuneMiswayMaterial(material: THREE.Material) {
   }
 }
 
-function prepareSourceModel(root: THREE.Object3D) {
+function installSourceRearSpare(root: THREE.Group) {
+  const sourceWheel = root.getObjectByName(SOURCE_REAR_WHEEL_GROUP);
+  if (!sourceWheel) return;
+
+  root.updateMatrixWorld(true);
+  sourceWheel.updateWorldMatrix(true, true);
+
+  // Reuse the authored wheel assembly exactly: tyre, rim and hub stay source
+  // geometry/materials. The clone is re-parented around its measured centre so
+  // the quarter-turn does not make it orbit around the source object's origin.
+  const spareWheel = sourceWheel.clone(true);
+  spareWheel.name = "misway_rear_spare_source_clone";
+  spareWheel.matrix.copy(sourceWheel.matrixWorld);
+  spareWheel.matrix.decompose(
+    spareWheel.position,
+    spareWheel.quaternion,
+    spareWheel.scale
+  );
+  spareWheel.matrixAutoUpdate = true;
+  root.add(spareWheel);
+  spareWheel.updateWorldMatrix(true, true);
+
+  const sourceCenter = new THREE.Box3()
+    .setFromObject(spareWheel)
+    .getCenter(new THREE.Vector3());
+  const pivot = new THREE.Group();
+  pivot.name = "misway_rear_spare_pivot";
+  pivot.position.copy(sourceCenter);
+  root.add(pivot);
+  pivot.attach(spareWheel);
+
+  const [targetX, targetY, targetZ] = DEFENDER_90_LOWPOLY_REAR_SPARE_CENTER;
+  const [offsetX, offsetY, offsetZ] = DEFENDER_90_LOWPOLY_SOURCE_OFFSET;
+  pivot.position.set(
+    targetX - offsetX,
+    targetY - offsetY,
+    targetZ - offsetZ
+  );
+  pivot.rotation.y = Math.PI / 2;
+}
+
+function prepareSourceModel(root: THREE.Group) {
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     object.castShadow = true;
@@ -66,6 +113,8 @@ function prepareSourceModel(root: THREE.Object3D) {
       : [object.material];
     for (const material of materials) tuneMiswayMaterial(material);
   });
+
+  installSourceRearSpare(root);
 }
 
 function disposeSourceModel(root: THREE.Object3D) {
@@ -86,14 +135,13 @@ function disposeSourceModel(root: THREE.Object3D) {
 }
 
 /**
- * VEH-VIS-V1A — first non-destructive MISWAY material alignment for the
- * owner-approved Defender 90 Evolution candidate.
+ * VEH-VIS-V1B — source-native expedition cue on the approved MISWAY Defender.
  *
- * Geometry, proportions, trim, rubber, glass and authored light materials stay
- * untouched. Only the identified source body and roof materials are retuned to
- * a warm expedition-sand family. No accessory geometry is added in this pass.
- * Physics, collisions, controls, terrain pose and camera remain owned by the
- * existing hidden vehicle runtime.
+ * V1A's size and sand/roof materials stay unchanged. This pass adds one visual
+ * cue only: a rear-mounted spare cloned from the model's authored rear wheel
+ * assembly. No procedural tyre/rim geometry and no generic roof equipment are
+ * introduced. Physics, collisions, controls, terrain pose and camera remain
+ * owned by the existing hidden vehicle runtime.
  */
 export default function Defender90LowpolyVehicleVisual() {
   const scene = useThree((state) => state.scene);
