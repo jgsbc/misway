@@ -1,0 +1,23 @@
+MISWAY full-fidelity Defender 1966 candidate — source attribution
+
+Source model:
+  title: reDESIGN Land Rover Defender 1966 by UNITY FAN
+  source: https://sketchfab.com/3d-models/redesign-land-rover-defender-1966-by-unity-fan-02f808ab848841e8b590d637ecb91e54
+  author: Unity Fan youtube channel / unityfan777
+  license supplied in downloaded archive: Sketchfab Standard
+  license information: https://sketchfab.com/licenses
+
+MISWAY extraction:
+- isolates the old 1966 vehicle subtree from the downloaded Sketchfab scene;
+- removes the unrelated redesign vehicle and scene-only objects;
+- preserves all 4,505 source triangles and all 2,712 source vertices;
+- preserves the authored meshes, UV coordinates, projected base-color texture,
+  and material structure used by the old vehicle;
+- repacks referenced accessor data into a compact GLB without changing vertex
+  positions, topology, UV values, normals or texture pixels;
+- normalises only scene coordinates (Y-up, centred, grounded) through a root
+  transform; this does not alter the source geometry;
+- no decimation, retopology, vertex-color replacement or replacement wheels.
+
+The derivative is integrated as an in-project runtime asset and is not offered
+for redistribution as a standalone 3D asset.
