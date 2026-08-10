@@ -6,7 +6,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/app/drift/page.tsx": "03a26ccec4a50042497688120171e4558722f34c",
   "src/components/drift-3d/Drift3DClient.tsx": "03f05fe01c08a5345ba5ad824ac9ec7d3811c8bf",
   "src/components/drift-3d/Drift3DCanvas.tsx": "fe8b4d5ea72598b7c7cb59f2f0af8ae156b8bcfa",
-  "src/components/drift-3d/Drift3DScene.tsx": "15d99298954ef6e58bed9e7c63d1c4187b16ce39",
+  "src/components/drift-3d/Drift3DScene.tsx": "6689d518ffd16050a03e3c62d682bd44d0dfadec",
   "src/components/drift-3d/Drift3DSceneBase.tsx": "f71e78b325efb26353868209422a396c852ddb09",
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
