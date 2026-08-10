@@ -1,0 +1,27 @@
+MISWAY Safari prototype — source attribution
+
+Source model:
+  title: reDESIGN Land Rover Defender 1966 by UNITY FAN
+  source: https://sketchfab.com/3d-models/redesign-land-rover-defender-1966-by-unity-fan-02f808ab848841e8b590d637ecb91e54
+  author: Unity Fan youtube channel
+  author profile: https://sketchfab.com/unityfan777
+  license: Sketchfab Standard
+  license information: https://sketchfab.com/licenses
+
+The downloaded source license states that, under the basic restrictions, the
+model may be used worldwide, on all types of media, commercially or not, and
+in all types of derivative works.
+
+MISWAY derivative changes:
+- isolates only the lightweight old vehicle sub-model from the downloaded scene;
+- removes the second redesign vehicle and unused scene content;
+- uses the source body geometry and samples its projected appearance into vertex colors;
+- normalizes proportions for the MISWAY runtime;
+- shifts the body toward the MISWAY sand/khaki authority;
+- replaces the source wheels with four independent low-cost named wheel pivots;
+- adds original low-poly expedition equipment (roof rack, cargo, rear spare,
+  ladder, bumpers, bullbar, snorkel, skid plate, steps, lamps and mudflaps);
+- exports the result as a self-contained glTF for the interactive world.
+
+The derivative is integrated as an in-project runtime asset and is not offered
+for redistribution as a standalone 3D asset.
