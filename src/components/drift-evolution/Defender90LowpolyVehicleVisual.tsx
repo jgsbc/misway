@@ -14,8 +14,12 @@ export const DEFENDER_90_LOWPOLY_SOURCE_OFFSET = Object.freeze([
   -0.09198,
   -0.24755,
 ] as const);
+export const DEFENDER_90_LOWPOLY_BODY_COLOR = "#c5aa76";
+export const DEFENDER_90_LOWPOLY_ROOF_COLOR = "#d3c39f";
 
 const assetUrl = withBasePath(DEFENDER_90_LOWPOLY_ASSET_PATH);
+const SOURCE_BODY_MATERIAL = "Material.002";
+const SOURCE_ROOF_MATERIAL = "Material.003";
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -34,11 +38,33 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
+function tuneMiswayMaterial(material: THREE.Material) {
+  if (!(material instanceof THREE.MeshStandardMaterial)) return;
+
+  if (material.name === SOURCE_BODY_MATERIAL) {
+    material.color.set(DEFENDER_90_LOWPOLY_BODY_COLOR);
+    material.metalness = 0.08;
+    material.roughness = 0.72;
+    return;
+  }
+
+  if (material.name === SOURCE_ROOF_MATERIAL) {
+    material.color.set(DEFENDER_90_LOWPOLY_ROOF_COLOR);
+    material.metalness = 0.05;
+    material.roughness = 0.78;
+  }
+}
+
 function prepareSourceModel(root: THREE.Object3D) {
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     object.castShadow = true;
     object.receiveShadow = true;
+
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) tuneMiswayMaterial(material);
   });
 }
 
@@ -60,13 +86,14 @@ function disposeSourceModel(root: THREE.Object3D) {
 }
 
 /**
- * VEH-SOURCE-03 — raw Evolution-only pilot for the owner-supplied
- * "Land Rover Defender 90 Lowpoly" source.
+ * VEH-VIS-V1A — first non-destructive MISWAY material alignment for the
+ * owner-approved Defender 90 Evolution candidate.
  *
- * This pass deliberately preserves the authored geometry and materials as-is.
- * It only recentres the Sketchfab scene and follows the hidden canonical
- * vehicle pose. Physics, collisions, controls, terrain pose and camera remain
- * owned by the existing vehicle runtime.
+ * Geometry, proportions, trim, rubber, glass and authored light materials stay
+ * untouched. Only the identified source body and roof materials are retuned to
+ * a warm expedition-sand family. No accessory geometry is added in this pass.
+ * Physics, collisions, controls, terrain pose and camera remain owned by the
+ * existing hidden vehicle runtime.
  */
 export default function Defender90LowpolyVehicleVisual() {
   const scene = useThree((state) => state.scene);
@@ -77,7 +104,7 @@ export default function Defender90LowpolyVehicleVisual() {
   const [model, setModel] = useState<THREE.Group | null>(null);
 
   // Hide the inherited vehicle before the first painted Evolution frame so the
-  // raw candidate does not appear to morph from the previous 4x4 while loading.
+  // candidate does not appear to morph from the previous 4x4 while loading.
   // The inherited vehicle remains the pose/physics authority while hidden.
   useLayoutEffect(() => {
     const legacy = findLegacyVehiclePoseGroup(scene);
