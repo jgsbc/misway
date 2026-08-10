@@ -24,19 +24,24 @@ import {
   restoreZeelandAfterEvolution,
   stageZeelandForEvolution,
 } from "@/lib/driftEvolutionZeelandRegistry";
+import {
+  restoreJazzyplingDistrict,
+  stageJazzyplingDistrict,
+} from "@/lib/driftJazzyplingRegistry";
 
 type Drift3DSceneProps = ComponentProps<typeof Drift3DSceneBase>;
 
-// The promoted world uses the approved Evolution staging before the base
-// scene computes landmark colliders and topology-dependent render state.
+// The promoted world uses the approved staging before the base scene computes
+// landmark colliders and topology-dependent render state.
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
 stageFoolfouleForEvolution();
+stageJazzyplingDistrict();
 
 /**
  * Production composition promoted from the validated Drift Evolution world.
- * The underlying base scene remains shared, while the approved cave, Safari,
- * Zeeland and Foolfoule layers now belong to the production experience.
+ * The underlying base scene remains shared, while approved local world layers
+ * are staged before the base scene captures render/collider authority.
  */
 export default function Drift3DScene(props: Drift3DSceneProps) {
   const evolutionStartPosition = getDriftEvolutionEntryStartPosition();
@@ -52,8 +57,10 @@ export default function Drift3DScene(props: Drift3DSceneProps) {
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
     stageFoolfouleForEvolution();
+    stageJazzyplingDistrict();
 
     return () => {
+      restoreJazzyplingDistrict();
       restoreFoolfouleAfterEvolution();
       restoreZeelandAfterEvolution();
       restoreLegacyEntryAfterEvolution();
