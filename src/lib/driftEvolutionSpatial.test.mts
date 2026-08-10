@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDrift3DChaseCameraRig } from "./drift3d";
+import { getDrift3DChaseCameraRig, getDrift3DMovementBounds } from "./drift3d";
 import { getDrift3DGroundY } from "./drift3dTerrain";
+import { drift3dTrackNodeBySlug } from "./drift3dTopology";
 import { createDrift3DVehiclePhysicsState } from "./drift3dVehiclePhysics";
 import {
   DRIFT_EVOLUTION_ENTRY_CAVE,
@@ -10,11 +11,23 @@ import {
 } from "./driftEvolutionEntryCave";
 import {
   DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH,
+  DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN,
   DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH,
   constrainDriftEvolutionEntryVehicle,
   getDriftEvolutionAdaptiveCameraRig,
   getDriftEvolutionEntryDriveEnvelope,
+  isDriftEvolutionEntryConstraintActive,
 } from "./driftEvolutionSpatial";
+
+const NEW_TRACK_SLUGS = [
+  "funky-hoo",
+  "peut-etre",
+  "sugared-peach",
+  "white-clouds",
+  "assokam",
+  "wo-ha",
+  "amidir",
+] as const;
 
 test("side walls keep the 4x4 inside the west-east tunnel", () => {
   const x = DRIFT_EVOLUTION_ENTRY_CAVE.spawnX + 7;
@@ -23,7 +36,7 @@ test("side walls keep the 4x4 inside the west-east tunnel", () => {
     {
       x,
       y: getDrift3DGroundY(x, envelope.centerZ),
-      z: envelope.maxZ + 4,
+      z: envelope.maxZ + DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN * 0.5,
     },
     Math.PI / 2
   );
@@ -32,6 +45,40 @@ test("side walls keep the 4x4 inside the west-east tunnel", () => {
   assert.equal(constrainDriftEvolutionEntryVehicle(state), true);
   assert.equal(state.position.z, envelope.maxZ);
   assert.ok(state.velocityZ <= 0);
+});
+
+test("cave collision authority does not extend across the whole X slab", () => {
+  const x = DRIFT_EVOLUTION_ENTRY_CAVE.spawnX + 7;
+  const envelope = getDriftEvolutionEntryDriveEnvelope(x);
+  const state = createDrift3DVehiclePhysicsState(
+    {
+      x,
+      y: getDrift3DGroundY(x, envelope.centerZ + 12),
+      z: envelope.centerZ + 12,
+    },
+    Math.PI / 2
+  );
+  const before = { ...state.position };
+
+  assert.equal(isDriftEvolutionEntryConstraintActive(state.position), false);
+  assert.equal(constrainDriftEvolutionEntryVehicle(state), false);
+  assert.deepEqual(state.position, before);
+});
+
+test("all seven new track nodes remain inside world bounds and outside cave capture", () => {
+  const bounds = getDrift3DMovementBounds();
+
+  for (const slug of NEW_TRACK_SLUGS) {
+    const node = drift3dTrackNodeBySlug[slug];
+    assert.ok(node, `missing node for ${slug}`);
+    assert.ok(node.position.x >= bounds.minX && node.position.x <= bounds.maxX, `${slug} x is unreachable`);
+    assert.ok(node.position.z >= bounds.minZ && node.position.z <= bounds.maxZ, `${slug} z is unreachable`);
+    assert.equal(
+      isDriftEvolutionEntryConstraintActive(node.position),
+      false,
+      `${slug} is accidentally captured by the Entry cave`
+    );
+  }
 });
 
 test("back wall prevents reversing out through the west ridge", () => {
