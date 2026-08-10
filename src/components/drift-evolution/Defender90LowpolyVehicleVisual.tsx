@@ -14,8 +14,15 @@ export const DEFENDER_90_LOWPOLY_SOURCE_OFFSET = Object.freeze([
   -0.09198,
   -0.24755,
 ] as const);
+export const DEFENDER_90_LOWPOLY_BODY_COLOR = "#c5aa76";
+export const DEFENDER_90_LOWPOLY_ROOF_COLOR = "#d3c39f";
 
 const assetUrl = withBasePath(DEFENDER_90_LOWPOLY_ASSET_PATH);
+const SOURCE_BODY_MATERIAL = "Material.002";
+const SOURCE_ROOF_MATERIAL = "Material.003";
+const SOURCE_TIRE_MATERIAL = "rubber";
+const REAR_SPARE_HEIGHT_RATIO = 0.56;
+const REAR_SPARE_DEPTH_FACTOR = 0.44;
 
 function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   let candidate: THREE.Group | null = null;
@@ -34,12 +41,129 @@ function findLegacyVehiclePoseGroup(scene: THREE.Scene): THREE.Group | null {
   return candidate as THREE.Group | null;
 }
 
-function prepareSourceModel(root: THREE.Object3D) {
+function tuneMiswayMaterial(material: THREE.Material) {
+  if (!(material instanceof THREE.MeshStandardMaterial)) return;
+
+  if (material.name === SOURCE_BODY_MATERIAL) {
+    material.color.set(DEFENDER_90_LOWPOLY_BODY_COLOR);
+    material.metalness = 0.08;
+    material.roughness = 0.72;
+    return;
+  }
+
+  if (material.name === SOURCE_ROOF_MATERIAL) {
+    material.color.set(DEFENDER_90_LOWPOLY_ROOF_COLOR);
+    material.metalness = 0.05;
+    material.roughness = 0.78;
+  }
+}
+
+function meshUsesMaterialName(mesh: THREE.Mesh, materialName: string) {
+  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  return materials.some((material) => material.name === materialName);
+}
+
+function findSourceWheelAssembly(root: THREE.Group): THREE.Object3D | null {
+  const candidates = new Set<THREE.Object3D>();
+
+  root.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+    if (!meshUsesMaterialName(object, SOURCE_TIRE_MATERIAL)) return;
+
+    let current = object.parent;
+    while (current && current !== root) {
+      const directMeshChildren = current.children.filter(
+        (child) => child instanceof THREE.Mesh
+      ).length;
+      if (directMeshChildren >= 2) {
+        candidates.add(current);
+        break;
+      }
+      current = current.parent;
+    }
+  });
+
+  let best: THREE.Object3D | null = null;
+  let bestVolume = -Infinity;
+  for (const candidate of candidates) {
+    const size = new THREE.Box3()
+      .setFromObject(candidate)
+      .getSize(new THREE.Vector3());
+    const volume = size.x * size.y * size.z;
+    if (volume > bestVolume) {
+      best = candidate;
+      bestVolume = volume;
+    }
+  }
+
+  return best;
+}
+
+function installSourceRearSpare(root: THREE.Group) {
+  root.updateMatrixWorld(true);
+
+  const sourceWheel = findSourceWheelAssembly(root);
+  if (!sourceWheel) return false;
+
+  const vehicleBounds = new THREE.Box3().setFromObject(root);
+  const vehicleSize = vehicleBounds.getSize(new THREE.Vector3());
+  const vehicleCenter = vehicleBounds.getCenter(new THREE.Vector3());
+
+  sourceWheel.updateWorldMatrix(true, true);
+
+  // Keep the complete authored wheel assembly (rim + hub + tyre), but express
+  // its current world transform in root-local space before cloning it.
+  const spareWheel = sourceWheel.clone(true);
+  spareWheel.name = "misway_rear_spare_source_clone";
+  const rootInverse = root.matrixWorld.clone().invert();
+  spareWheel.matrix.copy(rootInverse.multiply(sourceWheel.matrixWorld));
+  spareWheel.matrix.decompose(
+    spareWheel.position,
+    spareWheel.quaternion,
+    spareWheel.scale
+  );
+  spareWheel.matrixAutoUpdate = true;
+  root.add(spareWheel);
+  spareWheel.updateWorldMatrix(true, true);
+
+  const spareBounds = new THREE.Box3().setFromObject(spareWheel);
+  const sourceCenterWorld = spareBounds.getCenter(new THREE.Vector3());
+  const spareSize = spareBounds.getSize(new THREE.Vector3());
+
+  const pivot = new THREE.Group();
+  pivot.name = "misway_rear_spare_pivot";
+  pivot.position.copy(root.worldToLocal(sourceCenterWorld.clone()));
+  root.add(pivot);
+  pivot.attach(spareWheel);
+
+  // The imported Defender faces +Z, so the rear door is the -Z face. Derive
+  // the mounting point from the live model bounds instead of relying on a
+  // Sketchfab node name or hand-authored world coordinate.
+  const targetWorld = new THREE.Vector3(
+    vehicleCenter.x,
+    vehicleBounds.min.y + vehicleSize.y * REAR_SPARE_HEIGHT_RATIO,
+    vehicleBounds.min.z - spareSize.x * REAR_SPARE_DEPTH_FACTOR
+  );
+  pivot.position.copy(root.worldToLocal(targetWorld));
+  pivot.rotation.y = Math.PI / 2;
+  pivot.updateMatrixWorld(true);
+
+  return true;
+}
+
+function prepareSourceModel(root: THREE.Group) {
   root.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     object.castShadow = true;
     object.receiveShadow = true;
+
+    const materials = Array.isArray(object.material)
+      ? object.material
+      : [object.material];
+    for (const material of materials) tuneMiswayMaterial(material);
   });
+
+  installSourceRearSpare(root);
 }
 
 function disposeSourceModel(root: THREE.Object3D) {
@@ -60,13 +184,14 @@ function disposeSourceModel(root: THREE.Object3D) {
 }
 
 /**
- * VEH-SOURCE-03 — raw Evolution-only pilot for the owner-supplied
- * "Land Rover Defender 90 Lowpoly" source.
+ * VEH-VIS-V1B-FIX — converged Evolution-only MISWAY Defender visual.
  *
- * This pass deliberately preserves the authored geometry and materials as-is.
- * It only recentres the Sketchfab scene and follows the hidden canonical
- * vehicle pose. Physics, collisions, controls, terrain pose and camera remain
- * owned by the existing vehicle runtime.
+ * Keeps the owner-approved 0.82 scale and V1A sand/roof materials. The rear
+ * spare reuses a complete authored source wheel assembly, discovered from the
+ * rubber material and positioned from the loaded vehicle bounds. This avoids
+ * fragile GLTF node-name lookup and hand-authored rear-door coordinates.
+ * Physics, collisions, controls, terrain pose and camera remain owned by the
+ * existing hidden vehicle runtime.
  */
 export default function Defender90LowpolyVehicleVisual() {
   const scene = useThree((state) => state.scene);
@@ -77,7 +202,7 @@ export default function Defender90LowpolyVehicleVisual() {
   const [model, setModel] = useState<THREE.Group | null>(null);
 
   // Hide the inherited vehicle before the first painted Evolution frame so the
-  // raw candidate does not appear to morph from the previous 4x4 while loading.
+  // candidate does not appear to morph from the previous 4x4 while loading.
   // The inherited vehicle remains the pose/physics authority while hidden.
   useLayoutEffect(() => {
     const legacy = findLegacyVehiclePoseGroup(scene);
