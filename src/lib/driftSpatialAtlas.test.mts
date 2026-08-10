@@ -35,6 +35,7 @@ const atlas = JSON.parse(
 ) as SpatialAtlas;
 
 const runtimeSlugs = tracks.map((track) => track.slug);
+const runtimeSlugSet = new Set<string>(runtimeSlugs);
 const topologySlugs = drift3dTrackNodes.map((node) => node.trackSlug);
 const atlasSlugs = atlas.tracks.map((track) => track.slug);
 
@@ -70,7 +71,7 @@ test("spatial atlas owns current era membership instead of the retired 26-track 
 
   const eux = atlas.tracks.find((track) => track.slug === "eux-gainent");
   assert.equal(eux?.eraId, "new-signal");
-  assert.equal(runtimeSlugs.includes("eteeaooete"), false);
+  assert.equal(runtimeSlugSet.has("eteeaooete"), false);
   assert.equal(atlasSlugs.includes("eteeaooete"), false);
   assert.ok(atlas.catalogue.retiredSlugs.includes("eteeaooete"));
   assert.ok(
