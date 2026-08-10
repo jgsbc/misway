@@ -50,7 +50,7 @@ test("VEH-SOURCE-03 remains a raw visual follower", () => {
   assert.match(evolutionVehicleSource, /poseGroup\.position\.copy\(legacy\.position\)/);
   assert.match(evolutionVehicleSource, /poseGroup\.quaternion\.copy\(legacy\.quaternion\)/);
   assert.match(evolutionVehicleSource, /defender90-lowpoly\/scene\.gltf/);
-  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 1\.25/);
+  assert.match(evolutionVehicleSource, /RUNTIME_SCALE = 0\.82/);
   assert.match(evolutionVehicleSource, /4\.84276/);
   assert.match(evolutionVehicleSource, /-0\.09198/);
   assert.match(evolutionVehicleSource, /-0\.24755/);
@@ -61,6 +61,15 @@ test("VEH-SOURCE-03 remains a raw visual follower", () => {
   );
   assert.doesNotMatch(evolutionVehicleSource, /stepDrift3DVehiclePhysics/);
   assert.doesNotMatch(evolutionVehicleSource, /constrainDriftEvolutionEntryVehicle/);
+});
+
+test("VEH-SOURCE-03 hides the inherited visual during load but restores it on failure", () => {
+  assert.match(
+    evolutionVehicleSource,
+    /useLayoutEffect\(\(\) => \{[\s\S]*legacy\.visible = false;[\s\S]*\}, \[scene\]\);/
+  );
+  assert.match(evolutionVehicleSource, /Loading failure is the only case/);
+  assert.match(evolutionVehicleSource, /legacy\.visible = true/);
 });
 
 test("VEH-SOURCE-03 source asset is complete and attribution-ready", () => {
