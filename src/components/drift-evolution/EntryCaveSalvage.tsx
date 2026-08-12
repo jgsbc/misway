@@ -333,11 +333,7 @@ function Stalactites() {
   );
 }
 
-function Drips({
-  activeRef,
-}: {
-  activeRef: MutableRefObject<boolean>;
-}) {
+function Drips() {
   const pointsRef = useRef<THREE.Points>(null);
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const data = useMemo(() => {
@@ -368,7 +364,6 @@ function Drips({
   }, [cave]);
 
   useFrame(({ clock }) => {
-    if (!activeRef.current) return;
     const points = pointsRef.current;
     if (!points) return;
     const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
@@ -400,11 +395,7 @@ function Drips({
   );
 }
 
-function DustMotes({
-  activeRef,
-}: {
-  activeRef: MutableRefObject<boolean>;
-}) {
+function DustMotes() {
   const pointsRef = useRef<THREE.Points>(null);
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const data = useMemo(() => {
@@ -427,7 +418,6 @@ function DustMotes({
   }, [cave]);
 
   useFrame((_, delta) => {
-    if (!activeRef.current) return;
     const points = pointsRef.current;
     if (!points) return;
     const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
@@ -542,11 +532,7 @@ function usePortalGoboTexture() {
   return texture;
 }
 
-function PortalLight({
-  activeRef,
-}: {
-  activeRef: MutableRefObject<boolean>;
-}) {
+function PortalLight() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const spotRef = useRef<THREE.SpotLight>(null);
   const targetRef = useRef<THREE.Object3D>(null);
@@ -561,7 +547,6 @@ function PortalLight({
   }, []);
 
   useFrame(({ camera }) => {
-    if (!activeRef.current) return;
     if (!skyCardRef.current) return;
     const distance = Math.abs(camera.position.x - cave.exitX);
     skyCardRef.current.opacity = THREE.MathUtils.clamp((distance - 3) / 10, 0, 1) * 0.88;
@@ -641,11 +626,7 @@ function PortalLight({
   );
 }
 
-function PortalFalls({
-  activeRef,
-}: {
-  activeRef: MutableRefObject<boolean>;
-}) {
+function PortalFalls() {
   const pointsRef = useRef<THREE.Points>(null);
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
   const mouth = localMouth();
@@ -671,7 +652,6 @@ function PortalFalls({
   }, [cave, floorY, mouth]);
 
   useFrame(({ clock }) => {
-    if (!activeRef.current) return;
     const points = pointsRef.current;
     if (!points) return;
     const attribute = points.geometry.attributes.position as THREE.BufferAttribute;
@@ -758,7 +738,6 @@ export default function EntryCaveSalvage({
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const activeRef = useRef(true);
   const caveGeometry = useEntryCaveGeometry();
   const portalGeometry = useFracturedPortalGeometry();
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
@@ -777,10 +756,8 @@ export default function EntryCaveSalvage({
     const group = groupRef.current;
     if (!group) return;
     const vehicle = vehicleStateRef.current.position;
-    const visible =
+    group.visible =
       Math.hypot(vehicle.x - worldMidX, vehicle.z - cave.centerZ) < cave.activationRadius;
-    activeRef.current = visible;
-    group.visible = visible;
   });
 
   return (
@@ -816,11 +793,11 @@ export default function EntryCaveSalvage({
 
         <ScatterRocks />
         <Stalactites />
-        <Drips activeRef={activeRef} />
-        <DustMotes activeRef={activeRef} />
+        <Drips />
+        <DustMotes />
         <CeilingCracks />
-        <PortalLight activeRef={activeRef} />
-        <PortalFalls activeRef={activeRef} />
+        <PortalLight />
+        <PortalFalls />
       </group>
     </>
   );
