@@ -118,6 +118,9 @@ export default function DriftEvolutionCanvas({
         window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY).matches
     )
   );
+  const proximityRefreshIntervalMsRef = useRef(
+    performanceProfile.proximityRefreshIntervalMs
+  );
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
     return getDrift3DFollowCameraRig(startPosition, 1);
@@ -126,9 +129,10 @@ export default function DriftEvolutionCanvas({
   useEffect(() => {
     const mediaQuery = window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY);
     const syncProfile = () => {
-      setPerformanceProfile(
-        getDriftEvolutionPerformanceProfile(mediaQuery.matches)
-      );
+      const nextProfile = getDriftEvolutionPerformanceProfile(mediaQuery.matches);
+      proximityRefreshIntervalMsRef.current =
+        nextProfile.proximityRefreshIntervalMs;
+      setPerformanceProfile(nextProfile);
     };
 
     syncProfile();
@@ -168,7 +172,7 @@ export default function DriftEvolutionCanvas({
         setSceneProximity(next);
       }
 
-      const intervalMs = performanceProfile.proximityRefreshIntervalMs;
+      const intervalMs = proximityRefreshIntervalMsRef.current;
       const nowMs = performance.now();
       const elapsedMs = nowMs - lastProximityRefreshAtRef.current;
 
@@ -189,7 +193,7 @@ export default function DriftEvolutionCanvas({
         );
       }
     },
-    [commitLatestProximity, performanceProfile.proximityRefreshIntervalMs]
+    [commitLatestProximity]
   );
 
   function setCameraZoomValue(nextZoom: number) {
