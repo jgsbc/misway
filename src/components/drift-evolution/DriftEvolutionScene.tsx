@@ -5,6 +5,7 @@ import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import Defender90LowpolyVehicleVisual from "@/components/drift-evolution/Defender90LowpolyVehicleVisual";
+import DriftEvolutionPerformanceRig from "@/components/drift-evolution/DriftEvolutionPerformanceRig";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
 import FoolfouleCrowd from "@/components/drift-evolution/FoolfouleCrowd";
@@ -31,8 +32,11 @@ import {
   restoreZeelandAfterEvolution,
   stageZeelandForEvolution,
 } from "@/lib/driftEvolutionZeelandRegistry";
+import type { DriftEvolutionPerformanceProfile } from "@/lib/driftEvolutionPerformance";
 
-type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase>;
+type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase> & {
+  performanceProfile: DriftEvolutionPerformanceProfile;
+};
 
 // Must happen before Drift3DSceneBase's first render: its landmark collider
 // memo and topology nodes must already reflect the evolution-only staging.
@@ -48,7 +52,10 @@ const birthYardRouteLabLandmark =
  * Copy-on-write scene: production DRIFT remains the complete base authority;
  * evolution owns only the presentation/spatial layers that explicitly diverge.
  */
-export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
+export default function DriftEvolutionScene({
+  performanceProfile,
+  ...props
+}: DriftEvolutionSceneProps) {
   const evolutionStartPosition = getDriftEvolutionEntryStartPosition();
   const foolfouleCrowdSignalRef = useRef(
     createDriftEvolutionFoolfouleCrowdSignal()
@@ -103,6 +110,7 @@ export default function DriftEvolutionScene(props: DriftEvolutionSceneProps) {
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
       />
+      <DriftEvolutionPerformanceRig profile={performanceProfile} />
       <DriftSceneReadySignal
         vehicleStateRef={props.vehicleStateRef}
         expectedPosition={evolutionStartPosition}
