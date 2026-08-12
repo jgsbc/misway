@@ -157,6 +157,18 @@ export default function FoolfouleDramaturgy({
       trackedFocusRef.current.z = crowd.centroidZ;
     }
 
+    // Once the overlays have fully returned to rest, the off-zone scene has
+    // no visible state to interpolate. Keep observing the cheap clock/reset
+    // fields above, but skip the resolver, eight panel updates and texture
+    // work until Foolfoule becomes active again.
+    if (
+      !sessionVisible &&
+      Math.abs(visualTrackingRef.current) < 0.001 &&
+      Math.abs(visualCounterRef.current) < 0.001
+    ) {
+      return;
+    }
+
     if (sessionVisible && !sessionActiveRef.current) {
       sessionActiveRef.current = true;
       lastObservedCrossingsRef.current = crowd.totalCrossings;

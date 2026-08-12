@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ComponentProps } from "react";
+import { memo, useLayoutEffect, useRef, type ComponentProps } from "react";
 import Drift3DSceneBase from "@/components/drift-3d/Drift3DSceneBase";
 import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
@@ -52,7 +52,7 @@ const birthYardRouteLabLandmark =
  * Copy-on-write scene: production DRIFT remains the complete base authority;
  * evolution owns only the presentation/spatial layers that explicitly diverge.
  */
-export default function DriftEvolutionScene({
+function DriftEvolutionScene({
   performanceProfile,
   ...props
 }: DriftEvolutionSceneProps) {
@@ -120,3 +120,8 @@ export default function DriftEvolutionScene({
     </>
   );
 }
+
+// The HUD receives distance/progress snapshots more often than the 3D world
+// needs them. Stable props must therefore stop those lightweight shell updates
+// from reconciling every landmark, zone and material in the R3F subtree.
+export default memo(DriftEvolutionScene);
