@@ -12,7 +12,6 @@ import type {
 import type { Track } from "@/lib/tracks";
 import { getTrackBySlug } from "@/lib/tracks";
 import DriftEvolutionScene from "@/components/drift-evolution/DriftEvolutionScene";
-import DriftEvolutionPerformanceRig from "@/components/drift-evolution/DriftEvolutionPerformanceRig";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import Drift3DEvidenceProbe from "@/components/drift-3d/Drift3DEvidenceProbe";
 import type { Drift3DEvidenceRuntimeRef } from "@/lib/drift3dEvidence";
@@ -595,6 +594,7 @@ export default function DriftEvolutionCanvas({
           }}
         >
           <DriftEvolutionScene
+            performanceProfile={performanceProfile}
             proximity={proximity}
             onProximityChange={setProximity}
             pointerDriveStateRef={pointerDriveStateRef}
@@ -603,7 +603,6 @@ export default function DriftEvolutionCanvas({
             audioClockRef={audioClockRef}
             sceneLifecycleRef={sceneLifecycleRef}
           />
-          <DriftEvolutionPerformanceRig profile={performanceProfile} />
           {process.env.NODE_ENV !== "production" ? (
             <Drift3DEvidenceProbe runtimeRef={evidenceRuntimeRef} />
           ) : null}
