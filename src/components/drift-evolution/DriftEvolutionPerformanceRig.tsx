@@ -1,7 +1,7 @@
 "use client";
 
-import { useLayoutEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useLayoutEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { DriftEvolutionPerformanceProfile } from "@/lib/driftEvolutionPerformance";
 
@@ -28,6 +28,40 @@ export default function DriftEvolutionPerformanceRig({
   profile: DriftEvolutionPerformanceProfile;
 }) {
   const scene = useThree((state) => state.scene);
+  const gl = useThree((state) => state.gl);
+  const shadowMapRef = useRef(gl.shadowMap);
+  const shadowElapsedMsRef = useRef(0);
+
+  useLayoutEffect(() => {
+    const shadowMap = shadowMapRef.current;
+    const previousAutoUpdate = shadowMap.autoUpdate;
+    const throttled = profile.shadowUpdateIntervalMs > 0;
+
+    shadowElapsedMsRef.current = 0;
+    if (throttled) {
+      shadowMap.autoUpdate = false;
+      shadowMap.needsUpdate = true;
+    }
+
+    return () => {
+      shadowMap.autoUpdate = previousAutoUpdate;
+      shadowMap.needsUpdate = true;
+      shadowElapsedMsRef.current = 0;
+    };
+  }, [profile.shadowUpdateIntervalMs]);
+
+  useFrame((_, delta) => {
+    const intervalMs = profile.shadowUpdateIntervalMs;
+    if (intervalMs <= 0) return;
+
+    shadowElapsedMsRef.current += delta * 1000;
+    if (shadowElapsedMsRef.current < intervalMs) return;
+
+    // Request one normal Three.js shadow pass on the render that follows this
+    // callback. No scene object, light, camera or shadow is removed.
+    shadowElapsedMsRef.current %= intervalMs;
+    shadowMapRef.current.needsUpdate = true;
+  });
 
   useLayoutEffect(() => {
     const suppressedLegacyCrowds = new Map<THREE.Object3D, boolean>();

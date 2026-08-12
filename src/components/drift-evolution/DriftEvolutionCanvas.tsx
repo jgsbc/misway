@@ -3,7 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
 import { Volume2, VolumeX } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
@@ -64,6 +64,7 @@ import {
 import {
   DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY,
   getDriftEvolutionPerformanceProfile,
+  hasDriftEvolutionSceneProximityIdentityChanged,
 } from "@/lib/driftEvolutionPerformance";
 
 type DriftEvolutionCanvasProps = {
@@ -86,6 +87,12 @@ export default function DriftEvolutionCanvas({
   evidenceRuntimeRef,
 }: DriftEvolutionCanvasProps) {
   const [proximity, setProximity] = useState<Drift3DTopologyProximity | null>(null);
+  const [sceneProximity, setSceneProximity] =
+    useState<Drift3DTopologyProximity | null>(null);
+  const latestProximityRef = useRef<Drift3DTopologyProximity | null>(null);
+  const sceneProximityRef = useRef<Drift3DTopologyProximity | null>(null);
+  const lastProximityRefreshAtRef = useRef(Number.NEGATIVE_INFINITY);
+  const proximityRefreshTimeoutRef = useRef<number | null>(null);
   const cameraZoomTargetRef = useRef(1);
   const vehicleStateRef = useRef<Drift3DVehiclePhysicsState>(
     createDrift3DVehiclePhysicsState(getDrift3DVehicleStartPosition(), 0)
@@ -111,6 +118,9 @@ export default function DriftEvolutionCanvas({
         window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY).matches
     )
   );
+  const proximityRefreshIntervalMsRef = useRef(
+    performanceProfile.proximityRefreshIntervalMs
+  );
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
     return getDrift3DFollowCameraRig(startPosition, 1);
@@ -119,15 +129,72 @@ export default function DriftEvolutionCanvas({
   useEffect(() => {
     const mediaQuery = window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY);
     const syncProfile = () => {
-      setPerformanceProfile(
-        getDriftEvolutionPerformanceProfile(mediaQuery.matches)
-      );
+      const nextProfile = getDriftEvolutionPerformanceProfile(mediaQuery.matches);
+      proximityRefreshIntervalMsRef.current =
+        nextProfile.proximityRefreshIntervalMs;
+      setPerformanceProfile(nextProfile);
     };
 
     syncProfile();
     mediaQuery.addEventListener("change", syncProfile);
     return () => mediaQuery.removeEventListener("change", syncProfile);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (proximityRefreshTimeoutRef.current !== null) {
+        window.clearTimeout(proximityRefreshTimeoutRef.current);
+        proximityRefreshTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const commitLatestProximity = useCallback(() => {
+    proximityRefreshTimeoutRef.current = null;
+    const latest = latestProximityRef.current;
+    if (!latest) return;
+    lastProximityRefreshAtRef.current = performance.now();
+    setProximity(latest);
+  }, []);
+
+  const handleProximityChange = useCallback(
+    (next: Drift3DTopologyProximity) => {
+      latestProximityRef.current = next;
+
+      const previousScene = sceneProximityRef.current;
+      const sceneIdentityChanged =
+        hasDriftEvolutionSceneProximityIdentityChanged(previousScene, next);
+
+      // The 3D tree only consumes qualitative nearest/active identity. Distance
+      // and progress belong to the HUD and must not rebuild every world object.
+      if (sceneIdentityChanged) {
+        sceneProximityRef.current = next;
+        setSceneProximity(next);
+      }
+
+      const intervalMs = proximityRefreshIntervalMsRef.current;
+      const nowMs = performance.now();
+      const elapsedMs = nowMs - lastProximityRefreshAtRef.current;
+
+      if (intervalMs <= 0 || elapsedMs >= intervalMs) {
+        if (proximityRefreshTimeoutRef.current !== null) {
+          window.clearTimeout(proximityRefreshTimeoutRef.current);
+          proximityRefreshTimeoutRef.current = null;
+        }
+        lastProximityRefreshAtRef.current = nowMs;
+        setProximity(next);
+        return;
+      }
+
+      if (proximityRefreshTimeoutRef.current === null) {
+        proximityRefreshTimeoutRef.current = window.setTimeout(
+          commitLatestProximity,
+          Math.max(0, intervalMs - elapsedMs)
+        );
+      }
+    },
+    [commitLatestProximity]
+  );
 
   function setCameraZoomValue(nextZoom: number) {
     const clamped = Math.min(
@@ -588,15 +655,15 @@ export default function DriftEvolutionCanvas({
           shadows={performanceProfile.shadows}
           gl={{
             antialias: performanceProfile.antialias,
-            alpha: true,
+            alpha: performanceProfile.alpha,
             powerPreference: "high-performance",
             toneMapping: ACESFilmicToneMapping,
           }}
         >
           <DriftEvolutionScene
             performanceProfile={performanceProfile}
-            proximity={proximity}
-            onProximityChange={setProximity}
+            proximity={sceneProximity}
+            onProximityChange={handleProximityChange}
             pointerDriveStateRef={pointerDriveStateRef}
             cameraZoomTargetRef={cameraZoomTargetRef}
             vehicleStateRef={vehicleStateRef}
@@ -618,7 +685,11 @@ export default function DriftEvolutionCanvas({
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-[5] opacity-[0.05] mix-blend-overlay"
+          className={`pointer-events-none absolute inset-0 z-[5] ${
+            performanceProfile.mode === "mobile"
+              ? "opacity-[0.025]"
+              : "opacity-[0.05] mix-blend-overlay"
+          }`}
           style={{
             backgroundImage:
               "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E\")",
