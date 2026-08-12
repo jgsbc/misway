@@ -182,6 +182,8 @@ function AdaptiveCameraRig({
   const initializedRef = useRef(false);
   const smoothedPositionRef = useRef(new THREE.Vector3());
   const smoothedTargetRef = useRef(new THREE.Vector3());
+  const desiredPositionRef = useRef(new THREE.Vector3());
+  const desiredTargetRef = useRef(new THREE.Vector3());
 
   useFrame((_, delta) => {
     const activeTrackSlug = getActiveTrackSlug(proximity);
@@ -196,12 +198,12 @@ function AdaptiveCameraRig({
       cameraZoomTargetRef.current,
       cinematicZoomRef.current
     );
-    const desiredPosition = new THREE.Vector3(
+    const desiredPosition = desiredPositionRef.current.set(
       rig.position.x,
       rig.position.y,
       rig.position.z
     );
-    const desiredTarget = new THREE.Vector3(
+    const desiredTarget = desiredTargetRef.current.set(
       rig.target.x,
       rig.target.y,
       rig.target.z

@@ -12,6 +12,7 @@ import type {
 import type { Track } from "@/lib/tracks";
 import { getTrackBySlug } from "@/lib/tracks";
 import DriftEvolutionScene from "@/components/drift-evolution/DriftEvolutionScene";
+import DriftEvolutionPerformanceRig from "@/components/drift-evolution/DriftEvolutionPerformanceRig";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import Drift3DEvidenceProbe from "@/components/drift-3d/Drift3DEvidenceProbe";
 import type { Drift3DEvidenceRuntimeRef } from "@/lib/drift3dEvidence";
@@ -61,6 +62,10 @@ import {
   type Drift3DQualityCapabilities,
   type Drift3DQualityProfileCandidate,
 } from "@/lib/drift3dQuality";
+import {
+  DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY,
+  getDriftEvolutionPerformanceProfile,
+} from "@/lib/driftEvolutionPerformance";
 
 type DriftEvolutionCanvasProps = {
   isCurrentTrack: (track: Track) => boolean;
@@ -101,9 +106,28 @@ export default function DriftEvolutionCanvas({
   );
   const lifecycleEffectGenerationRef = useRef(0);
   const [sceneRuntimeActive, setSceneRuntimeActive] = useState(false);
+  const [performanceProfile, setPerformanceProfile] = useState(() =>
+    getDriftEvolutionPerformanceProfile(
+      typeof window !== "undefined" &&
+        window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY).matches
+    )
+  );
   const initialCameraRig = useMemo(() => {
     const startPosition = getDrift3DVehicleStartPosition();
     return getDrift3DFollowCameraRig(startPosition, 1);
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(DRIFT_EVOLUTION_MOBILE_MEDIA_QUERY);
+    const syncProfile = () => {
+      setPerformanceProfile(
+        getDriftEvolutionPerformanceProfile(mediaQuery.matches)
+      );
+    };
+
+    syncProfile();
+    mediaQuery.addEventListener("change", syncProfile);
+    return () => mediaQuery.removeEventListener("change", syncProfile);
   }, []);
 
   function setCameraZoomValue(nextZoom: number) {
@@ -560,11 +584,11 @@ export default function DriftEvolutionCanvas({
             near: 0.1,
             far: 200,
           }}
-          dpr={[1, 1.5]}
+          dpr={[1, performanceProfile.maxDpr]}
           frameloop={sceneRuntimeActive ? "always" : "never"}
-          shadows
+          shadows={performanceProfile.shadows}
           gl={{
-            antialias: true,
+            antialias: performanceProfile.antialias,
             alpha: true,
             powerPreference: "high-performance",
             toneMapping: ACESFilmicToneMapping,
@@ -579,6 +603,7 @@ export default function DriftEvolutionCanvas({
             audioClockRef={audioClockRef}
             sceneLifecycleRef={sceneLifecycleRef}
           />
+          <DriftEvolutionPerformanceRig profile={performanceProfile} />
           {process.env.NODE_ENV !== "production" ? (
             <Drift3DEvidenceProbe runtimeRef={evidenceRuntimeRef} />
           ) : null}

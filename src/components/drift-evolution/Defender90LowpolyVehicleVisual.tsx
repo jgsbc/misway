@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { withBasePath } from "@/lib/basePath";
 
 export const DEFENDER_90_LOWPOLY_ASSET_PATH =
@@ -301,6 +302,83 @@ function prepareSourceModel(root: THREE.Group) {
   installSourceRoofRack(root);
 }
 
+function disposeSourceGeometries(root: THREE.Object3D) {
+  const geometries = new Set<THREE.BufferGeometry>();
+
+  root.traverse((object) => {
+    if (object instanceof THREE.Mesh) geometries.add(object.geometry);
+  });
+
+  for (const geometry of geometries) geometry.dispose();
+}
+
+/**
+ * The authored Defender is static but split into dozens of small meshes.
+ * Flatten their transforms into one geometry per material so the silhouette,
+ * source topology and tuned materials remain identical with far fewer draw
+ * calls. Multi-material meshes are retained independently as a safe fallback.
+ */
+function mergeSourceMeshesByMaterial(root: THREE.Group) {
+  const mergedRoot = new THREE.Group();
+  mergedRoot.name = `${root.name || "defender90"}_merged_by_material`;
+  root.updateMatrixWorld(true);
+
+  const rootInverse = root.matrixWorld.clone().invert();
+  const transform = new THREE.Matrix4();
+  const batches = new Map<
+    THREE.Material,
+    Array<THREE.BufferGeometry>
+  >();
+  const retainedMeshes: THREE.Mesh[] = [];
+
+  root.traverse((object) => {
+    if (!(object instanceof THREE.Mesh)) return;
+
+    transform.multiplyMatrices(rootInverse, object.matrixWorld);
+    const geometry = object.geometry.clone();
+    geometry.applyMatrix4(transform);
+
+    if (Array.isArray(object.material)) {
+      const retained = new THREE.Mesh(geometry, object.material);
+      retained.name = object.name;
+      retained.castShadow = object.castShadow;
+      retained.receiveShadow = object.receiveShadow;
+      retainedMeshes.push(retained);
+      return;
+    }
+
+    const materialGeometries = batches.get(object.material) ?? [];
+    materialGeometries.push(geometry);
+    batches.set(object.material, materialGeometries);
+  });
+
+  for (const [material, geometries] of batches) {
+    const geometry = mergeGeometries(geometries, false);
+
+    if (!geometry) {
+      for (const fallbackGeometry of geometries) {
+        const fallback = new THREE.Mesh(fallbackGeometry, material);
+        fallback.castShadow = true;
+        fallback.receiveShadow = true;
+        mergedRoot.add(fallback);
+      }
+      continue;
+    }
+
+    for (const sourceGeometry of geometries) sourceGeometry.dispose();
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = `misway_defender_${material.name || material.uuid}`;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mergedRoot.add(mesh);
+  }
+
+  for (const mesh of retainedMeshes) mergedRoot.add(mesh);
+  disposeSourceGeometries(root);
+
+  return mergedRoot;
+}
+
 function disposeSourceModel(root: THREE.Object3D) {
   const geometries = new Set<THREE.BufferGeometry>();
   const materials = new Set<THREE.Material>();
@@ -355,12 +433,13 @@ export default function Defender90LowpolyVehicleVisual() {
     loader.load(
       assetUrl,
       (gltf) => {
-        loadedModel = gltf.scene;
+        const sourceModel = gltf.scene;
         if (cancelled) {
-          disposeSourceModel(loadedModel);
+          disposeSourceModel(sourceModel);
           return;
         }
-        prepareSourceModel(loadedModel);
+        prepareSourceModel(sourceModel);
+        loadedModel = mergeSourceMeshesByMaterial(sourceModel);
         setModel(loadedModel);
       },
       undefined,
