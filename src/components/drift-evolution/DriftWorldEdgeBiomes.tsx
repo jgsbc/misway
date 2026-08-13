@@ -16,11 +16,14 @@ import {
 const lateralMountains = Object.freeze({
   innerX: 112,
   outerX: 166,
-  westMinZ: -80,
-  eastMinZ: -58,
+  westMinZ: -90,
+  eastMinZ: -90,
   maxZ: 72,
+  westNorthFadeEndZ: -56,
+  eastNorthFadeEndZ: -18,
+  eastOceanRevealStartZ: -72,
+  eastOceanRevealEndZ: -16,
   southFadeStartZ: 54,
-  eastNorthFadeEndZ: -42,
   acrossSegments: 18,
   alongSegments: 34,
 });
@@ -183,6 +186,8 @@ function createEdgeRibbon(options: {
 function createLateralMountainGeometry(side: -1 | 1) {
   const config = lateralMountains;
   const minZ = side < 0 ? config.westMinZ : config.eastMinZ;
+  const northFadeEndZ =
+    side < 0 ? config.westNorthFadeEndZ : config.eastNorthFadeEndZ;
   const positions: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
@@ -192,18 +197,15 @@ function createLateralMountainGeometry(side: -1 | 1) {
   for (let along = 0; along <= config.alongSegments; along += 1) {
     const alongProgress = along / config.alongSegments;
     const z = minZ + (config.maxZ - minZ) * alongProgress;
+    const northFade = smoothstep01(
+      (z - minZ) / (northFadeEndZ - minZ)
+    );
     const southFade =
       1 -
       smoothstep01(
         (z - config.southFadeStartZ) /
           (config.maxZ - config.southFadeStartZ)
       );
-    const northFade =
-      side < 0
-        ? 1
-        : smoothstep01(
-            (z - minZ) / (config.eastNorthFadeEndZ - minZ)
-          );
     const edgeEnvelope = northFade * southFade;
     const seamX = side * config.innerX;
     const seamY = getDrift3DGroundY(seamX, z) + 0.01;
@@ -211,6 +213,14 @@ function createLateralMountainGeometry(side: -1 | 1) {
       0.76 +
       Math.sin(z * 0.073 + side * 0.9) * 0.16 +
       Math.sin(z * 0.151 - side * 0.55) * 0.08;
+    const eastOceanExposure =
+      side < 0
+        ? 0
+        : 1 -
+          smoothstep01(
+            (z - config.eastOceanRevealStartZ) /
+              (config.eastOceanRevealEndZ - config.eastOceanRevealStartZ)
+          );
 
     for (let across = 0; across <= config.acrossSegments; across += 1) {
       const progress = across / config.acrossSegments;
@@ -222,13 +232,20 @@ function createLateralMountainGeometry(side: -1 | 1) {
         Math.exp(-Math.pow((progress - 0.56) / 0.24, 2) * 2.2) *
         shoulder;
       const farShoulder = smoothstep01((progress - 0.34) / 0.66);
+      const oceanWindowAcross = smoothstep01((progress - 0.1) / 0.76);
+      const oceanWindow =
+        side < 0
+          ? 1
+          : 1 - eastOceanExposure * oceanWindowAcross * 0.82;
       const roughness =
         (edgeNoise(along * row + across, side < 0 ? 17 : 29) - 0.5) *
         3.1 *
         shoulder *
-        edgeEnvelope;
+        edgeEnvelope *
+        oceanWindow;
       const rise =
         edgeEnvelope *
+          oceanWindow *
           sideScale *
           (shoulder * 2.4 + crest * (11.5 + macro * 8.5) + farShoulder * 5.2) +
         roughness;
