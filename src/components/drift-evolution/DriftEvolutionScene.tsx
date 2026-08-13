@@ -39,7 +39,7 @@ type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase> & {
 };
 
 // Must happen before Drift3DSceneBase's first render: its landmark collider
-// memo and topology nodes must already reflect the evolution-only staging.
+// memo and topology nodes must already reflect the promoted staging.
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
 stageFoolfouleForEvolution();
@@ -49,8 +49,8 @@ const birthYardRouteLabLandmark =
   buildDriftEvolutionBirthYardRouteLabLandmark();
 
 /**
- * Copy-on-write scene: production DRIFT remains the complete base authority;
- * evolution owns only the presentation/spatial layers that explicitly diverge.
+ * Promoted production composition: the shared base remains authoritative for
+ * unchanged layers and every accepted divergence stays explicit here.
  */
 function DriftEvolutionScene({
   performanceProfile,
@@ -65,7 +65,7 @@ function DriftEvolutionScene({
 
   useLayoutEffect(() => {
     // React Strict Mode may replay layout effects in development. Reassert the
-    // evolution overrides after a cleanup replay, then restore on real unmount.
+    // promoted overrides after a cleanup replay, then restore on real unmount.
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
     stageFoolfouleForEvolution();

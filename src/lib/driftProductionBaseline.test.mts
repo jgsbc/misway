@@ -3,10 +3,8 @@ import { execFileSync } from "node:child_process";
 import test from "node:test";
 
 const PROTECTED_DRIFT_BLOBS = Object.freeze({
-  "src/app/drift/page.tsx": "03a26ccec4a50042497688120171e4558722f34c",
-  "src/components/drift-3d/Drift3DClient.tsx": "03f05fe01c08a5345ba5ad824ac9ec7d3811c8bf",
-  "src/components/drift-3d/Drift3DCanvas.tsx": "fe8b4d5ea72598b7c7cb59f2f0af8ae156b8bcfa",
-  "src/components/drift-3d/Drift3DScene.tsx": "6689d518ffd16050a03e3c62d682bd44d0dfadec",
+  "src/app/drift/page.tsx": "bff0166b9194f354f87ab39c7588c5d77107b3d6",
+  "src/app/drift/layout.tsx": "65b5e62d9dd69f2af4b370ae7151d537d10cb782",
   "src/components/drift-3d/Drift3DSceneBase.tsx": "b9793675e37ecda5a5e3d32c2585db4c0d19a41b",
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
@@ -15,16 +13,24 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
 
-  // Promoted Evolution layers are now production dependencies. Keep them
-  // protected even though their historical filenames still say Evolution.
+  // Owner-approved Evolution runtime promoted to production on 2026-08-13.
+  "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
+  "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "b276aaad75cb5f540c9f7f3b97031f1cb2d87838",
+  "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "0021623838a9795e47d163bb9b798201847173aa",
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "3928f92edecf9d92511086863b7d2d829a0a49cf",
+  "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
+  "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
   "src/components/drift-evolution/EntryPortalLightCorrection.tsx": "8716a7b36c6a98dc9f5c9d2910c43f72aeed5d9a",
-  "src/components/drift-evolution/EvolutionSafari110VehicleVisual.tsx": "cac1d56f3a32a1dd51b4aac72b547f899147b00f",
   "src/components/drift-evolution/FoolfouleCrowd.tsx": "bbd2617073bbe2de1610c35fcad056c9c8a808e0",
   "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
   "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "2c371dcc104d5d076b4269f56a1efc0694d57775",
-  "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "d11022fc6b4960d078900ca13f60c3cb381d9c6d",
-  "src/components/drift-evolution/ZeelandWaterSurface.tsx": "cd95b325ffebdd96e2cee7f08fdf2eccca6e9caf",
+  "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
+  "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
+
+  "public/models/defender90-lowpoly/license.txt": "1988ff678583f8549efcdadd0e01c1204f3e0816",
+  "public/models/defender90-lowpoly/scene.bin": "2af9a90cf0fc1dd88e40034d2ca3566adb6e185b",
+  "public/models/defender90-lowpoly/scene.gltf": "5977870861e3fab90761e369e7ca6c35925d0192",
 
   "src/lib/drift3d.ts": "00d2eec130df2ee9469bd814d0030a538560064f",
   "src/lib/drift3dBase.ts": "cdd34e00101c12631807e82f1be5ab6ac4f9c074",
@@ -37,14 +43,18 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/drift3dSafari110FinalGeometry.ts": "764bb823622a37fa7c137a67867251b6715c6c5a",
   "src/lib/drift3dSafari110Runtime.ts": "a4e474671d698ea7209bef32e9bfeaa9f1e4ffbc",
   "src/lib/drift3dOriginalVehicleGeometry.ts": "e9c5a8ea27395937ca719847db4d9fd66bd9c9b8",
-  "src/lib/driftEvolutionEntryCave.ts": "31a171bf263737f6efd377593f63c1c825c3dc2f",
+  "src/lib/driftEvolutionEntryCave.ts": "4d5626373557e7c9a10050404a1ea26c57d7bc84",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
-  "src/lib/driftEvolutionSpatial.ts": "c21f9bb3e8997e7bb0c1b50dfbb28b508c6e78ab",
+  "src/lib/driftEvolutionSpatial.ts": "444f4e33f189ef6b7c6dc953fcad15d3cbf785af",
   "src/lib/driftEvolutionZeelandGeography.ts": "d0cc3f6e64208e30818ec3c4ce31db2c634962bc",
-  "src/lib/driftEvolutionFoolfouleRegistry.ts": "f6e74b35e6a32fed517b303fd954257c3aca8145",
-  "src/lib/driftEvolutionLegacyEntryRegistry.ts": "aadbde106b578df6c1bea9406fc366c006098281",
-  "src/lib/driftEvolutionZeelandRegistry.ts": "348dace4ce3a956c93e411842348e843ce2069a8",
+  "src/lib/driftEvolutionFoolfouleRegistry.ts": "5e9e1bf8dc7687a7f0d6ee3b75e299abb3e7b796",
+  "src/lib/driftEvolutionLegacyEntryRegistry.ts": "7dd3b172cfb85e48c784c8fdb19eb698c9df4f48",
+  "src/lib/driftEvolutionZeelandRegistry.ts": "e58de4886961ea6a1cb2f9bbf804abb884360996",
+  "src/lib/driftEvolutionPerformance.ts": "8ab67e365bd64f4f8d11ab17afb1b3d61504a7e1",
+  "src/lib/driftEvolutionBirthYardRouteLab.ts": "2a6ef70f8d4d2bfb9955756dd6fabd733ce0279a",
+  "src/lib/driftEvolutionJazzyplingDistrict.ts": "3068e31f84ad46f898ff378de347939d9fdbfc30",
+  "src/lib/driftEvolutionJazzyplingRegistry.ts": "ad665c7381018e18cbd9e4e8f1d7740fcff928ba",
 });
 
 function readHeadBlob(path: string) {

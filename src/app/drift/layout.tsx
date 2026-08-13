@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Drift — a drivable listening world (MISWΛY)",
   description:
-    "Drive through MISWΛY: four eras, twenty-six track places, mountains, canals, storms and dawns. Explicit audio only — nothing plays without your click.",
+    "Drive through MISWΛY: four eras, thirty-two track places, mountains, canals, storms and dawns. Explicit audio only — nothing plays without your click.",
   alternates: {
     canonical: "/drift/",
   },

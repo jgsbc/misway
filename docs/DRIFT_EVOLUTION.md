@@ -1,9 +1,9 @@
-# DRIFT Evolution — protected-world execution contract
+# DRIFT Evolution — promotion and protected-world execution contract
 
 ## 1. Two surfaces, two responsibilities
 
-- `/drift` is the protected production artwork. Its restored baseline is `99b343bb13e901df49d9bed530cb00decf1134cd`.
-- `/drift-evolution` is the world-evolution surface. It starts visually identical to `/drift` and diverges by copy-on-write only.
+- `/drift` is the protected production artwork. Since the owner decision of 2026-08-13, it mounts the accepted Evolution runtime.
+- `/drift-evolution` is retained as a noindex internal review mirror. A future experiment must receive a new explicit copy-on-write lot before diverging again.
 - `/drift-kit-lab` remains the technical asset/pipeline laboratory. It is not the evolving world and its pilot art is not automatically production art.
 
 Production is never used as a scratchpad again.
@@ -86,8 +86,18 @@ If the result is not visibly and meaningfully better, it stays in evolution or i
 
 The baseline-protection test intentionally fails if protected production files change without such a deliberate promotion.
 
+The 2026-08-13 promotion satisfies this gate:
+
+- owner verdict: the Evolution result is better and replaces Drift;
+- source: `/drift-evolution`;
+- target: `/drift`;
+- runtime authority: `src/components/drift-evolution/DriftEvolutionClient.tsx`;
+- objective runtime evidence: local tests/typecheck/lint/build plus the green Runtime CI of PR #124 after the final performance pass;
+- exact route change: `src/app/drift/page.tsx` mounts `DriftEvolutionClient` instead of `Drift3DClient`;
+- rollback point: `525f86f7e34d225233e992695fe269600c1d067d`.
+
 ## 7. Current execution direction
 
 Do not rebuild the world from zero.
 
-Start from the restored Drift map, inventory its strongest existing scenes, recover the best historical work one capability at a time, and evolve the duplicate until it clearly surpasses the protected artwork. The platform/general system is extracted only from patterns proven by the artwork.
+The accepted Evolution composition is now the production baseline. Preserve it on `/drift`; use `/drift-evolution` for a future divergence only after a new owner-authorized lot defines its scope and comparison gate. The platform/general system is extracted only from patterns proven by the artwork.

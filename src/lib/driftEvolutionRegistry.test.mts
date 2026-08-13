@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DRIFT_EVOLUTION_DISCIPLINE,
+  DRIFT_EVOLUTION_PROMOTION,
   DRIFT_EVOLUTION_REUSE_SOURCES,
   DRIFT_PRODUCTION_BASELINE,
 } from "@/lib/driftEvolutionRegistry";
@@ -16,6 +17,16 @@ test("Drift evolution starts from the restored production baseline on a separate
   assert.notEqual(
     DRIFT_PRODUCTION_BASELINE.productionRoute,
     DRIFT_PRODUCTION_BASELINE.evolutionRoute
+  );
+});
+
+test("owner-approved Evolution runtime is promoted to production Drift", () => {
+  assert.equal(DRIFT_EVOLUTION_PROMOTION.status, "OWNER_APPROVED");
+  assert.equal(DRIFT_EVOLUTION_PROMOTION.sourceRoute, "/drift-evolution");
+  assert.equal(DRIFT_EVOLUTION_PROMOTION.targetRoute, "/drift");
+  assert.equal(
+    DRIFT_EVOLUTION_PROMOTION.rollbackCommit,
+    "525f86f7e34d225233e992695fe269600c1d067d"
   );
 });
 

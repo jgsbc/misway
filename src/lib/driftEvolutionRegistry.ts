@@ -5,6 +5,16 @@ export const DRIFT_PRODUCTION_BASELINE = Object.freeze({
   kitLabRoute: "/drift-kit-lab",
 } as const);
 
+export const DRIFT_EVOLUTION_PROMOTION = Object.freeze({
+  decidedAt: "2026-08-13",
+  status: "OWNER_APPROVED",
+  sourceRoute: "/drift-evolution",
+  targetRoute: "/drift",
+  rollbackCommit: "525f86f7e34d225233e992695fe269600c1d067d",
+  runtimeAuthority:
+    "src/components/drift-evolution/DriftEvolutionClient.tsx",
+} as const);
+
 export type DriftEvolutionReuseStatus =
   | "KEEP_REUSE"
   | "TECHNICAL_REUSE"

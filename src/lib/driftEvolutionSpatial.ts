@@ -101,7 +101,7 @@ export function getDriftEvolutionEntryEnclosureMix(point: {
   return clamp(lateral * thresholdPresence, 0, 1);
 }
 
-/** Evolution-only solid envelope for the recovered west-ridge cave. */
+/** Promoted solid envelope for the recovered west-ridge cave. */
 export function constrainDriftEvolutionEntryVehicle(
   state: Drift3DVehiclePhysicsState
 ) {

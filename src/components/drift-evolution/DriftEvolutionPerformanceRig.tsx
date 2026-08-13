@@ -25,7 +25,7 @@ function isLegacyFoolfouleCrowd(object: THREE.Object3D) {
 }
 
 /**
- * Evolution-only render-cost controls. Geometry, materials and navigation stay
+ * Production render-cost controls. Geometry, materials and navigation stay
  * mounted; secondary instance shadows, the sun shadow cadence/resolution and
  * the number of locally relevant point lights are bounded by capability. The
  * inherited 130-person Foolfoule effect stays hidden because Evolution already
@@ -110,7 +110,7 @@ export default function DriftEvolutionPerformanceRig({
       if (isLegacyFoolfouleCrowd(object)) {
         suppressedLegacyCrowds.set(object, object.visible);
         // The inherited crowd writes `visible` itself before doing its matrix
-        // work. Keep this Evolution-only mesh observably hidden so that its
+        // work. Keep this promoted mesh observably hidden so that its
         // own frame callback exits immediately instead of simulating a second
         // crowd behind the richer Evolution population.
         Object.defineProperty(object, "visible", {

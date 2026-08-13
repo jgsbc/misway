@@ -23,7 +23,7 @@ type ZeelandSnapshot = {
 let snapshot: ZeelandSnapshot | null = null;
 
 /**
- * Evolution-only Zeeland staging.
+ * Zeeland staging promoted with the accepted runtime.
  *
  * The inherited houses, small bridge and quay details remain useful, but the
  * two tiny Reflector water cards are not geography. Move the inherited scene

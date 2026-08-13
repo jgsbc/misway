@@ -16,7 +16,7 @@ type FoolfouleSnapshot = Readonly<{
 let snapshot: FoolfouleSnapshot | null = null;
 
 /**
- * Evolution-only replacement of the inherited four-tower Foolfoule diorama.
+ * Promoted replacement of the inherited four-tower Foolfoule diorama.
  * The canonical node does not move; only its local scene grows into a real
  * commercial canyon before Drift3DSceneBase captures landmark colliders.
  */

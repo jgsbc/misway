@@ -20,10 +20,12 @@ test("home and Drift startup share the same hero doorway authority", () => {
   assert.match(entry, /<DriftHeroBackdrop shimmer \/>/);
   assert.match(veil, /<DriftHeroBackdrop shimmer \/>/);
   assert.match(driftPage, /<DriftStartupVeil \/>/);
+  assert.match(driftPage, /<DriftEvolutionClient \/>/);
+  assert.doesNotMatch(driftPage, /<Drift3DClient \/>/);
 });
 
 test("production Drift releases the hero only from rendered cave readiness", () => {
-  const scene = read("src/components/drift-3d/Drift3DScene.tsx");
+  const scene = read("src/components/drift-evolution/DriftEvolutionScene.tsx");
 
   assert.match(scene, /getDriftEvolutionEntryStartPosition/);
   assert.match(scene, /<DriftSceneReadySignal/);

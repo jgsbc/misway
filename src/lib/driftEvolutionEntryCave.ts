@@ -30,7 +30,7 @@ const worldMaxZ = DRIFT_3D_TOPOLOGY_WORLD_DEPTH / 2;
  * - 4x4 starts at the back of the cave, inside movement bounds;
  * - travel direction is west -> east;
  * - exterior opening is exactly the former production 4x4 start;
- * - Birth Yard, topology and production `/drift` never move.
+ * - Birth Yard and the shared topology never move.
  */
 const WEST_RIDGE_VISUAL_INSET = 0.8;
 const SPAWN_INSET_FROM_WORLD_EDGE = 4.5;
