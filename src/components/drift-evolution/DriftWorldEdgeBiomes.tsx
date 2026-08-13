@@ -73,26 +73,39 @@ const oceanFragmentShader = /* glsl */ `
   }
 `;
 
-const voidVertexShader = /* glsl */ `
-  varying vec3 vWorldPosition;
+const cosmicVertexShader = /* glsl */ `
+  varying vec3 vDirection;
 
   void main() {
-    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPosition.xyz;
-    gl_Position = projectionMatrix * viewMatrix * worldPosition;
+    vDirection = normalize(position);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
-const voidFragmentShader = /* glsl */ `
-  varying vec3 vWorldPosition;
+const cosmicFragmentShader = /* glsl */ `
+  varying vec3 vDirection;
 
   void main() {
-    float depth = smoothstep(84.0, 220.0, vWorldPosition.z);
-    float lateral = 1.0 - smoothstep(85.0, 150.0, abs(vWorldPosition.x));
+    float below = 1.0 - smoothstep(-0.58, 0.20, vDirection.y);
+    float south = smoothstep(-0.16, 0.72, vDirection.z);
+    float horizon = 1.0 - abs(vDirection.y);
+
     vec3 nearBlack = vec3(0.0015, 0.0020, 0.0060);
     vec3 deepBlue = vec3(0.0060, 0.0090, 0.0220);
-    vec3 color = mix(nearBlack, deepBlue, depth * 0.52 + lateral * 0.08);
-    gl_FragColor = vec4(color, 1.0);
+    vec3 color = mix(
+      deepBlue,
+      nearBlack,
+      clamp(below * 0.72 + south * 0.18, 0.0, 1.0)
+    );
+
+    float cosmicPresence = clamp(
+      below * 0.78 + south * (0.23 + horizon * 0.17),
+      0.0,
+      0.94
+    );
+    float alpha = 0.055 + cosmicPresence * 0.88;
+
+    gl_FragColor = vec4(color, alpha);
   }
 `;
 
@@ -297,16 +310,18 @@ function NorthEastOcean() {
   );
 }
 
-function SouthVoid() {
+function CosmicSky() {
   const southVoid = DRIFT_3D_SOUTH_VOID;
-  const voidMaterial = useMemo(
+  const groupRef = useRef<THREE.Group>(null);
+  const cosmicMaterial = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: voidVertexShader,
-        fragmentShader: voidFragmentShader,
-        depthWrite: true,
+        vertexShader: cosmicVertexShader,
+        fragmentShader: cosmicFragmentShader,
+        transparent: true,
+        depthWrite: false,
         depthTest: true,
-        side: THREE.DoubleSide,
+        side: THREE.BackSide,
         fog: false,
       }),
     []
@@ -315,35 +330,32 @@ function SouthVoid() {
     const positions = new Float32Array(southVoid.starCount * 3);
 
     for (let index = 0; index < southVoid.starCount; index += 1) {
-      positions[index * 3] = (edgeNoise(index, 3) - 0.5) * 270;
-      positions[index * 3 + 1] = -31 + edgeNoise(index, 7) * 34;
-      positions[index * 3 + 2] =
-        southVoid.nearZ +
-        4 +
-        edgeNoise(index, 11) * (southVoid.farZ - southVoid.nearZ - 8);
+      const theta = edgeNoise(index, 3) * Math.PI * 2;
+      const vertical = edgeNoise(index, 7) * 2 - 1;
+      const horizontal = Math.sqrt(Math.max(0, 1 - vertical * vertical));
+      const radius = 132 + edgeNoise(index, 11) * 34;
+
+      positions[index * 3] = Math.cos(theta) * horizontal * radius;
+      positions[index * 3 + 1] = vertical * radius;
+      positions[index * 3 + 2] = Math.sin(theta) * horizontal * radius;
     }
 
     return positions;
-  }, [southVoid]);
+  }, [southVoid.starCount]);
 
-  useEffect(() => () => voidMaterial.dispose(), [voidMaterial]);
+  useEffect(() => () => cosmicMaterial.dispose(), [cosmicMaterial]);
+
+  useFrame(({ camera }) => {
+    groupRef.current?.position.copy(camera.position);
+  });
 
   return (
-    <group aria-hidden="true">
-      <mesh
-        position={[
-          0,
-          southVoid.floorY,
-          (southVoid.nearZ + southVoid.farZ) / 2,
-        ]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        material={voidMaterial}
-        renderOrder={0}
-      >
-        <planeGeometry args={[280, southVoid.farZ - southVoid.nearZ, 1, 1]} />
+    <group ref={groupRef} aria-hidden="true">
+      <mesh material={cosmicMaterial} renderOrder={-2}>
+        <sphereGeometry args={[178, 28, 18]} />
       </mesh>
 
-      <points frustumCulled={false} renderOrder={2}>
+      <points frustumCulled={false} renderOrder={-1}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
         </bufferGeometry>
@@ -355,6 +367,7 @@ function SouthVoid() {
           opacity={0.78}
           fog={false}
           depthWrite={false}
+          depthTest
         />
       </points>
     </group>
@@ -366,7 +379,7 @@ export default function DriftWorldEdgeBiomes() {
     <>
       <EdgeTerrainTransitions />
       <NorthEastOcean />
-      <SouthVoid />
+      <CosmicSky />
     </>
   );
 }
