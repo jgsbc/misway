@@ -5,6 +5,7 @@ import type { MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import LegacyEntryAuthoritySuppressor from "@/components/drift-evolution/LegacyEntryAuthoritySuppressor";
+import DriftWorldEdgeBiomes from "@/components/drift-evolution/DriftWorldEdgeBiomes";
 import ZeelandWaterSurface from "@/components/drift-evolution/ZeelandWaterSurface";
 import {
   getDriftMaterialMaps,
@@ -250,6 +251,7 @@ export default function DriftEvolutionSpatialRig(
       <LegacyEntryAuthoritySuppressor />
       <CaveGroundRibbon />
       <ZeelandWaterSurface />
+      <DriftWorldEdgeBiomes />
       <CaveCollisionRig vehicleStateRef={props.vehicleStateRef} />
       <CaveLightingContinuityRig vehicleStateRef={props.vehicleStateRef} />
       <AdaptiveCameraRig {...props} />

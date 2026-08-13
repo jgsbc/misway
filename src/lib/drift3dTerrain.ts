@@ -131,14 +131,18 @@ export const DRIFT_3D_EDGE_JUMP_RAMPS = Object.freeze([
 ] as const satisfies readonly RampFeature[]);
 
 const terrainFeatures: Drift3DTerrainFeature[] = [
-  // ─── Bordures : half-pipe est/ouest, talus nord/sud ─────────────────────
+  // ─── Bordures : half-pipe est/ouest, côte nord-est, vide au sud ─────────
   // Les deux quarts de pipe dédiés remplacent les anciennes crêtes latérales :
   // les additionner créait une bosse suivie d'une falaise, pas une courbe en U.
   // Ce noyau local conserve toutefois le relief historique qui porte la grotte
   // d'Entry, sans déformer le reste de la paroi ouest.
   { kind: "peak", x: -116, z: 13, radius: 13, height: 9 },
-  { kind: "ridge", x1: -116, z1: 86, x2: 116, z2: 86, width: 13, height: 6 },
-  { kind: "ridge", x1: -116, z1: -86, x2: 116, z2: -86, width: 13, height: 8 },
+  // Le talus nord-ouest reste une limite terrestre ; son interruption à l'est
+  // ouvre la descente existante de RENEE sur l'océan.
+  { kind: "ridge", x1: -116, z1: -86, x2: 8, z2: -86, width: 13, height: 8 },
+  { kind: "ridge", x1: 20, z1: -90, x2: 116, z2: -90, width: 22, height: -3.4 },
+  // La falaise sud commence après ce heightfield, hors de la circulation ; sa
+  // jupe visuelle est portée par DriftWorldEdgeBiomes.
 
   // ─── Older Shadows — le massif ───────────────────────────────────────────
   { kind: "peak", x: -62, z: -78, radius: 24, height: 22 },
