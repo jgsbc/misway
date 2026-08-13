@@ -15,7 +15,11 @@ const evolutionVehicleSource = readFileSync(
   ),
   "utf8"
 );
-const productionSceneSource = readFileSync(
+const productionPageSource = readFileSync(
+  new URL("../app/drift/page.tsx", import.meta.url),
+  "utf8"
+);
+const legacySceneSource = readFileSync(
   new URL("../components/drift-3d/Drift3DScene.tsx", import.meta.url),
   "utf8"
 );
@@ -37,11 +41,12 @@ const assetLicenseUrl = new URL(
   import.meta.url
 );
 
-test("Defender 90 remains Evolution-only", () => {
+test("Defender 90 ships through the Evolution runtime promoted to /drift", () => {
+  assert.match(productionPageSource, /<DriftEvolutionClient \/>/);
   assert.match(evolutionSceneSource, /Defender90LowpolyVehicleVisual/);
   assert.match(evolutionSceneSource, /<Defender90LowpolyVehicleVisual \/>/);
   assert.doesNotMatch(evolutionSceneSource, /<FullFidelityDefenderVehicleVisual/);
-  assert.doesNotMatch(productionSceneSource, /Defender90LowpolyVehicleVisual/);
+  assert.doesNotMatch(legacySceneSource, /Defender90LowpolyVehicleVisual/);
   assert.doesNotMatch(productionBaseSource, /Defender90LowpolyVehicleVisual/);
   assert.match(productionBaseSource, /<Drift3DVehicle/);
 });

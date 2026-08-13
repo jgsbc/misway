@@ -91,7 +91,7 @@ function useZeelandWaterMaterial() {
 }
 
 /**
- * Evolution-only Zeeland water authority.
+ * Zeeland water authority promoted with the accepted runtime.
  *
  * The inherited landmark used two 512px Reflectors over tiny rectangles. This
  * pass replaces those local water cards with one cheap material shared by a

@@ -60,7 +60,7 @@ const jazzyplingSouthFringeJunction = DRIFT_EVOLUTION_JAZZYPLING_ROUTE[1];
 const zeelandQuayJunction = DRIFT_EVOLUTION_ZEELAND_ROUTE[4];
 
 /**
- * DRIFT-SPATIAL-BY-10 — evolution-only road proof.
+ * DRIFT-SPATIAL-BY-10 — road proof promoted with the accepted runtime.
  *
  * These polylines do not move a track and do not redefine the accepted
  * Zeeland/Foolfoule/Jazzypling territories. They only materialize the five

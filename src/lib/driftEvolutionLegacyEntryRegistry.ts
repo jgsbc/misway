@@ -10,12 +10,11 @@ type RemovedLegacyEntry = {
 let removedLegacyEntry: RemovedLegacyEntry | null = null;
 
 /**
- * `/drift-evolution` replaces the production Entry completely. This gate is
+ * The promoted runtime replaces the legacy Entry completely. This gate is
  * applied before Drift3DSceneBase renders, so both its landmark loop and its
- * memoized landmark-collider list are built without the legacy cave.
+ * memoized landmark-collider list are built without the old cave.
  *
- * The production source data is restored when the evolution scene unmounts;
- * `/drift` remains byte-identical and receives its normal registry.
+ * The shared source data is restored when the promoted scene unmounts.
  */
 export function suppressLegacyEntryForEvolution() {
   if (removedLegacyEntry) return;

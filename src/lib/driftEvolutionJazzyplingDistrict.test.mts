@@ -50,7 +50,7 @@ test("Jazzypling lab scene reads as a multi-cellar district", () => {
   assert.equal(landmark.primitives.some((primitive) => primitive.water), false);
 });
 
-test("Jazzypling staging is evolution-only and restores the inherited landmark exactly", () => {
+test("promoted Jazzypling staging restores the inherited landmark exactly", () => {
   restoreJazzyplingAfterEvolution();
   const sourceIndex = drift3dLandmarks.findIndex(
     (landmark) => landmark.id === DRIFT_EVOLUTION_JAZZYPLING_SOURCE_LANDMARK_ID

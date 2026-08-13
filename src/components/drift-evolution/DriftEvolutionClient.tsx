@@ -3,11 +3,10 @@
 import DriftEvolutionRuntimeClient from "@/components/drift-evolution/DriftEvolutionRuntimeClient";
 
 /**
- * Copy-on-write entrypoint for the evolving world.
+ * Entrypoint for the owner-approved Evolution runtime promoted to `/drift`.
  *
- * Production `/drift` stays on its protected runtime. Evolution owns its
- * orchestration layer so scene experiments cannot silently leak back into
- * the artwork baseline.
+ * `/drift-evolution` remains a noindex review mirror until a future explicit
+ * copy-on-write lot gives it a new experimental responsibility.
  */
 export default function DriftEvolutionClient() {
   return <DriftEvolutionRuntimeClient />;

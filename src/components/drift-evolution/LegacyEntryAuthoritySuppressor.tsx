@@ -6,8 +6,8 @@ import * as THREE from "three";
 import { drift3dThresholdNode } from "@/lib/drift3dTopology";
 
 /**
- * `/drift-evolution` replaces the restored production Entry presentation with
- * the recovered long Fable cave. Production `/drift` remains untouched.
+ * The promoted runtime replaces the legacy Entry presentation with the
+ * recovered long Fable cave on `/drift` and its internal review mirror.
  *
  * Both the legacy threshold marker and the legacy cave are direct scene
  * groups anchored on the production threshold coordinates. Hiding only

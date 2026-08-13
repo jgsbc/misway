@@ -3,9 +3,9 @@ import DriftEvolutionClient from "@/components/drift-evolution/DriftEvolutionCli
 import DriftStartupVeil from "@/components/drift-3d/DriftStartupVeil";
 
 export const metadata: Metadata = {
-  title: "Drift Evolution — internal MISWΛY world lab",
+  title: "Drift Evolution — internal MISWΛY review mirror",
   description:
-    "Protected copy-on-write evolution surface for the MISWΛY Drift world. Production /drift remains the visual baseline.",
+    "Internal review mirror of the MISWΛY Drift world currently promoted on /drift.",
   robots: {
     index: false,
     follow: false,

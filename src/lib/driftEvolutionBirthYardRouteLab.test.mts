@@ -143,17 +143,22 @@ test("route lab is a lightweight non-collider road layer", () => {
   assert.equal(landmark.primitives.some((primitive) => primitive.solid), false);
 });
 
-test("BY-10 mounts only in drift-evolution and leaves production scene untouched", () => {
-  const evolutionScene = readFileSync(
+test("BY-10 mounts in the Evolution runtime promoted to production Drift", () => {
+  const promotedScene = readFileSync(
     new URL("../components/drift-evolution/DriftEvolutionScene.tsx", import.meta.url),
     "utf8"
   );
-  const productionScene = readFileSync(
+  const productionPage = readFileSync(
+    new URL("../app/drift/page.tsx", import.meta.url),
+    "utf8"
+  );
+  const legacyScene = readFileSync(
     new URL("../components/drift-3d/Drift3DScene.tsx", import.meta.url),
     "utf8"
   );
 
-  assert.match(evolutionScene, /buildDriftEvolutionBirthYardRouteLabLandmark/);
-  assert.match(evolutionScene, /birthYardRouteLabLandmark/);
-  assert.doesNotMatch(productionScene, /BirthYardRouteLab|birthYardRouteLab/);
+  assert.match(productionPage, /<DriftEvolutionClient \/>/);
+  assert.match(promotedScene, /buildDriftEvolutionBirthYardRouteLabLandmark/);
+  assert.match(promotedScene, /birthYardRouteLabLandmark/);
+  assert.doesNotMatch(legacyScene, /BirthYardRouteLab|birthYardRouteLab/);
 });

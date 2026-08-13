@@ -7,7 +7,7 @@ const scenePaths = [
   "src/components/drift-evolution/DriftEvolutionScene.tsx",
 ] as const;
 
-test("production and evolution scenes render the canonical new-track landmarks", () => {
+test("legacy rollback and promoted scenes render the canonical new-track landmarks", () => {
   for (const path of scenePaths) {
     const source = readFileSync(path, "utf8");
 
