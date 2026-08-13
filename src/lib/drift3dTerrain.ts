@@ -57,6 +57,8 @@ type RampFeature = {
   lipDrop: number;
   /** Une courbe de skatepark garde une pente montante jusque sur la lèvre. */
   profile?: "smooth" | "quarter-pipe";
+  /** Fondu latéral réservé aux extrémités ; le reste de la rampe reste plat. */
+  edgeFade?: number;
 };
 
 export type Drift3DTerrainFeature =
@@ -102,39 +104,38 @@ function segmentDistance(
 export const DRIFT_3D_EDGE_JUMP_RAMPS = Object.freeze([
   {
     kind: "ramp",
-    x: -95,
-    z: -24,
+    x: -103,
+    z: 0,
     directionX: -1,
     directionZ: 0,
-    length: 8,
-    width: 18,
-    height: 3.8,
-    lipDrop: 0.9,
+    length: 4.2,
+    width: 136,
+    height: 4.4,
+    lipDrop: 0.7,
     profile: "quarter-pipe",
+    edgeFade: 8,
   },
   {
     kind: "ramp",
-    x: 95,
-    z: 48,
+    x: 103,
+    z: 0,
     directionX: 1,
     directionZ: 0,
-    length: 8,
-    width: 18,
-    height: 3.8,
-    lipDrop: 0.9,
+    length: 4.2,
+    width: 136,
+    height: 4.4,
+    lipDrop: 0.7,
     profile: "quarter-pipe",
+    edgeFade: 8,
   },
 ] as const satisfies readonly RampFeature[]);
 
 const terrainFeatures: Drift3DTerrainFeature[] = [
-  // ─── Hautes terres de bordure (le monde est une vallée) ─────────────────
-  { kind: "ridge", x1: -116, z1: -84, x2: -116, z2: -40, width: 13, height: 9 },
-  { kind: "ridge", x1: -116, z1: -8, x2: -116, z2: 84, width: 13, height: 9 },
-  { kind: "ridge", x1: 116, z1: -84, x2: 116, z2: 32, width: 13, height: 7 },
-  { kind: "ridge", x1: 116, z1: 64, x2: 116, z2: 84, width: 13, height: 7 },
+  // ─── Bordures : quarter-pipes est/ouest, talus nord/sud ─────────────────
+  { kind: "ridge", x1: -116, z1: -84, x2: -116, z2: 84, width: 13, height: 9 },
+  { kind: "ridge", x1: 116, z1: -84, x2: 116, z2: 84, width: 13, height: 7 },
   { kind: "ridge", x1: -116, z1: 86, x2: 116, z2: 86, width: 13, height: 6 },
   { kind: "ridge", x1: -116, z1: -86, x2: 116, z2: -86, width: 13, height: 8 },
-  ...DRIFT_3D_EDGE_JUMP_RAMPS,
 
   // ─── Older Shadows — le massif ───────────────────────────────────────────
   { kind: "peak", x: -62, z: -78, radius: 24, height: 22 },
@@ -251,7 +252,10 @@ function evaluateFeature(
         return 0;
       }
 
-      const across = smoothstep01(1 - Math.abs(localV) / (feature.width / 2));
+      const halfWidth = feature.width / 2;
+      const across = feature.edgeFade
+        ? smoothstep01((halfWidth - Math.abs(localV)) / feature.edgeFade)
+        : smoothstep01(1 - Math.abs(localV) / halfWidth);
       const progress = localU / feature.length;
       const along =
         localU <= feature.length
@@ -270,6 +274,16 @@ function getRawTerrainHeight(x: number, z: number) {
 
   for (const feature of terrainFeatures) {
     height += evaluateFeature(feature, x, z);
+  }
+
+  return height;
+}
+
+function getEdgeJumpRampHeight(x: number, z: number) {
+  let height = 0;
+
+  for (const ramp of DRIFT_3D_EDGE_JUMP_RAMPS) {
+    height += evaluateFeature(ramp, x, z);
   }
 
   return height;
@@ -319,12 +333,14 @@ export function getDrift3DTerrainHeight(x: number, z: number): number {
   }
 
   if (weightSum <= 0) {
-    return raw;
+    return raw + getEdgeJumpRampHeight(x, z);
   }
 
   const blend = Math.min(1, weightSum);
+  const flattened =
+    raw * (1 - blend) + (weightedTarget / weightSum) * blend;
 
-  return raw * (1 - blend) + (weightedTarget / weightSum) * blend;
+  return flattened + getEdgeJumpRampHeight(x, z);
 }
 
 /** Hauteur absolue (monde) du sol en ce point. */
