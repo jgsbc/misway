@@ -16,7 +16,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   // Owner-approved Evolution runtime promoted to production on 2026-08-13.
   "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
   "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "b276aaad75cb5f540c9f7f3b97031f1cb2d87838",
-  "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "0021623838a9795e47d163bb9b798201847173aa",
+  "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "4fd168472fcb1adf844a048a5ec5ded91bbab9f1",
   "src/components/drift-evolution/DriftEvolutionScene.tsx": "3928f92edecf9d92511086863b7d2d829a0a49cf",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",

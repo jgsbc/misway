@@ -17,6 +17,12 @@ export type Drift3DAmbienceMix = {
   sea: number;
 };
 
+export type Drift3DVehicleEngineProfile = {
+  baseFrequency: number;
+  overtoneFrequency: number;
+  gain: number;
+};
+
 type AmbienceLayerName = keyof Drift3DAmbienceMix;
 
 type AmbienceLayerSpec = {
@@ -70,6 +76,27 @@ const layerSpecs: Record<AmbienceLayerName, AmbienceLayerSpec> = {
   },
 };
 
+function clamp01(value: number) {
+  return Math.min(Math.max(value, 0), 1);
+}
+
+/**
+ * A compact diesel-like response curve. The input is normalized vehicle
+ * speed, which keeps this audio layer independent from the physics tuning.
+ */
+export function getDrift3DVehicleEngineProfile(
+  normalizedSpeed: number
+): Drift3DVehicleEngineProfile {
+  const speed = clamp01(Math.abs(normalizedSpeed));
+  const revs = Math.sqrt(speed);
+
+  return {
+    baseFrequency: 38 + revs * 54,
+    overtoneFrequency: 76 + revs * 108,
+    gain: 0.34 + revs * 0.3,
+  };
+}
+
 function createNoiseBuffer(context: AudioContext, type: "white" | "brown") {
   const length = context.sampleRate * 2;
   const buffer = context.createBuffer(1, length, context.sampleRate);
@@ -94,6 +121,9 @@ export class Drift3DAmbienceEngine {
   private context: AudioContext | null = null;
   private masterGain: GainNode | null = null;
   private layerGains = new Map<AmbienceLayerName, GainNode>();
+  private vehicleGain: GainNode | null = null;
+  private vehicleBaseOscillator: OscillatorNode | null = null;
+  private vehicleOvertoneOscillator: OscillatorNode | null = null;
 
   get isRunning() {
     return this.context !== null;
@@ -108,6 +138,36 @@ export class Drift3DAmbienceEngine {
     const master = context.createGain();
     master.gain.value = 0;
     master.connect(context.destination);
+
+    const vehicleFilter = context.createBiquadFilter();
+    vehicleFilter.type = "lowpass";
+    vehicleFilter.frequency.value = 420;
+    vehicleFilter.Q.value = 0.8;
+
+    const vehicleGain = context.createGain();
+    const idleProfile = getDrift3DVehicleEngineProfile(0);
+    vehicleGain.gain.value = idleProfile.gain;
+    vehicleFilter.connect(vehicleGain);
+    vehicleGain.connect(master);
+
+    const vehicleBaseOscillator = context.createOscillator();
+    vehicleBaseOscillator.type = "sawtooth";
+    vehicleBaseOscillator.frequency.value = idleProfile.baseFrequency;
+    const vehicleBaseGain = context.createGain();
+    vehicleBaseGain.gain.value = 0.72;
+    vehicleBaseOscillator.connect(vehicleBaseGain);
+    vehicleBaseGain.connect(vehicleFilter);
+
+    const vehicleOvertoneOscillator = context.createOscillator();
+    vehicleOvertoneOscillator.type = "triangle";
+    vehicleOvertoneOscillator.frequency.value = idleProfile.overtoneFrequency;
+    const vehicleOvertoneGain = context.createGain();
+    vehicleOvertoneGain.gain.value = 0.28;
+    vehicleOvertoneOscillator.connect(vehicleOvertoneGain);
+    vehicleOvertoneGain.connect(vehicleFilter);
+
+    vehicleBaseOscillator.start();
+    vehicleOvertoneOscillator.start();
 
     for (const [name, spec] of Object.entries(layerSpecs) as Array<
       [AmbienceLayerName, AmbienceLayerSpec]
@@ -149,6 +209,10 @@ export class Drift3DAmbienceEngine {
 
     this.context = context;
     this.masterGain = master;
+    this.vehicleGain = vehicleGain;
+    this.vehicleBaseOscillator = vehicleBaseOscillator;
+    this.vehicleOvertoneOscillator = vehicleOvertoneOscillator;
+    void context.resume();
   }
 
   setMix(mix: Drift3DAmbienceMix, masterLevel: number) {
@@ -167,12 +231,39 @@ export class Drift3DAmbienceEngine {
     }
   }
 
+  setVehicleSpeed(normalizedSpeed: number) {
+    const context = this.context;
+    const gain = this.vehicleGain;
+    const base = this.vehicleBaseOscillator;
+    const overtone = this.vehicleOvertoneOscillator;
+
+    if (!context || !gain || !base || !overtone) {
+      return;
+    }
+
+    const profile = getDrift3DVehicleEngineProfile(normalizedSpeed);
+    gain.gain.setTargetAtTime(profile.gain, context.currentTime, 0.12);
+    base.frequency.setTargetAtTime(
+      profile.baseFrequency,
+      context.currentTime,
+      0.1
+    );
+    overtone.frequency.setTargetAtTime(
+      profile.overtoneFrequency,
+      context.currentTime,
+      0.1
+    );
+  }
+
   stop() {
     const context = this.context;
 
     this.context = null;
     this.masterGain = null;
     this.layerGains.clear();
+    this.vehicleGain = null;
+    this.vehicleBaseOscillator = null;
+    this.vehicleOvertoneOscillator = null;
 
     if (context) {
       void context.close();

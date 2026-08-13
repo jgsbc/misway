@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import type { Track } from "@/lib/tracks";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
+import { shouldSuppressIdleAmbientOnDrift } from "@/lib/audioPlaybackPolicy";
 import {
   createDrift3DAudioClockSnapshot,
   updateDrift3DAudioClock,
@@ -181,9 +182,20 @@ export function AudioPlayerProvider({
   useEffect(() => {
     isDriftLabRouteRef.current = isDriftLabRoute;
 
-    if (isDriftLabRoute && current.kind === "ambient") {
+    const isActuallyPlaying = audioRef.current?.paused === false;
+    if (
+      shouldSuppressIdleAmbientOnDrift({
+        isDriftRoute: isDriftLabRoute,
+        audioKind: current.kind,
+        isActuallyPlaying,
+      })
+    ) {
       interactionRetryRef.current = false;
       shouldResumeRef.current = false;
+    } else if (isDriftLabRoute && isActuallyPlaying) {
+      // Entering Drift must not invalidate audio that was already playing
+      // before the route change, whether it is a track or the ambient bed.
+      shouldResumeRef.current = true;
     }
   }, [current.kind, isDriftLabRoute]);
 
@@ -242,17 +254,28 @@ export function AudioPlayerProvider({
 
       const nextSrc = withBasePath(audioItem.audioSrc);
       const currentSrc = audio.getAttribute("src") ?? "";
+      const sourceChanged = currentSrc !== nextSrc;
 
-      if (currentSrc !== nextSrc) {
+      if (sourceChanged) {
         audio.src = nextSrc;
       }
 
       audio.loop = false;
       audio.volume = audioItem.kind === "ambient" ? 0.34 : 0.92;
       audio.preload = "metadata";
-      audio.load();
 
-      if (isDriftLabRouteRef.current && audioItem.kind === "ambient") {
+      // `load()` resets playback even when the URL is unchanged. Keeping the
+      // source synchronization idempotent preserves the current track across
+      // client-side route transitions and React effect replays.
+      if (sourceChanged) {
+        audio.load();
+      }
+
+      if (shouldSuppressIdleAmbientOnDrift({
+        isDriftRoute: isDriftLabRouteRef.current,
+        audioKind: audioItem.kind,
+        isActuallyPlaying: !audio.paused,
+      })) {
         interactionRetryRef.current = false;
         shouldResumeRef.current = false;
       }

@@ -32,3 +32,16 @@ test("production Drift releases the hero only from rendered cave readiness", () 
   assert.match(scene, /expectedPosition=\{evolutionStartPosition\}/);
   assert.match(scene, /stableFrames=\{5\}/);
 });
+
+test("production Drift keeps its player control visible and its track HUD compact", () => {
+  const canvas = read(
+    "src/components/drift-evolution/DriftEvolutionCanvas.tsx"
+  );
+  const hud = read("src/components/drift-3d/Drift3DHud.tsx");
+
+  assert.match(canvas, /showPersistentAudioChip = Boolean\(currentTrack\)/);
+  assert.doesNotMatch(canvas, /activeNodeTrackSlug/);
+  assert.doesNotMatch(hud, /activeTrackTags/);
+  assert.match(hud, /line-clamp-2 text-\[11px\]/);
+  assert.match(hud, /CONTROL BELOW/);
+});
