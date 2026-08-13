@@ -13,6 +13,18 @@ import {
   DRIFT_3D_SOUTH_VOID,
 } from "@/lib/drift3dWorldEdges";
 
+const lateralMountains = Object.freeze({
+  innerX: 112,
+  outerX: 166,
+  westMinZ: -80,
+  eastMinZ: -58,
+  maxZ: 72,
+  southFadeStartZ: 54,
+  eastNorthFadeEndZ: -42,
+  acrossSegments: 18,
+  alongSegments: 34,
+});
+
 const oceanVertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uWaveAmplitude;
@@ -86,25 +98,23 @@ const cosmicFragmentShader = /* glsl */ `
   varying vec3 vDirection;
 
   void main() {
-    float below = 1.0 - smoothstep(-0.58, 0.20, vDirection.y);
-    float south = smoothstep(-0.16, 0.72, vDirection.z);
-    float horizon = 1.0 - abs(vDirection.y);
+    float below = 1.0 - smoothstep(-0.48, 0.14, vDirection.y);
+    float south = smoothstep(-0.24, 0.34, vDirection.z);
+    float horizon = 1.0 - smoothstep(0.08, 0.46, abs(vDirection.y));
+    float southernVoid = max(
+      below * 0.96,
+      south * (0.84 + horizon * 0.16)
+    );
 
     vec3 nearBlack = vec3(0.0015, 0.0020, 0.0060);
-    vec3 deepBlue = vec3(0.0060, 0.0090, 0.0220);
+    vec3 deepBlue = vec3(0.0055, 0.0080, 0.0200);
     vec3 color = mix(
       deepBlue,
       nearBlack,
-      clamp(below * 0.72 + south * 0.18, 0.0, 1.0)
+      clamp(below * 0.68 + south * 0.26, 0.0, 1.0)
     );
 
-    float cosmicPresence = clamp(
-      below * 0.78 + south * (0.23 + horizon * 0.17),
-      0.0,
-      0.94
-    );
-    float alpha = 0.055 + cosmicPresence * 0.88;
-
+    float alpha = 0.055 + clamp(southernVoid, 0.0, 1.0) * 0.925;
     gl_FragColor = vec4(color, alpha);
   }
 `;
@@ -165,6 +175,91 @@ function createEdgeRibbon(options: {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   setDriftGeometryTextureRepeat(geometry, 8, 2);
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+function createLateralMountainGeometry(side: -1 | 1) {
+  const config = lateralMountains;
+  const minZ = side < 0 ? config.westMinZ : config.eastMinZ;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const row = config.acrossSegments + 1;
+  const sideScale = side < 0 ? 1.08 : 0.94;
+
+  for (let along = 0; along <= config.alongSegments; along += 1) {
+    const alongProgress = along / config.alongSegments;
+    const z = minZ + (config.maxZ - minZ) * alongProgress;
+    const southFade =
+      1 -
+      smoothstep01(
+        (z - config.southFadeStartZ) /
+          (config.maxZ - config.southFadeStartZ)
+      );
+    const northFade =
+      side < 0
+        ? 1
+        : smoothstep01(
+            (z - minZ) / (config.eastNorthFadeEndZ - minZ)
+          );
+    const edgeEnvelope = northFade * southFade;
+    const seamX = side * config.innerX;
+    const seamY = getDrift3DGroundY(seamX, z) + 0.01;
+    const macro =
+      0.76 +
+      Math.sin(z * 0.073 + side * 0.9) * 0.16 +
+      Math.sin(z * 0.151 - side * 0.55) * 0.08;
+
+    for (let across = 0; across <= config.acrossSegments; across += 1) {
+      const progress = across / config.acrossSegments;
+      const outward =
+        config.innerX + (config.outerX - config.innerX) * progress;
+      const x = side * outward;
+      const shoulder = smoothstep01(progress / 0.22);
+      const crest =
+        Math.exp(-Math.pow((progress - 0.56) / 0.24, 2) * 2.2) *
+        shoulder;
+      const farShoulder = smoothstep01((progress - 0.34) / 0.66);
+      const roughness =
+        (edgeNoise(along * row + across, side < 0 ? 17 : 29) - 0.5) *
+        3.1 *
+        shoulder *
+        edgeEnvelope;
+      const rise =
+        edgeEnvelope *
+          sideScale *
+          (shoulder * 2.4 + crest * (11.5 + macro * 8.5) + farShoulder * 5.2) +
+        roughness;
+
+      positions.push(x, seamY + rise, z);
+      uvs.push(progress, alongProgress);
+    }
+  }
+
+  for (let along = 0; along < config.alongSegments; along += 1) {
+    for (let across = 0; across < config.acrossSegments; across += 1) {
+      const a = along * row + across;
+      const b = a + 1;
+      const c = a + row;
+      const d = c + 1;
+      if (side < 0) {
+        indices.push(a, b, c, b, d, c);
+      } else {
+        indices.push(a, c, b, b, c, d);
+      }
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3)
+  );
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  setDriftGeometryTextureRepeat(geometry, 6, 10);
   geometry.computeVertexNormals();
 
   return geometry;
@@ -239,6 +334,42 @@ function EdgeTerrainTransitions() {
           roughness={0.99}
         />
       </mesh>
+    </group>
+  );
+}
+
+function LateralMountainBorders() {
+  const maps = getDriftMaterialMaps("rock");
+  const westGeometry = useMemo(() => createLateralMountainGeometry(-1), []);
+  const eastGeometry = useMemo(() => createLateralMountainGeometry(1), []);
+
+  useEffect(
+    () => () => {
+      westGeometry.dispose();
+      eastGeometry.dispose();
+    },
+    [eastGeometry, westGeometry]
+  );
+
+  return (
+    <group aria-hidden="true">
+      {[westGeometry, eastGeometry].map((geometry, index) => (
+        <mesh
+          key={index === 0 ? "west-mountains" : "east-mountains"}
+          geometry={geometry}
+          receiveShadow
+          castShadow
+          renderOrder={1}
+        >
+          <meshStandardMaterial
+            map={maps.map ?? undefined}
+            normalMap={maps.normalMap ?? undefined}
+            normalScale={new THREE.Vector2(0.88, 0.88)}
+            color="#8b877e"
+            roughness={0.985}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -327,9 +458,10 @@ function CosmicSky() {
     []
   );
   const starPositions = useMemo(() => {
-    const positions = new Float32Array(southVoid.starCount * 3);
+    const starCount = Math.max(280, southVoid.starCount);
+    const positions = new Float32Array(starCount * 3);
 
-    for (let index = 0; index < southVoid.starCount; index += 1) {
+    for (let index = 0; index < starCount; index += 1) {
       const theta = edgeNoise(index, 3) * Math.PI * 2;
       const vertical = edgeNoise(index, 7) * 2 - 1;
       const horizontal = Math.sqrt(Math.max(0, 1 - vertical * vertical));
@@ -360,11 +492,11 @@ function CosmicSky() {
           <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.34}
+          size={0.42}
           sizeAttenuation
-          color="#d8e1f2"
+          color="#e2e9f7"
           transparent
-          opacity={0.78}
+          opacity={0.88}
           fog={false}
           depthWrite={false}
           depthTest
@@ -378,6 +510,7 @@ export default function DriftWorldEdgeBiomes() {
   return (
     <>
       <EdgeTerrainTransitions />
+      <LateralMountainBorders />
       <NorthEastOcean />
       <CosmicSky />
     </>
