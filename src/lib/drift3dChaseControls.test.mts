@@ -4,6 +4,7 @@ import {
   getDrift3DChaseCameraRig,
   getDrift3DDragDriveInput,
   getDrift3DDriveInput,
+  getDrift3DHeadingVector,
 } from "@/lib/drift3d";
 import {
   createDrift3DVehiclePhysicsState,
@@ -17,6 +18,15 @@ const bounds = {
   maxZ: 100,
 };
 const flatGround = () => 0;
+
+function getLateralSpeed(
+  state: ReturnType<typeof createDrift3DVehiclePhysicsState>
+) {
+  const heading = getDrift3DHeadingVector(state.heading);
+  return Math.abs(
+    state.velocityX * heading.z - state.velocityZ * heading.x
+  );
+}
 
 test("keyboard controls are relative throttle and steering", () => {
   const input = getDrift3DDriveInput(
@@ -173,4 +183,83 @@ test("right steering turns the vehicle right while moving forward", () => {
 
   assert.ok(state.heading < 0);
   assert.ok(state.position.x < 0);
+});
+
+test("fast steering creates a visible lateral drift without loosening low-speed grip", () => {
+  const lowSpeedState = createDrift3DVehiclePhysicsState(
+    { x: 0, y: 0.02, z: 0 },
+    0
+  );
+  const fastState = createDrift3DVehiclePhysicsState(
+    { x: 0, y: 0.02, z: 0 },
+    0
+  );
+  lowSpeedState.speed = 3;
+  lowSpeedState.velocityZ = 3;
+  fastState.speed = 12;
+  fastState.velocityZ = 12;
+  let fastSlip = 0;
+
+  for (let index = 0; index < 24; index += 1) {
+    stepDrift3DVehiclePhysics(
+      lowSpeedState,
+      { x: -1, z: 1, active: true },
+      1 / 60,
+      bounds,
+      [],
+      1,
+      flatGround
+    );
+    fastSlip = stepDrift3DVehiclePhysics(
+      fastState,
+      { x: -1, z: 1, active: true },
+      1 / 60,
+      bounds,
+      [],
+      1,
+      flatGround
+    ).slip;
+  }
+
+  assert.ok(fastSlip < -0.35);
+  assert.ok(getLateralSpeed(fastState) > getLateralSpeed(lowSpeedState) * 2);
+  assert.ok(getLateralSpeed(lowSpeedState) < 0.8);
+});
+
+test("straightening the wheels restores grip after a drift", () => {
+  const state = createDrift3DVehiclePhysicsState(
+    { x: 0, y: 0.02, z: 0 },
+    0
+  );
+  state.speed = 12;
+  state.velocityZ = 12;
+
+  for (let index = 0; index < 24; index += 1) {
+    stepDrift3DVehiclePhysics(
+      state,
+      { x: -1, z: 1, active: true },
+      1 / 60,
+      bounds,
+      [],
+      1,
+      flatGround
+    );
+  }
+
+  const lateralSpeedDuringDrift = getLateralSpeed(state);
+
+  for (let index = 0; index < 30; index += 1) {
+    stepDrift3DVehiclePhysics(
+      state,
+      { x: 0, z: 1, active: true },
+      1 / 60,
+      bounds,
+      [],
+      1,
+      flatGround
+    );
+  }
+
+  assert.ok(lateralSpeedDuringDrift > 4);
+  assert.ok(getLateralSpeed(state) < lateralSpeedDuringDrift * 0.2);
 });

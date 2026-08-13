@@ -36,8 +36,8 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
 
   "src/lib/drift3d.ts": "00d2eec130df2ee9469bd814d0030a538560064f",
   "src/lib/drift3dBase.ts": "cdd34e00101c12631807e82f1be5ab6ac4f9c074",
-  "src/lib/drift3dVehiclePhysics.ts": "c5258a5629c3d67e19ab53e180c6dc8ebebc29a9",
-  "src/lib/drift3dVehiclePhysicsBase.ts": "2513d781d13db773e608453099386e499f6596b0",
+  "src/lib/drift3dVehiclePhysics.ts": "fdf6fbd66cf6b3c3f959d1725c3cef1e4e48e869",
+  "src/lib/drift3dVehiclePhysicsBase.ts": "6d8a5abd06bae0a183883cea2f5955da44383567",
   "src/lib/drift3dTransmission.ts": "cdcea0d354a6b3071b7920f5407368b7abeb6221",
   "src/lib/drift3dAmbience.ts": "a51f85e11e715fbcb3b61c5d6f4d69a9ff06ac3b",
   "src/lib/drift3dTerrain.ts": "1e900df0b6e0e87332c2829bcba014d36827c6ee",

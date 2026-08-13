@@ -28,6 +28,9 @@ import { getDrift3DTransmissionState } from "./drift3dTransmission";
 const DRIFT_3D_VEHICLE_BRAKE_DECELERATION = 13.5;
 const DRIFT_3D_VEHICLE_REVERSE_ACCELERATION_FACTOR = 0.72;
 const DRIFT_3D_VEHICLE_INPUT_EPSILON = 0.01;
+const DRIFT_3D_VEHICLE_DRIFT_START_RATIO = 0.28;
+const DRIFT_3D_VEHICLE_DRIFT_FULL_RATIO = 0.7;
+const DRIFT_3D_VEHICLE_DRIFT_STEERING_THRESHOLD = 0.18;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -39,6 +42,11 @@ function normalizeAngle(angle: number) {
 
 function lerp(from: number, to: number, amount: number) {
   return from + (to - from) * clamp(amount, 0, 1);
+}
+
+function smoothstep(value: number) {
+  const t = clamp(value, 0, 1);
+  return t * t * (3 - 2 * t);
 }
 
 function resolvePropCollisions(
@@ -151,7 +159,6 @@ export function stepDrift3DVehiclePhysics(
   getGroundY?: (x: number, z: number) => number
 ): Drift3DVehiclePhysicsStepResult {
   const previousPosition = { x: state.position.x, z: state.position.z };
-  const previousHeading = state.heading;
   const maxSpeed = DRIFT_3D_VEHICLE_MAX_SPEED * speedScale;
   const reverseMaxSpeed = DRIFT_3D_VEHICLE_REVERSE_MAX_SPEED * speedScale;
   const throttle = clamp(input.z, -1, 1);
@@ -244,19 +251,24 @@ export function stepDrift3DVehiclePhysics(
   state.gear = transmission.gear;
   state.engineRevs = transmission.normalizedRevs;
 
-  const appliedYawDelta = normalizeAngle(state.heading - previousHeading);
-  const yawRate = dt > 0 ? Math.abs(appliedYawDelta) / dt : 0;
-  const slipMagnitude = clamp(
-    yawRate / (DRIFT_3D_VEHICLE_TURN_RATE_MAX * 1.4),
-    0,
-    1
+  const driftSpeedFactor = smoothstep(
+    (speedRatio - DRIFT_3D_VEHICLE_DRIFT_START_RATIO) /
+      (DRIFT_3D_VEHICLE_DRIFT_FULL_RATIO -
+        DRIFT_3D_VEHICLE_DRIFT_START_RATIO)
   );
-  const signedSlip = slipMagnitude * Math.sign(appliedYawDelta);
+  const driftSteeringFactor = smoothstep(
+    (Math.abs(steering) - DRIFT_3D_VEHICLE_DRIFT_STEERING_THRESHOLD) /
+      (1 - DRIFT_3D_VEHICLE_DRIFT_STEERING_THRESHOLD)
+  );
+  const driftIntensity =
+    state.speed > 0 && !state.airborne
+      ? driftSpeedFactor * driftSteeringFactor
+      : 0;
   const grip =
     lerp(
       DRIFT_3D_VEHICLE_GRIP,
       DRIFT_3D_VEHICLE_GRIP * DRIFT_3D_VEHICLE_DRIFT_GRIP_FACTOR,
-      slipMagnitude
+      driftIntensity
     ) * airFactor;
 
   const headingVector = getDrift3DHeadingVector(state.heading);
@@ -266,6 +278,18 @@ export function stepDrift3DVehiclePhysics(
 
   state.velocityX += (targetVelocityX - state.velocityX) * gripAmount;
   state.velocityZ += (targetVelocityZ - state.velocityZ) * gripAmount;
+
+  // La carrosserie tourne avant la trajectoire : cette vitesse latérale
+  // persistante crée le drift, puis le grip normal la résorbe en ligne droite.
+  const lateralVelocity =
+    state.velocityX * headingVector.z - state.velocityZ * headingVector.x;
+  const signedSlip =
+    clamp(
+      -lateralVelocity / Math.max(Math.abs(state.speed) * 0.5, 0.001),
+      -1,
+      1
+    ) *
+    (0.2 + driftSpeedFactor * 0.8);
 
   state.position.x += state.velocityX * dt;
   state.position.z += state.velocityZ * dt;
