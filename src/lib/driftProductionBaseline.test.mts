@@ -26,7 +26,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/EntryPortalLightCorrection.tsx": "8716a7b36c6a98dc9f5c9d2910c43f72aeed5d9a",
   "src/components/drift-evolution/FoolfouleCrowd.tsx": "bbd2617073bbe2de1610c35fcad056c9c8a808e0",
   "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
-  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "2c371dcc104d5d076b4269f56a1efc0694d57775",
+  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "f34302fe09ea62223ec22a1423e79eec666e521d",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
 
@@ -40,7 +40,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/drift3dVehiclePhysicsBase.ts": "68e3583a095d1a9a94acedf238f6ac460d440fb6",
   "src/lib/drift3dTransmission.ts": "cdcea0d354a6b3071b7920f5407368b7abeb6221",
   "src/lib/drift3dAmbience.ts": "a51f85e11e715fbcb3b61c5d6f4d69a9ff06ac3b",
-  "src/lib/drift3dTerrain.ts": "a2848a4618ba04d10f591ed5242b6b2aa128aa30",
+  "src/lib/drift3dTerrain.ts": "9ea3c85c7d58112fcc2fb7c6ba6cd1a3f89f6dca",
   "src/lib/drift3dTopology.ts": "7cd1ced44b6c06f6313999e673187c08da14b7d7",
   "src/lib/drift3dScatter.ts": "987cee6ca33590d47bb680791e965dd4515be482",
   "src/lib/drift3dAtmosphere.ts": "f6ce02259c08bcf2664bee6ecec1207732bb1f25",
