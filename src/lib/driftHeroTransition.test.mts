@@ -33,15 +33,30 @@ test("production Drift releases the hero only from rendered cave readiness", () 
   assert.match(scene, /stableFrames=\{5\}/);
 });
 
-test("production Drift keeps its player control visible and its track HUD compact", () => {
+test("production Drift uses a track compass and one unified footer dock", () => {
   const canvas = read(
     "src/components/drift-evolution/DriftEvolutionCanvas.tsx"
   );
   const hud = read("src/components/drift-3d/Drift3DHud.tsx");
+  const footer = read(
+    "src/components/drift-evolution/DriftEvolutionFooter.tsx"
+  );
+  const runtime = read(
+    "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx"
+  );
 
-  assert.match(canvas, /showPersistentAudioChip = Boolean\(currentTrack\)/);
-  assert.doesNotMatch(canvas, /activeNodeTrackSlug/);
-  assert.doesNotMatch(hud, /activeTrackTags/);
-  assert.match(hud, /line-clamp-2 text-\[11px\]/);
-  assert.match(hud, /CONTROL BELOW/);
+  assert.match(canvas, /<DriftEvolutionFooter/);
+  assert.match(canvas, /bearingDegrees=\{compassBearingDegrees\}/);
+  assert.doesNotMatch(canvas, /showPersistentAudioChip/);
+  assert.match(hud, /aria-label="Drift track compass"/);
+  assert.match(hud, /<Navigation2/);
+  assert.match(hud, /"PLAYING" : "PLAY"/);
+  assert.match(hud, />\s*DETAILS\s*<\/Link>/);
+  assert.doesNotMatch(hud, /shortText|activeTrackTags|CONTROL BELOW/);
+  assert.match(footer, /href="\/"/);
+  assert.match(footer, /href="\/tracks"/);
+  assert.match(footer, /onClick=\{onTogglePlayback\}/);
+  assert.match(footer, /onClick=\{onToggleAmbience\}/);
+  assert.match(footer, /AMBIENT/);
+  assert.doesNotMatch(runtime, /href="\/tracks"/);
 });

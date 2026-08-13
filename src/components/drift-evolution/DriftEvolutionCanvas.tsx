@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber";
 import { ACESFilmicToneMapping } from "three";
-import { Volume2, VolumeX } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   MouseEvent as ReactMouseEvent,
@@ -12,6 +11,7 @@ import type {
 import type { Track } from "@/lib/tracks";
 import { getTrackBySlug } from "@/lib/tracks";
 import DriftEvolutionScene from "@/components/drift-evolution/DriftEvolutionScene";
+import DriftEvolutionFooter from "@/components/drift-evolution/DriftEvolutionFooter";
 import Drift3DHud from "@/components/drift-3d/Drift3DHud";
 import Drift3DEvidenceProbe from "@/components/drift-3d/Drift3DEvidenceProbe";
 import type { Drift3DEvidenceRuntimeRef } from "@/lib/drift3dEvidence";
@@ -91,6 +91,7 @@ export default function DriftEvolutionCanvas({
   const [sceneProximity, setSceneProximity] =
     useState<Drift3DTopologyProximity | null>(null);
   const latestProximityRef = useRef<Drift3DTopologyProximity | null>(null);
+  const latestCompassBearingRef = useRef(0);
   const sceneProximityRef = useRef<Drift3DTopologyProximity | null>(null);
   const lastProximityRefreshAtRef = useRef(Number.NEGATIVE_INFINITY);
   const proximityRefreshTimeoutRef = useRef<number | null>(null);
@@ -114,6 +115,7 @@ export default function DriftEvolutionCanvas({
   );
   const lifecycleEffectGenerationRef = useRef(0);
   const [sceneRuntimeActive, setSceneRuntimeActive] = useState(false);
+  const [compassBearingDegrees, setCompassBearingDegrees] = useState(0);
   const [performanceProfile, setPerformanceProfile] = useState(() =>
     getDriftEvolutionPerformanceProfile(
       typeof window !== "undefined" &&
@@ -157,11 +159,23 @@ export default function DriftEvolutionCanvas({
     if (!latest) return;
     lastProximityRefreshAtRef.current = performance.now();
     setProximity(latest);
+    setCompassBearingDegrees(latestCompassBearingRef.current);
   }, []);
 
   const handleProximityChange = useCallback(
     (next: Drift3DTopologyProximity) => {
       latestProximityRef.current = next;
+      const compassNode = next.activeNode ?? next.nearestNode ?? null;
+      if (compassNode) {
+        const vehicleState = vehicleStateRef.current;
+        const targetHeading = Math.atan2(
+          compassNode.position.x - vehicleState.position.x,
+          compassNode.position.z - vehicleState.position.z
+        );
+        const relativeDegrees =
+          (targetHeading - vehicleState.heading) * (180 / Math.PI);
+        latestCompassBearingRef.current = (relativeDegrees + 360) % 360;
+      }
 
       const previousScene = sceneProximityRef.current;
       const sceneIdentityChanged =
@@ -185,6 +199,7 @@ export default function DriftEvolutionCanvas({
         }
         lastProximityRefreshAtRef.current = nowMs;
         setProximity(next);
+        setCompassBearingDegrees(latestCompassBearingRef.current);
         return;
       }
 
@@ -666,7 +681,6 @@ export default function DriftEvolutionCanvas({
   }, [proximity]);
   const isActiveTrackCurrent = activeTrack ? isCurrentTrack(activeTrack) : false;
   const isActiveTrackPlaying = isActiveTrackCurrent && isPlaying;
-  const showPersistentAudioChip = Boolean(currentTrack);
 
   function handleToggleActiveTrack() {
     if (activeTrack) toggleTrack(activeTrack);
@@ -752,32 +766,6 @@ export default function DriftEvolutionCanvas({
         />
       </section>
 
-      <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] z-20 md:bottom-6 md:right-6">
-        <button
-          type="button"
-          onClick={toggleAmbience}
-          onPointerDown={(event) => event.stopPropagation()}
-          onPointerMove={(event) => event.stopPropagation()}
-          onPointerUp={(event) => event.stopPropagation()}
-          className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center gap-2 rounded-full border border-neutral-400/60 bg-white/30 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20 md:px-3"
-          aria-pressed={isAmbienceOn}
-          aria-label={
-            isAmbienceOn
-              ? "Couper le moteur et l'ambiance sonore"
-              : "Activer le moteur et l'ambiance sonore"
-          }
-        >
-          {isAmbienceOn ? (
-            <Volume2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
-          ) : (
-            <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
-          )}
-          <span className="hidden md:inline">
-            {isAmbienceOn ? "SOUND ON" : "SOUND OFF"}
-          </span>
-        </button>
-      </div>
-
       <div className="pointer-events-none absolute right-[calc(1rem+env(safe-area-inset-right))] top-[calc(1rem+env(safe-area-inset-top))] z-20 w-[min(72vw,18rem)] md:right-6 md:top-6 md:w-[19rem]">
         <div className="pointer-events-auto">
           <Drift3DHud
@@ -786,40 +774,18 @@ export default function DriftEvolutionCanvas({
             isActiveTrackCurrent={isActiveTrackCurrent}
             isActiveTrackPlaying={isActiveTrackPlaying}
             onToggleActiveTrack={handleToggleActiveTrack}
+            bearingDegrees={compassBearingDegrees}
           />
         </div>
       </div>
 
-      {showPersistentAudioChip && currentTrack ? (
-        <div className="pointer-events-none absolute inset-x-4 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-20 flex justify-center md:inset-x-6 md:bottom-6">
-          <div className="pointer-events-auto inline-flex max-w-[min(78vw,24rem)] items-center gap-2.5 rounded-full bg-white/36 px-3 py-2 text-neutral-950 ring-1 ring-black/5 backdrop-blur-md md:gap-3 md:py-2.5">
-            <div className="min-w-0">
-              <p className="font-mono text-[8px] uppercase tracking-[0.28em] text-neutral-500">
-                {isPlaying ? "NOW PLAYING" : "TRACK HELD"}
-              </p>
-              <p className="truncate font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-900">
-                {currentTrack.title}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                togglePlayback();
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              onPointerMove={(event) => event.stopPropagation()}
-              onPointerUp={(event) => event.stopPropagation()}
-              onPointerCancel={(event) => event.stopPropagation()}
-              className="pointer-events-auto inline-flex min-h-8 shrink-0 items-center justify-center rounded-full border border-neutral-300/80 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/20"
-              aria-label={isPlaying ? "Pause current track" : "Resume current track"}
-            >
-              {isPlaying ? "PAUSE" : "RESUME"}
-            </button>
-          </div>
-        </div>
-      ) : null}
+      <DriftEvolutionFooter
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        isAmbienceOn={isAmbienceOn}
+        onTogglePlayback={togglePlayback}
+        onToggleAmbience={toggleAmbience}
+      />
     </div>
   );
 }

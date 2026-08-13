@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAudioPlayerRuntime } from "@/components/audio/AudioPlayerProvider";
 import Drift3DFallback, {
@@ -258,20 +257,6 @@ export default function DriftEvolutionRuntimeClient() {
             </p>
           </div>
 
-          <div className="pointer-events-none absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] left-[calc(1rem+env(safe-area-inset-left))] z-20 flex flex-wrap gap-2 md:bottom-6 md:left-6 md:gap-3">
-            <Link
-              href="/"
-              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/72 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-800 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
-            >
-              MISWΛY
-            </Link>
-            <Link
-              href="/tracks"
-              className="pointer-events-auto inline-flex min-h-8 items-center justify-center rounded-full border border-neutral-300 bg-white/52 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-neutral-700 backdrop-blur-md transition hover:border-neutral-400 hover:bg-white/70 hover:text-neutral-950 md:min-h-[42px] md:rounded-none md:px-4 md:py-2.5 md:text-[10px]"
-            >
-              Tracks
-            </Link>
-          </div>
         </>
       ) : null}
     </main>
