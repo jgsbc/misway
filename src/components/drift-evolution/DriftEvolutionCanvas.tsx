@@ -26,6 +26,7 @@ import {
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 import {
   createDrift3DVehiclePhysicsState,
+  DRIFT_3D_VEHICLE_MAX_SPEED,
   type Drift3DVehiclePhysicsState,
 } from "@/lib/drift3dVehiclePhysics";
 import {
@@ -98,6 +99,7 @@ export default function DriftEvolutionCanvas({
     createDrift3DVehiclePhysicsState(getDrift3DVehicleStartPosition(), 0)
   );
   const ambienceEngineRef = useRef<Drift3DAmbienceEngine | null>(null);
+  const soundDisabledByUserRef = useRef(false);
   const [isAmbienceOn, setIsAmbienceOn] = useState(false);
   const pointerDriveStateRef = useRef<Drift3DPointerDriveState>({
     active: false,
@@ -216,13 +218,60 @@ export default function DriftEvolutionCanvas({
     const engine = ambienceEngineRef.current;
     if (!engine) return;
     const interval = window.setInterval(() => {
+      const normalizedSpeed =
+        Math.abs(vehicleStateRef.current.speed) / DRIFT_3D_VEHICLE_MAX_SPEED;
       engine.setMix(
         getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
         isPlaying ? 0.045 : 0.13
       );
+      engine.setVehicleSpeed(normalizedSpeed);
     }, 280);
     return () => window.clearInterval(interval);
   }, [isAmbienceOn, isPlaying]);
+
+  const startAmbience = useCallback(() => {
+    const runningEngine = ambienceEngineRef.current;
+    if (runningEngine) {
+      setIsAmbienceOn(true);
+      return;
+    }
+
+    const engine = new Drift3DAmbienceEngine();
+    engine.start();
+    engine.setMix(
+      getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
+      isPlaying ? 0.045 : 0.13
+    );
+    engine.setVehicleSpeed(
+      Math.abs(vehicleStateRef.current.speed) / DRIFT_3D_VEHICLE_MAX_SPEED
+    );
+    ambienceEngineRef.current = engine;
+    setIsAmbienceOn(true);
+  }, [isPlaying]);
+
+  useEffect(() => {
+    const drivingKeys = new Set([
+      "arrowup",
+      "arrowdown",
+      "arrowleft",
+      "arrowright",
+      "w",
+      "a",
+      "s",
+      "d",
+    ]);
+    const startSoundOnDrive = (event: KeyboardEvent) => {
+      if (
+        !soundDisabledByUserRef.current &&
+        drivingKeys.has(event.key.toLowerCase())
+      ) {
+        startAmbience();
+      }
+    };
+
+    window.addEventListener("keydown", startSoundOnDrive);
+    return () => window.removeEventListener("keydown", startSoundOnDrive);
+  }, [startAmbience]);
 
   useEffect(() => {
     let cancelled = false;
@@ -412,19 +461,14 @@ export default function DriftEvolutionCanvas({
 
   function toggleAmbience() {
     if (isAmbienceOn) {
+      soundDisabledByUserRef.current = true;
       ambienceEngineRef.current?.stop();
       ambienceEngineRef.current = null;
       setIsAmbienceOn(false);
       return;
     }
-    const engine = new Drift3DAmbienceEngine();
-    engine.start();
-    engine.setMix(
-      getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
-      isPlaying ? 0.045 : 0.13
-    );
-    ambienceEngineRef.current = engine;
-    setIsAmbienceOn(true);
+    soundDisabledByUserRef.current = false;
+    startAmbience();
   }
 
   useEffect(() => {
@@ -542,6 +586,9 @@ export default function DriftEvolutionCanvas({
     if (pointerDriveStateRef.current.pointerId !== null) return;
     event.preventDefault();
     event.stopPropagation();
+    if (!soundDisabledByUserRef.current) {
+      startAmbience();
+    }
     pointerDriveStateRef.current = {
       active: false,
       pointerId: event.pointerId,
@@ -619,13 +666,7 @@ export default function DriftEvolutionCanvas({
   }, [proximity]);
   const isActiveTrackCurrent = activeTrack ? isCurrentTrack(activeTrack) : false;
   const isActiveTrackPlaying = isActiveTrackCurrent && isPlaying;
-  const activeNodeTrackSlug =
-    proximity?.activeNode && "trackSlug" in proximity.activeNode
-      ? proximity.activeNode.trackSlug
-      : null;
-  const showPersistentAudioChip =
-    Boolean(currentTrack) &&
-    (!proximity?.isInside || activeNodeTrackSlug !== currentTrack?.slug);
+  const showPersistentAudioChip = Boolean(currentTrack);
 
   function handleToggleActiveTrack() {
     if (activeTrack) toggleTrack(activeTrack);
@@ -720,7 +761,11 @@ export default function DriftEvolutionCanvas({
           onPointerUp={(event) => event.stopPropagation()}
           className="pointer-events-auto inline-flex min-h-9 min-w-9 items-center justify-center gap-2 rounded-full border border-neutral-400/60 bg-white/30 px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-md transition hover:bg-white/60 focus:outline-none focus:ring-2 focus:ring-neutral-900/20 md:px-3"
           aria-pressed={isAmbienceOn}
-          aria-label={isAmbienceOn ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore"}
+          aria-label={
+            isAmbienceOn
+              ? "Couper le moteur et l'ambiance sonore"
+              : "Activer le moteur et l'ambiance sonore"
+          }
         >
           {isAmbienceOn ? (
             <Volume2 aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
@@ -728,12 +773,12 @@ export default function DriftEvolutionCanvas({
             <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
           )}
           <span className="hidden md:inline">
-            {isAmbienceOn ? "AMBIANCE ON" : "AMBIANCE OFF"}
+            {isAmbienceOn ? "SOUND ON" : "SOUND OFF"}
           </span>
         </button>
       </div>
 
-      <div className="pointer-events-none absolute right-[calc(1rem+env(safe-area-inset-right))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(58vw,24rem)] md:right-6 md:top-6 md:max-w-[24rem]">
+      <div className="pointer-events-none absolute right-[calc(1rem+env(safe-area-inset-right))] top-[calc(1rem+env(safe-area-inset-top))] z-20 w-[min(72vw,18rem)] md:right-6 md:top-6 md:w-[19rem]">
         <div className="pointer-events-auto">
           <Drift3DHud
             proximity={proximity}
