@@ -175,7 +175,7 @@ export function getDrift3DVehicleStartPosition() {
 }
 
 export function getDrift3DMovementBounds(): Drift3DMovementBounds {
-  const xMargin = 3.2;
+  const xMargin = 0.8;
   const zMargin = 0;
 
   return {
