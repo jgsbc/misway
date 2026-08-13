@@ -6,7 +6,10 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import LegacyEntryAuthoritySuppressor from "@/components/drift-evolution/LegacyEntryAuthoritySuppressor";
 import ZeelandWaterSurface from "@/components/drift-evolution/ZeelandWaterSurface";
-import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
+import {
+  getDriftMaterialMaps,
+  setDriftGeometryTextureRepeat,
+} from "@/components/drift-3d/drift3dTextureFactory";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
@@ -41,7 +44,7 @@ function getActiveTrackSlug(proximity: Drift3DTopologyProximity | null) {
 
 function CaveGroundRibbon() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
-  const maps = getDriftMaterialMaps("rock", 5, 2.4);
+  const maps = getDriftMaterialMaps("rock");
   const geometry = useMemo(() => {
     const alongSegments = 56;
     const acrossSegments = 10;
@@ -81,6 +84,7 @@ function CaveGroundRibbon() {
     result.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
     result.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
     result.setIndex(indices);
+    setDriftGeometryTextureRepeat(result, 5, 2.4);
     result.computeVertexNormals();
     return result;
   }, [cave]);
@@ -143,6 +147,10 @@ function CaveLightingContinuityRig({
   useFrame(({ gl, scene }, delta) => {
     const rawMix = getDriftEvolutionEntryTunnelMix(vehicleStateRef.current.position.x);
     if (smoothMixRef.current === null) smoothMixRef.current = rawMix;
+    if (rawMix <= 0.0001 && smoothMixRef.current <= 0.0001) {
+      smoothMixRef.current = 0;
+      return;
+    }
     const response = rawMix > smoothMixRef.current ? 4.4 : 2.35;
     const ease = 1 - Math.exp(-delta * response);
     smoothMixRef.current += (rawMix - smoothMixRef.current) * ease;
@@ -182,6 +190,8 @@ function AdaptiveCameraRig({
   const initializedRef = useRef(false);
   const smoothedPositionRef = useRef(new THREE.Vector3());
   const smoothedTargetRef = useRef(new THREE.Vector3());
+  const desiredPositionRef = useRef(new THREE.Vector3());
+  const desiredTargetRef = useRef(new THREE.Vector3());
 
   useFrame((_, delta) => {
     const activeTrackSlug = getActiveTrackSlug(proximity);
@@ -196,12 +206,12 @@ function AdaptiveCameraRig({
       cameraZoomTargetRef.current,
       cinematicZoomRef.current
     );
-    const desiredPosition = new THREE.Vector3(
+    const desiredPosition = desiredPositionRef.current.set(
       rig.position.x,
       rig.position.y,
       rig.position.z
     );
-    const desiredTarget = new THREE.Vector3(
+    const desiredTarget = desiredTargetRef.current.set(
       rig.target.x,
       rig.target.y,
       rig.target.z

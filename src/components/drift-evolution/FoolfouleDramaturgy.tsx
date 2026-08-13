@@ -181,6 +181,22 @@ export default function FoolfouleDramaturgy({
       }
     }
 
+    if (
+      !sessionVisible &&
+      !shouldResetForTimeline &&
+      visualTrackingRef.current < 0.001 &&
+      visualCounterRef.current < 0.001
+    ) {
+      // Once the overlays have completed their short fade-out, the scene is
+      // observably idle. Keep the reset bookkeeping above, then sleep until
+      // zone/audio ownership changes instead of damping hidden panels forever.
+      for (const group of groupRefs.current) {
+        if (group) group.visible = false;
+      }
+      if (counterMaterialRef.current) counterMaterialRef.current.opacity = 0;
+      return;
+    }
+
     const state = resolveDriftEvolutionFoolfouleDramaturgy(
       snapshot,
       isInsideZone,

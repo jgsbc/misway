@@ -365,6 +365,10 @@ const BENCH_POSITION: readonly [number, number, number] = [
   gymGroundY,
   gymOrigin.z - 2.75,
 ];
+// Keep the accepted idle life readable on approach, then stop every dynamic
+// calculation once the storefront is well outside gameplay view. Re-entry
+// resolves directly from the current audio/R3F clock, so no cue is replayed.
+const EUX_GAINENT_RUNTIME_RADIUS_SQ = 60 * 60;
 
 export default function EuxGainentLivingScene({
   audioClockRef,
@@ -472,6 +476,32 @@ export default function EuxGainentLivingScene({
 
   useFrame((state, delta) => {
     const audioClock = audioClockRef.current;
+    const vehicle = vehicleStateRef.current.position;
+    const offsetX = vehicle.x - gymOrigin.x;
+    const offsetZ = vehicle.z - gymOrigin.z;
+    const runtimeActive =
+      isInsideZone ||
+      offsetX * offsetX + offsetZ * offsetZ <= EUX_GAINENT_RUNTIME_RADIUS_SQ;
+
+    if (!runtimeActive) {
+      if (process.env.NODE_ENV !== "production") {
+        const devSnapshot = devSnapshotRef.current;
+        devSnapshot.insideZone = false;
+        devSnapshot.sourceKind = audioClock.source.kind;
+        devSnapshot.sourceSlug = audioClock.source.slug;
+        devSnapshot.playbackState = audioClock.playbackState;
+        devSnapshot.absoluteTimeSeconds = null;
+        devSnapshot.phaseId = null;
+        devSnapshot.phaseProgress = null;
+        devSnapshot.dominantText = null;
+        devSnapshot.signatureEligible = false;
+        devSnapshot.signatureActive = false;
+        devSnapshot.screenHeadline = null;
+        devSnapshot.screenTextureKey = null;
+      }
+      return;
+    }
+
     const narrativeActive = resolveEuxGainentNarrativeActive(
       isInsideZone,
       audioClock.source.kind,
@@ -524,85 +554,71 @@ export default function EuxGainentLivingScene({
       visualState.absoluteTimeSeconds,
       visualState.phaseId
     );
-    const screenTextureKey = `${screenState.headline ?? "∅"}|${screenState.secondaryLines.join("")}`;
+    if (process.env.NODE_ENV !== "production") {
+      const devSnapshot = devSnapshotRef.current;
+      devSnapshot.insideZone = isInsideZone;
+      devSnapshot.sourceKind = audioClock.source.kind;
+      devSnapshot.sourceSlug = audioClock.source.slug;
+      devSnapshot.playbackState = audioClock.playbackState;
+      devSnapshot.absoluteTimeSeconds = visualState.absoluteTimeSeconds;
+      devSnapshot.phaseId = visualState.phaseId;
+      devSnapshot.phaseProgress = visualState.phaseProgress;
+      devSnapshot.dominantText = visualState.dominantText;
+      devSnapshot.signatureEligible = narrativeActive && visualState.signatureEligible;
+      devSnapshot.signatureActive = signatureActive;
+      devSnapshot.screenHeadline = screenState.headline;
+      devSnapshot.screenTextureKey = `${screenState.headline ?? "∅"}|${screenState.secondaryLines.join("")}`;
 
-    const devSnapshot = devSnapshotRef.current;
-    devSnapshot.insideZone = isInsideZone;
-    devSnapshot.sourceKind = audioClock.source.kind;
-    devSnapshot.sourceSlug = audioClock.source.slug;
-    devSnapshot.playbackState = audioClock.playbackState;
-    devSnapshot.absoluteTimeSeconds = visualState.absoluteTimeSeconds;
-    devSnapshot.phaseId = visualState.phaseId;
-    devSnapshot.phaseProgress = visualState.phaseProgress;
-    devSnapshot.dominantText = visualState.dominantText;
-    devSnapshot.signatureEligible = narrativeActive && visualState.signatureEligible;
-    devSnapshot.signatureActive = signatureActive;
-    devSnapshot.screenHeadline = screenState.headline;
-    devSnapshot.screenTextureKey = screenTextureKey;
+      // Screen mesh/material/back-wall truth probe — deliberately excluded
+      // from production's hot path. It reads actual Object3D/material/camera
+      // state so owner QA can distinguish resolver truth from rendered truth.
+      const screenMesh = screenMeshRef.current;
+      const screenMaterial = textMaterialRef.current;
+      const backWallMesh = backWallMeshRef.current;
 
-    // Screen mesh/material/back-wall truth probe — reads the actual
-    // rendered Object3D/Material/camera state, never re-derives it from
-    // the pure model or a hard-coded world axis, so a live check can tell
-    // "the resolver says X" apart from "the GPU is actually showing X,
-    // from where the real camera actually is" (DRIFT-IV-BY-EUX-30 P0
-    // series — see the screen mesh's own comment below for the geometry
-    // history this probe was built to verify).
-    const screenMesh = screenMeshRef.current;
-    const screenMaterial = textMaterialRef.current;
-    const backWallMesh = backWallMeshRef.current;
+      devSnapshot.screenMaterialMapPresent = !!screenMaterial?.map;
+      devSnapshot.screenMaterialOpacity = screenMaterial?.opacity ?? null;
 
-    devSnapshot.screenMaterialMapPresent = !!screenMaterial?.map;
-    devSnapshot.screenMaterialOpacity = screenMaterial?.opacity ?? null;
-
-    if (screenMesh) {
-      const worldPosition = screenMesh.getWorldPosition(
-        screenWorldPositionScratch.current
-      );
-      const worldNormal = screenWorldNormalScratch.current
-        .set(0, 0, 1)
-        .transformDirection(screenMesh.matrixWorld)
-        .normalize();
-      // Raw (non-normalized) mesh-to-camera vector — its dot product with
-      // the unit normal is a real signed distance along that normal, not
-      // just a [-1, 1] facing indicator.
-      const rawToCamera = screenToCameraScratch.current
-        .copy(state.camera.position)
-        .sub(worldPosition);
-      const signedDistance = worldNormal.dot(rawToCamera);
-
-      devSnapshot.screenWorldPosition = [
-        worldPosition.x,
-        worldPosition.y,
-        worldPosition.z,
-      ];
-      devSnapshot.screenWorldNormal = [
-        worldNormal.x,
-        worldNormal.y,
-        worldNormal.z,
-      ];
-      devSnapshot.screenFacingCamera = signedDistance > 0;
-
-      if (backWallMesh) {
-        const backWallWorldPosition = backWallMesh.getWorldPosition(
-          backWallWorldPositionScratch.current
+      if (screenMesh) {
+        const worldPosition = screenMesh.getWorldPosition(
+          screenWorldPositionScratch.current
         );
+        const worldNormal = screenWorldNormalScratch.current
+          .set(0, 0, 1)
+          .transformDirection(screenMesh.matrixWorld)
+          .normalize();
+        const rawToCamera = screenToCameraScratch.current
+          .copy(state.camera.position)
+          .sub(worldPosition);
+        devSnapshot.screenWorldPosition = [
+          worldPosition.x,
+          worldPosition.y,
+          worldPosition.z,
+        ];
+        devSnapshot.screenWorldNormal = [
+          worldNormal.x,
+          worldNormal.y,
+          worldNormal.z,
+        ];
+        devSnapshot.screenFacingCamera = worldNormal.dot(rawToCamera) > 0;
 
-        // (backWallWorldPosition - screenWorldPosition) · screenWorldNormal
-        // — must be negative (wall on the opposite side of the screen from
-        // the camera). Computed via plain component arithmetic rather than
-        // another scratch Vector3, since it is only ever a dot product.
-        devSnapshot.backWallSignedDistanceAlongScreenNormal =
-          (backWallWorldPosition.x - worldPosition.x) * worldNormal.x +
-          (backWallWorldPosition.y - worldPosition.y) * worldNormal.y +
-          (backWallWorldPosition.z - worldPosition.z) * worldNormal.z;
+        if (backWallMesh) {
+          const backWallWorldPosition = backWallMesh.getWorldPosition(
+            backWallWorldPositionScratch.current
+          );
+          devSnapshot.backWallSignedDistanceAlongScreenNormal =
+            (backWallWorldPosition.x - worldPosition.x) * worldNormal.x +
+            (backWallWorldPosition.y - worldPosition.y) * worldNormal.y +
+            (backWallWorldPosition.z - worldPosition.z) * worldNormal.z;
+        } else {
+          devSnapshot.backWallSignedDistanceAlongScreenNormal = null;
+        }
       } else {
+        devSnapshot.screenWorldPosition = null;
+        devSnapshot.screenWorldNormal = null;
+        devSnapshot.screenFacingCamera = null;
         devSnapshot.backWallSignedDistanceAlongScreenNormal = null;
       }
-    } else {
-      devSnapshot.screenWorldPosition = null;
-      devSnapshot.screenWorldNormal = null;
-      devSnapshot.screenFacingCamera = null;
-      devSnapshot.backWallSignedDistanceAlongScreenNormal = null;
     }
 
     const convergence = convergenceBlend(visualState.phaseId, visualState.phaseProgress);

@@ -161,6 +161,44 @@ export function getEuxGainentBlackPlasticTexture(
   return texture;
 }
 
+const EUX_GAINENT_SCREEN_TEXTURE_CACHE_LIMIT = 16;
+const EUX_GAINENT_CONSOLE_TEXTURE_CACHE_LIMIT = 48;
+
+function readCachedTexture(
+  cache: Map<string, THREE.CanvasTexture>,
+  key: string
+): THREE.CanvasTexture | null {
+  const texture = cache.get(key) ?? null;
+
+  if (texture) {
+    // Promote live entries so bounded eviction always removes the oldest
+    // state, never one that has just been reused by a material.
+    cache.delete(key);
+    cache.set(key, texture);
+  }
+
+  return texture;
+}
+
+function cacheTexture(
+  cache: Map<string, THREE.CanvasTexture>,
+  key: string,
+  texture: THREE.CanvasTexture,
+  limit: number
+): THREE.CanvasTexture {
+  cache.set(key, texture);
+
+  while (cache.size > limit) {
+    const oldestKey = cache.keys().next().value as string | undefined;
+    if (oldestKey === undefined) break;
+    const oldestTexture = cache.get(oldestKey);
+    cache.delete(oldestKey);
+    oldestTexture?.dispose();
+  }
+
+  return texture;
+}
+
 const screenTextureCache = new Map<string, THREE.CanvasTexture>();
 
 function drawGlowTrackedLine(
@@ -219,7 +257,7 @@ export function getEuxGainentScreenTexture(
   secondaryLines: readonly string[]
 ): THREE.CanvasTexture {
   const cacheKey = `${headline ?? "∅"}|${secondaryLines.join("")}`;
-  const cached = screenTextureCache.get(cacheKey);
+  const cached = readCachedTexture(screenTextureCache, cacheKey);
 
   if (cached) {
     return cached;
@@ -359,9 +397,12 @@ export function getEuxGainentScreenTexture(
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  screenTextureCache.set(cacheKey, texture);
-
-  return texture;
+  return cacheTexture(
+    screenTextureCache,
+    cacheKey,
+    texture,
+    EUX_GAINENT_SCREEN_TEXTURE_CACHE_LIMIT
+  );
 }
 
 /** Disposes every cached screen-state texture (call once on final unmount). */
@@ -386,7 +427,7 @@ export function getEuxGainentConsoleReadoutTexture(
   ...lines: readonly string[]
 ): THREE.CanvasTexture {
   const cacheKey = lines.join("|");
-  const cached = consoleReadoutCache.get(cacheKey);
+  const cached = readCachedTexture(consoleReadoutCache, cacheKey);
 
   if (cached) {
     return cached;
@@ -422,9 +463,12 @@ export function getEuxGainentConsoleReadoutTexture(
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  consoleReadoutCache.set(cacheKey, texture);
-
-  return texture;
+  return cacheTexture(
+    consoleReadoutCache,
+    cacheKey,
+    texture,
+    EUX_GAINENT_CONSOLE_TEXTURE_CACHE_LIMIT
+  );
 }
 
 /** Disposes every cached console-readout texture (call once on final unmount). */

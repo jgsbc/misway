@@ -81,7 +81,7 @@ function DriftEvolutionScene({
 
   return (
     <>
-      <Drift3DSceneBase {...props} />
+      <Drift3DSceneBase {...props} cameraAuthority="external" />
       <Drift3DLandmark
         landmark={birthYardRouteLabLandmark}
         vehicleStateRef={props.vehicleStateRef}
@@ -110,7 +110,10 @@ function DriftEvolutionScene({
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
       />
-      <DriftEvolutionPerformanceRig profile={performanceProfile} />
+      <DriftEvolutionPerformanceRig
+        profile={performanceProfile}
+        vehicleStateRef={props.vehicleStateRef}
+      />
       <DriftSceneReadySignal
         vehicleStateRef={props.vehicleStateRef}
         expectedPosition={evolutionStartPosition}

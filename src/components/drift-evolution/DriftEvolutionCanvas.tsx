@@ -688,7 +688,7 @@ export default function DriftEvolutionCanvas({
           className={`pointer-events-none absolute inset-0 z-[5] ${
             performanceProfile.mode === "mobile"
               ? "opacity-[0.025]"
-              : "opacity-[0.05] mix-blend-overlay"
+              : "opacity-[0.035]"
           }`}
           style={{
             backgroundImage:
