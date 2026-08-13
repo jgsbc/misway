@@ -40,7 +40,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/drift3dVehiclePhysicsBase.ts": "6d8a5abd06bae0a183883cea2f5955da44383567",
   "src/lib/drift3dTransmission.ts": "cdcea0d354a6b3071b7920f5407368b7abeb6221",
   "src/lib/drift3dAmbience.ts": "a51f85e11e715fbcb3b61c5d6f4d69a9ff06ac3b",
-  "src/lib/drift3dTerrain.ts": "1e900df0b6e0e87332c2829bcba014d36827c6ee",
+  "src/lib/drift3dTerrain.ts": "ef95b91e2822c3cedce84a6ad998dad9f9bc63f4",
   "src/lib/drift3dTopology.ts": "7cd1ced44b6c06f6313999e673187c08da14b7d7",
   "src/lib/drift3dScatter.ts": "987cee6ca33590d47bb680791e965dd4515be482",
   "src/lib/drift3dAtmosphere.ts": "f6ce02259c08bcf2664bee6ecec1207732bb1f25",
