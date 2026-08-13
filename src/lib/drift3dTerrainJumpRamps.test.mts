@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDrift3DMovementBounds } from "@/lib/drift3d";
+import {
+  getDrift3DHeadingVector,
+  getDrift3DMovementBounds,
+} from "@/lib/drift3d";
 import {
   DRIFT_3D_EDGE_JUMP_RAMPS,
   getDrift3DGroundY,
@@ -32,7 +35,8 @@ test("east and west edges expose two continuous quarter-pipe profiles", () => {
   );
 
   for (const ramp of DRIFT_3D_EDGE_JUMP_RAMPS) {
-    assert.ok(ramp.width >= 130);
+    assert.ok(ramp.width >= 160);
+    assert.ok(Math.abs(ramp.height - ramp.length) < 0.01);
 
     for (const worldZ of [-24, 0, 40]) {
       const approach = sampleRamp(ramp, 0, worldZ);
@@ -46,6 +50,7 @@ test("east and west edges expose two continuous quarter-pipe profiles", () => {
 
       assert.ok(middle > approach + 0.5);
       assert.ok(lip > middle + 1.5);
+      assert.ok(lip - middle > (middle - approach) * 4);
       assert.ok(landingSide < lip - 2.5);
     }
   }
@@ -70,7 +75,7 @@ test("flatten pads keep edge-track centers level beside the ramps", () => {
   }
 });
 
-test("a natural approach from rest launches across common edge lanes", () => {
+test("the 4x4 rises vertically, falls into the wall and leaves toward the center", () => {
   const bounds = getDrift3DMovementBounds();
 
   for (const ramp of DRIFT_3D_EDGE_JUMP_RAMPS) {
@@ -89,10 +94,17 @@ test("a natural approach from rest launches across common edge lanes", () => {
         },
         heading
       );
-      let becameAirborne = false;
-      let launchVelocity = 0;
+      let launch:
+        | { x: number; y: number; horizontalSpeed: number; verticalSpeed: number }
+        | undefined;
+      let apexY = -Infinity;
+      let landedX: number | undefined;
+      let returnVelocityX: number | undefined;
+      let returnHeadingX: number | undefined;
+      let maximumOutwardX = -Infinity;
 
       for (let frame = 0; frame < 900; frame += 1) {
+        const wasAirborne = state.airborne;
         const result = stepDrift3DVehiclePhysics(
           state,
           { x: 0, z: 1, active: true },
@@ -102,21 +114,74 @@ test("a natural approach from rest launches across common edge lanes", () => {
           1,
           getDrift3DGroundY
         );
+        const outwardX = state.position.x * ramp.directionX;
+
+        maximumOutwardX = Math.max(maximumOutwardX, outwardX);
+
+        if (!wasAirborne && result.airborne) {
+          launch = {
+            x: state.position.x,
+            y: state.position.y,
+            horizontalSpeed: Math.hypot(state.velocityX, state.velocityZ),
+            verticalSpeed: state.velocityY,
+          };
+        }
 
         if (result.airborne) {
-          becameAirborne = true;
-          launchVelocity = Math.max(launchVelocity, state.velocityY);
-        } else if (becameAirborne) {
+          apexY = Math.max(apexY, state.position.y);
+        } else if (wasAirborne) {
+          landedX = state.position.x;
+          returnVelocityX = state.velocityX;
+          returnHeadingX = getDrift3DHeadingVector(state.heading).x;
           break;
         }
       }
 
-      assert.equal(becameAirborne, true, `no launch at z=${worldZ}`);
-      assert.ok(launchVelocity > 5, `weak launch at z=${worldZ}`);
+      assert.ok(launch, `no launch at z=${worldZ}`);
+      assert.ok(landedX !== undefined, `no landing at z=${worldZ}`);
+      assert.ok(launch.verticalSpeed >= 8, `weak launch at z=${worldZ}`);
       assert.ok(
-        state.position.x >= bounds.minX && state.position.x <= bounds.maxX
+        launch.verticalSpeed > launch.horizontalSpeed * 6,
+        `launch is not vertical at z=${worldZ}`
       );
-      assert.ok(Math.abs(state.velocityX) <= 12.5);
+      assert.ok(apexY > launch.y + 3, `flat trajectory at z=${worldZ}`);
+      assert.ok(
+        maximumOutwardX < bounds.maxX - 0.1,
+        `trajectory still hits the boundary at z=${worldZ}`
+      );
+      assert.ok(
+        (launch.x - landedX) * ramp.directionX > 1.2,
+        `4x4 did not fall back into the ramp at z=${worldZ}`
+      );
+      assert.ok(
+        returnVelocityX !== undefined &&
+          returnVelocityX * ramp.directionX < -4,
+        `landing does not leave toward the center at z=${worldZ}`
+      );
+      assert.ok(
+        returnHeadingX !== undefined && returnHeadingX * ramp.directionX < -0.9,
+        `4x4 does not face the return direction at z=${worldZ}`
+      );
+      assert.equal(state.halfPipeSide, 0);
+
+      const returnStartX = state.position.x;
+
+      for (let frame = 0; frame < 90; frame += 1) {
+        stepDrift3DVehiclePhysics(
+          state,
+          { x: 0, z: 1, active: true },
+          1 / 60,
+          bounds,
+          [],
+          1,
+          getDrift3DGroundY
+        );
+      }
+
+      assert.ok(
+        (returnStartX - state.position.x) * ramp.directionX > 8,
+        `4x4 does not continue across the half-pipe at z=${worldZ}`
+      );
     }
   }
 });

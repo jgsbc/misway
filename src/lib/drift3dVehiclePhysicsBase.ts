@@ -61,6 +61,12 @@ export type Drift3DVehiclePhysicsState = {
   airborne: boolean;
   /** Taux vertical lissé au sol — devient la vitesse de décollage sur une lèvre. */
   slopeVerticalRate: number;
+  /** Côté du half-pipe traversé pendant le saut (-1 ouest, 1 est). */
+  halfPipeSide: -1 | 0 | 1;
+  /** Cap réfléchi vers le centre, appliqué au sommet de la trajectoire. */
+  halfPipeReturnHeading: number;
+  /** Élan restitué vers le centre à la réception. */
+  halfPipeReturnSpeed: number;
 };
 
 export type Drift3DVehiclePhysicsStepResult = {
@@ -98,6 +104,9 @@ export function createDrift3DVehiclePhysicsState(
     engineRevs: 0.24,
     airborne: false,
     slopeVerticalRate: 0,
+    halfPipeSide: 0,
+    halfPipeReturnHeading: heading,
+    halfPipeReturnSpeed: 0,
   };
 }
 

@@ -5,7 +5,7 @@ import test from "node:test";
 const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/app/drift/page.tsx": "bff0166b9194f354f87ab39c7588c5d77107b3d6",
   "src/app/drift/layout.tsx": "65b5e62d9dd69f2af4b370ae7151d537d10cb782",
-  "src/components/drift-3d/Drift3DSceneBase.tsx": "d75e063c01f989eea5822cfaf36378385be2a4df",
+  "src/components/drift-3d/Drift3DSceneBase.tsx": "d731caff43d1e78518a217a512d68aa340158f2e",
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
   "src/components/drift-3d/Drift3DLandmark.tsx": "787868bbb560efb8537cd8c0717ca3e3429922e4",
@@ -36,11 +36,11 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
 
   "src/lib/drift3d.ts": "00d2eec130df2ee9469bd814d0030a538560064f",
   "src/lib/drift3dBase.ts": "0a7a386cd9734c41037707b9890f8048bf8a54f4",
-  "src/lib/drift3dVehiclePhysics.ts": "fdf6fbd66cf6b3c3f959d1725c3cef1e4e48e869",
-  "src/lib/drift3dVehiclePhysicsBase.ts": "6d8a5abd06bae0a183883cea2f5955da44383567",
+  "src/lib/drift3dVehiclePhysics.ts": "ef7e9bf22a5b90dfa8df859fcdb1e87d4c84dfbe",
+  "src/lib/drift3dVehiclePhysicsBase.ts": "68e3583a095d1a9a94acedf238f6ac460d440fb6",
   "src/lib/drift3dTransmission.ts": "cdcea0d354a6b3071b7920f5407368b7abeb6221",
   "src/lib/drift3dAmbience.ts": "a51f85e11e715fbcb3b61c5d6f4d69a9ff06ac3b",
-  "src/lib/drift3dTerrain.ts": "2e9f381c1243bf53a700df5cf294605e4ab5ac27",
+  "src/lib/drift3dTerrain.ts": "a2848a4618ba04d10f591ed5242b6b2aa128aa30",
   "src/lib/drift3dTopology.ts": "7cd1ced44b6c06f6313999e673187c08da14b7d7",
   "src/lib/drift3dScatter.ts": "987cee6ca33590d47bb680791e965dd4515be482",
   "src/lib/drift3dAtmosphere.ts": "f6ce02259c08bcf2664bee6ecec1207732bb1f25",
