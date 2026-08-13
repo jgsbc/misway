@@ -7,22 +7,22 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/Drift3DClient.tsx": "03f05fe01c08a5345ba5ad824ac9ec7d3811c8bf",
   "src/components/drift-3d/Drift3DCanvas.tsx": "fe8b4d5ea72598b7c7cb59f2f0af8ae156b8bcfa",
   "src/components/drift-3d/Drift3DScene.tsx": "6689d518ffd16050a03e3c62d682bd44d0dfadec",
-  "src/components/drift-3d/Drift3DSceneBase.tsx": "f71e78b325efb26353868209422a396c852ddb09",
+  "src/components/drift-3d/Drift3DSceneBase.tsx": "b9793675e37ecda5a5e3d32c2585db4c0d19a41b",
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
-  "src/components/drift-3d/Drift3DLandmark.tsx": "a1e5b40f90cab9166ab4f28b994cf4c49f0dea45",
+  "src/components/drift-3d/Drift3DLandmark.tsx": "787868bbb560efb8537cd8c0717ca3e3429922e4",
   "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f2d11abc8c44e5a5fbf7db3a02703d3",
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
 
   // Promoted Evolution layers are now production dependencies. Keep them
   // protected even though their historical filenames still say Evolution.
-  "src/components/drift-evolution/EntryCaveSalvage.tsx": "d1c2fa7b0930d6e92d51ac4b605e07b818ad349c",
+  "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
   "src/components/drift-evolution/EntryPortalLightCorrection.tsx": "8716a7b36c6a98dc9f5c9d2910c43f72aeed5d9a",
   "src/components/drift-evolution/EvolutionSafari110VehicleVisual.tsx": "cac1d56f3a32a1dd51b4aac72b547f899147b00f",
   "src/components/drift-evolution/FoolfouleCrowd.tsx": "bbd2617073bbe2de1610c35fcad056c9c8a808e0",
-  "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "1bad81d8c59f9d86e607b09c72da5f88b31058d1",
-  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "7e84725476ab7f5baad2802460f7b6598e5b576e",
+  "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
+  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "2c371dcc104d5d076b4269f56a1efc0694d57775",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "d11022fc6b4960d078900ca13f60c3cb381d9c6d",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "cd95b325ffebdd96e2cee7f08fdf2eccca6e9caf",
 

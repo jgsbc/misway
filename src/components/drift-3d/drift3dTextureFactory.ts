@@ -33,6 +33,43 @@ export type DriftMaterialMaps = {
   normalMap: THREE.Texture | null;
 };
 
+const DRIFT_TEXTURE_REPEAT_USER_DATA_KEY = "driftTextureRepeat";
+
+/**
+ * Moves per-mesh texture repetition onto geometry UVs so materials can share
+ * one texture object per kind instead of uploading the same 1K image once for
+ * every authored repeat pair.
+ */
+export function setDriftGeometryTextureRepeat(
+  geometry: THREE.BufferGeometry,
+  repeatX = 1,
+  repeatY = 1
+): void {
+  const uv = geometry.getAttribute("uv");
+  if (!uv) return;
+
+  const nextX = Number.isFinite(repeatX) && repeatX > 0 ? repeatX : 1;
+  const nextY = Number.isFinite(repeatY) && repeatY > 0 ? repeatY : 1;
+  const previous = geometry.userData[DRIFT_TEXTURE_REPEAT_USER_DATA_KEY] as
+    | { x: number; y: number }
+    | undefined;
+  const previousX = previous?.x ?? 1;
+  const previousY = previous?.y ?? 1;
+
+  if (previousX === nextX && previousY === nextY) return;
+
+  const scaleX = nextX / previousX;
+  const scaleY = nextY / previousY;
+  for (let index = 0; index < uv.count; index += 1) {
+    uv.setXY(index, uv.getX(index) * scaleX, uv.getY(index) * scaleY);
+  }
+  uv.needsUpdate = true;
+  geometry.userData[DRIFT_TEXTURE_REPEAT_USER_DATA_KEY] = {
+    x: nextX,
+    y: nextY,
+  };
+}
+
 /** Diffuse + normal map pair for a material kind (normal only for photo kinds). */
 export function getDriftMaterialMaps(
   kind: Drift3DMaterialKind,

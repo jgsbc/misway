@@ -29,9 +29,9 @@ test("Evolution mobile reduces raster and shadow budgets while keeping the rende
     (mobile.shadowMapSize / desktop.shadowMapSize) ** 2;
 
   assert.equal(mobile.maxDpr, 1.15);
-  assert.ok(pixelRatio < 0.59);
+  assert.ok(pixelRatio < 0.75);
   assert.equal(mobile.shadowMapSize, 1024);
-  assert.equal(shadowTexelRatio, 0.25);
+  assert.ok(shadowTexelRatio < 0.45);
   assert.ok(mobile.shadowUpdateIntervalMs >= 60);
   assert.equal(mobile.proximityRefreshIntervalMs, 100);
   assert.equal(mobile.secondaryInstancedShadows, false);
@@ -40,18 +40,18 @@ test("Evolution mobile reduces raster and shadow budgets while keeping the rende
   assert.equal(mobile.shadows, true);
 });
 
-test("Evolution desktop retains the existing high-capability render profile", () => {
+test("Evolution desktop keeps high identity with bounded render work", () => {
   const profile = getDriftEvolutionPerformanceProfile(false);
 
   assert.equal(profile.mode, "desktop");
   assert.equal(profile.qualityTier, "high");
-  assert.equal(profile.maxDpr, 1.5);
-  assert.equal(profile.shadowMapSize, 2048);
-  assert.equal(profile.shadowUpdateIntervalMs, 0);
-  assert.equal(profile.proximityRefreshIntervalMs, 0);
-  assert.equal(profile.secondaryInstancedShadows, true);
+  assert.equal(profile.maxDpr, 1.35);
+  assert.equal(profile.shadowMapSize, 1536);
+  assert.ok(profile.shadowUpdateIntervalMs >= 33);
+  assert.equal(profile.proximityRefreshIntervalMs, 50);
+  assert.equal(profile.secondaryInstancedShadows, false);
   assert.equal(profile.antialias, true);
-  assert.equal(profile.alpha, true);
+  assert.equal(profile.alpha, false);
   assert.equal(profile.shadows, true);
   assert.equal(Object.isFrozen(profile), true);
 });

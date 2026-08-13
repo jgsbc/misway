@@ -764,6 +764,7 @@ type Drift3DSceneProps = {
   vehicleStateRef: MutableRefObject<Drift3DVehiclePhysicsState>;
   audioClockRef: Drift3DAudioClockRef;
   sceneLifecycleRef: Drift3DSceneLifecycleRef;
+  cameraAuthority?: "base" | "external";
 };
 
 export default function Drift3DScene({
@@ -774,6 +775,7 @@ export default function Drift3DScene({
   vehicleStateRef,
   audioClockRef,
   sceneLifecycleRef,
+  cameraAuthority = "base",
 }: Drift3DSceneProps) {
   const vehicleRef = useRef<Drift3DVehicleHandle | null>(null);
   const vehicleStartPosition = useMemo(
@@ -957,11 +959,13 @@ export default function Drift3DScene({
         cinematicZoomRef={cinematicZoomRef}
       />
 
-      <FollowCameraRig
-        vehicleStateRef={vehicleStateRef}
-        cameraZoomTargetRef={cameraZoomTargetRef}
-        cinematicZoomRef={cinematicZoomRef}
-      />
+      {cameraAuthority === "base" ? (
+        <FollowCameraRig
+          vehicleStateRef={vehicleStateRef}
+          cameraZoomTargetRef={cameraZoomTargetRef}
+          cinematicZoomRef={cinematicZoomRef}
+        />
+      ) : null}
     </>
   );
 }

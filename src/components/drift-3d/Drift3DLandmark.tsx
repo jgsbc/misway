@@ -11,7 +11,10 @@ import type {
 } from "@/lib/drift3dLandmarks";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DVehiclePhysicsState } from "@/lib/drift3dVehiclePhysics";
-import { getDriftMaterialMaps } from "@/components/drift-3d/drift3dTextureFactory";
+import {
+  getDriftMaterialMaps,
+  setDriftGeometryTextureRepeat,
+} from "@/components/drift-3d/drift3dTextureFactory";
 
 type Drift3DLandmarkProps = {
   landmark: Drift3DLandmark;
@@ -48,27 +51,41 @@ function PrimitiveGeometry({
 }: {
   primitive: Drift3DLandmarkPrimitive;
 }) {
+  const repeatX = primitive.textureRepeat?.[0] ?? 1;
+  const repeatY = primitive.textureRepeat?.[1] ?? 1;
+  const applyTextureRepeat = (geometry: THREE.BufferGeometry) => {
+    setDriftGeometryTextureRepeat(geometry, repeatX, repeatY);
+  };
+
   switch (primitive.kind) {
     case "box":
       return (
         <boxGeometry
           args={[primitive.args[0], primitive.args[1], primitive.args[2]]}
+          onUpdate={applyTextureRepeat}
         />
       );
     case "cylinder":
       return (
         <cylinderGeometry
           args={[primitive.args[0], primitive.args[1], primitive.args[2], 14]}
+          onUpdate={applyTextureRepeat}
         />
       );
     case "cone":
       return (
         <coneGeometry
           args={[primitive.args[0], primitive.args[1], primitive.args[2] ?? 12]}
+          onUpdate={applyTextureRepeat}
         />
       );
     case "sphere":
-      return <sphereGeometry args={[primitive.args[0], 14, 12]} />;
+      return (
+        <sphereGeometry
+          args={[primitive.args[0], 14, 12]}
+          onUpdate={applyTextureRepeat}
+        />
+      );
   }
 }
 
@@ -120,6 +137,7 @@ export default function Drift3DLandmark({
   vehicleStateRef,
 }: Drift3DLandmarkProps) {
   const materialRefs = useRef<Array<THREE.MeshStandardMaterial | null>>([]);
+  const occlusionFadeActiveRef = useRef(false);
   // hauteur du sol sous chaque primitive (le décor épouse le relief)
   const groundYs = useMemo(
     () =>
@@ -131,6 +149,16 @@ export default function Drift3DLandmark({
       ),
     [landmark]
   );
+  const occlusionRuntimeRadiusSq = useMemo(() => {
+    const farthestPrimitiveOffset = landmark.primitives.reduce(
+      (farthest, primitive) =>
+        Math.max(farthest, Math.hypot(primitive.offset[0], primitive.offset[2])),
+      0
+    );
+    const radius =
+      farthestPrimitiveOffset + OCCLUSION_CAMERA_DEPTH + OCCLUSION_HALF_WIDTH;
+    return radius * radius;
+  }, [landmark]);
 
   useFrame((_, delta) => {
     if (!vehicleStateRef) {
@@ -138,6 +166,16 @@ export default function Drift3DLandmark({
     }
 
     const vehicle = vehicleStateRef.current.position;
+    const offsetX = vehicle.x - landmark.origin.x;
+    const offsetZ = vehicle.z - landmark.origin.z;
+    const shouldTestOcclusion =
+      offsetX * offsetX + offsetZ * offsetZ <= occlusionRuntimeRadiusSq;
+
+    if (!shouldTestOcclusion && !occlusionFadeActiveRef.current) {
+      return;
+    }
+
+    let hasActiveFade = false;
 
     for (let index = 0; index < landmark.primitives.length; index += 1) {
       const primitive = landmark.primitives[index];
@@ -160,6 +198,7 @@ export default function Drift3DLandmark({
       let targetOpacity = authoredOpacity;
 
       if (
+        shouldTestOcclusion &&
         south > 0.3 &&
         south < OCCLUSION_CAMERA_DEPTH &&
         Math.abs(worldX - vehicle.x) < OCCLUSION_HALF_WIDTH
@@ -181,7 +220,13 @@ export default function Drift3DLandmark({
         material.depthWrite =
           primitive.opacity === undefined && material.opacity > 0.6;
       }
+
+      if (material.opacity < authoredOpacity - 0.004) {
+        hasActiveFade = true;
+      }
     }
+
+    occlusionFadeActiveRef.current = hasActiveFade;
   });
 
   return (
@@ -204,11 +249,7 @@ export default function Drift3DLandmark({
         const centerY = groundYs[index] + primitive.offset[1] + height / 2;
         const transparent = primitive.opacity !== undefined;
         const maps = primitive.material
-          ? getDriftMaterialMaps(
-              primitive.material,
-              primitive.textureRepeat?.[0] ?? 1,
-              primitive.textureRepeat?.[1] ?? 1
-            )
+          ? getDriftMaterialMaps(primitive.material)
           : null;
         const hasRoofCap =
           primitive.kind === "box" &&

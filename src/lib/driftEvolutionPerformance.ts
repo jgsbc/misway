@@ -56,14 +56,19 @@ const DESKTOP_PROFILE: DriftEvolutionPerformanceProfile = Object.freeze({
   mode: "desktop",
   qualityTier: "high",
   qualityProfile: getDrift3DQualityProfile("high"),
-  maxDpr: 1.5,
-  shadowMapSize: 2048,
-  shadowUpdateIntervalMs: 0,
-  proximityRefreshIntervalMs: 0,
+  // Keep the high identity profile while bounding raster/shadow work. Above
+  // ~1.35 DPR, this procedural scene pays substantially more fill-rate for a
+  // small visual return, including two full-screen compositing layers.
+  maxDpr: 1.35,
+  shadowMapSize: 1536,
+  // Dynamic shadows stay present and responsive, but their depth pass no
+  // longer runs faster than a smooth 30 Hz on high-refresh monitors.
+  shadowUpdateIntervalMs: 1000 / 30,
+  proximityRefreshIntervalMs: 50,
   antialias: true,
-  alpha: true,
+  alpha: false,
   shadows: true,
-  secondaryInstancedShadows: true,
+  secondaryInstancedShadows: false,
 });
 
 /**
