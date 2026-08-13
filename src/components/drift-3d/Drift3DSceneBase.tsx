@@ -652,6 +652,8 @@ function KeyboardVehicleMotion({
         state.velocityZ = 0;
         state.velocityY = 0;
         state.speed = 0;
+        state.gear = 1;
+        state.engineRevs = 0.24;
         state.airborne = false;
         teleportWindow.__drift3dTeleport = null;
 
@@ -734,6 +736,8 @@ function KeyboardVehicleMotion({
         y: state.position.y,
         heading: state.heading,
         speed: state.speed,
+        gear: state.gear,
+        engineRevs: state.engineRevs,
         airborne: state.airborne,
       };
     }
