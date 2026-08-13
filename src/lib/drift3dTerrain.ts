@@ -108,12 +108,12 @@ export const DRIFT_3D_EDGE_JUMP_RAMPS = Object.freeze([
     z: 0,
     directionX: -1,
     directionZ: 0,
-    length: 4.2,
-    width: 136,
-    height: 4.4,
-    lipDrop: 0.7,
+    length: 7.7,
+    width: 168,
+    height: 7.7,
+    lipDrop: 1,
     profile: "quarter-pipe",
-    edgeFade: 8,
+    edgeFade: 10,
   },
   {
     kind: "ramp",
@@ -121,19 +121,22 @@ export const DRIFT_3D_EDGE_JUMP_RAMPS = Object.freeze([
     z: 0,
     directionX: 1,
     directionZ: 0,
-    length: 4.2,
-    width: 136,
-    height: 4.4,
-    lipDrop: 0.7,
+    length: 7.7,
+    width: 168,
+    height: 7.7,
+    lipDrop: 1,
     profile: "quarter-pipe",
-    edgeFade: 8,
+    edgeFade: 10,
   },
 ] as const satisfies readonly RampFeature[]);
 
 const terrainFeatures: Drift3DTerrainFeature[] = [
-  // ─── Bordures : quarter-pipes est/ouest, talus nord/sud ─────────────────
-  { kind: "ridge", x1: -116, z1: -84, x2: -116, z2: 84, width: 13, height: 9 },
-  { kind: "ridge", x1: 116, z1: -84, x2: 116, z2: 84, width: 13, height: 7 },
+  // ─── Bordures : half-pipe est/ouest, talus nord/sud ─────────────────────
+  // Les deux quarts de pipe dédiés remplacent les anciennes crêtes latérales :
+  // les additionner créait une bosse suivie d'une falaise, pas une courbe en U.
+  // Ce noyau local conserve toutefois le relief historique qui porte la grotte
+  // d'Entry, sans déformer le reste de la paroi ouest.
+  { kind: "peak", x: -116, z: 13, radius: 13, height: 9 },
   { kind: "ridge", x1: -116, z1: 86, x2: 116, z2: 86, width: 13, height: 6 },
   { kind: "ridge", x1: -116, z1: -86, x2: 116, z2: -86, width: 13, height: 8 },
 
@@ -260,7 +263,9 @@ function evaluateFeature(
       const along =
         localU <= feature.length
           ? feature.profile === "quarter-pipe"
-            ? progress * progress
+            // Quart de cercle : sol presque plat à l'entrée, tangente presque
+            // verticale à la lèvre. Les deux bords forment ensemble le half-pipe.
+            ? 1 - Math.sqrt(Math.max(0, 1 - progress * progress))
             : smoothstep01(progress)
           : Math.max(0, 1 - (localU - feature.length) / feature.lipDrop);
 

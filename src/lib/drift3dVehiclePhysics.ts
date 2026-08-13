@@ -31,6 +31,12 @@ const DRIFT_3D_VEHICLE_INPUT_EPSILON = 0.01;
 const DRIFT_3D_VEHICLE_DRIFT_START_RATIO = 0.28;
 const DRIFT_3D_VEHICLE_DRIFT_FULL_RATIO = 0.7;
 const DRIFT_3D_VEHICLE_DRIFT_STEERING_THRESHOLD = 0.18;
+const DRIFT_3D_HALF_PIPE_LAUNCH_DEPTH = 1.8;
+const DRIFT_3D_HALF_PIPE_MAX_LANE_Z = 74;
+const DRIFT_3D_HALF_PIPE_VERTICAL_SPEED_MIN = 8;
+const DRIFT_3D_HALF_PIPE_VERTICAL_SPEED_MAX = 14;
+const DRIFT_3D_HALF_PIPE_RETURN_SPEED_MIN = 4;
+const DRIFT_3D_HALF_PIPE_RETURN_SPEED_MAX = 8.5;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -40,6 +46,12 @@ function normalizeAngle(angle: number) {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
 
+function approachAngle(current: number, target: number, maxDelta: number) {
+  const delta = normalizeAngle(target - current);
+
+  return normalizeAngle(current + clamp(delta, -maxDelta, maxDelta));
+}
+
 function lerp(from: number, to: number, amount: number) {
   return from + (to - from) * clamp(amount, 0, 1);
 }
@@ -47,6 +59,101 @@ function lerp(from: number, to: number, amount: number) {
 function smoothstep(value: number) {
   const t = clamp(value, 0, 1);
   return t * t * (3 - 2 * t);
+}
+
+function getHalfPipeLaunchSide(
+  state: Drift3DVehiclePhysicsState,
+  bounds: Drift3DMovementBounds
+): -1 | 0 | 1 {
+  if (Math.abs(state.position.z) > DRIFT_3D_HALF_PIPE_MAX_LANE_Z) {
+    return 0;
+  }
+
+  if (
+    state.position.x <= bounds.minX + DRIFT_3D_HALF_PIPE_LAUNCH_DEPTH &&
+    state.velocityX < -DRIFT_3D_VEHICLE_INPUT_EPSILON
+  ) {
+    return -1;
+  }
+
+  if (
+    state.position.x >= bounds.maxX - DRIFT_3D_HALF_PIPE_LAUNCH_DEPTH &&
+    state.velocityX > DRIFT_3D_VEHICLE_INPUT_EPSILON
+  ) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function enterHalfPipeFlight(
+  state: Drift3DVehiclePhysicsState,
+  side: -1 | 1
+) {
+  const incomingSpeed = Math.hypot(state.velocityX, state.velocityZ);
+  const headingVector = getDrift3DHeadingVector(state.heading);
+  const airwardSpeed = clamp(incomingSpeed * 0.1, 0.85, 1.45);
+
+  state.halfPipeSide = side;
+  state.halfPipeReturnHeading = Math.atan2(
+    -headingVector.x,
+    headingVector.z
+  );
+  state.halfPipeReturnSpeed = clamp(
+    incomingSpeed * 0.68,
+    DRIFT_3D_HALF_PIPE_RETURN_SPEED_MIN,
+    DRIFT_3D_HALF_PIPE_RETURN_SPEED_MAX
+  );
+  state.velocityX = -side * airwardSpeed;
+  state.velocityZ *= 0.18;
+  state.velocityY = clamp(
+    Math.max(state.slopeVerticalRate, incomingSpeed * 0.92),
+    DRIFT_3D_HALF_PIPE_VERTICAL_SPEED_MIN,
+    DRIFT_3D_HALF_PIPE_VERTICAL_SPEED_MAX
+  );
+  state.speed = 0;
+}
+
+function guideHalfPipeFlight(state: Drift3DVehiclePhysicsState, dt: number) {
+  const side = state.halfPipeSide;
+
+  if (side === 0) {
+    return;
+  }
+
+  const airwardSpeed = clamp(
+    state.halfPipeReturnSpeed * 0.18,
+    0.85,
+    1.45
+  );
+
+  state.velocityX = -side * airwardSpeed;
+  state.velocityZ *= 0.94;
+
+  if (state.velocityY <= 2.2) {
+    state.heading = approachAngle(
+      state.heading,
+      state.halfPipeReturnHeading,
+      4.5 * dt
+    );
+  }
+}
+
+function exitHalfPipeFlight(state: Drift3DVehiclePhysicsState) {
+  if (state.halfPipeSide === 0) {
+    return;
+  }
+
+  const returnHeading = state.halfPipeReturnHeading;
+  const returnVector = getDrift3DHeadingVector(returnHeading);
+  const returnSpeed = state.halfPipeReturnSpeed;
+
+  state.heading = returnHeading;
+  state.speed = returnSpeed;
+  state.velocityX = returnVector.x * returnSpeed;
+  state.velocityZ = returnVector.z * returnSpeed;
+  state.halfPipeSide = 0;
+  state.halfPipeReturnSpeed = 0;
 }
 
 function resolvePropCollisions(
@@ -311,6 +418,7 @@ export function stepDrift3DVehiclePhysics(
 
     if (state.airborne) {
       state.velocityY -= DRIFT_3D_GRAVITY * dt;
+      guideHalfPipeFlight(state, dt);
       state.position.y += state.velocityY * dt;
 
       if (state.position.y <= groundTarget) {
@@ -319,6 +427,7 @@ export function stepDrift3DVehiclePhysics(
         state.velocityY = 0;
         state.airborne = false;
         state.slopeVerticalRate = 0;
+        exitHalfPipeFlight(state);
       }
     } else {
       const requiredRate =
@@ -326,7 +435,13 @@ export function stepDrift3DVehiclePhysics(
 
       if (requiredRate < -DRIFT_3D_MAX_GROUND_FOLLOW_RATE) {
         state.airborne = true;
-        state.velocityY = clamp(state.slopeVerticalRate, 0, 14);
+        const halfPipeSide = getHalfPipeLaunchSide(state, bounds);
+
+        if (halfPipeSide === 0) {
+          state.velocityY = clamp(state.slopeVerticalRate, 0, 14);
+        } else {
+          enterHalfPipeFlight(state, halfPipeSide);
+        }
         state.position.y += state.velocityY * dt;
       } else {
         state.slopeVerticalRate =

@@ -655,6 +655,10 @@ function KeyboardVehicleMotion({
         state.gear = 1;
         state.engineRevs = 0.24;
         state.airborne = false;
+        state.slopeVerticalRate = 0;
+        state.halfPipeSide = 0;
+        state.halfPipeReturnHeading = state.heading;
+        state.halfPipeReturnSpeed = 0;
         teleportWindow.__drift3dTeleport = null;
 
         const teleportProximity = getDrift3DTopologyProximity(state.position);
