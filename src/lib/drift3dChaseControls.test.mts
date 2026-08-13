@@ -126,13 +126,19 @@ test("vehicle gains speed progressively through all four automatic gears", () =>
   );
   const observedGears = new Set<number>();
   const speedAfterOneSecond: number[] = [];
+  const accelerationBounds = {
+    minX: -1_000,
+    maxX: 1_000,
+    minZ: -1_000,
+    maxZ: 1_000,
+  };
 
-  for (let index = 0; index < 420; index += 1) {
+  for (let index = 0; index < 900; index += 1) {
     stepDrift3DVehiclePhysics(
       state,
       { x: 0, z: 1, active: true },
       1 / 60,
-      bounds,
+      accelerationBounds,
       [],
       1,
       flatGround
@@ -142,9 +148,9 @@ test("vehicle gains speed progressively through all four automatic gears", () =>
   }
 
   assert.deepEqual([...observedGears], [1, 2, 3, 4]);
-  assert.ok(speedAfterOneSecond[0] < 4);
-  assert.ok(state.speed > 8.5);
-  assert.ok(state.speed <= 9.6);
+  assert.ok(speedAfterOneSecond[0] < 2.5);
+  assert.ok(state.speed > 14);
+  assert.ok(state.speed <= 15);
 });
 
 test("right steering turns the vehicle right while moving forward", () => {
