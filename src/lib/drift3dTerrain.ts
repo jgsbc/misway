@@ -55,6 +55,8 @@ type RampFeature = {
   height: number;
   /** Longueur de la falaise après la lèvre (petite = gros saut). */
   lipDrop: number;
+  /** Une courbe de skatepark garde une pente montante jusque sur la lèvre. */
+  profile?: "smooth" | "quarter-pipe";
 };
 
 export type Drift3DTerrainFeature =
@@ -97,12 +99,42 @@ function segmentDistance(
   return Math.hypot(px - (x1 + dx * t), pz - (z1 + dz * t));
 }
 
+export const DRIFT_3D_EDGE_JUMP_RAMPS = Object.freeze([
+  {
+    kind: "ramp",
+    x: -95,
+    z: -24,
+    directionX: -1,
+    directionZ: 0,
+    length: 8,
+    width: 18,
+    height: 3.8,
+    lipDrop: 0.9,
+    profile: "quarter-pipe",
+  },
+  {
+    kind: "ramp",
+    x: 95,
+    z: 48,
+    directionX: 1,
+    directionZ: 0,
+    length: 8,
+    width: 18,
+    height: 3.8,
+    lipDrop: 0.9,
+    profile: "quarter-pipe",
+  },
+] as const satisfies readonly RampFeature[]);
+
 const terrainFeatures: Drift3DTerrainFeature[] = [
   // ─── Hautes terres de bordure (le monde est une vallée) ─────────────────
-  { kind: "ridge", x1: -116, z1: -84, x2: -116, z2: 84, width: 13, height: 9 },
-  { kind: "ridge", x1: 116, z1: -84, x2: 116, z2: 84, width: 13, height: 7 },
+  { kind: "ridge", x1: -116, z1: -84, x2: -116, z2: -40, width: 13, height: 9 },
+  { kind: "ridge", x1: -116, z1: -8, x2: -116, z2: 84, width: 13, height: 9 },
+  { kind: "ridge", x1: 116, z1: -84, x2: 116, z2: 32, width: 13, height: 7 },
+  { kind: "ridge", x1: 116, z1: 64, x2: 116, z2: 84, width: 13, height: 7 },
   { kind: "ridge", x1: -116, z1: 86, x2: 116, z2: 86, width: 13, height: 6 },
   { kind: "ridge", x1: -116, z1: -86, x2: 116, z2: -86, width: 13, height: 8 },
+  ...DRIFT_3D_EDGE_JUMP_RAMPS,
 
   // ─── Older Shadows — le massif ───────────────────────────────────────────
   { kind: "peak", x: -62, z: -78, radius: 24, height: 22 },
@@ -220,9 +252,12 @@ function evaluateFeature(
       }
 
       const across = smoothstep01(1 - Math.abs(localV) / (feature.width / 2));
+      const progress = localU / feature.length;
       const along =
         localU <= feature.length
-          ? smoothstep01(localU / feature.length)
+          ? feature.profile === "quarter-pipe"
+            ? progress * progress
+            : smoothstep01(progress)
           : Math.max(0, 1 - (localU - feature.length) / feature.lipDrop);
 
       return feature.height * along * across;
