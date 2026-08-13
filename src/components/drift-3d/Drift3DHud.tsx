@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Navigation2, Play } from "lucide-react";
+import { Info, Navigation2, Play } from "lucide-react";
 import { getTrackBySlug, type Track } from "@/lib/tracks";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 
@@ -41,7 +41,7 @@ export default function Drift3DHud({
 
   return (
     <aside
-      className="pointer-events-auto ml-auto h-44 w-44 rounded-full text-white"
+      className="pointer-events-auto ml-auto h-28 w-28 rounded-full text-white sm:h-32 sm:w-32"
       aria-label="Drift track compass"
       onPointerDown={(event) => event.stopPropagation()}
       onTouchStart={(event) => event.stopPropagation()}
@@ -54,41 +54,41 @@ export default function Drift3DHud({
         }}
       >
         <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-neutral-950/68 backdrop-blur-xl">
-          <span className="absolute left-1/2 top-2 -translate-x-1/2 font-mono text-[7px] uppercase tracking-[0.2em] text-white/46">
+          <span className="absolute left-1/2 top-1.5 -translate-x-1/2 font-mono text-[6px] uppercase tracking-[0.18em] text-white/46">
             N
           </span>
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[7px] text-white/30">
+          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
             E
           </span>
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[7px] text-white/20">
+          <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[6px] text-white/20">
             S
           </span>
-          <span className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[7px] text-white/30">
+          <span className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
             W
           </span>
 
-          <span aria-hidden="true" className="absolute left-1/2 top-5 h-[4.25rem] w-px -translate-x-1/2 bg-white/8" />
-          <span aria-hidden="true" className="absolute left-5 right-5 top-[3.85rem] h-px bg-white/8" />
+          <span aria-hidden="true" className="absolute left-1/2 top-4 h-12 w-px -translate-x-1/2 bg-white/8 sm:h-14" />
+          <span aria-hidden="true" className="absolute left-4 right-4 top-[2.8rem] h-px bg-white/8 sm:top-[3.15rem]" />
 
           <div
             aria-hidden="true"
-            className="absolute left-1/2 top-[2.15rem] -ml-2.5 h-5 w-5 origin-[50%_1.7rem] text-white transition-transform duration-500 ease-out"
+            className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-500 ease-out sm:top-[1.7rem]"
             style={{ transform: `rotate(${bearingDegrees}deg)` }}
           >
-            <Navigation2 className="h-5 w-5" fill="currentColor" strokeWidth={1.2} />
+            <Navigation2 className="h-4 w-4" fill="currentColor" strokeWidth={1.2} />
           </div>
 
-          <div className="absolute inset-x-7 top-[3.65rem] text-center">
-            <p className="font-mono text-[7px] uppercase tracking-[0.18em] text-white/42">
+          <div className="absolute inset-x-5 top-[2.7rem] text-center sm:top-[3rem]">
+            <p className="truncate font-mono text-[6px] uppercase tracking-[0.12em] text-white/42">
               {era?.label ?? "NO ERA"} · {distanceLabel}
             </p>
-            <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.12em] text-white">
+            <p className="mt-0.5 truncate font-mono text-[8px] uppercase tracking-[0.1em] text-white sm:text-[9px]">
               {compassTrack?.title ?? "SEEKING SIGNAL"}
             </p>
           </div>
 
           {compassTrack ? (
-            <div className="absolute inset-x-5 bottom-5 flex items-center justify-center gap-1.5">
+            <div className="absolute inset-x-4 bottom-3 flex items-center justify-center gap-1.5 sm:bottom-3.5">
               {isPlayable ? (
                 <button
                   type="button"
@@ -98,15 +98,18 @@ export default function Drift3DHud({
                     if (!isActiveTrackPlaying) onToggleActiveTrack();
                   }}
                   disabled={isActiveTrackPlaying}
-                  className="inline-flex min-h-7 items-center gap-1 rounded-full border border-white/20 bg-white px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.14em] text-neutral-950 transition hover:bg-white/86 disabled:cursor-default disabled:bg-white/14 disabled:text-white/58"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white text-neutral-950 transition hover:bg-white/86 disabled:cursor-default disabled:bg-white/14 disabled:text-white/58"
                   aria-label={
                     isActiveTrackPlaying
                       ? `${compassTrack.title} is playing`
                       : `Play ${compassTrack.title}`
                   }
                 >
-                  <Play aria-hidden="true" className="h-2.5 w-2.5" fill="currentColor" />
-                  {isActiveTrackPlaying ? "PLAYING" : "PLAY"}
+                  <Play
+                    aria-hidden="true"
+                    className="h-2.5 w-2.5 translate-x-px"
+                    fill="currentColor"
+                  />
                 </button>
               ) : null}
 
@@ -117,10 +120,10 @@ export default function Drift3DHud({
                 onPointerMove={(event) => event.stopPropagation()}
                 onPointerUp={(event) => event.stopPropagation()}
                 onPointerCancel={(event) => event.stopPropagation()}
-                className="inline-flex min-h-7 items-center rounded-full border border-white/18 bg-white/8 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.14em] text-white/78 transition hover:bg-white/16 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/25"
+                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/18 bg-white/8 text-white/78 transition hover:bg-white/16 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/25"
                 aria-label={`More details about ${compassTrack.title}`}
               >
-                DETAILS
+                <Info aria-hidden="true" className="h-3 w-3" strokeWidth={1.8} />
               </Link>
             </div>
           ) : null}

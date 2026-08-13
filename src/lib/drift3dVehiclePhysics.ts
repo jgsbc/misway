@@ -9,7 +9,6 @@ import {
   DRIFT_3D_AIR_CONTROL,
   DRIFT_3D_GRAVITY,
   DRIFT_3D_MAX_GROUND_FOLLOW_RATE,
-  DRIFT_3D_VEHICLE_ACCELERATION,
   DRIFT_3D_VEHICLE_COLLISION_BOUNCE,
   DRIFT_3D_VEHICLE_COLLISION_RADIUS,
   DRIFT_3D_VEHICLE_DRIFT_GRIP_FACTOR,
@@ -24,6 +23,7 @@ import {
   type Drift3DVehiclePhysicsState,
   type Drift3DVehiclePhysicsStepResult,
 } from "./drift3dVehiclePhysicsBase";
+import { getDrift3DTransmissionState } from "./drift3dTransmission";
 
 const DRIFT_3D_VEHICLE_BRAKE_DECELERATION = 13.5;
 const DRIFT_3D_VEHICLE_REVERSE_ACCELERATION_FACTOR = 0.72;
@@ -201,9 +201,12 @@ export function stepDrift3DVehiclePhysics(
         );
       } else {
         const slopeFactor = getSlopeFactor(state, throttle, getGroundY);
+        const transmission = getDrift3DTransmissionState(
+          state.speed,
+          speedScale
+        );
         state.speed +=
-          DRIFT_3D_VEHICLE_ACCELERATION *
-          speedScale *
+          transmission.acceleration *
           slopeFactor *
           throttle *
           dt;
@@ -220,9 +223,9 @@ export function stepDrift3DVehiclePhysics(
       } else {
         const slopeFactor = getSlopeFactor(state, throttle, getGroundY);
         state.speed -=
-          DRIFT_3D_VEHICLE_ACCELERATION *
+          getDrift3DTransmissionState(-Math.abs(state.speed), speedScale)
+            .acceleration *
           DRIFT_3D_VEHICLE_REVERSE_ACCELERATION_FACTOR *
-          speedScale *
           slopeFactor *
           reverseAmount *
           dt;
@@ -237,6 +240,9 @@ export function stepDrift3DVehiclePhysics(
   }
 
   state.speed = clamp(state.speed, -reverseMaxSpeed, maxSpeed);
+  const transmission = getDrift3DTransmissionState(state.speed, speedScale);
+  state.gear = transmission.gear;
+  state.engineRevs = transmission.normalizedRevs;
 
   const appliedYawDelta = normalizeAngle(state.heading - previousHeading);
   const yawRate = dt > 0 ? Math.abs(appliedYawDelta) / dt : 0;

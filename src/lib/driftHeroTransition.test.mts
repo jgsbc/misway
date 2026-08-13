@@ -50,8 +50,10 @@ test("production Drift uses a track compass and one unified footer dock", () => 
   assert.doesNotMatch(canvas, /showPersistentAudioChip/);
   assert.match(hud, /aria-label="Drift track compass"/);
   assert.match(hud, /<Navigation2/);
-  assert.match(hud, /"PLAYING" : "PLAY"/);
-  assert.match(hud, />\s*DETAILS\s*<\/Link>/);
+  assert.match(hud, /<Play/);
+  assert.match(hud, /<Info/);
+  assert.doesNotMatch(hud, />\s*PLAYING\s*</);
+  assert.doesNotMatch(hud, />\s*DETAILS\s*</);
   assert.doesNotMatch(hud, /shortText|activeTrackTags|CONTROL BELOW/);
   assert.match(footer, /href="\/"/);
   assert.match(footer, /href="\/tracks"/);

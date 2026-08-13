@@ -26,7 +26,6 @@ import {
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 import {
   createDrift3DVehiclePhysicsState,
-  DRIFT_3D_VEHICLE_MAX_SPEED,
   type Drift3DVehiclePhysicsState,
 } from "@/lib/drift3dVehiclePhysics";
 import {
@@ -233,13 +232,15 @@ export default function DriftEvolutionCanvas({
     const engine = ambienceEngineRef.current;
     if (!engine) return;
     const interval = window.setInterval(() => {
-      const normalizedSpeed =
-        Math.abs(vehicleStateRef.current.speed) / DRIFT_3D_VEHICLE_MAX_SPEED;
+      const vehicleState = vehicleStateRef.current;
       engine.setMix(
-        getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
+        getDrift3DAmbienceMixAt(vehicleState.position),
         isPlaying ? 0.045 : 0.13
       );
-      engine.setVehicleSpeed(normalizedSpeed);
+      engine.setVehicleTransmission({
+        gear: vehicleState.gear,
+        normalizedRevs: vehicleState.engineRevs,
+      });
     }, 280);
     return () => window.clearInterval(interval);
   }, [isAmbienceOn, isPlaying]);
@@ -257,9 +258,10 @@ export default function DriftEvolutionCanvas({
       getDrift3DAmbienceMixAt(vehicleStateRef.current.position),
       isPlaying ? 0.045 : 0.13
     );
-    engine.setVehicleSpeed(
-      Math.abs(vehicleStateRef.current.speed) / DRIFT_3D_VEHICLE_MAX_SPEED
-    );
+    engine.setVehicleTransmission({
+      gear: vehicleStateRef.current.gear,
+      normalizedRevs: vehicleStateRef.current.engineRevs,
+    });
     ambienceEngineRef.current = engine;
     setIsAmbienceOn(true);
   }, [isPlaying]);
@@ -766,7 +768,7 @@ export default function DriftEvolutionCanvas({
         />
       </section>
 
-      <div className="pointer-events-none absolute right-[calc(1rem+env(safe-area-inset-right))] top-[calc(1rem+env(safe-area-inset-top))] z-20 w-[min(72vw,18rem)] md:right-6 md:top-6 md:w-[19rem]">
+      <div className="pointer-events-none absolute right-[calc(0.75rem+env(safe-area-inset-right))] top-[calc(0.75rem+env(safe-area-inset-top))] z-20 w-28 sm:right-4 sm:top-4 sm:w-32 md:right-6 md:top-6">
         <div className="pointer-events-auto">
           <Drift3DHud
             proximity={proximity}

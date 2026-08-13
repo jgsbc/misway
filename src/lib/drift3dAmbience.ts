@@ -1,4 +1,5 @@
 import { drift3dEras, drift3dTrackNodeBySlug } from "@/lib/drift3dTopology";
+import type { Drift3DVehicleGear } from "@/lib/drift3dTransmission";
 
 /**
  * Ambiances diégétiques par zone (bible §audio) : rumeur urbaine, vent de
@@ -20,7 +21,13 @@ export type Drift3DAmbienceMix = {
 export type Drift3DVehicleEngineProfile = {
   baseFrequency: number;
   overtoneFrequency: number;
+  filterFrequency: number;
   gain: number;
+};
+
+export type Drift3DVehicleEngineInput = {
+  gear: Drift3DVehicleGear;
+  normalizedRevs: number;
 };
 
 type AmbienceLayerName = keyof Drift3DAmbienceMix;
@@ -81,19 +88,20 @@ function clamp01(value: number) {
 }
 
 /**
- * A compact diesel-like response curve. The input is normalized vehicle
- * speed, which keeps this audio layer independent from the physics tuning.
+ * A compact diesel-like response curve driven by the gearbox's normalized
+ * revs, so each automatic upshift produces an audible pitch drop.
  */
 export function getDrift3DVehicleEngineProfile(
-  normalizedSpeed: number
+  input: Drift3DVehicleEngineInput
 ): Drift3DVehicleEngineProfile {
-  const speed = clamp01(Math.abs(normalizedSpeed));
-  const revs = Math.sqrt(speed);
+  const revs = clamp01(input.normalizedRevs);
+  const reverseWeight = input.gear === -1 ? 0.92 : 1;
 
   return {
-    baseFrequency: 38 + revs * 54,
-    overtoneFrequency: 76 + revs * 108,
-    gain: 0.34 + revs * 0.3,
+    baseFrequency: (34 + revs * 58) * reverseWeight,
+    overtoneFrequency: (68 + revs * 116) * reverseWeight,
+    filterFrequency: 230 + revs * 430,
+    gain: 0.42 + revs * 0.33,
   };
 }
 
@@ -122,6 +130,7 @@ export class Drift3DAmbienceEngine {
   private masterGain: GainNode | null = null;
   private layerGains = new Map<AmbienceLayerName, GainNode>();
   private vehicleGain: GainNode | null = null;
+  private vehicleFilter: BiquadFilterNode | null = null;
   private vehicleBaseOscillator: OscillatorNode | null = null;
   private vehicleOvertoneOscillator: OscillatorNode | null = null;
 
@@ -145,13 +154,16 @@ export class Drift3DAmbienceEngine {
     vehicleFilter.Q.value = 0.8;
 
     const vehicleGain = context.createGain();
-    const idleProfile = getDrift3DVehicleEngineProfile(0);
+    const idleProfile = getDrift3DVehicleEngineProfile({
+      gear: 1,
+      normalizedRevs: 0.24,
+    });
     vehicleGain.gain.value = idleProfile.gain;
     vehicleFilter.connect(vehicleGain);
     vehicleGain.connect(master);
 
     const vehicleBaseOscillator = context.createOscillator();
-    vehicleBaseOscillator.type = "sawtooth";
+    vehicleBaseOscillator.type = "triangle";
     vehicleBaseOscillator.frequency.value = idleProfile.baseFrequency;
     const vehicleBaseGain = context.createGain();
     vehicleBaseGain.gain.value = 0.72;
@@ -159,10 +171,10 @@ export class Drift3DAmbienceEngine {
     vehicleBaseGain.connect(vehicleFilter);
 
     const vehicleOvertoneOscillator = context.createOscillator();
-    vehicleOvertoneOscillator.type = "triangle";
+    vehicleOvertoneOscillator.type = "sawtooth";
     vehicleOvertoneOscillator.frequency.value = idleProfile.overtoneFrequency;
     const vehicleOvertoneGain = context.createGain();
-    vehicleOvertoneGain.gain.value = 0.28;
+    vehicleOvertoneGain.gain.value = 0.2;
     vehicleOvertoneOscillator.connect(vehicleOvertoneGain);
     vehicleOvertoneGain.connect(vehicleFilter);
 
@@ -210,6 +222,7 @@ export class Drift3DAmbienceEngine {
     this.context = context;
     this.masterGain = master;
     this.vehicleGain = vehicleGain;
+    this.vehicleFilter = vehicleFilter;
     this.vehicleBaseOscillator = vehicleBaseOscillator;
     this.vehicleOvertoneOscillator = vehicleOvertoneOscillator;
     void context.resume();
@@ -231,18 +244,24 @@ export class Drift3DAmbienceEngine {
     }
   }
 
-  setVehicleSpeed(normalizedSpeed: number) {
+  setVehicleTransmission(input: Drift3DVehicleEngineInput) {
     const context = this.context;
     const gain = this.vehicleGain;
+    const filter = this.vehicleFilter;
     const base = this.vehicleBaseOscillator;
     const overtone = this.vehicleOvertoneOscillator;
 
-    if (!context || !gain || !base || !overtone) {
+    if (!context || !gain || !filter || !base || !overtone) {
       return;
     }
 
-    const profile = getDrift3DVehicleEngineProfile(normalizedSpeed);
+    const profile = getDrift3DVehicleEngineProfile(input);
     gain.gain.setTargetAtTime(profile.gain, context.currentTime, 0.12);
+    filter.frequency.setTargetAtTime(
+      profile.filterFrequency,
+      context.currentTime,
+      0.1
+    );
     base.frequency.setTargetAtTime(
       profile.baseFrequency,
       context.currentTime,
@@ -262,6 +281,7 @@ export class Drift3DAmbienceEngine {
     this.masterGain = null;
     this.layerGains.clear();
     this.vehicleGain = null;
+    this.vehicleFilter = null;
     this.vehicleBaseOscillator = null;
     this.vehicleOvertoneOscillator = null;
 

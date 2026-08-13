@@ -119,6 +119,34 @@ test("vehicle accelerates forward and can reverse", () => {
   assert.ok(reverseState.position.z < 0);
 });
 
+test("vehicle gains speed progressively through all four automatic gears", () => {
+  const state = createDrift3DVehiclePhysicsState(
+    { x: 0, y: 0.02, z: 0 },
+    0
+  );
+  const observedGears = new Set<number>();
+  const speedAfterOneSecond: number[] = [];
+
+  for (let index = 0; index < 420; index += 1) {
+    stepDrift3DVehiclePhysics(
+      state,
+      { x: 0, z: 1, active: true },
+      1 / 60,
+      bounds,
+      [],
+      1,
+      flatGround
+    );
+    observedGears.add(state.gear);
+    if (index === 59) speedAfterOneSecond.push(state.speed);
+  }
+
+  assert.deepEqual([...observedGears], [1, 2, 3, 4]);
+  assert.ok(speedAfterOneSecond[0] < 4);
+  assert.ok(state.speed > 8.5);
+  assert.ok(state.speed <= 9.6);
+});
+
 test("right steering turns the vehicle right while moving forward", () => {
   const state = createDrift3DVehiclePhysicsState(
     { x: 0, y: 0.02, z: 0 },

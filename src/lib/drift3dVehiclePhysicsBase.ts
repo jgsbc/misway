@@ -8,10 +8,15 @@ import {
   type Drift3DMovementBounds,
   type Drift3DPoint,
 } from "@/lib/drift3d";
+import {
+  DRIFT_3D_TRANSMISSION_MAX_SPEED,
+  getDrift3DTransmissionState,
+  type Drift3DVehicleGear,
+} from "@/lib/drift3dTransmission";
 
-export const DRIFT_3D_VEHICLE_MAX_SPEED = 6.4;
+export const DRIFT_3D_VEHICLE_MAX_SPEED = DRIFT_3D_TRANSMISSION_MAX_SPEED;
 export const DRIFT_3D_VEHICLE_REVERSE_MAX_SPEED = 3.1;
-export const DRIFT_3D_VEHICLE_ACCELERATION = 9;
+export const DRIFT_3D_VEHICLE_ACCELERATION = 3.8;
 export const DRIFT_3D_VEHICLE_FRICTION = 7.2;
 export const DRIFT_3D_VEHICLE_TURN_RATE_MAX = 3.6;
 export const DRIFT_3D_VEHICLE_TURN_RATE_MIN = 1.25;
@@ -51,6 +56,8 @@ export type Drift3DVehiclePhysicsState = {
   velocityY: number;
   heading: number;
   speed: number;
+  gear: Drift3DVehicleGear;
+  engineRevs: number;
   airborne: boolean;
   /** Taux vertical lissé au sol — devient la vitesse de décollage sur une lèvre. */
   slopeVerticalRate: number;
@@ -87,6 +94,8 @@ export function createDrift3DVehiclePhysicsState(
     velocityY: 0,
     heading,
     speed: 0,
+    gear: 1,
+    engineRevs: 0.24,
     airborne: false,
     slopeVerticalRate: 0,
   };
@@ -253,6 +262,9 @@ export function stepDrift3DVehiclePhysics(
   }
 
   state.speed = clamp(state.speed, -reverseMaxSpeed, maxSpeed);
+  const transmission = getDrift3DTransmissionState(state.speed, speedScale);
+  state.gear = transmission.gear;
+  state.engineRevs = transmission.normalizedRevs;
 
   const appliedYawDelta = normalizeAngle(state.heading - previousHeading);
   const yawRate = dt > 0 ? Math.abs(appliedYawDelta) / dt : 0;
