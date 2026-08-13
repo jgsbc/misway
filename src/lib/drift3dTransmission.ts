@@ -14,13 +14,13 @@ type ForwardGearSpec = {
   acceleration: number;
 };
 
-export const DRIFT_3D_TRANSMISSION_MAX_SPEED = 9.6;
+export const DRIFT_3D_TRANSMISSION_MAX_SPEED = 15;
 
 export const DRIFT_3D_FORWARD_GEARS = Object.freeze([
-  { gear: 1, minSpeed: 0, maxSpeed: 2.4, acceleration: 3.8 },
-  { gear: 2, minSpeed: 2.4, maxSpeed: 4.8, acceleration: 3.1 },
-  { gear: 3, minSpeed: 4.8, maxSpeed: 7.2, acceleration: 2.4 },
-  { gear: 4, minSpeed: 7.2, maxSpeed: 9.6, acceleration: 1.8 },
+  { gear: 1, minSpeed: 0, maxSpeed: 2, acceleration: 2.4 },
+  { gear: 2, minSpeed: 2, maxSpeed: 5, acceleration: 2 },
+  { gear: 3, minSpeed: 5, maxSpeed: 9, acceleration: 1.6 },
+  { gear: 4, minSpeed: 9, maxSpeed: 15, acceleration: 1.2 },
 ] as const satisfies readonly ForwardGearSpec[]);
 
 function clamp(value: number, min: number, max: number) {
