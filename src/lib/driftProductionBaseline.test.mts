@@ -12,11 +12,13 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f2d11abc8c44e5a5fbf7db3a02703d3",
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
+  "src/components/drift-3d/Drift3DHud.tsx": "750e94f64b6fc4fd6fbda2f3783688db0e2cea28",
 
   // Owner-approved Evolution runtime promoted to production on 2026-08-13.
   "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
-  "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "b276aaad75cb5f540c9f7f3b97031f1cb2d87838",
-  "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "4fd168472fcb1adf844a048a5ec5ded91bbab9f1",
+  "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "d467a6d34f905b859422720444de1ca5ea3ed2c9",
+  "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "fe39ee3c1d0e83770bff7effd9d53fcedfb10006",
+  "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
   "src/components/drift-evolution/DriftEvolutionScene.tsx": "3928f92edecf9d92511086863b7d2d829a0a49cf",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",

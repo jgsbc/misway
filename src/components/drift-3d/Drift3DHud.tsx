@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import type { Track } from "@/lib/tracks";
+import { Navigation2, Play } from "lucide-react";
+import { getTrackBySlug, type Track } from "@/lib/tracks";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
 
 type Drift3DHudProps = {
@@ -10,145 +11,121 @@ type Drift3DHudProps = {
   isActiveTrackCurrent: boolean;
   isActiveTrackPlaying: boolean;
   onToggleActiveTrack: () => void;
+  bearingDegrees?: number;
 };
 
-function getApproachCopy(proximity: Drift3DTopologyProximity | null) {
+function getCompassTrack(
+  proximity: Drift3DTopologyProximity | null,
+  activeTrack: Track | null
+) {
+  if (activeTrack) return activeTrack;
+
   const node = proximity?.activeNode ?? proximity?.nearestNode ?? null;
-  const era = proximity?.activeEra ?? proximity?.nearestEra ?? null;
+  if (!node || !("trackSlug" in node)) return null;
 
-  if (!proximity || !node) {
-    return {
-      status: "CHECKING SIGNAL",
-      title: "No lock yet",
-      detail: "The room is settling.",
-      progress: 0,
-    };
-  }
-
-  if (node.role === "threshold") {
-    return {
-      status: proximity.isInside ? "ENTRY NODE" : "APPROACHING",
-      title: "Entry Node",
-      detail: era?.label ?? "Birth side origin",
-      progress: Math.round(proximity.progress * 100),
-    };
-  }
-
-  return {
-    status: proximity.isInside ? "SIGNAL LOCKED" : "APPROACHING",
-    title: era?.label ?? "Signal region",
-    detail:
-      node.role === "anchor"
-        ? "Anchor node"
-        : era?.topologyHints[0] ?? "Track signal",
-    progress: Math.round(proximity.progress * 100),
-  };
+  return getTrackBySlug(node.trackSlug) ?? null;
 }
 
 export default function Drift3DHud({
   proximity,
   activeTrack,
-  isActiveTrackCurrent,
   isActiveTrackPlaying,
   onToggleActiveTrack,
+  bearingDegrees = 0,
 }: Drift3DHudProps) {
-  const copy = getApproachCopy(proximity);
+  const era = proximity?.activeEra ?? proximity?.nearestEra ?? null;
+  const compassTrack = getCompassTrack(proximity, activeTrack);
+  const isPlayable = Boolean(activeTrack && proximity?.isInside);
+  const progress = Math.round((proximity?.progress ?? 0) * 100);
   const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
-  const activeEraLabel =
-    proximity?.activeEra?.label ?? activeTrack?.publishedLabel ?? "Track";
-  const playerState = isActiveTrackPlaying ? "PLAYING" : "PAUSED";
-  const isInsideTrack = Boolean(activeTrack && proximity?.isInside);
 
   return (
     <aside
-      className="pointer-events-auto rounded-[4px] bg-white/82 px-3 py-2.5 text-neutral-950 shadow-[0_12px_32px_rgba(0,0,0,0.16)] ring-1 ring-black/10 backdrop-blur-lg"
-      aria-label="Drift 3D proximity HUD"
+      className="pointer-events-auto ml-auto h-44 w-44 rounded-full text-white"
+      aria-label="Drift track compass"
       onPointerDown={(event) => event.stopPropagation()}
       onTouchStart={(event) => event.stopPropagation()}
       onKeyDown={(event) => event.stopPropagation()}
     >
-      {isInsideTrack && activeTrack ? (
-        <>
-          <div className="flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.22em] text-neutral-600">
-            <p>{isActiveTrackCurrent ? playerState : "TRACK SIGNAL"}</p>
-            <p>{distanceLabel}</p>
+      <div
+        className="relative h-full w-full rounded-full p-px shadow-[0_18px_40px_rgba(0,0,0,0.28)]"
+        style={{
+          background: `conic-gradient(from -90deg, rgba(255,255,255,0.78) 0 ${progress}%, rgba(255,255,255,0.14) ${progress}% 100%)`,
+        }}
+      >
+        <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-neutral-950/68 backdrop-blur-xl">
+          <span className="absolute left-1/2 top-2 -translate-x-1/2 font-mono text-[7px] uppercase tracking-[0.2em] text-white/46">
+            N
+          </span>
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[7px] text-white/30">
+            E
+          </span>
+          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[7px] text-white/20">
+            S
+          </span>
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[7px] text-white/30">
+            W
+          </span>
+
+          <span aria-hidden="true" className="absolute left-1/2 top-5 h-[4.25rem] w-px -translate-x-1/2 bg-white/8" />
+          <span aria-hidden="true" className="absolute left-5 right-5 top-[3.85rem] h-px bg-white/8" />
+
+          <div
+            aria-hidden="true"
+            className="absolute left-1/2 top-[2.15rem] -ml-2.5 h-5 w-5 origin-[50%_1.7rem] text-white transition-transform duration-500 ease-out"
+            style={{ transform: `rotate(${bearingDegrees}deg)` }}
+          >
+            <Navigation2 className="h-5 w-5" fill="currentColor" strokeWidth={1.2} />
           </div>
 
-          <h2 className="mt-1.5 truncate font-mono text-[11px] uppercase tracking-[0.16em] text-neutral-950">
-            {activeTrack.title}
-          </h2>
+          <div className="absolute inset-x-7 top-[3.65rem] text-center">
+            <p className="font-mono text-[7px] uppercase tracking-[0.18em] text-white/42">
+              {era?.label ?? "NO ERA"} · {distanceLabel}
+            </p>
+            <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.12em] text-white">
+              {compassTrack?.title ?? "SEEKING SIGNAL"}
+            </p>
+          </div>
 
-          <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-neutral-600">
-            {[activeEraLabel, activeTrack.duration].filter(Boolean).join(" / ")}
-          </p>
+          {compassTrack ? (
+            <div className="absolute inset-x-5 bottom-5 flex items-center justify-center gap-1.5">
+              {isPlayable ? (
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (!isActiveTrackPlaying) onToggleActiveTrack();
+                  }}
+                  disabled={isActiveTrackPlaying}
+                  className="inline-flex min-h-7 items-center gap-1 rounded-full border border-white/20 bg-white px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.14em] text-neutral-950 transition hover:bg-white/86 disabled:cursor-default disabled:bg-white/14 disabled:text-white/58"
+                  aria-label={
+                    isActiveTrackPlaying
+                      ? `${compassTrack.title} is playing`
+                      : `Play ${compassTrack.title}`
+                  }
+                >
+                  <Play aria-hidden="true" className="h-2.5 w-2.5" fill="currentColor" />
+                  {isActiveTrackPlaying ? "PLAYING" : "PLAY"}
+                </button>
+              ) : null}
 
-          <p className="mt-2 line-clamp-2 text-[11px] leading-[1.45] text-neutral-700">
-            {activeTrack.shortText}
-          </p>
-
-          <div className="mt-2.5 flex items-center gap-2 border-t border-black/10 pt-2">
-            {!isActiveTrackCurrent ? (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onToggleActiveTrack();
-                }}
+              <Link
+                href={`/tracks/${compassTrack.slug}`}
+                onClick={(event) => event.stopPropagation()}
                 onPointerDown={(event) => event.stopPropagation()}
                 onPointerMove={(event) => event.stopPropagation()}
                 onPointerUp={(event) => event.stopPropagation()}
                 onPointerCancel={(event) => event.stopPropagation()}
-                className="pointer-events-auto inline-flex min-h-7 items-center justify-center rounded-full bg-neutral-950 px-3 py-1 font-mono text-[8px] uppercase tracking-[0.18em] text-white transition hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900/30"
-                aria-label={`Listen to ${activeTrack.title}`}
+                className="inline-flex min-h-7 items-center rounded-full border border-white/18 bg-white/8 px-2.5 py-1 font-mono text-[7px] uppercase tracking-[0.14em] text-white/78 transition hover:bg-white/16 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/25"
+                aria-label={`More details about ${compassTrack.title}`}
               >
-                LISTEN
-              </button>
-            ) : (
-              <p className="font-mono text-[7px] uppercase tracking-[0.14em] text-neutral-500">
-                CONTROL BELOW
-              </p>
-            )}
-
-            <Link
-              href={`/tracks/${activeTrack.slug}`}
-              onClick={(event) => event.stopPropagation()}
-              onPointerDown={(event) => event.stopPropagation()}
-              onPointerMove={(event) => event.stopPropagation()}
-              onPointerUp={(event) => event.stopPropagation()}
-              onPointerCancel={(event) => event.stopPropagation()}
-              className="pointer-events-auto ml-auto font-mono text-[8px] uppercase tracking-[0.18em] text-neutral-700 underline decoration-neutral-400 underline-offset-4 transition hover:text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-900/25"
-              aria-label={`Open ${activeTrack.title} track page`}
-            >
-              DETAILS
-            </Link>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.22em] text-neutral-600">
-            <p>{copy.status}</p>
-            <p>{distanceLabel}</p>
-          </div>
-
-          <p className="mt-1.5 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-neutral-950">
-            {copy.title}
-          </p>
-          <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-neutral-600">
-            {copy.detail}
-          </p>
-
-          <div
-            className="mt-2 h-px overflow-hidden bg-neutral-300/80"
-            aria-hidden="true"
-          >
-            <span
-              className="block h-full bg-neutral-800/80"
-              style={{ width: `${copy.progress}%` }}
-            />
-          </div>
-        </>
-      )}
+                DETAILS
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      </div>
     </aside>
   );
 }
