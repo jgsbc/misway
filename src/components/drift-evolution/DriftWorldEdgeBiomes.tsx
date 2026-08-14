@@ -7,6 +7,7 @@ import {
   getDriftMaterialMaps,
   setDriftGeometryTextureRepeat,
 } from "@/components/drift-3d/drift3dTextureFactory";
+import { getDrift3DGroundColorAt } from "@/lib/drift3dAtmosphere";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import {
   DRIFT_3D_NORTH_EAST_OCEAN,
@@ -26,6 +27,18 @@ const lateralMountains = Object.freeze({
   southFadeStartZ: 54,
   acrossSegments: 18,
   alongSegments: 34,
+});
+
+const northTerrain = Object.freeze({
+  minX: -112,
+  maxX: 16,
+  farZ: -112,
+  oceanApproachStartX: -24,
+  oceanApproachEndX: 16,
+  westHighlandFadeStartX: -78,
+  westHighlandFadeEndX: -18,
+  acrossSegments: 36,
+  alongSegments: 12,
 });
 
 const oceanVertexShader = /* glsl */ `
@@ -134,6 +147,24 @@ function smoothstep01(value: number) {
   return t * t * (3 - 2 * t);
 }
 
+function pushTerrainTint(
+  colors: number[],
+  x: number,
+  z: number,
+  strength: number,
+  brightness: number
+) {
+  const ground = getDrift3DGroundColorAt(x, z);
+  const blend = Math.min(1, Math.max(0, strength));
+  const light = Math.max(0, brightness);
+
+  colors.push(
+    Math.min(1, Math.max(0, (1 + (ground.r - 1) * blend) * light)),
+    Math.min(1, Math.max(0, (1 + (ground.g - 1) * blend) * light)),
+    Math.min(1, Math.max(0, (1 + (ground.b - 1) * blend) * light))
+  );
+}
+
 function createEdgeRibbon(options: {
   minX: number;
   maxX: number;
@@ -142,8 +173,11 @@ function createEdgeRibbon(options: {
   acrossSegments: number;
   alongSegments: number;
   getY: (x: number, progress: number) => number;
+  tintStrength?: number;
+  tintBrightness?: number;
 }) {
   const positions: number[] = [];
+  const colors: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
 
@@ -155,7 +189,14 @@ function createEdgeRibbon(options: {
       const acrossProgress = across / options.acrossSegments;
       const x = options.minX + (options.maxX - options.minX) * acrossProgress;
       positions.push(x, options.getY(x, progress), z);
-      uvs.push(acrossProgress * 8, progress * 2);
+      pushTerrainTint(
+        colors,
+        x,
+        options.startZ,
+        options.tintStrength ?? 0.32,
+        options.tintBrightness ?? 0.9
+      );
+      uvs.push(acrossProgress, progress);
     }
   }
 
@@ -175,9 +216,99 @@ function createEdgeRibbon(options: {
     "position",
     new THREE.Float32BufferAttribute(positions, 3)
   );
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   setDriftGeometryTextureRepeat(geometry, 8, 2);
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+function createNorthTerrainGeometry() {
+  const ocean = DRIFT_3D_NORTH_EAST_OCEAN;
+  const config = northTerrain;
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const row = config.acrossSegments + 1;
+  const coastProgressEnd = Math.abs(
+    (ocean.nearZ - ocean.coastZ) / (config.farZ - ocean.coastZ)
+  );
+
+  for (let along = 0; along <= config.alongSegments; along += 1) {
+    const progress = along / config.alongSegments;
+    const z = ocean.coastZ + (config.farZ - ocean.coastZ) * progress;
+
+    for (let across = 0; across <= config.acrossSegments; across += 1) {
+      const acrossProgress = across / config.acrossSegments;
+      const x = config.minX + (config.maxX - config.minX) * acrossProgress;
+      const baseY = getDrift3DGroundY(x, ocean.coastZ) + 0.012;
+      const westHighland =
+        1 -
+        smoothstep01(
+          (x - config.westHighlandFadeStartX) /
+            (config.westHighlandFadeEndX - config.westHighlandFadeStartX)
+        );
+      const oceanApproach = smoothstep01(
+        (x - config.oceanApproachStartX) /
+          (config.oceanApproachEndX - config.oceanApproachStartX)
+      );
+      const distantLandY = -1.2 + westHighland * 3;
+      const submergedY = ocean.waterY - 0.58;
+      const farY =
+        distantLandY + (submergedY - distantLandY) * oceanApproach;
+      const landProfile = smoothstep01(progress);
+      const coastProfile = smoothstep01(
+        progress / Math.max(coastProgressEnd, 0.001)
+      );
+      const falloff =
+        landProfile + (coastProfile - landProfile) * oceanApproach;
+      const undulation =
+        (Math.sin(x * 0.105 + 0.4) + Math.sin(x * 0.047 - 0.8) * 0.55) *
+        0.62 *
+        westHighland *
+        (1 - oceanApproach) *
+        Math.sin(Math.PI * progress);
+      const generatedY = baseY + (farY - baseY) * falloff + undulation;
+      const westSeamBlend =
+        1 - smoothstep01((x - config.minX) / 18);
+      const westSeamY = getDrift3DGroundY(config.minX, z) + 0.01;
+      const y =
+        generatedY + (westSeamY - generatedY) * westSeamBlend;
+
+      positions.push(x, y, z);
+      pushTerrainTint(
+        colors,
+        x,
+        ocean.coastZ,
+        0.4,
+        0.93 - progress * 0.1 - oceanApproach * 0.04
+      );
+      uvs.push(acrossProgress, progress);
+    }
+  }
+
+  for (let along = 0; along < config.alongSegments; along += 1) {
+    for (let across = 0; across < config.acrossSegments; across += 1) {
+      const a = along * row + across;
+      const b = a + 1;
+      const c = a + row;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3)
+  );
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  setDriftGeometryTextureRepeat(geometry, 8, 3.2);
   geometry.computeVertexNormals();
 
   return geometry;
@@ -189,6 +320,7 @@ function createLateralMountainGeometry(side: -1 | 1) {
   const northFadeEndZ =
     side < 0 ? config.westNorthFadeEndZ : config.eastNorthFadeEndZ;
   const positions: number[] = [];
+  const colors: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
   const row = config.acrossSegments + 1;
@@ -249,8 +381,19 @@ function createLateralMountainGeometry(side: -1 | 1) {
           sideScale *
           (shoulder * 2.4 + crest * (11.5 + macro * 8.5) + farShoulder * 5.2) +
         roughness;
+      const fadeDrop =
+        (1 - edgeEnvelope) * shoulder * (1.5 + farShoulder * 5.6);
+      const oceanDrop =
+        side < 0 ? 0 : eastOceanExposure * oceanWindowAcross * 1.6;
 
-      positions.push(x, seamY + rise, z);
+      positions.push(x, seamY + rise - fadeDrop - oceanDrop, z);
+      pushTerrainTint(
+        colors,
+        seamX,
+        Math.min(72, Math.max(-72, z)),
+        0.38,
+        0.93 - progress * 0.08
+      );
       uvs.push(progress, alongProgress);
     }
   }
@@ -274,6 +417,7 @@ function createLateralMountainGeometry(side: -1 | 1) {
     "position",
     new THREE.Float32BufferAttribute(positions, 3)
   );
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   setDriftGeometryTextureRepeat(geometry, 6, 10);
@@ -286,6 +430,7 @@ function EdgeTerrainTransitions() {
   const ocean = DRIFT_3D_NORTH_EAST_OCEAN;
   const southVoid = DRIFT_3D_SOUTH_VOID;
   const maps = getDriftMaterialMaps("rock");
+  const northGeometry = useMemo(() => createNorthTerrainGeometry(), []);
   const coastGeometry = useMemo(
     () =>
       createEdgeRibbon({
@@ -301,6 +446,8 @@ function EdgeTerrainTransitions() {
 
           return landY + (submergedY - landY) * smoothstep01(progress);
         },
+        tintStrength: 0.36,
+        tintBrightness: 0.92,
       }),
     [ocean]
   );
@@ -319,26 +466,40 @@ function EdgeTerrainTransitions() {
 
           return landY + (abyssY - landY) * smoothstep01(progress);
         },
+        tintStrength: 0.42,
+        tintBrightness: 0.54,
       }),
     [southVoid]
   );
 
   useEffect(
     () => () => {
+      northGeometry.dispose();
       coastGeometry.dispose();
       southCliffGeometry.dispose();
     },
-    [coastGeometry, southCliffGeometry]
+    [coastGeometry, northGeometry, southCliffGeometry]
   );
 
   return (
     <group aria-hidden="true">
+      <mesh geometry={northGeometry} receiveShadow castShadow renderOrder={1}>
+        <meshStandardMaterial
+          map={maps.map ?? undefined}
+          normalMap={maps.normalMap ?? undefined}
+          normalScale={new THREE.Vector2(0.72, 0.72)}
+          color="#ffffff"
+          vertexColors
+          roughness={0.97}
+        />
+      </mesh>
       <mesh geometry={coastGeometry} receiveShadow renderOrder={2}>
         <meshStandardMaterial
           map={maps.map ?? undefined}
           normalMap={maps.normalMap ?? undefined}
           normalScale={new THREE.Vector2(0.72, 0.72)}
-          color="#767067"
+          color="#ffffff"
+          vertexColors
           roughness={0.96}
         />
       </mesh>
@@ -347,7 +508,8 @@ function EdgeTerrainTransitions() {
           map={maps.map ?? undefined}
           normalMap={maps.normalMap ?? undefined}
           normalScale={new THREE.Vector2(1.1, 1.1)}
-          color="#302f34"
+          color="#ffffff"
+          vertexColors
           roughness={0.99}
         />
       </mesh>
@@ -382,7 +544,8 @@ function LateralMountainBorders() {
             map={maps.map ?? undefined}
             normalMap={maps.normalMap ?? undefined}
             normalScale={new THREE.Vector2(0.88, 0.88)}
-            color="#8b877e"
+            color="#ffffff"
+            vertexColors
             roughness={0.985}
           />
         </mesh>
