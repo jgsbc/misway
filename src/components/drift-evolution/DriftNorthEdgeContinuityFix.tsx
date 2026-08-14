@@ -11,8 +11,11 @@ import { getDrift3DGroundColorAt } from "@/lib/drift3dAtmosphere";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import { DRIFT_3D_NORTH_EAST_OCEAN } from "@/lib/drift3dWorldEdges";
 
+const MAIN_TERRAIN_TEXTURE_SIZE = 512;
 const NORTH_TEXTURE_WIDTH = 512;
 const NORTH_TEXTURE_HEIGHT = 128;
+const MOUNTAIN_TEXTURE_WIDTH = 160;
+const MOUNTAIN_TEXTURE_HEIGHT = 384;
 
 const northSkin = Object.freeze({
   minX: -112,
@@ -24,6 +27,21 @@ const northSkin = Object.freeze({
   westHighlandFadeEndX: -18,
   acrossSegments: 64,
   alongSegments: 14,
+});
+
+const lateralMountains = Object.freeze({
+  innerX: 112,
+  outerX: 166,
+  westMinZ: -90,
+  eastMinZ: -90,
+  maxZ: 72,
+  westNorthFadeEndZ: -56,
+  eastNorthFadeEndZ: -18,
+  eastOceanRevealStartZ: -72,
+  eastOceanRevealEndZ: -16,
+  southFadeStartZ: 54,
+  acrossSegments: 18,
+  alongSegments: 34,
 });
 
 const oceanVertexShader = /* glsl */ `
@@ -88,14 +106,60 @@ const oceanFragmentShader = /* glsl */ `
 
 function terrainNoise(x: number, y: number) {
   const value = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-
   return value - Math.floor(value);
+}
+
+function edgeNoise(index: number, salt: number) {
+  return terrainNoise(index, salt);
 }
 
 function smoothstep01(value: number) {
   const t = Math.min(1, Math.max(0, value));
-
   return t * t * (3 - 2 * t);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function writeTerrainPixel(
+  image: ImageData,
+  pixelOffset: number,
+  worldX: number,
+  worldZ: number,
+  brightness = 1
+) {
+  const sampleX = clamp(
+    worldX,
+    -DRIFT_3D_PLANE_WIDTH / 2 + 0.001,
+    DRIFT_3D_PLANE_WIDTH / 2 - 0.001
+  );
+  const sampleZ = clamp(
+    worldZ,
+    -DRIFT_3D_PLANE_DEPTH / 2,
+    DRIFT_3D_PLANE_DEPTH / 2
+  );
+  const ground = getDrift3DGroundColorAt(sampleX, sampleZ);
+  const textureX =
+    (worldX / DRIFT_3D_PLANE_WIDTH + 0.5) *
+    (MAIN_TERRAIN_TEXTURE_SIZE - 1);
+  const textureY =
+    (worldZ / DRIFT_3D_PLANE_DEPTH + 0.5) *
+    (MAIN_TERRAIN_TEXTURE_SIZE - 1);
+  const fineGrain = (terrainNoise(textureX, textureY) - 0.5) * 0.07;
+  const coarseGrain =
+    (terrainNoise(
+      Math.floor(textureX / 9),
+      Math.floor(textureY / 9)
+    ) -
+      0.5) *
+    0.06;
+  const grain = (1 + fineGrain + coarseGrain) * brightness;
+
+  image.data[pixelOffset] = clamp(ground.r * grain * 255, 0, 255);
+  image.data[pixelOffset + 1] = clamp(ground.g * grain * 255, 0, 255);
+  image.data[pixelOffset + 2] = clamp(ground.b * grain * 255, 0, 255);
+  image.data[pixelOffset + 3] = 255;
 }
 
 function createNorthContinuationTexture() {
@@ -106,7 +170,6 @@ function createNorthContinuationTexture() {
   canvas.width = NORTH_TEXTURE_WIDTH;
   canvas.height = NORTH_TEXTURE_HEIGHT;
   const context = canvas.getContext("2d");
-
   if (!context) return null;
 
   const image = context.createImageData(
@@ -117,45 +180,23 @@ function createNorthContinuationTexture() {
   for (let py = 0; py < NORTH_TEXTURE_HEIGHT; py += 1) {
     const progress = py / (NORTH_TEXTURE_HEIGHT - 1);
     const worldZ = ocean.coastZ + (northSkin.farZ - ocean.coastZ) * progress;
-    const mainTextureY =
-      (worldZ / DRIFT_3D_PLANE_DEPTH + 0.5) * (NORTH_TEXTURE_WIDTH - 1);
+    const brightness = 1 - progress * 0.07;
 
     for (let px = 0; px < NORTH_TEXTURE_WIDTH; px += 1) {
+      const across = px / (NORTH_TEXTURE_WIDTH - 1);
       const worldX =
-        (px / (NORTH_TEXTURE_WIDTH - 1) - 0.5) * DRIFT_3D_PLANE_WIDTH;
-      const ground = getDrift3DGroundColorAt(worldX, ocean.coastZ);
-      const fineGrain = (terrainNoise(px, mainTextureY) - 0.5) * 0.07;
-      const coarseGrain =
-        (terrainNoise(
-          Math.floor(px / 9),
-          Math.floor(mainTextureY / 9)
-        ) -
-          0.5) *
-        0.06;
-      const grain = 1 + fineGrain + coarseGrain;
+        northSkin.minX + (northSkin.maxX - northSkin.minX) * across;
       const offset = (py * NORTH_TEXTURE_WIDTH + px) * 4;
-
-      image.data[offset] = Math.max(0, Math.min(255, ground.r * grain * 255));
-      image.data[offset + 1] = Math.max(
-        0,
-        Math.min(255, ground.g * grain * 255)
-      );
-      image.data[offset + 2] = Math.max(
-        0,
-        Math.min(255, ground.b * grain * 255)
-      );
-      image.data[offset + 3] = 255;
+      writeTerrainPixel(image, offset, worldX, worldZ, brightness);
     }
   }
 
   context.putImageData(image, 0, 0);
-
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
   texture.wrapS = THREE.ClampToEdgeWrapping;
   texture.wrapT = THREE.ClampToEdgeWrapping;
-
   return texture;
 }
 
@@ -175,13 +216,16 @@ function createNorthSkinGeometry() {
 
     for (let across = 0; across <= northSkin.acrossSegments; across += 1) {
       const acrossProgress = across / northSkin.acrossSegments;
-      const x = northSkin.minX + (northSkin.maxX - northSkin.minX) * acrossProgress;
-      const baseY = getDrift3DGroundY(x, ocean.coastZ) + 0.026;
+      const x =
+        northSkin.minX +
+        (northSkin.maxX - northSkin.minX) * acrossProgress;
+      const baseY = getDrift3DGroundY(x, ocean.coastZ) + 0.028;
       const westHighland =
         1 -
         smoothstep01(
           (x - northSkin.westHighlandFadeStartX) /
-            (northSkin.westHighlandFadeEndX - northSkin.westHighlandFadeStartX)
+            (northSkin.westHighlandFadeEndX -
+              northSkin.westHighlandFadeStartX)
         );
       const oceanApproach = smoothstep01(
         (x - northSkin.oceanApproachStartX) /
@@ -194,7 +238,8 @@ function createNorthSkinGeometry() {
       const coastProfile = smoothstep01(
         progress / Math.max(coastProgressEnd, 0.001)
       );
-      const falloff = landProfile + (coastProfile - landProfile) * oceanApproach;
+      const falloff =
+        landProfile + (coastProfile - landProfile) * oceanApproach;
       const undulation =
         (Math.sin(x * 0.105 + 0.4) + Math.sin(x * 0.047 - 0.8) * 0.55) *
         0.62 *
@@ -202,12 +247,14 @@ function createNorthSkinGeometry() {
         (1 - oceanApproach) *
         Math.sin(Math.PI * progress);
       const generatedY = baseY + (farY - baseY) * falloff + undulation;
-      const westSeamBlend = 1 - smoothstep01((x - northSkin.minX) / 18);
-      const westSeamY = getDrift3DGroundY(northSkin.minX, z) + 0.022;
+      const westSeamBlend =
+        1 - smoothstep01((x - northSkin.minX) / 18);
+      const westSeamY = getDrift3DGroundY(northSkin.minX, z) + 0.024;
       const y = generatedY + (westSeamY - generatedY) * westSeamBlend;
-      const u = Math.min(
-        1,
-        Math.max(0, (x + DRIFT_3D_PLANE_WIDTH / 2) / DRIFT_3D_PLANE_WIDTH)
+      const u = clamp(
+        (x - northSkin.minX) / (northSkin.maxX - northSkin.minX),
+        0,
+        1
       );
 
       positions.push(x, y, z);
@@ -221,7 +268,11 @@ function createNorthSkinGeometry() {
       const b = a + 1;
       const c = a + row;
       const d = c + 1;
-      indices.push(a, c, b, b, c, d);
+
+      // z decreases as `along` increases. This winding keeps the surface
+      // facing +Y, so it is visible from the playable map instead of being
+      // back-face culled.
+      indices.push(a, b, c, b, d, c);
     }
   }
 
@@ -233,8 +284,153 @@ function createNorthSkinGeometry() {
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-
   return geometry;
+}
+
+function createLateralMountainGeometry(side: -1 | 1) {
+  const config = lateralMountains;
+  const minZ = side < 0 ? config.westMinZ : config.eastMinZ;
+  const northFadeEndZ =
+    side < 0 ? config.westNorthFadeEndZ : config.eastNorthFadeEndZ;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const row = config.acrossSegments + 1;
+  const sideScale = side < 0 ? 1.08 : 0.94;
+
+  for (let along = 0; along <= config.alongSegments; along += 1) {
+    const alongProgress = along / config.alongSegments;
+    const z = minZ + (config.maxZ - minZ) * alongProgress;
+    const northFade = smoothstep01(
+      (z - minZ) / (northFadeEndZ - minZ)
+    );
+    const southFade =
+      1 -
+      smoothstep01(
+        (z - config.southFadeStartZ) /
+          (config.maxZ - config.southFadeStartZ)
+      );
+    const edgeEnvelope = northFade * southFade;
+    const seamX = side * config.innerX;
+    const seamY = getDrift3DGroundY(seamX, z) + 0.01;
+    const macro =
+      0.76 +
+      Math.sin(z * 0.073 + side * 0.9) * 0.16 +
+      Math.sin(z * 0.151 - side * 0.55) * 0.08;
+    const eastOceanExposure =
+      side < 0
+        ? 0
+        : 1 -
+          smoothstep01(
+            (z - config.eastOceanRevealStartZ) /
+              (config.eastOceanRevealEndZ - config.eastOceanRevealStartZ)
+          );
+
+    for (let across = 0; across <= config.acrossSegments; across += 1) {
+      const progress = across / config.acrossSegments;
+      const outward =
+        config.innerX + (config.outerX - config.innerX) * progress;
+      const x = side * outward;
+      const shoulder = smoothstep01(progress / 0.22);
+      const crest =
+        Math.exp(-Math.pow((progress - 0.56) / 0.24, 2) * 2.2) *
+        shoulder;
+      const farShoulder = smoothstep01((progress - 0.34) / 0.66);
+      const oceanWindowAcross = smoothstep01((progress - 0.1) / 0.76);
+      const oceanWindow =
+        side < 0
+          ? 1
+          : 1 - eastOceanExposure * oceanWindowAcross * 0.82;
+      const roughness =
+        (edgeNoise(along * row + across, side < 0 ? 17 : 29) - 0.5) *
+        3.1 *
+        shoulder *
+        edgeEnvelope *
+        oceanWindow;
+      const rise =
+        edgeEnvelope *
+          oceanWindow *
+          sideScale *
+          (shoulder * 2.4 +
+            crest * (11.5 + macro * 8.5) +
+            farShoulder * 5.2) +
+        roughness;
+      const fadeDrop =
+        (1 - edgeEnvelope) * shoulder * (1.5 + farShoulder * 5.6);
+      const oceanDrop =
+        side < 0 ? 0 : eastOceanExposure * oceanWindowAcross * 1.6;
+
+      positions.push(x, seamY + rise - fadeDrop - oceanDrop, z);
+      uvs.push(progress, alongProgress);
+    }
+  }
+
+  for (let along = 0; along < config.alongSegments; along += 1) {
+    for (let across = 0; across < config.acrossSegments; across += 1) {
+      const a = along * row + across;
+      const b = a + 1;
+      const c = a + row;
+      const d = c + 1;
+      if (side < 0) {
+        indices.push(a, b, c, b, d, c);
+      } else {
+        indices.push(a, c, b, b, c, d);
+      }
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(positions, 3)
+  );
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function createMountainTerrainTexture(side: -1 | 1) {
+  if (typeof document === "undefined") return null;
+
+  const config = lateralMountains;
+  const minZ = side < 0 ? config.westMinZ : config.eastMinZ;
+  const canvas = document.createElement("canvas");
+  canvas.width = MOUNTAIN_TEXTURE_WIDTH;
+  canvas.height = MOUNTAIN_TEXTURE_HEIGHT;
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+
+  const image = context.createImageData(
+    MOUNTAIN_TEXTURE_WIDTH,
+    MOUNTAIN_TEXTURE_HEIGHT
+  );
+
+  for (let py = 0; py < MOUNTAIN_TEXTURE_HEIGHT; py += 1) {
+    // CanvasTexture flips image Y. Top row therefore represents v=1 / south,
+    // bottom row v=0 / north, matching the geometry's authored UVs.
+    const alongProgress = 1 - py / (MOUNTAIN_TEXTURE_HEIGHT - 1);
+    const worldZ = minZ + (config.maxZ - minZ) * alongProgress;
+
+    for (let px = 0; px < MOUNTAIN_TEXTURE_WIDTH; px += 1) {
+      const outwardProgress = px / (MOUNTAIN_TEXTURE_WIDTH - 1);
+      const worldX =
+        side *
+        (config.innerX +
+          (config.outerX - config.innerX) * outwardProgress);
+      const brightness = 1 - outwardProgress * 0.055;
+      const offset = (py * MOUNTAIN_TEXTURE_WIDTH + px) * 4;
+      writeTerrainPixel(image, offset, worldX, worldZ, brightness);
+    }
+  }
+
+  context.putImageData(image, 0, 0);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 4;
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  return texture;
 }
 
 function NorthGroundSkin() {
@@ -253,27 +449,71 @@ function NorthGroundSkin() {
     <mesh
       geometry={geometry}
       receiveShadow
-      renderOrder={3}
+      renderOrder={4}
       aria-hidden="true"
     >
       <meshStandardMaterial
         map={texture ?? undefined}
         color={texture ? "#ffffff" : "#77736a"}
         roughness={0.96}
+        side={THREE.DoubleSide}
         polygonOffset
-        polygonOffsetFactor={-1}
-        polygonOffsetUnits={-1}
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-2}
       />
     </mesh>
+  );
+}
+
+function MountainContinuitySkins() {
+  const westGeometry = useMemo(() => createLateralMountainGeometry(-1), []);
+  const eastGeometry = useMemo(() => createLateralMountainGeometry(1), []);
+  const westTexture = useMemo(() => createMountainTerrainTexture(-1), []);
+  const eastTexture = useMemo(() => createMountainTerrainTexture(1), []);
+
+  useEffect(
+    () => () => {
+      westGeometry.dispose();
+      eastGeometry.dispose();
+      westTexture?.dispose();
+      eastTexture?.dispose();
+    }, [eastGeometry, eastTexture, westGeometry, westTexture]
+  );
+
+  return (
+    <group aria-hidden="true">
+      {[
+        { key: "west", geometry: westGeometry, texture: westTexture },
+        { key: "east", geometry: eastGeometry, texture: eastTexture },
+      ].map(({ key, geometry, texture }) => (
+        <mesh
+          key={key}
+          geometry={geometry}
+          receiveShadow
+          castShadow={false}
+          renderOrder={4}
+        >
+          <meshStandardMaterial
+            map={texture ?? undefined}
+            color={texture ? "#ffffff" : "#77736a"}
+            roughness={0.96}
+            side={THREE.DoubleSide}
+            polygonOffset
+            polygonOffsetFactor={-2}
+            polygonOffsetUnits={-2}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
 function OceanUnderlap() {
   const ocean = DRIFT_3D_NORTH_EAST_OCEAN;
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
-  const renderMinX = ocean.minX - 5;
-  const renderNearZ = ocean.nearZ + 5;
-  const renderFarZ = ocean.nearZ - 2;
+  const renderMinX = ocean.minX - 8;
+  const renderNearZ = ocean.coastZ + 2;
+  const renderFarZ = ocean.nearZ - 5;
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -284,7 +524,7 @@ function OceanUnderlap() {
           {
             uTime: { value: 0 },
             uWaveAmplitude: { value: ocean.waveAmplitude },
-            uNearZ: { value: ocean.nearZ },
+            uNearZ: { value: ocean.coastZ },
             uCameraPosition: { value: new THREE.Vector3() },
           },
         ]),
@@ -292,13 +532,15 @@ function OceanUnderlap() {
         depthWrite: true,
         depthTest: true,
         side: THREE.DoubleSide,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
       }),
-    [ocean.nearZ, ocean.waveAmplitude]
+    [ocean.coastZ, ocean.waveAmplitude]
   );
 
   useEffect(() => {
     materialRef.current = material;
-
     return () => {
       materialRef.current = null;
       material.dispose();
@@ -308,30 +550,31 @@ function OceanUnderlap() {
   useFrame(({ camera, clock }) => {
     const current = materialRef.current;
     if (!current) return;
-
     current.uniforms.uTime.value = clock.elapsedTime;
-    (current.uniforms.uCameraPosition.value as THREE.Vector3).copy(camera.position);
+    (current.uniforms.uCameraPosition.value as THREE.Vector3).copy(
+      camera.position
+    );
   });
 
   return (
     <mesh
       position={[
         (renderMinX + ocean.maxX) / 2,
-        ocean.waterY - 0.08,
+        ocean.waterY + 0.008,
         (renderNearZ + renderFarZ) / 2,
       ]}
       rotation={[-Math.PI / 2, 0, 0]}
       material={material}
       receiveShadow
-      renderOrder={0}
+      renderOrder={3}
       aria-hidden="true"
     >
       <planeGeometry
         args={[
           ocean.maxX - renderMinX,
           renderNearZ - renderFarZ,
-          12,
-          3,
+          40,
+          6,
         ]}
       />
     </mesh>
@@ -342,6 +585,7 @@ export default function DriftNorthEdgeContinuityFix() {
   return (
     <>
       <NorthGroundSkin />
+      <MountainContinuitySkins />
       <OceanUnderlap />
     </>
   );

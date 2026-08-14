@@ -28,7 +28,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
   // Owner-approved world-edge continuity correction promoted on 2026-08-14.
   "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "1eccd4b55da7b51337e1ffd98321e5a29c6f3957",
-  "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "f6161162b4d12c4595d0ca290e042ab662de2d82",
+  "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "f5bdf9ba6105906415d90ee92a9922356ffac521",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
 
