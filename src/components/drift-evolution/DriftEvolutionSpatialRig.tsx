@@ -6,6 +6,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import LegacyEntryAuthoritySuppressor from "@/components/drift-evolution/LegacyEntryAuthoritySuppressor";
 import DriftWorldEdgeBiomes from "@/components/drift-evolution/DriftWorldEdgeBiomes";
+import DriftNorthEdgeContinuityFix from "@/components/drift-evolution/DriftNorthEdgeContinuityFix";
 import ZeelandWaterSurface from "@/components/drift-evolution/ZeelandWaterSurface";
 import {
   getDriftMaterialMaps,
@@ -252,6 +253,7 @@ export default function DriftEvolutionSpatialRig(
       <CaveGroundRibbon />
       <ZeelandWaterSurface />
       <DriftWorldEdgeBiomes />
+      <DriftNorthEdgeContinuityFix />
       <CaveCollisionRig vehicleStateRef={props.vehicleStateRef} />
       <CaveLightingContinuityRig vehicleStateRef={props.vehicleStateRef} />
       <AdaptiveCameraRig {...props} />
