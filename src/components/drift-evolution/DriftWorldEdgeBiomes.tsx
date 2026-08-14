@@ -196,7 +196,7 @@ function createEdgeRibbon(options: {
         options.tintStrength ?? 0.32,
         options.tintBrightness ?? 0.9
       );
-      uvs.push(acrossProgress * 8, progress * 2);
+      uvs.push(acrossProgress, progress);
     }
   }
 
@@ -286,7 +286,7 @@ function createNorthTerrainGeometry() {
         0.4,
         0.93 - progress * 0.1 - oceanApproach * 0.04
       );
-      uvs.push(acrossProgress * 8, progress * 3.2);
+      uvs.push(acrossProgress, progress);
     }
   }
 
