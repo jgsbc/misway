@@ -9,7 +9,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
   "src/components/drift-3d/Drift3DLandmark.tsx": "787868bbb560efb8537cd8c0717ca3e3429922e4",
-  "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f8262668981b88166f03df0e974d349",
+  "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f2d11abc8c44e5a5fbf7db3a02703d3",
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
   "src/components/drift-3d/Drift3DHud.tsx": "49c3f5126e7e1b0437695c5a7846e656c35fcd2a",
