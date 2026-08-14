@@ -19,7 +19,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "d467a6d34f905b859422720444de1ca5ea3ed2c9",
   "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "d4197173d8d3751c7588d00007caacf55d5f950c",
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
-  "src/components/drift-evolution/DriftEvolutionScene.tsx": "3928f92edecf9d92511086863b7d2d829a0a49cf",
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "afca1d95a9e808e13ab65a3afaa5a0066935aac6",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
@@ -29,6 +29,8 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   // Owner-approved world-edge continuity correction promoted on 2026-08-14.
   "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "1eccd4b55da7b51337e1ffd98321e5a29c6f3957",
   "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "f5bdf9ba6105906415d90ee92a9922356ffac521",
+  // Owner-approved lightweight cosmic enrichment promoted on 2026-08-14.
+  "src/components/drift-evolution/DriftCosmicSkyEnhancement.tsx": "0f89d0490750e3385e3747df6ecd15766c7e1962",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
 
