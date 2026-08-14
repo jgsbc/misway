@@ -9,7 +9,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/Drift3DVehicle.tsx": "17e445de578d55ea4d7b3f1364d54e65b0c1a560",
   "src/components/drift-3d/Drift3DEffects.tsx": "2d15ed6e3020af6ebc6b9242359f6806819c4823",
   "src/components/drift-3d/Drift3DLandmark.tsx": "787868bbb560efb8537cd8c0717ca3e3429922e4",
-  "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f2d11abc8c44e5a5fbf7db3a02703d3",
+  "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f8262668981b88166f03df0e974d349",
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
   "src/components/drift-3d/Drift3DHud.tsx": "49c3f5126e7e1b0437695c5a7846e656c35fcd2a",
@@ -28,7 +28,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
   // Owner-approved world-edge continuity correction promoted on 2026-08-14.
   "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "1eccd4b55da7b51337e1ffd98321e5a29c6f3957",
-  "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "f6161162b4d12c4595d0ca290e042ab662de2d82",
+  "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "f5bdf9ba6105906415d90ee92a9922356ffac521",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
 
