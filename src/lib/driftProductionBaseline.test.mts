@@ -56,7 +56,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/drift3dSafari110FinalGeometry.ts": "764bb823622a37fa7c137a67867251b6715c6c5a",
   "src/lib/drift3dSafari110Runtime.ts": "a4e474671d698ea7209bef32e9bfeaa9f1e4ffbc",
   "src/lib/drift3dOriginalVehicleGeometry.ts": "e9c5a8ea27395937ca719847db4d9fd66bd9c9b8",
-  "src/lib/driftCompassHeading.ts": "b19b9dcd27766820caa393f7de345ff1db87fd84",
+  "src/lib/driftCompassHeading.ts": "ab40c125e4b4b503ca53ec9e6afa58c920641fa1",
   "src/lib/driftEvolutionEntryCave.ts": "4d5626373557e7c9a10050404a1ea26c57d7bc84",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
