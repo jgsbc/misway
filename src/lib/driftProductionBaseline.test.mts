@@ -20,21 +20,20 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "d467a6d34f905b859422720444de1ca5ea3ed2c9",
   "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "d4197173d8d3751c7588d00007caacf55d5f950c",
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
-  "src/components/drift-evolution/DriftEvolutionScene.tsx": "8f104019a6c5960cc7506b45d8ebe19526b5e386",
+  // Owner-approved stability/camera/visibility finish promoted on 2026-08-16.
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "1800f5ad58420f7cbc0576afe5f1fccd86fce242",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
   "src/components/drift-evolution/EntryPortalLightCorrection.tsx": "8716a7b36c6a98dc9f5c9d2910c43f72aeed5d9a",
   "src/components/drift-evolution/FoolfouleCrowd.tsx": "bbd2617073bbe2de1610c35fcad056c9c8a808e0",
   "src/components/drift-evolution/FoolfouleDramaturgy.tsx": "587fc99e188f4c18f33d84481ca89abc64913902",
-  // Owner-approved world-edge continuity correction promoted on 2026-08-14,
-  // refined on 2026-08-16 to overlap the in-map terrain before the mountain rise.
-  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "1eccd4b55da7b51337e1ffd98321e5a29c6f3957",
+  "src/components/drift-evolution/DriftEvolutionSpatialRig.tsx": "140b21e816d006e8b6075f8f0ba5b18bf65adfc4",
   "src/components/drift-evolution/DriftNorthEdgeContinuityFix.tsx": "6929e1a2a4ae0abf9880a19a851ffc3a765a2696",
   // Owner-approved lightweight cosmic enrichment promoted on 2026-08-14.
   "src/components/drift-evolution/DriftCosmicSkyEnhancement.tsx": "0f89d0490750e3385e3747df6ecd15766c7e1962",
-  // Owner-approved presentation-only heading and half-pipe pose finish, 2026-08-16.
-  "src/components/drift-evolution/DriftVehiclePresentationFinisher.tsx": "50ad0ed95e269abf46b16fc1a2160308bf1b5477",
+  "src/components/drift-evolution/DriftVehiclePresentationFinisher.tsx": "8a589a4e436758666c0753161132d8d7a4ef827d",
+  "src/components/drift-evolution/DriftVisibilityRig.tsx": "5c0bd8a8a3c2cd3e1f78703136f3e6a77403a8e8",
   "src/components/drift-evolution/LegacyEntryAuthoritySuppressor.tsx": "a555152016d9f6e43c98e0f3593130872bdd19a1",
   "src/components/drift-evolution/ZeelandWaterSurface.tsx": "8f906a989c1fd910894688c7e4981d04bc48fe53",
 
