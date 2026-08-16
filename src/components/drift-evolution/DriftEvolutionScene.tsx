@@ -6,6 +6,7 @@ import Drift3DLandmark from "@/components/drift-3d/Drift3DLandmark";
 import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import Defender90LowpolyVehicleVisual from "@/components/drift-evolution/Defender90LowpolyVehicleVisual";
 import DriftCosmicSkyEnhancement from "@/components/drift-evolution/DriftCosmicSkyEnhancement";
+import DriftVehiclePresentationFinisher from "@/components/drift-evolution/DriftVehiclePresentationFinisher";
 import DriftEvolutionPerformanceRig from "@/components/drift-evolution/DriftEvolutionPerformanceRig";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
@@ -95,6 +96,7 @@ function DriftEvolutionScene({
         />
       ))}
       <Defender90LowpolyVehicleVisual />
+      <DriftVehiclePresentationFinisher />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
       <FoolfouleCrowd
