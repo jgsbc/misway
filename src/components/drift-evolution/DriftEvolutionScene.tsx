@@ -7,6 +7,7 @@ import DriftSceneReadySignal from "@/components/drift-3d/DriftSceneReadySignal";
 import Defender90LowpolyVehicleVisual from "@/components/drift-evolution/Defender90LowpolyVehicleVisual";
 import DriftCosmicSkyEnhancement from "@/components/drift-evolution/DriftCosmicSkyEnhancement";
 import DriftVehiclePresentationFinisher from "@/components/drift-evolution/DriftVehiclePresentationFinisher";
+import DriftVisibilityRig from "@/components/drift-evolution/DriftVisibilityRig";
 import DriftEvolutionPerformanceRig from "@/components/drift-evolution/DriftEvolutionPerformanceRig";
 import EntryCaveSalvage from "@/components/drift-evolution/EntryCaveSalvage";
 import EntryPortalLightCorrection from "@/components/drift-evolution/EntryPortalLightCorrection";
@@ -40,8 +41,6 @@ type DriftEvolutionSceneProps = ComponentProps<typeof Drift3DSceneBase> & {
   performanceProfile: DriftEvolutionPerformanceProfile;
 };
 
-// Must happen before Drift3DSceneBase's first render: its landmark collider
-// memo and topology nodes must already reflect the promoted staging.
 suppressLegacyEntryForEvolution();
 stageZeelandForEvolution();
 stageFoolfouleForEvolution();
@@ -50,10 +49,6 @@ stageJazzyplingForEvolution();
 const birthYardRouteLabLandmark =
   buildDriftEvolutionBirthYardRouteLabLandmark();
 
-/**
- * Promoted production composition: the shared base remains authoritative for
- * unchanged layers and every accepted divergence stays explicit here.
- */
 function DriftEvolutionScene({
   performanceProfile,
   ...props
@@ -66,8 +61,6 @@ function DriftEvolutionScene({
     props.proximity?.activeNode?.id === drift3dTrackNodeBySlug.foolfoule.id;
 
   useLayoutEffect(() => {
-    // React Strict Mode may replay layout effects in development. Reassert the
-    // promoted overrides after a cleanup replay, then restore on real unmount.
     suppressLegacyEntryForEvolution();
     stageZeelandForEvolution();
     stageFoolfouleForEvolution();
@@ -96,7 +89,7 @@ function DriftEvolutionScene({
         />
       ))}
       <Defender90LowpolyVehicleVisual />
-      <DriftVehiclePresentationFinisher />
+      <DriftVehiclePresentationFinisher vehicleStateRef={props.vehicleStateRef} />
       <EntryCaveSalvage vehicleStateRef={props.vehicleStateRef} />
       <EntryPortalLightCorrection vehicleStateRef={props.vehicleStateRef} />
       <FoolfouleCrowd
@@ -113,6 +106,7 @@ function DriftEvolutionScene({
         cameraZoomTargetRef={props.cameraZoomTargetRef}
         proximity={props.proximity}
       />
+      <DriftVisibilityRig vehicleStateRef={props.vehicleStateRef} />
       <DriftCosmicSkyEnhancement />
       <DriftEvolutionPerformanceRig
         profile={performanceProfile}
@@ -128,7 +122,4 @@ function DriftEvolutionScene({
   );
 }
 
-// The HUD receives distance/progress snapshots more often than the 3D world
-// needs them. Stable props must therefore stop those lightweight shell updates
-// from reconciling every landmark, zone and material in the R3F subtree.
 export default memo(DriftEvolutionScene);
