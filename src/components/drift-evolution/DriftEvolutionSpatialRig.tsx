@@ -12,6 +12,7 @@ import {
   getDriftMaterialMaps,
   setDriftGeometryTextureRepeat,
 } from "@/components/drift-3d/drift3dTextureFactory";
+import { getDrift3DMovementBounds } from "@/lib/drift3d";
 import { getDrift3DTrackMotion } from "@/lib/drift3dCinematography";
 import { getDrift3DGroundY } from "@/lib/drift3dTerrain";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
@@ -32,6 +33,16 @@ type DriftEvolutionSpatialRigProps = {
   cameraZoomTargetRef: MutableRefObject<number>;
   proximity: Drift3DTopologyProximity | null;
 };
+
+const CAMERA_EDGE_INSET = 2.8;
+const CAMERA_LINE_CLEARANCE = 0.9;
+const CAMERA_GROUND_CLEARANCE = 1.2;
+const CAMERA_RELIEF_PROBES = 6;
+const movementBounds = getDrift3DMovementBounds();
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
 
 function getActiveTrackSlug(proximity: Drift3DTopologyProximity | null) {
   if (
@@ -180,6 +191,71 @@ function CaveLightingContinuityRig({
   return null;
 }
 
+function adaptCameraForVisibility(
+  vehicleState: Drift3DVehiclePhysicsState,
+  desiredPosition: THREE.Vector3,
+  desiredTarget: THREE.Vector3,
+  enclosure: number
+) {
+  const openWorldMix = 1 - clamp(enclosure, 0, 1);
+  if (openWorldMix <= 0.001) return 0;
+
+  const originalX = desiredPosition.x;
+  const originalZ = desiredPosition.z;
+  const safeX = clamp(
+    originalX,
+    movementBounds.minX + CAMERA_EDGE_INSET,
+    movementBounds.maxX - CAMERA_EDGE_INSET
+  );
+  const safeZ = clamp(
+    originalZ,
+    movementBounds.minZ + CAMERA_EDGE_INSET,
+    movementBounds.maxZ - CAMERA_EDGE_INSET
+  );
+
+  desiredPosition.x += (safeX - desiredPosition.x) * openWorldMix;
+  desiredPosition.z += (safeZ - desiredPosition.z) * openWorldMix;
+  desiredTarget.y = Math.max(
+    desiredTarget.y,
+    vehicleState.position.y + 0.42 * openWorldMix
+  );
+
+  let requiredCameraY = Math.max(
+    desiredPosition.y,
+    getDrift3DGroundY(desiredPosition.x, desiredPosition.z) +
+      CAMERA_GROUND_CLEARANCE
+  );
+
+  for (let probe = 1; probe <= CAMERA_RELIEF_PROBES; probe += 1) {
+    const t = probe / (CAMERA_RELIEF_PROBES + 1);
+    const x = desiredTarget.x + (desiredPosition.x - desiredTarget.x) * t;
+    const z = desiredTarget.z + (desiredPosition.z - desiredTarget.z) * t;
+    const lineY = desiredTarget.y + (desiredPosition.y - desiredTarget.y) * t;
+    const groundY = getDrift3DGroundY(x, z) + CAMERA_LINE_CLEARANCE;
+
+    if (groundY > lineY) {
+      requiredCameraY = Math.max(
+        requiredCameraY,
+        desiredTarget.y + (groundY - desiredTarget.y) / t
+      );
+    }
+  }
+
+  const edgeCorrection = Math.hypot(
+    desiredPosition.x - originalX,
+    desiredPosition.z - originalZ
+  );
+  requiredCameraY += Math.min(1.35, edgeCorrection * 0.18);
+  requiredCameraY = Math.min(
+    requiredCameraY,
+    vehicleState.position.y + 8.5
+  );
+  desiredPosition.y +=
+    (requiredCameraY - desiredPosition.y) * openWorldMix;
+
+  return clamp(edgeCorrection / 3.5, 0, 1);
+}
+
 function AdaptiveCameraRig({
   vehicleStateRef,
   cameraZoomTargetRef,
@@ -202,9 +278,10 @@ function AdaptiveCameraRig({
     cinematicZoomRef.current +=
       (trackMotion.zoomScale - cinematicZoomRef.current) * motionEase;
 
+    const vehicleState = vehicleStateRef.current;
     const rig = getDriftEvolutionAdaptiveCameraRig(
-      vehicleStateRef.current.position,
-      vehicleStateRef.current.heading,
+      vehicleState.position,
+      vehicleState.heading,
       cameraZoomTargetRef.current,
       cinematicZoomRef.current
     );
@@ -218,13 +295,20 @@ function AdaptiveCameraRig({
       rig.target.y,
       rig.target.z
     );
+    const visibilityCorrection = adaptCameraForVisibility(
+      vehicleState,
+      desiredPosition,
+      desiredTarget,
+      rig.enclosure
+    );
 
     if (!initializedRef.current) {
       smoothedPositionRef.current.copy(desiredPosition);
       smoothedTargetRef.current.copy(desiredTarget);
       initializedRef.current = true;
     } else {
-      const positionResponse = 8.5 + rig.enclosure * 5.5;
+      const positionResponse =
+        8.5 + rig.enclosure * 5.5 + visibilityCorrection * 2.5;
       const targetResponse = 10.5 + rig.enclosure * 4.5;
       smoothedPositionRef.current.lerp(
         desiredPosition,
