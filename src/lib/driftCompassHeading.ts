@@ -21,7 +21,9 @@ export function getDriftCompassHeadingServerSnapshot() {
 
 export function subscribeDriftCompassHeading(listener: () => void) {
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 export function publishDriftCompassHeadingDegrees(nextHeadingDegrees: number) {
