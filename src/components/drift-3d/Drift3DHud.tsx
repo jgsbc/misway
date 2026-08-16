@@ -1,9 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import { Info, Navigation2, Play } from "lucide-react";
 import { getTrackBySlug, type Track } from "@/lib/tracks";
 import type { Drift3DTopologyProximity } from "@/lib/drift3dTopology";
+import {
+  getDriftCompassHeadingDegrees,
+  getDriftCompassHeadingServerSnapshot,
+  subscribeDriftCompassHeading,
+} from "@/lib/driftCompassHeading";
 
 type Drift3DHudProps = {
   proximity: Drift3DTopologyProximity | null;
@@ -38,6 +44,11 @@ export default function Drift3DHud({
   const isPlayable = Boolean(activeTrack && proximity?.isInside);
   const progress = Math.round((proximity?.progress ?? 0) * 100);
   const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
+  const headingDegrees = useSyncExternalStore(
+    subscribeDriftCompassHeading,
+    getDriftCompassHeadingDegrees,
+    getDriftCompassHeadingServerSnapshot
+  );
 
   return (
     <aside
@@ -54,25 +65,51 @@ export default function Drift3DHud({
         }}
       >
         <div className="relative h-full w-full overflow-hidden rounded-full border border-white/10 bg-neutral-950/68 backdrop-blur-xl">
-          <span className="absolute left-1/2 top-1.5 -translate-x-1/2 font-mono text-[6px] uppercase tracking-[0.18em] text-white/46">
-            N
-          </span>
-          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
-            E
-          </span>
-          <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[6px] text-white/20">
-            S
-          </span>
-          <span className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
-            W
-          </span>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 transition-transform duration-100 ease-out"
+            style={{ transform: `rotate(${-headingDegrees}deg)` }}
+          >
+            <span className="absolute left-1/2 top-1.5 -translate-x-1/2 font-mono text-[6px] uppercase tracking-[0.18em] text-white/46">
+              <span
+                className="inline-block"
+                style={{ transform: `rotate(${headingDegrees}deg)` }}
+              >
+                N
+              </span>
+            </span>
+            <span className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
+              <span
+                className="inline-block"
+                style={{ transform: `rotate(${headingDegrees}deg)` }}
+              >
+                E
+              </span>
+            </span>
+            <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[6px] text-white/20">
+              <span
+                className="inline-block"
+                style={{ transform: `rotate(${headingDegrees}deg)` }}
+              >
+                S
+              </span>
+            </span>
+            <span className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[6px] text-white/30">
+              <span
+                className="inline-block"
+                style={{ transform: `rotate(${headingDegrees}deg)` }}
+              >
+                W
+              </span>
+            </span>
 
-          <span aria-hidden="true" className="absolute left-1/2 top-4 h-12 w-px -translate-x-1/2 bg-white/8 sm:h-14" />
-          <span aria-hidden="true" className="absolute left-4 right-4 top-[2.8rem] h-px bg-white/8 sm:top-[3.15rem]" />
+            <span className="absolute left-1/2 top-4 h-12 w-px -translate-x-1/2 bg-white/8 sm:h-14" />
+            <span className="absolute left-4 right-4 top-[2.8rem] h-px bg-white/8 sm:top-[3.15rem]" />
+          </div>
 
           <div
             aria-hidden="true"
-            className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-500 ease-out sm:top-[1.7rem]"
+            className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-200 ease-out sm:top-[1.7rem]"
             style={{ transform: `rotate(${bearingDegrees}deg)` }}
           >
             <Navigation2 className="h-4 w-4" fill="currentColor" strokeWidth={1.2} />

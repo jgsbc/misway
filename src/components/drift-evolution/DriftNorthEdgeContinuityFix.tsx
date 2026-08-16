@@ -14,7 +14,7 @@ import { DRIFT_3D_NORTH_EAST_OCEAN } from "@/lib/drift3dWorldEdges";
 const MAIN_TERRAIN_TEXTURE_SIZE = 512;
 const NORTH_TEXTURE_WIDTH = 512;
 const NORTH_TEXTURE_HEIGHT = 128;
-const MOUNTAIN_TEXTURE_WIDTH = 160;
+const MOUNTAIN_TEXTURE_WIDTH = 176;
 const MOUNTAIN_TEXTURE_HEIGHT = 384;
 
 const northSkin = Object.freeze({
@@ -30,6 +30,7 @@ const northSkin = Object.freeze({
 });
 
 const lateralMountains = Object.freeze({
+  overlapX: 106,
   innerX: 112,
   outerX: 166,
   westMinZ: -90,
@@ -40,7 +41,7 @@ const lateralMountains = Object.freeze({
   eastOceanRevealStartZ: -72,
   eastOceanRevealEndZ: -16,
   southFadeStartZ: 54,
-  acrossSegments: 18,
+  acrossSegments: 20,
   alongSegments: 34,
 });
 
@@ -312,7 +313,7 @@ function createLateralMountainGeometry(side: -1 | 1) {
       );
     const edgeEnvelope = northFade * southFade;
     const seamX = side * config.innerX;
-    const seamY = getDrift3DGroundY(seamX, z) + 0.01;
+    const seamY = getDrift3DGroundY(seamX, z) + 0.024;
     const macro =
       0.76 +
       Math.sin(z * 0.073 + side * 0.9) * 0.16 +
@@ -329,14 +330,20 @@ function createLateralMountainGeometry(side: -1 | 1) {
     for (let across = 0; across <= config.acrossSegments; across += 1) {
       const progress = across / config.acrossSegments;
       const outward =
-        config.innerX + (config.outerX - config.innerX) * progress;
+        config.overlapX + (config.outerX - config.overlapX) * progress;
       const x = side * outward;
-      const shoulder = smoothstep01(progress / 0.22);
+      const mountainProgress = smoothstep01(
+        (outward - (config.innerX - 1.5)) /
+          (config.outerX - (config.innerX - 1.5))
+      );
+      const shoulder = smoothstep01(mountainProgress / 0.22);
       const crest =
-        Math.exp(-Math.pow((progress - 0.56) / 0.24, 2) * 2.2) *
+        Math.exp(-Math.pow((mountainProgress - 0.56) / 0.24, 2) * 2.2) *
         shoulder;
-      const farShoulder = smoothstep01((progress - 0.34) / 0.66);
-      const oceanWindowAcross = smoothstep01((progress - 0.1) / 0.76);
+      const farShoulder = smoothstep01((mountainProgress - 0.34) / 0.66);
+      const oceanWindowAcross = smoothstep01(
+        (mountainProgress - 0.1) / 0.76
+      );
       const oceanWindow =
         side < 0
           ? 1
@@ -359,8 +366,14 @@ function createLateralMountainGeometry(side: -1 | 1) {
         (1 - edgeEnvelope) * shoulder * (1.5 + farShoulder * 5.6);
       const oceanDrop =
         side < 0 ? 0 : eastOceanExposure * oceanWindowAcross * 1.6;
+      const terrainSampleX = side * Math.min(outward, config.innerX);
+      const terrainY = getDrift3DGroundY(terrainSampleX, z) + 0.024;
+      const seamBlend = smoothstep01(
+        (outward - (config.innerX - 2.5)) / 2.5
+      );
+      const baseY = terrainY + (seamY - terrainY) * seamBlend;
 
-      positions.push(x, seamY + rise - fadeDrop - oceanDrop, z);
+      positions.push(x, baseY + rise - fadeDrop - oceanDrop, z);
       uvs.push(progress, alongProgress);
     }
   }
@@ -416,8 +429,8 @@ function createMountainTerrainTexture(side: -1 | 1) {
       const outwardProgress = px / (MOUNTAIN_TEXTURE_WIDTH - 1);
       const worldX =
         side *
-        (config.innerX +
-          (config.outerX - config.innerX) * outwardProgress);
+        (config.overlapX +
+          (config.outerX - config.overlapX) * outwardProgress);
       const brightness = 1 - outwardProgress * 0.055;
       const offset = (py * MOUNTAIN_TEXTURE_WIDTH + px) * 4;
       writeTerrainPixel(image, offset, worldX, worldZ, brightness);
