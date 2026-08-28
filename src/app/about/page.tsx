@@ -63,13 +63,14 @@ export default function AboutPage() {
 
             <p className="light-text-secondary mt-5 max-w-3xl text-sm leading-7 md:text-base">
               Reason entered the picture in the early 2000s. Ableton came later. The tools changed, the music
-              stopped and returned, and none of it became a career plan. It kept asking to exist anyway.
+              stopped and returned, and none of it could become a career plan, damn lack of talent. 
+              It kept asking to exist anyway.
             </p>
 
             <p className="light-text-secondary mt-5 max-w-3xl text-sm leading-7 md:text-base">
               I am an amateur in the literal sense: I do this because I love doing it. That does not make the
-              music casual. It simply leaves it free from release calendars, professional poses and the need to
-              become useful to an industry.
+              music casual. It simply leaves it free from any constraints and avoid the pressure of being good. 
+              It is a personal space for music, images, memories and strange detours made over time.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -78,8 +79,8 @@ export default function AboutPage() {
                   WHAT MOVES THROUGH IT
                 </p>
                 <p className="light-text-secondary mt-4 text-sm leading-7">
-                  Trip-hop weight, acid-jazz movement, ambient space, electronic accidents and melodies that
-                  still remember French songs.
+                  Trip-hop weight, electronic movement, ambient space, noisy accidents and melodies that
+                  still remember my musical journey since I was born.
                 </p>
               </div>
 
@@ -173,7 +174,8 @@ export default function AboutPage() {
                 <p>
                   It can look like a path dividing, a mountain, a doorway, a wave or a body trying to remain
                   standing. In mathematics, it can represent a variable: something present, but not yet entirely
-                  known.
+                  known. But above all, it represents one person among those billions of people. 
+                  You, me, us, ordinary persons.
                 </p>
 
                 <p className="light-text-primary">That openness is what matters to me.</p>
