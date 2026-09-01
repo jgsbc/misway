@@ -39,7 +39,7 @@ export default function TrackInlinePlayer({ track }: { track: Track }) {
         <button
           type="button"
           onClick={() => toggleTrack(track)}
-          className="light-text-primary light-border hover:light-card-hover inline-flex h-10 min-w-[92px] items-center justify-center gap-2 border bg-neutral-100 px-3 font-mono text-[10px] uppercase tracking-[0.2em] transition"
+          className="inline-flex h-10 min-w-[92px] items-center justify-center gap-2 border border-white/25 bg-[linear-gradient(115deg,#57f2ff_0%,#8b5cf6_24%,#ff4fd8_48%,#ffb84a_72%,#c8ff57_100%)] px-3 font-mono text-[10px] uppercase tracking-[0.2em] text-black shadow-[0_0_28px_rgba(255,79,216,0.28)] transition duration-500 hover:scale-[1.015] hover:border-white/50 hover:shadow-[0_0_42px_rgba(87,242,255,0.34)] focus:outline-none focus:ring-2 focus:ring-white/40"
         >
           {active && isPlaying ? (
             <Pause className="h-3.5 w-3.5" />
