@@ -13,22 +13,42 @@ type Listener = () => void;
 let snapshot: DriftEvolutionTrackGuidanceSnapshot | null = null;
 const listeners = new Set<Listener>();
 
+function normalizeSignedDegrees(value: number) {
+  return ((value + 180) % 360 + 360) % 360 - 180;
+}
+
+function unwrapBearingDegrees(previous: number, next: number) {
+  return previous + normalizeSignedDegrees(next - previous);
+}
+
 export function publishDriftEvolutionTrackGuidance(
   next: DriftEvolutionTrackGuidanceSnapshot
 ) {
   const previous = snapshot;
+  const sameGuidance = Boolean(
+    previous &&
+      previous.trackSlug === next.trackSlug &&
+      previous.mode === next.mode
+  );
+  const continuousNext = {
+    ...next,
+    bearingDegrees:
+      sameGuidance && previous
+        ? unwrapBearingDegrees(previous.bearingDegrees, next.bearingDegrees)
+        : normalizeSignedDegrees(next.bearingDegrees),
+  };
+
   if (
     previous &&
-    previous.trackSlug === next.trackSlug &&
-    previous.mode === next.mode &&
-    previous.activationRadius === next.activationRadius &&
-    Math.abs(previous.distance - next.distance) < 0.08 &&
-    Math.abs(previous.bearingDegrees - next.bearingDegrees) < 0.8
+    sameGuidance &&
+    previous.activationRadius === continuousNext.activationRadius &&
+    Math.abs(previous.distance - continuousNext.distance) < 0.08 &&
+    Math.abs(previous.bearingDegrees - continuousNext.bearingDegrees) < 0.8
   ) {
     return;
   }
 
-  snapshot = next;
+  snapshot = continuousNext;
   for (const listener of listeners) listener();
 }
 
