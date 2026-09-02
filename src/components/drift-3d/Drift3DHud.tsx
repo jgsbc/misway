@@ -150,10 +150,14 @@ export default function Drift3DHud({
 
           <div
             aria-hidden="true"
-            className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-200 ease-out sm:top-[1.7rem]"
-            style={{ transform: `rotate(${compassBearingDegrees}deg)` }}
+            className="absolute left-1/2 top-[1.15rem] -translate-x-1/2 text-white sm:top-[1.35rem]"
           >
-            <Navigation2 className="h-4 w-4" fill="currentColor" strokeWidth={1.2} />
+            <Navigation2
+              className="h-4 w-4 transition-transform duration-150 ease-out"
+              fill="currentColor"
+              strokeWidth={1.2}
+              style={{ transform: `rotate(${compassBearingDegrees}deg)` }}
+            />
           </div>
 
           <div className="absolute inset-x-5 top-[2.7rem] text-center sm:top-[3rem]">
