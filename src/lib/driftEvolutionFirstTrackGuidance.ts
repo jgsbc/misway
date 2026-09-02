@@ -18,6 +18,7 @@ export const DRIFT_EVOLUTION_FIRST_TRACK_SLUG =
   "a-walk-in-zeeland" as const satisfies Track["slug"];
 
 export const DRIFT_EVOLUTION_FIRST_TRACK_GUIDANCE_HALF_WIDTH = 6.4;
+export const DRIFT_EVOLUTION_FIRST_TRACK_LOOKAHEAD = 4.6;
 
 export type DriftEvolutionTrackGuidance = {
   trackSlug: Track["slug"];
@@ -27,30 +28,10 @@ export type DriftEvolutionTrackGuidance = {
   mode: "first-reveal" | "nearest";
 };
 
-function distanceToSegment(
-  point: { x: number; z: number },
-  start: { x: number; z: number },
-  end: { x: number; z: number }
-) {
-  const dx = end.x - start.x;
-  const dz = end.z - start.z;
-  const lengthSquared = dx * dx + dz * dz;
-  if (lengthSquared <= 1e-9) {
-    return Math.hypot(point.x - start.x, point.z - start.z);
-  }
-
-  const t = Math.min(
-    1,
-    Math.max(
-      0,
-      ((point.x - start.x) * dx + (point.z - start.z) * dz) /
-        lengthSquared
-    )
-  );
-  const x = start.x + dx * t;
-  const z = start.z + dz * t;
-  return Math.hypot(point.x - x, point.z - z);
-}
+type PathProjection = {
+  distanceFromPath: number;
+  distanceAlongPath: number;
+};
 
 function getFirstTrackApproachPath() {
   const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
@@ -70,21 +51,98 @@ function getFirstTrackApproachPath() {
   return [...caveSamples, ...entryToZeeland];
 }
 
+function projectPointOntoPath(point: { x: number; z: number }): PathProjection {
+  const path = getFirstTrackApproachPath();
+  let best: PathProjection = {
+    distanceFromPath: Number.POSITIVE_INFINITY,
+    distanceAlongPath: 0,
+  };
+  let cumulativeDistance = 0;
+
+  for (let index = 0; index < path.length - 1; index += 1) {
+    const start = path[index];
+    const end = path[index + 1];
+    const dx = end.x - start.x;
+    const dz = end.z - start.z;
+    const length = Math.hypot(dx, dz);
+    const lengthSquared = length * length;
+    const t =
+      lengthSquared <= 1e-9
+        ? 0
+        : Math.min(
+            1,
+            Math.max(
+              0,
+              ((point.x - start.x) * dx + (point.z - start.z) * dz) /
+                lengthSquared
+            )
+          );
+    const projectedX = start.x + dx * t;
+    const projectedZ = start.z + dz * t;
+    const distanceFromPath = Math.hypot(
+      point.x - projectedX,
+      point.z - projectedZ
+    );
+
+    if (distanceFromPath < best.distanceFromPath) {
+      best = {
+        distanceFromPath,
+        distanceAlongPath: cumulativeDistance + length * t,
+      };
+    }
+
+    cumulativeDistance += length;
+  }
+
+  return best;
+}
+
+function getPointAlongFirstTrackPath(distanceAlongPath: number) {
+  const path = getFirstTrackApproachPath();
+  let remaining = Math.max(0, distanceAlongPath);
+
+  for (let index = 0; index < path.length - 1; index += 1) {
+    const start = path[index];
+    const end = path[index + 1];
+    const dx = end.x - start.x;
+    const dz = end.z - start.z;
+    const length = Math.hypot(dx, dz);
+
+    if (remaining <= length || index === path.length - 2) {
+      const t = length <= 1e-9 ? 0 : Math.min(1, remaining / length);
+      return {
+        x: start.x + dx * t,
+        z: start.z + dz * t,
+      };
+    }
+
+    remaining -= length;
+  }
+
+  return path.at(-1) ?? {
+    x: DRIFT_EVOLUTION_ZEELAND_TARGET.x,
+    z: DRIFT_EVOLUTION_ZEELAND_TARGET.z,
+  };
+}
+
+export function getDriftEvolutionFirstTrackNavigationTarget(point: {
+  x: number;
+  z: number;
+}) {
+  const projection = projectPointOntoPath(point);
+  return getPointAlongFirstTrackPath(
+    projection.distanceAlongPath + DRIFT_EVOLUTION_FIRST_TRACK_LOOKAHEAD
+  );
+}
+
 export function isDriftEvolutionFirstTrackApproach(point: {
   x: number;
   z: number;
 }) {
-  const path = getFirstTrackApproachPath();
-  let nearestDistance = Number.POSITIVE_INFINITY;
-
-  for (let index = 0; index < path.length - 1; index += 1) {
-    nearestDistance = Math.min(
-      nearestDistance,
-      distanceToSegment(point, path[index], path[index + 1])
-    );
-  }
-
-  return nearestDistance <= DRIFT_EVOLUTION_FIRST_TRACK_GUIDANCE_HALF_WIDTH;
+  return (
+    projectPointOntoPath(point).distanceFromPath <=
+    DRIFT_EVOLUTION_FIRST_TRACK_GUIDANCE_HALF_WIDTH
+  );
 }
 
 export function getDriftEvolutionNearestTrackGuidance(
@@ -118,10 +176,9 @@ export function getDriftEvolutionTrackGuidance(
     const node = drift3dTrackNodeBySlug[DRIFT_EVOLUTION_FIRST_TRACK_SLUG];
     return {
       trackSlug: DRIFT_EVOLUTION_FIRST_TRACK_SLUG,
-      target: {
-        x: DRIFT_EVOLUTION_ZEELAND_TARGET.x,
-        z: DRIFT_EVOLUTION_ZEELAND_TARGET.z,
-      },
+      // The compass must guide the road the player can actually drive, not
+      // point through cave walls, quays or water at the final node center.
+      target: getDriftEvolutionFirstTrackNavigationTarget(point),
       distance: Math.hypot(
         point.x - DRIFT_EVOLUTION_ZEELAND_TARGET.x,
         point.z - DRIFT_EVOLUTION_ZEELAND_TARGET.z
