@@ -10,6 +10,11 @@ import {
   getDriftCompassHeadingServerSnapshot,
   subscribeDriftCompassHeading,
 } from "@/lib/driftCompassHeading";
+import {
+  getDriftEvolutionTrackGuidanceServerSnapshot,
+  getDriftEvolutionTrackGuidanceSnapshot,
+  subscribeDriftEvolutionTrackGuidance,
+} from "@/lib/driftEvolutionTrackGuidanceStore";
 
 type Drift3DHudProps = {
   proximity: Drift3DTopologyProximity | null;
@@ -20,7 +25,7 @@ type Drift3DHudProps = {
   bearingDegrees?: number;
 };
 
-function getCompassTrack(
+function getFallbackCompassTrack(
   proximity: Drift3DTopologyProximity | null,
   activeTrack: Track | null
 ) {
@@ -40,10 +45,32 @@ export default function Drift3DHud({
   bearingDegrees = 0,
 }: Drift3DHudProps) {
   const era = proximity?.activeEra ?? proximity?.nearestEra ?? null;
-  const compassTrack = getCompassTrack(proximity, activeTrack);
+  const evolutionGuidance = useSyncExternalStore(
+    subscribeDriftEvolutionTrackGuidance,
+    getDriftEvolutionTrackGuidanceSnapshot,
+    getDriftEvolutionTrackGuidanceServerSnapshot
+  );
+  const guidedTrack = evolutionGuidance
+    ? getTrackBySlug(evolutionGuidance.trackSlug) ?? null
+    : null;
+  const guidanceMatchesActiveTrack =
+    !activeTrack || evolutionGuidance?.trackSlug === activeTrack.slug;
+  const useEvolutionGuidance = Boolean(
+    evolutionGuidance && guidedTrack && guidanceMatchesActiveTrack
+  );
+  const compassTrack =
+    activeTrack ??
+    (useEvolutionGuidance ? guidedTrack : null) ??
+    getFallbackCompassTrack(proximity, activeTrack);
   const isPlayable = Boolean(activeTrack && proximity?.isInside);
   const progress = Math.round((proximity?.progress ?? 0) * 100);
-  const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
+  const compassDistance = useEvolutionGuidance
+    ? evolutionGuidance?.distance ?? 0
+    : proximity?.distance ?? 0;
+  const distanceLabel = `${Math.round(compassDistance)}u`;
+  const compassBearingDegrees = useEvolutionGuidance
+    ? evolutionGuidance?.bearingDegrees ?? bearingDegrees
+    : bearingDegrees;
   const headingDegrees = useSyncExternalStore(
     subscribeDriftCompassHeading,
     getDriftCompassHeadingDegrees,
@@ -110,7 +137,7 @@ export default function Drift3DHud({
           <div
             aria-hidden="true"
             className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-200 ease-out sm:top-[1.7rem]"
-            style={{ transform: `rotate(${bearingDegrees}deg)` }}
+            style={{ transform: `rotate(${compassBearingDegrees}deg)` }}
           >
             <Navigation2 className="h-4 w-4" fill="currentColor" strokeWidth={1.2} />
           </div>
