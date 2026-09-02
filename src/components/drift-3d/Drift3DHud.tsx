@@ -10,6 +10,11 @@ import {
   getDriftCompassHeadingServerSnapshot,
   subscribeDriftCompassHeading,
 } from "@/lib/driftCompassHeading";
+import {
+  getDriftEvolutionTrackGuidanceServerSnapshot,
+  getDriftEvolutionTrackGuidanceSnapshot,
+  subscribeDriftEvolutionTrackGuidance,
+} from "@/lib/driftEvolutionTrackGuidanceStore";
 
 type Drift3DHudProps = {
   proximity: Drift3DTopologyProximity | null;
@@ -20,7 +25,7 @@ type Drift3DHudProps = {
   bearingDegrees?: number;
 };
 
-function getCompassTrack(
+function getFallbackCompassTrack(
   proximity: Drift3DTopologyProximity | null,
   activeTrack: Track | null
 ) {
@@ -32,6 +37,13 @@ function getCompassTrack(
   return getTrackBySlug(node.trackSlug) ?? null;
 }
 
+function getGuidedProgress(distance: number, activationRadius: number) {
+  const falloff =
+    distance <= activationRadius ? activationRadius : activationRadius * 1.45;
+  if (falloff <= 0) return 0;
+  return Math.min(1, Math.max(0, 1 - distance / falloff));
+}
+
 export default function Drift3DHud({
   proximity,
   activeTrack,
@@ -40,10 +52,39 @@ export default function Drift3DHud({
   bearingDegrees = 0,
 }: Drift3DHudProps) {
   const era = proximity?.activeEra ?? proximity?.nearestEra ?? null;
-  const compassTrack = getCompassTrack(proximity, activeTrack);
+  const evolutionGuidance = useSyncExternalStore(
+    subscribeDriftEvolutionTrackGuidance,
+    getDriftEvolutionTrackGuidanceSnapshot,
+    getDriftEvolutionTrackGuidanceServerSnapshot
+  );
+  const guidedTrack = evolutionGuidance
+    ? getTrackBySlug(evolutionGuidance.trackSlug) ?? null
+    : null;
+  const guidanceMatchesActiveTrack =
+    !activeTrack || evolutionGuidance?.trackSlug === activeTrack.slug;
+  const useEvolutionGuidance = Boolean(
+    evolutionGuidance && guidedTrack && guidanceMatchesActiveTrack
+  );
+  const compassTrack =
+    activeTrack ??
+    (useEvolutionGuidance ? guidedTrack : null) ??
+    getFallbackCompassTrack(proximity, activeTrack);
   const isPlayable = Boolean(activeTrack && proximity?.isInside);
-  const progress = Math.round((proximity?.progress ?? 0) * 100);
-  const distanceLabel = `${Math.round(proximity?.distance ?? 0)}u`;
+  const progress = Math.round(
+    (useEvolutionGuidance && evolutionGuidance
+      ? getGuidedProgress(
+          evolutionGuidance.distance,
+          evolutionGuidance.activationRadius
+        )
+      : proximity?.progress ?? 0) * 100
+  );
+  const compassDistance = useEvolutionGuidance
+    ? evolutionGuidance?.distance ?? 0
+    : proximity?.distance ?? 0;
+  const distanceLabel = `${Math.round(compassDistance)}u`;
+  const compassBearingDegrees = useEvolutionGuidance
+    ? evolutionGuidance?.bearingDegrees ?? bearingDegrees
+    : bearingDegrees;
   const headingDegrees = useSyncExternalStore(
     subscribeDriftCompassHeading,
     getDriftCompassHeadingDegrees,
@@ -109,10 +150,14 @@ export default function Drift3DHud({
 
           <div
             aria-hidden="true"
-            className="absolute left-1/2 top-[1.5rem] -ml-2 h-4 w-4 origin-[50%_1.35rem] text-white transition-transform duration-200 ease-out sm:top-[1.7rem]"
-            style={{ transform: `rotate(${bearingDegrees}deg)` }}
+            className="absolute left-1/2 top-[1.15rem] -translate-x-1/2 text-white sm:top-[1.35rem]"
           >
-            <Navigation2 className="h-4 w-4" fill="currentColor" strokeWidth={1.2} />
+            <Navigation2
+              className="h-4 w-4 transition-transform duration-150 ease-out"
+              fill="currentColor"
+              strokeWidth={1.2}
+              style={{ transform: `rotate(${compassBearingDegrees}deg)` }}
+            />
           </div>
 
           <div className="absolute inset-x-5 top-[2.7rem] text-center sm:top-[3rem]">
