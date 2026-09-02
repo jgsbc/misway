@@ -7,7 +7,9 @@ import {
   DRIFT_EVOLUTION_ZEELAND_TARGET,
 } from "./driftEvolutionZeelandGeography";
 import {
+  DRIFT_EVOLUTION_FIRST_TRACK_LOOKAHEAD,
   DRIFT_EVOLUTION_FIRST_TRACK_SLUG,
+  getDriftEvolutionFirstTrackNavigationTarget,
   getDriftEvolutionNearestTrackGuidance,
   getDriftEvolutionTrackGuidance,
   isDriftEvolutionFirstTrackApproach,
@@ -48,20 +50,45 @@ test("Entry compass guides to Zeeland even when another track is geometrically n
   assert.ok(guided);
   assert.equal(guided.trackSlug, DRIFT_EVOLUTION_FIRST_TRACK_SLUG);
   assert.equal(guided.mode, "first-reveal");
-  assert.deepEqual(guided.target, DRIFT_EVOLUTION_ZEELAND_TARGET);
+  assert.notDeepEqual(
+    guided.target,
+    DRIFT_EVOLUTION_ZEELAND_TARGET,
+    "first guidance must steer along the authored route, not at the final node center"
+  );
+  assert.ok(
+    guided.target.x > spawn.x,
+    "spawn navigation target must lead east toward the cave exit"
+  );
+  assert.ok(
+    Math.hypot(guided.target.x - spawn.x, guided.target.z - spawn.z) <=
+      DRIFT_EVOLUTION_FIRST_TRACK_LOOKAHEAD + 0.8,
+    "spawn look-ahead should stay local enough to describe the drivable path"
+  );
 });
 
-test("Entry exit still points to Zeeland instead of the non-musical threshold", () => {
+test("Entry exit guidance follows the first dry Zeeland route leg", () => {
   const exit = {
     x: DRIFT_EVOLUTION_ENTRY_CAVE.exitX,
     z: DRIFT_EVOLUTION_ENTRY_CAVE.centerZ,
   };
   const guided = getDriftEvolutionTrackGuidance(exit);
+  const navigationTarget = getDriftEvolutionFirstTrackNavigationTarget(exit);
+  const firstDryLegEnd = DRIFT_EVOLUTION_ZEELAND_ROUTE[1];
 
   assert.equal(isDriftEvolutionFirstTrackApproach(exit), true);
   assert.ok(guided);
   assert.equal(guided.trackSlug, DRIFT_EVOLUTION_FIRST_TRACK_SLUG);
   assert.equal(guided.mode, "first-reveal");
+  assert.deepEqual(guided.target, navigationTarget);
+  assert.ok(navigationTarget.x > exit.x);
+  assert.ok(
+    distancePointToSegment(
+      navigationTarget,
+      DRIFT_EVOLUTION_ZEELAND_ROUTE[0],
+      firstDryLegEnd
+    ) < 0.05,
+    "exit arrow must point along the authored dry road rather than across harbour geography"
+  );
 });
 
 test("first-reveal guidance does not capture the Birth Yard side spurs", () => {
