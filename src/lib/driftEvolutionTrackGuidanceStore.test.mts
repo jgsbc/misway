@@ -41,3 +41,34 @@ test("guidance store publishes, suppresses tiny jitter and clears", () => {
   assert.equal(getDriftEvolutionTrackGuidanceSnapshot(), null);
   unsubscribe();
 });
+
+test("guidance bearing crosses north without a near-full-circle visual spin", () => {
+  clearDriftEvolutionTrackGuidance();
+
+  publishDriftEvolutionTrackGuidance({
+    trackSlug: "a-walk-in-zeeland",
+    distance: 18,
+    activationRadius: 6.2,
+    bearingDegrees: 359,
+    mode: "first-reveal",
+  });
+  const before = getDriftEvolutionTrackGuidanceSnapshot();
+  assert.ok(before);
+  assert.equal(before.bearingDegrees, -1);
+
+  publishDriftEvolutionTrackGuidance({
+    trackSlug: "a-walk-in-zeeland",
+    distance: 17.8,
+    activationRadius: 6.2,
+    bearingDegrees: 1,
+    mode: "first-reveal",
+  });
+  const after = getDriftEvolutionTrackGuidanceSnapshot();
+  assert.ok(after);
+  assert.ok(
+    Math.abs(after.bearingDegrees - before.bearingDegrees) <= 2.1,
+    `north crossing should move a few degrees, got ${before.bearingDegrees} -> ${after.bearingDegrees}`
+  );
+
+  clearDriftEvolutionTrackGuidance();
+});
