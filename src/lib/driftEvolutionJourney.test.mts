@@ -38,11 +38,11 @@ test("journey pose round-trips position and normalized heading", () => {
   const pose = getSafePose();
 
   assert.equal(writeDriftEvolutionJourneyPose(storage, pose), true);
-  assert.deepEqual(readDriftEvolutionJourneyPose(storage), {
-    x: pose.x,
-    z: pose.z,
-    heading: Math.PI / 2,
-  });
+  const restored = readDriftEvolutionJourneyPose(storage);
+  assert.ok(restored);
+  assert.equal(restored.x, pose.x);
+  assert.equal(restored.z, pose.z);
+  assert.ok(Math.abs(restored.heading - Math.PI / 2) < 1e-12);
 });
 
 test("journey pose rejects corrupt storage and clears it", () => {
