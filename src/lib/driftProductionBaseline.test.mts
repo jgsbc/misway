@@ -13,7 +13,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
   // Owner-approved P0.3 first-track compass guidance promoted on 2026-09-02.
-  "src/components/drift-3d/Drift3DHud.tsx": "a422f824c7c3562db182fda8a4a7274723f42ab3",
+  "src/components/drift-3d/Drift3DHud.tsx": "3e8ecf933f30f0120e1453709413385ed999670b",
 
   // Owner-approved Evolution runtime promoted to production on 2026-08-13.
   "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
@@ -27,7 +27,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   // Owner-approved P0.2 Entry stall recovery guard promoted on 2026-09-02.
   "src/components/drift-evolution/DriftEvolutionEntryRecoveryRig.tsx": "2c5209a91cae202d525150bc69f7e1329d88a61b",
   // Owner-approved P0.3 canonical first-track compass publisher promoted on 2026-09-02.
-  "src/components/drift-evolution/DriftEvolutionTrackGuidanceRig.tsx": "9036c1503314438fc81ee8e2dafcaf29e6bb192e",
+  "src/components/drift-evolution/DriftEvolutionTrackGuidanceRig.tsx": "4d574633199a0b49e35cbd406ba1a16c58f6d7d8",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
@@ -66,7 +66,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/driftEvolutionJourney.ts": "c78d15439b83e0a92cfd67b66ec7ea8ef8c86483",
   // Owner-approved P0.3 canonical first-track selection promoted on 2026-09-02.
   "src/lib/driftEvolutionFirstTrackGuidance.ts": "aec30e2de5705d6b7cec4934e9513fbd8610faa7",
-  "src/lib/driftEvolutionTrackGuidanceStore.ts": "589d01d6283f2e3d94db3e72e0165a519992bd21",
+  "src/lib/driftEvolutionTrackGuidanceStore.ts": "8ab69072ea59c464502aec89c026a53c8f67adf8",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
   "src/lib/driftEvolutionSpatial.ts": "495ece86c08a2a2a6fb9ae224da2ba59050adebc",
