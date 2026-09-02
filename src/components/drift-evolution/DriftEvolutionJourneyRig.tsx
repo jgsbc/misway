@@ -9,6 +9,7 @@ import {
   DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
   type Drift3DVehiclePhysicsState,
 } from "@/lib/drift3dVehiclePhysics";
+import { getDriftEvolutionEntryStartPosition } from "@/lib/driftEvolutionEntryCave";
 import {
   readDriftEvolutionJourneyPose,
   writeDriftEvolutionJourneyPose,
@@ -21,6 +22,7 @@ const JOURNEY_RESTORE_FRAME_PRIORITY = -99;
 const JOURNEY_RESUME_STABLE_FRAMES = 5;
 const JOURNEY_SAVE_INTERVAL_MS = 750;
 const JOURNEY_POSITION_TOLERANCE = 0.35;
+const JOURNEY_ENTRY_SPAWN_TOLERANCE = 0.2;
 
 function getSessionStorage(): DriftEvolutionJourneyStorage | null {
   try {
@@ -38,6 +40,16 @@ function getPoseFromState(
     z: state.position.z,
     heading: state.heading,
   };
+}
+
+function isEntrySpawnApplied(state: Drift3DVehiclePhysicsState) {
+  const entryStart = getDriftEvolutionEntryStartPosition();
+  return (
+    Math.hypot(
+      state.position.x - entryStart.x,
+      state.position.z - entryStart.z
+    ) <= JOURNEY_ENTRY_SPAWN_TOLERANCE
+  );
 }
 
 export default function DriftEvolutionJourneyRig({
@@ -82,7 +94,16 @@ export default function DriftEvolutionJourneyRig({
 
     if (!restoreAppliedRef.current) {
       const pose = resumePoseRef.current;
+
       if (pose) {
+        // EntrySequenceRig deliberately applies the canonical cave spawn only
+        // after passive scene initialization has settled. A frame priority by
+        // itself therefore cannot guarantee restore ordering: the journey rig
+        // may otherwise restore first and be overwritten by the cave spawn on
+        // the following frame. Wait until that canonical spawn is observable,
+        // then replace it with the persisted journey pose in the same frame.
+        if (!isEntrySpawnApplied(vehicleStateRef.current)) return;
+
         const y =
           getDrift3DGroundY(pose.x, pose.z) +
           DRIFT_3D_VEHICLE_GROUND_CLEARANCE;
@@ -91,6 +112,7 @@ export default function DriftEvolutionJourneyRig({
           pose.heading
         );
       }
+
       restoreAppliedRef.current = true;
       lastSaveAtRef.current = performance.now();
       return;
