@@ -5,7 +5,9 @@ import {
 } from "./drift3d";
 import { getDrift3DGroundY } from "./drift3dTerrain";
 import {
+  createDrift3DVehiclePhysicsState,
   DRIFT_3D_VEHICLE_COLLISION_RADIUS,
+  DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
   type Drift3DVehiclePhysicsState,
 } from "./drift3dVehiclePhysics";
 import {
@@ -22,6 +24,9 @@ export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.68;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 1.25;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT = 0.18;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET = 0.18;
+export const DRIFT_EVOLUTION_ENTRY_RECOVERY_STALL_SECONDS = 1.6;
+export const DRIFT_EVOLUTION_ENTRY_RECOVERY_MIN_EAST_PROGRESS = 0.32;
+export const DRIFT_EVOLUTION_ENTRY_RECOVERY_NUDGE = 0.72;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -68,6 +73,18 @@ export function isDriftEvolutionEntryConstraintActive(point: {
   return (
     Math.abs(point.z - envelope.centerZ) <=
     lateralRadius + DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN
+  );
+}
+
+export function isDriftEvolutionEntryRecoveryZone(point: {
+  x: number;
+  z: number;
+}) {
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  return (
+    point.x >= cave.spawnX - 0.45 &&
+    point.x <= cave.mouthX &&
+    isDriftEvolutionEntryConstraintActive(point)
   );
 }
 
@@ -132,6 +149,38 @@ export function constrainDriftEvolutionEntryVehicle(
   }
 
   return collided;
+}
+
+/**
+ * First-journey safety net only. It never runs outside the spawn-to-mouth
+ * portion and always resolves toward the canonical eastward exit. The normal
+ * reversible cave constraint remains authoritative everywhere else.
+ */
+export function recoverDriftEvolutionEntryVehicle(
+  state: Drift3DVehiclePhysicsState
+) {
+  if (!isDriftEvolutionEntryRecoveryZone(state.position)) return false;
+
+  const cave = DRIFT_EVOLUTION_ENTRY_CAVE;
+  const nextX = clamp(
+    state.position.x + DRIFT_EVOLUTION_ENTRY_RECOVERY_NUDGE,
+    cave.spawnX + 0.18,
+    cave.mouthX
+  );
+  const nextZ = getDriftEvolutionEntryPathCenterZ(nextX);
+  const recovered = createDrift3DVehiclePhysicsState(
+    {
+      x: nextX,
+      y:
+        getDrift3DGroundY(nextX, nextZ) +
+        DRIFT_3D_VEHICLE_GROUND_CLEARANCE,
+      z: nextZ,
+    },
+    Math.PI / 2
+  );
+
+  Object.assign(state, recovered);
+  return true;
 }
 
 export type DriftEvolutionCameraRig = {
