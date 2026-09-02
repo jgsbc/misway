@@ -17,11 +17,13 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
 
   // Owner-approved Evolution runtime promoted to production on 2026-08-13.
   "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
-  "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "d467a6d34f905b859422720444de1ca5ea3ed2c9",
+  // Owner-approved first-journey continuity promoted on 2026-09-02.
+  "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "5ae20b71d9bef50d1bffd6545b90f7213a4f28cb",
   "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "d4197173d8d3751c7588d00007caacf55d5f950c",
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
   // Owner-approved stability/camera/visibility finish promoted on 2026-08-16.
-  "src/components/drift-evolution/DriftEvolutionScene.tsx": "1800f5ad58420f7cbc0576afe5f1fccd86fce242",
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "3049130c4c322293fa40fc223f20f11ef4132879",
+  "src/components/drift-evolution/DriftEvolutionJourneyRig.tsx": "8928f6753acd21468dc3abd66231a7c81b004774",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
@@ -57,6 +59,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/drift3dOriginalVehicleGeometry.ts": "e9c5a8ea27395937ca719847db4d9fd66bd9c9b8",
   "src/lib/driftCompassHeading.ts": "ab40c125e4b4b503ca53ec9e6afa58c920641fa1",
   "src/lib/driftEvolutionEntryCave.ts": "4d5626373557e7c9a10050404a1ea26c57d7bc84",
+  "src/lib/driftEvolutionJourney.ts": "c78d15439b83e0a92cfd67b66ec7ea8ef8c86483",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
   "src/lib/driftEvolutionSpatial.ts": "444f4e33f189ef6b7c6dc953fcad15d3cbf785af",

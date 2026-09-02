@@ -220,9 +220,11 @@ export default function DriftEvolutionRuntimeClient() {
       }`}
     >
       <p id="drift-3d-description" className="sr-only">
-        {DRIFT_3D_WORLD_SUMMARY} Keyboard, mouse drag or touch drag to drive,
-        mouse wheel to adjust camera distance. Playable places expose an
-        explicit audio button and nothing plays on its own.
+        {DRIFT_3D_WORLD_SUMMARY} Keyboard arrows, WASD or ZQSD drive the 4x4;
+        up, W or Z drives forward and down or S reverses. Mouse drag or touch
+        drag steers and controls throttle; mouse wheel adjusts camera distance.
+        Playable places expose an explicit audio button and nothing plays on
+        its own.
       </p>
 
       <div className="absolute inset-0">
@@ -248,15 +250,17 @@ export default function DriftEvolutionRuntimeClient() {
 
       {!fallbackReason ? (
         <>
-          <div className="pointer-events-none absolute left-[calc(1rem+env(safe-area-inset-left))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(52vw,15rem)] md:left-6 md:top-6 md:max-w-[15rem]">
-            <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-500">
+          <div className="pointer-events-none absolute left-[calc(1rem+env(safe-area-inset-left))] top-[calc(1rem+env(safe-area-inset-top))] z-20 max-w-[min(58vw,16rem)] md:left-6 md:top-6 md:max-w-[16rem]">
+            <p className="font-mono text-[9px] uppercase tracking-[0.34em] text-neutral-400">
               MISWΛY · Drift
             </p>
-            <p className="mt-2 hidden max-w-[14rem] text-[12px] leading-5 text-neutral-700 md:block md:text-[13px]">
-              ZQSD / WASD / ARROWS / DRAG / WHEEL. Nodes listen only on click.
+            <p className="mt-2 max-w-[16rem] font-mono text-[10px] uppercase leading-4 tracking-[0.12em] text-white/60 md:text-[11px] md:leading-5 md:tracking-[0.08em]">
+              <span className="md:hidden">Drag ↑ drive · ↓ reverse</span>
+              <span className="hidden md:inline">
+                WASD / ZQSD / arrows · ↓ / S reverse · drag · wheel
+              </span>
             </p>
           </div>
-
         </>
       ) : null}
     </main>
