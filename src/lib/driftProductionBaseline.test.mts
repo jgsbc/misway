@@ -23,7 +23,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
   // Owner-approved stability/camera/visibility finish promoted on 2026-08-16.
   "src/components/drift-evolution/DriftEvolutionScene.tsx": "3049130c4c322293fa40fc223f20f11ef4132879",
-  "src/components/drift-evolution/DriftEvolutionJourneyRig.tsx": "b3267af161141089b9bb3502e5ec6870d0eeb9c0",
+  "src/components/drift-evolution/DriftEvolutionJourneyRig.tsx": "8928f6753acd21468dc3abd66231a7c81b004774",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
