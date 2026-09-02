@@ -51,6 +51,7 @@ export default function DriftEvolutionTrackGuidanceRig({
     publishDriftEvolutionTrackGuidance({
       trackSlug: guidance.trackSlug,
       distance: guidance.distance,
+      activationRadius: guidance.activationRadius,
       bearingDegrees,
       mode: guidance.mode,
     });
