@@ -22,8 +22,10 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "d4197173d8d3751c7588d00007caacf55d5f950c",
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
   // Owner-approved stability/camera/visibility finish promoted on 2026-08-16.
-  "src/components/drift-evolution/DriftEvolutionScene.tsx": "3049130c4c322293fa40fc223f20f11ef4132879",
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "739f21d718b029dd576041e3ccea4e54ce4d1e08",
   "src/components/drift-evolution/DriftEvolutionJourneyRig.tsx": "8928f6753acd21468dc3abd66231a7c81b004774",
+  // Owner-approved P0.2 Entry stall recovery guard promoted on 2026-09-02.
+  "src/components/drift-evolution/DriftEvolutionEntryRecoveryRig.tsx": "2c5209a91cae202d525150bc69f7e1329d88a61b",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
@@ -62,7 +64,7 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/driftEvolutionJourney.ts": "c78d15439b83e0a92cfd67b66ec7ea8ef8c86483",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
-  "src/lib/driftEvolutionSpatial.ts": "444f4e33f189ef6b7c6dc953fcad15d3cbf785af",
+  "src/lib/driftEvolutionSpatial.ts": "495ece86c08a2a2a6fb9ae224da2ba59050adebc",
   "src/lib/driftEvolutionZeelandGeography.ts": "d0cc3f6e64208e30818ec3c4ce31db2c634962bc",
   "src/lib/driftEvolutionFoolfouleRegistry.ts": "5e9e1bf8dc7687a7f0d6ee3b75e299abb3e7b796",
   "src/lib/driftEvolutionLegacyEntryRegistry.ts": "7dd3b172cfb85e48c784c8fdb19eb698c9df4f48",
