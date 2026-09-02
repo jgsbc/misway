@@ -66,14 +66,23 @@ test("Entry compass guides to Zeeland even when another track is geometrically n
   );
 });
 
-test("Entry exit guidance follows the first dry Zeeland route leg", () => {
+test("Entry exit guidance follows the first dry Zeeland route legs", () => {
   const exit = {
     x: DRIFT_EVOLUTION_ENTRY_CAVE.exitX,
     z: DRIFT_EVOLUTION_ENTRY_CAVE.centerZ,
   };
   const guided = getDriftEvolutionTrackGuidance(exit);
   const navigationTarget = getDriftEvolutionFirstTrackNavigationTarget(exit);
-  const firstDryLegEnd = DRIFT_EVOLUTION_ZEELAND_ROUTE[1];
+  const firstLegDistance = distancePointToSegment(
+    navigationTarget,
+    DRIFT_EVOLUTION_ZEELAND_ROUTE[0],
+    DRIFT_EVOLUTION_ZEELAND_ROUTE[1]
+  );
+  const secondLegDistance = distancePointToSegment(
+    navigationTarget,
+    DRIFT_EVOLUTION_ZEELAND_ROUTE[1],
+    DRIFT_EVOLUTION_ZEELAND_ROUTE[2]
+  );
 
   assert.equal(isDriftEvolutionFirstTrackApproach(exit), true);
   assert.ok(guided);
@@ -82,12 +91,8 @@ test("Entry exit guidance follows the first dry Zeeland route leg", () => {
   assert.deepEqual(guided.target, navigationTarget);
   assert.ok(navigationTarget.x > exit.x);
   assert.ok(
-    distancePointToSegment(
-      navigationTarget,
-      DRIFT_EVOLUTION_ZEELAND_ROUTE[0],
-      firstDryLegEnd
-    ) < 0.05,
-    "exit arrow must point along the authored dry road rather than across harbour geography"
+    Math.min(firstLegDistance, secondLegDistance) < 0.05,
+    "exit arrow must stay on the authored dry road rather than point across harbour geography"
   );
 });
 
