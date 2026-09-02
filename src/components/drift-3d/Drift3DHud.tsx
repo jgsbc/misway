@@ -37,6 +37,13 @@ function getFallbackCompassTrack(
   return getTrackBySlug(node.trackSlug) ?? null;
 }
 
+function getGuidedProgress(distance: number, activationRadius: number) {
+  const falloff =
+    distance <= activationRadius ? activationRadius : activationRadius * 1.45;
+  if (falloff <= 0) return 0;
+  return Math.min(1, Math.max(0, 1 - distance / falloff));
+}
+
 export default function Drift3DHud({
   proximity,
   activeTrack,
@@ -63,7 +70,14 @@ export default function Drift3DHud({
     (useEvolutionGuidance ? guidedTrack : null) ??
     getFallbackCompassTrack(proximity, activeTrack);
   const isPlayable = Boolean(activeTrack && proximity?.isInside);
-  const progress = Math.round((proximity?.progress ?? 0) * 100);
+  const progress = Math.round(
+    (useEvolutionGuidance && evolutionGuidance
+      ? getGuidedProgress(
+          evolutionGuidance.distance,
+          evolutionGuidance.activationRadius
+        )
+      : proximity?.progress ?? 0) * 100
+  );
   const compassDistance = useEvolutionGuidance
     ? evolutionGuidance?.distance ?? 0
     : proximity?.distance ?? 0;
