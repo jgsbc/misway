@@ -17,6 +17,7 @@ test("guidance store publishes, suppresses tiny jitter and clears", () => {
   publishDriftEvolutionTrackGuidance({
     trackSlug: "a-walk-in-zeeland",
     distance: 24,
+    activationRadius: 6.2,
     bearingDegrees: 18,
     mode: "first-reveal",
   });
@@ -29,6 +30,7 @@ test("guidance store publishes, suppresses tiny jitter and clears", () => {
   publishDriftEvolutionTrackGuidance({
     trackSlug: "a-walk-in-zeeland",
     distance: 23.96,
+    activationRadius: 6.2,
     bearingDegrees: 18.4,
     mode: "first-reveal",
   });
