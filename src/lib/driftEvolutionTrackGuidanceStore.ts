@@ -3,6 +3,7 @@ import type { Track } from "./tracks";
 export type DriftEvolutionTrackGuidanceSnapshot = {
   trackSlug: Track["slug"];
   distance: number;
+  activationRadius: number;
   bearingDegrees: number;
   mode: "first-reveal" | "nearest";
 };
@@ -20,6 +21,7 @@ export function publishDriftEvolutionTrackGuidance(
     previous &&
     previous.trackSlug === next.trackSlug &&
     previous.mode === next.mode &&
+    previous.activationRadius === next.activationRadius &&
     Math.abs(previous.distance - next.distance) < 0.08 &&
     Math.abs(previous.bearingDegrees - next.bearingDegrees) < 0.8
   ) {
