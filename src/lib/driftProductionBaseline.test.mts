@@ -12,8 +12,8 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-3d/Drift3DScatterField.tsx": "8d410d304f2d11abc8c44e5a5fbf7db3a02703d3",
   "src/components/drift-3d/DriftStartupVeil.tsx": "d136b99a7e933b2d1bff01766a616873c8bd9f5d",
   "src/components/drift-3d/DriftHeroBackdrop.tsx": "9c0fa176d3c1e4322e88fc8f335b9e8ef02cee56",
-  // Owner-approved compass heading-up finish promoted on 2026-08-16.
-  "src/components/drift-3d/Drift3DHud.tsx": "83b2fbd9cd1866c30646a8eb1f651fe26ccee571",
+  // Owner-approved P0.3 route-aware first-track compass guidance promoted on 2026-09-02.
+  "src/components/drift-3d/Drift3DHud.tsx": "06568a0c9d8d7378615af14dc9f297fc8d912f09",
 
   // Owner-approved Evolution runtime promoted to production on 2026-08-13.
   "src/components/drift-evolution/DriftEvolutionClient.tsx": "76af465108cb8813ea46a60a3d732d232ad160b7",
@@ -21,11 +21,13 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/components/drift-evolution/DriftEvolutionRuntimeClient.tsx": "5ae20b71d9bef50d1bffd6545b90f7213a4f28cb",
   "src/components/drift-evolution/DriftEvolutionCanvas.tsx": "d4197173d8d3751c7588d00007caacf55d5f950c",
   "src/components/drift-evolution/DriftEvolutionFooter.tsx": "e1dfdb44d762fa566b6d8b50f002bc594df2f2a5",
-  // Owner-approved stability/camera/visibility finish promoted on 2026-08-16.
-  "src/components/drift-evolution/DriftEvolutionScene.tsx": "739f21d718b029dd576041e3ccea4e54ce4d1e08",
+  // Owner-approved P0.3 first-track guidance mount promoted on 2026-09-02.
+  "src/components/drift-evolution/DriftEvolutionScene.tsx": "e584cb89999d4aed77003cf375b3ab4f0b89c444",
   "src/components/drift-evolution/DriftEvolutionJourneyRig.tsx": "8928f6753acd21468dc3abd66231a7c81b004774",
   // Owner-approved P0.2 Entry stall recovery guard promoted on 2026-09-02.
   "src/components/drift-evolution/DriftEvolutionEntryRecoveryRig.tsx": "2c5209a91cae202d525150bc69f7e1329d88a61b",
+  // Owner-approved P0.3 canonical first-track compass publisher promoted on 2026-09-02.
+  "src/components/drift-evolution/DriftEvolutionTrackGuidanceRig.tsx": "4d574633199a0b49e35cbd406ba1a16c58f6d7d8",
   "src/components/drift-evolution/DriftEvolutionPerformanceRig.tsx": "70b907994856d85880fcb0694406204e4e40c7cb",
   "src/components/drift-evolution/Defender90LowpolyVehicleVisual.tsx": "97d5a31f26bd09c35b41a88a345ab86bf4c519bd",
   "src/components/drift-evolution/EntryCaveSalvage.tsx": "028e4c67cca8fb622714a8a3d22d55ec9b0635e6",
@@ -62,6 +64,9 @@ const PROTECTED_DRIFT_BLOBS = Object.freeze({
   "src/lib/driftCompassHeading.ts": "ab40c125e4b4b503ca53ec9e6afa58c920641fa1",
   "src/lib/driftEvolutionEntryCave.ts": "4d5626373557e7c9a10050404a1ea26c57d7bc84",
   "src/lib/driftEvolutionJourney.ts": "c78d15439b83e0a92cfd67b66ec7ea8ef8c86483",
+  // Owner-approved P0.3 route-aware first-track selection promoted on 2026-09-02.
+  "src/lib/driftEvolutionFirstTrackGuidance.ts": "13fd8e46bade674278faeb39c5d15e87f45a57a2",
+  "src/lib/driftEvolutionTrackGuidanceStore.ts": "b66c5e4e94956f744fb1677468c1ab92124a4a17",
   "src/lib/driftEvolutionFoolfoule.ts": "2d8b9c0bb0d77d37f70cec8c13b15bc8e12c4b4a",
   "src/lib/driftEvolutionFoolfouleDramaturgy.ts": "f38207bd6530692c6a70e30442aaafb4cf29c0d1",
   "src/lib/driftEvolutionSpatial.ts": "495ece86c08a2a2a6fb9ae224da2ba59050adebc",
