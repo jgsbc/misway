@@ -11,10 +11,25 @@ import {
   type Drift3DPoint,
 } from "./drift3dBase";
 
+/**
+ * Open-world chase framing.
+ *
+ * The composition invariant these four numbers have to satisfy is
+ *
+ *   atan((HEIGHT - TARGET_HEIGHT) / (DEPTH + LOOK_AHEAD))  <  verticalFov / 2
+ *
+ * i.e. the rig must not pitch further down than half the camera's vertical
+ * field, or the horizon leaves the frame from the top and the world loses its
+ * sky and its distant silhouettes at every pose. The shipped 3.8/7.6/3.2/0.72
+ * gave 15.92 deg against a 14 deg half-field: the horizon sat permanently
+ * 1.9 deg above the top edge. 3.8/9.5/3.2/1.2 gives 11.57 deg, which keeps the
+ * horizon inside the frame with margin and moves the Safari down into an
+ * anchor position instead of the centre of the image.
+ */
 export const DRIFT_3D_CHASE_CAMERA_HEIGHT = 3.8;
-export const DRIFT_3D_CHASE_CAMERA_DEPTH = 7.6;
+export const DRIFT_3D_CHASE_CAMERA_DEPTH = 9.5;
 export const DRIFT_3D_CHASE_CAMERA_LOOK_AHEAD = 3.2;
-export const DRIFT_3D_CHASE_CAMERA_TARGET_HEIGHT = 0.72;
+export const DRIFT_3D_CHASE_CAMERA_TARGET_HEIGHT = 1.2;
 export const DRIFT_3D_CHASE_CAMERA_MIN_GROUND_CLEARANCE = 1.15;
 
 export type Drift3DChaseCameraOptions = {

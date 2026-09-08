@@ -10,6 +10,7 @@ import {
   getDriftEvolutionEntryStartPosition,
 } from "./driftEvolutionEntryCave";
 import {
+  DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET,
   DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH,
   DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN,
   DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH,
@@ -166,10 +167,22 @@ test("cave spawn camera shows the Safari immediately without requiring movement"
   );
   const vehicleBelowCenter = vehicleDownAngle - targetDownAngle;
 
+  // The spawn sits 3.52 m from the rock back wall, so the authored chase depth
+  // cannot always be honoured there. What has to hold is that the camera takes
+  // every metre the cave actually offers rather than collapsing onto the 4x4.
+  const availableStandoff =
+    vehicle.x -
+    (DRIFT_EVOLUTION_ENTRY_CAVE.startX +
+      DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET);
+  const reachableDepth = Math.min(
+    DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH,
+    availableStandoff
+  );
+
   assert.ok(adaptive.enclosure > 0.95);
   assert.ok(
-    vehicleDistance >= DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH * 0.92,
-    `spawn chase distance collapsed to ${vehicleDistance.toFixed(2)}m`
+    vehicleDistance >= reachableDepth * 0.92,
+    `spawn chase distance collapsed to ${vehicleDistance.toFixed(2)}m of the ${reachableDepth.toFixed(2)}m the cave allows`
   );
   assert.ok(
     vehicleBelowCenter < 0.22,

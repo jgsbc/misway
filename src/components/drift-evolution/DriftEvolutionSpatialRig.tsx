@@ -26,6 +26,7 @@ import {
   DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH,
   constrainDriftEvolutionEntryVehicle,
   getDriftEvolutionAdaptiveCameraRig,
+  getDriftEvolutionCameraVerticalFov,
 } from "@/lib/driftEvolutionSpatial";
 
 type DriftEvolutionSpatialRigProps = {
@@ -272,6 +273,18 @@ function AdaptiveCameraRig({
   const desiredTargetRef = useRef(new THREE.Vector3());
 
   useFrame((_, delta) => {
+    // Framing is authored horizontally; `fov` is vertical. Re-derive it from the
+    // live aspect so a portrait phone keeps a usable horizontal field instead of
+    // a 13 deg slit. Wide viewports resolve to the shipped 28 deg and are untouched.
+    if ((camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
+      const perspective = camera as THREE.PerspectiveCamera;
+      const nextFov = getDriftEvolutionCameraVerticalFov(perspective.aspect);
+      if (Math.abs(perspective.fov - nextFov) > 0.01) {
+        perspective.fov = nextFov;
+        perspective.updateProjectionMatrix();
+      }
+    }
+
     const activeTrackSlug = getActiveTrackSlug(proximity);
     const trackMotion = getDrift3DTrackMotion(activeTrackSlug);
     const motionEase = 1 - Math.exp(-delta * 2);

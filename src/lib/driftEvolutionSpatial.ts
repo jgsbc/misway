@@ -19,14 +19,43 @@ import {
 export const DRIFT_EVOLUTION_ENTRY_DRIVE_HALF_WIDTH = 2.5;
 export const DRIFT_EVOLUTION_ENTRY_BACK_STOP_INSET = 0.72;
 export const DRIFT_EVOLUTION_ENTRY_CONSTRAINT_CAPTURE_MARGIN = 0.42;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH = 3.45;
+/**
+ * Enclosed (cave) chase distance. Clamped against the rock back wall by
+ * `DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET`, so at the spawn the camera
+ * still stands exactly where it did before (only 3.52 m of tunnel exist behind
+ * the 4x4 there) and the first frame keeps its intended tightness. Past the
+ * ramp the clamp releases and the extra distance is what stops the Safari from
+ * overflowing the frame: at 3.45 m it covered 106% of the viewport height for
+ * the whole second half of the tunnel.
+ */
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_DEPTH = 5.6;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_HEIGHT = 1.68;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_LOOK_AHEAD = 1.25;
 export const DRIFT_EVOLUTION_ENTRY_CAMERA_TARGET_HEIGHT = 0.18;
-export const DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET = 0.18;
+/**
+ * The camera may use the cave all the way back to the rock wall, but not past
+ * the western edge of the floor it stands on: `CaveGroundRibbon` starts the
+ * drivable floor at `startX + 0.25`, and a camera even a few centimetres west
+ * of that edge drops below the ribbon's leading triangle and gets the 4x4
+ * cut in half by it.
+ */
+export const DRIFT_EVOLUTION_ENTRY_CAMERA_BACK_WALL_INSET = 0.25;
 export const DRIFT_EVOLUTION_ENTRY_RECOVERY_STALL_SECONDS = 1.6;
 export const DRIFT_EVOLUTION_ENTRY_RECOVERY_MIN_EAST_PROGRESS = 0.32;
 export const DRIFT_EVOLUTION_ENTRY_RECOVERY_NUDGE = 0.72;
+
+/**
+ * Framing is authored horizontally, but a perspective camera's `fov` is
+ * vertical, so a fixed `fov` collapses the horizontal field as the viewport
+ * narrows: 47.8 deg on a 16:9 desktop, 56.7 deg in mobile landscape and only
+ * 13.1 deg on a 390x844 portrait phone, where the Safari alone covered 67% of
+ * the frame width. These bounds keep the horizontal field usable on a tall
+ * frame while leaving every wide viewport on exactly the shipped 28 deg, so
+ * desktop and landscape cannot regress.
+ */
+export const DRIFT_EVOLUTION_CAMERA_REFERENCE_ASPECT = 16 / 9;
+export const DRIFT_EVOLUTION_CAMERA_MIN_VERTICAL_FOV = 28;
+export const DRIFT_EVOLUTION_CAMERA_MAX_VERTICAL_FOV = 46;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -193,6 +222,36 @@ export type DriftEvolutionCameraRig = {
  * Open world = canonical chase camera. Inside the west-ridge cave the camera
  * comes closer/lower and keeps the 4x4 clearly framed in the lower third.
  */
+/**
+ * Vertical `fov` that keeps a usable horizontal field on a narrow viewport.
+ *
+ * Wide viewports (16:9 desktop, mobile landscape) resolve to the lower bound,
+ * which is the shipped value, so their framing is unchanged. Only tall frames
+ * open up, and never past the upper bound, so portrait gains world width
+ * without turning into a fisheye.
+ */
+export function getDriftEvolutionCameraVerticalFov(aspect: number): number {
+  if (!Number.isFinite(aspect) || aspect <= 0) {
+    return DRIFT_EVOLUTION_CAMERA_MIN_VERTICAL_FOV;
+  }
+
+  // The horizontal field a 16:9 desktop gets from the shipped vertical fov is
+  // the reference the whole world is framed against, so a 16:9 viewport lands
+  // back on that exact vertical fov and anything wider clamps to it.
+  const referenceHalfHorizontal = Math.atan(
+    Math.tan((DRIFT_EVOLUTION_CAMERA_MIN_VERTICAL_FOV * Math.PI) / 360) *
+      DRIFT_EVOLUTION_CAMERA_REFERENCE_ASPECT
+  );
+  const vertical =
+    (Math.atan(Math.tan(referenceHalfHorizontal) / aspect) * 360) / Math.PI;
+
+  return clamp(
+    vertical,
+    DRIFT_EVOLUTION_CAMERA_MIN_VERTICAL_FOV,
+    DRIFT_EVOLUTION_CAMERA_MAX_VERTICAL_FOV
+  );
+}
+
 export function getDriftEvolutionAdaptiveCameraRig(
   vehiclePosition: Drift3DPoint,
   heading: number,
