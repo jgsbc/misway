@@ -1,29 +1,50 @@
 import * as THREE from "three";
 import type { Drift3DMaterialKind } from "@/lib/drift3dLandmarks";
+import { withBasePath } from "@/lib/basePath";
 
 /**
  * Material textures (realism bible rule: no flat untextured color).
- * Photo-sourced CC0 diffuses (Poly Haven, public/textures) cover the natural
+ * Photo-sourced CC0 maps (Poly Haven, public/textures) cover the natural
  * materials; procedural canvases remain for the man-made grids (windows,
  * plaster, granite, thatch) until the full PBR pass. Cached per kind+repeat
  * so meshes share GPU textures.
+ *
+ * The paths below are repository-relative (under `public/`) and MUST be
+ * resolved through `getDrift3DPhotoTextureUrl()` before reaching a loader.
+ * The production export is served under a basePath (`/misway`), so a raw
+ * `/textures/...` URL 404s there. That 404 is not a silent no-op: the loader
+ * still hands the material a Texture that never uploads, so the sampler reads
+ * three's 1x1 RGBA(0,0,0,0) empty texture. The diffuse then multiplies to
+ * black, and the normal map decodes to `normalize(tbn * vec3(-1))`, which
+ * flips the shading normal into the surface instead of out of it.
  */
 
-const photoTextureFiles: Partial<Record<Drift3DMaterialKind, string>> = {
-  rock: "/textures/rock_boulder_dry_diff_1k.jpg",
-  brick: "/textures/red_brick_03_diff_1k.jpg",
-  concrete: "/textures/concrete_wall_008_diff_1k.jpg",
-  wood: "/textures/brown_planks_07_diff_1k.jpg",
-  sand: "/textures/aerial_beach_01_diff_1k.jpg",
+/** Repository-relative diffuse paths, without a basePath prefix. */
+export const DRIFT_3D_PHOTO_DIFFUSE_FILES: Partial<
+  Record<Drift3DMaterialKind, string>
+> = {
+  rock: "/textures/rock_boulder_dry_diff_512.webp",
+  brick: "/textures/red_brick_03_diff_512.webp",
+  concrete: "/textures/concrete_wall_008_diff_512.webp",
+  wood: "/textures/brown_planks_07_diff_512.webp",
+  sand: "/textures/aerial_beach_01_diff_512.webp",
 };
 
-const photoNormalFiles: Partial<Record<Drift3DMaterialKind, string>> = {
-  rock: "/textures/rock_boulder_dry_nor_gl_1k.jpg",
-  brick: "/textures/red_brick_03_nor_gl_1k.jpg",
-  concrete: "/textures/concrete_wall_008_nor_gl_1k.jpg",
-  wood: "/textures/brown_planks_07_nor_gl_1k.jpg",
-  sand: "/textures/aerial_beach_01_nor_gl_1k.jpg",
+/** Repository-relative normal-GL paths, without a basePath prefix. */
+export const DRIFT_3D_PHOTO_NORMAL_FILES: Partial<
+  Record<Drift3DMaterialKind, string>
+> = {
+  rock: "/textures/rock_boulder_dry_nor_gl_512.webp",
+  brick: "/textures/red_brick_03_nor_gl_512.webp",
+  concrete: "/textures/concrete_wall_008_nor_gl_512.webp",
+  wood: "/textures/brown_planks_07_nor_gl_512.webp",
+  sand: "/textures/aerial_beach_01_nor_gl_512.webp",
 };
+
+/** basePath-prefixed URL ready to pass to `TextureLoader`. */
+export function getDrift3DPhotoTextureUrl(file: string): string {
+  return withBasePath(file);
+}
 
 const textureCache = new Map<string, THREE.Texture>();
 const photoLoader = new THREE.TextureLoader();
@@ -77,7 +98,7 @@ export function getDriftMaterialMaps(
   repeatY = 1
 ): DriftMaterialMaps {
   const map = getDriftMaterialTexture(kind, repeatX, repeatY);
-  const normalFile = photoNormalFiles[kind];
+  const normalFile = DRIFT_3D_PHOTO_NORMAL_FILES[kind];
 
   if (!normalFile || typeof document === "undefined") {
     return { map, normalMap: null };
@@ -87,7 +108,7 @@ export function getDriftMaterialMaps(
   let normalMap = textureCache.get(cacheKey) ?? null;
 
   if (!normalMap) {
-    normalMap = photoLoader.load(normalFile);
+    normalMap = photoLoader.load(getDrift3DPhotoTextureUrl(normalFile));
     normalMap.wrapS = THREE.RepeatWrapping;
     normalMap.wrapT = THREE.RepeatWrapping;
     normalMap.repeat.set(repeatX, repeatY);
@@ -226,10 +247,10 @@ export function getDriftMaterialTexture(
     return cached;
   }
 
-  const photoFile = photoTextureFiles[kind];
+  const photoFile = DRIFT_3D_PHOTO_DIFFUSE_FILES[kind];
 
   if (photoFile) {
-    const photoTexture = photoLoader.load(photoFile);
+    const photoTexture = photoLoader.load(getDrift3DPhotoTextureUrl(photoFile));
     photoTexture.wrapS = THREE.RepeatWrapping;
     photoTexture.wrapT = THREE.RepeatWrapping;
     photoTexture.repeat.set(repeatX, repeatY);
