@@ -197,6 +197,7 @@ export default function Drift3DHud({
 
               <Link
                 href={`/tracks/${compassTrack.slug}`}
+                prefetch={false}
                 onClick={(event) => event.stopPropagation()}
                 onPointerDown={(event) => event.stopPropagation()}
                 onPointerMove={(event) => event.stopPropagation()}

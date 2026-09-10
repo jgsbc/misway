@@ -31,12 +31,14 @@ export default function DriftEvolutionFooter({
         >
           <Link
             href="/"
+            prefetch={false}
             className="inline-flex min-h-9 items-center px-1.5 font-mono text-[8px] uppercase tracking-[0.14em] text-white/72 transition hover:text-white sm:px-2 sm:text-[9px] sm:tracking-[0.2em]"
           >
             MISWΛY
           </Link>
           <Link
             href="/tracks"
+            prefetch={false}
             className="inline-flex min-h-9 items-center px-1.5 font-mono text-[8px] uppercase tracking-[0.14em] text-white/72 transition hover:text-white sm:px-2 sm:text-[9px] sm:tracking-[0.2em]"
           >
             TRACKS

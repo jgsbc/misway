@@ -171,9 +171,91 @@ test("Defender source asset is complete and attribution-ready", () => {
   assert.match(gltf.asset?.extras?.author ?? "", /kekis69/);
   assert.match(gltf.asset?.extras?.license ?? "", /CC-BY-4\.0/);
   assert.equal(gltf.buffers?.[0]?.uri, "scene.bin");
-  assert.equal(gltf.buffers?.[0]?.byteLength, 4_111_684);
-  assert.equal(statSync(assetBinUrl).size, 4_111_684);
+  /*
+   * LOT 04 repacked this buffer (see public/models/defender90-lowpoly/README.md).
+   * The invariant this assertion protects is that the shipped model is still the
+   * whole Sketchfab vehicle with its attribution, not a substitute -- so it is
+   * expressed as "the declared length matches the file on disk" plus the exact
+   * triangle count, instead of the pre-repack magic number it used to hold.
+   */
+  assert.equal(gltf.buffers?.[0]?.byteLength, statSync(assetBinUrl).size);
   assert.equal(triangles, 100_075);
   assert.match(license, /CC-BY-4\.0/);
   assert.match(license, /kekis69/);
+});
+
+/*
+ * LOT 04 -- critical loading path.
+ *
+ * This model was 60.7% of everything a cold visit to /drift downloads, and on a
+ * throttled mobile connection the player became drivable roughly 18 seconds
+ * before the vehicle appeared on screen. It was repacked, not decimated: the
+ * geometry below must stay exactly what Sketchfab exported.
+ */
+const DEFENDER_BIN_BYTE_BUDGET = 3_000 * 1024;
+
+test("Defender payload stays repacked without losing any geometry", () => {
+  const gltf = JSON.parse(readFileSync(assetGltfUrl, "utf8")) as {
+    images?: unknown[];
+    textures?: unknown[];
+    samplers?: unknown[];
+    materials: Array<Record<string, unknown>>;
+    accessors: Array<{ count: number; componentType: number; type: string }>;
+    meshes: Array<{
+      primitives: Array<{
+        indices?: number;
+        attributes: Record<string, number>;
+      }>;
+    }>;
+  };
+
+  const primitives = gltf.meshes.flatMap((mesh) => mesh.primitives);
+  assert.equal(primitives.length, 51, "primitive count changed");
+
+  const vertices = primitives.reduce(
+    (total, primitive) => total + gltf.accessors[primitive.attributes.POSITION].count,
+    0
+  );
+  assert.equal(vertices, 90_962, "vertex count changed");
+
+  // Dropping the UV channel is only lossless while nothing can sample it.
+  assert.equal(gltf.images?.length ?? 0, 0, "the model now declares images");
+  assert.equal(gltf.textures?.length ?? 0, 0, "the model now declares textures");
+  assert.equal(gltf.samplers?.length ?? 0, 0, "the model now declares samplers");
+  for (const material of gltf.materials) {
+    assert.ok(
+      !/Texture/.test(JSON.stringify(material)),
+      "a material references a texture; the repacked asset has no UVs to sample it with"
+    );
+  }
+  for (const primitive of primitives) {
+    const uvAttributes = Object.keys(primitive.attributes).filter((name) =>
+      name.startsWith("TEXCOORD_")
+    );
+    assert.deepEqual(uvAttributes, [], "an unsampled UV channel is back in the payload");
+    assert.ok(primitive.attributes.POSITION !== undefined, "primitive lost POSITION");
+    assert.ok(primitive.attributes.NORMAL !== undefined, "primitive lost NORMAL");
+  }
+
+  // Narrowing the indices is only lossless while every index fits in 16 bits.
+  const UNSIGNED_SHORT = 5123;
+  for (const primitive of primitives) {
+    assert.notEqual(primitive.indices, undefined, "primitive lost its index buffer");
+    const indexAccessor = gltf.accessors[primitive.indices as number];
+    assert.equal(
+      indexAccessor.componentType,
+      UNSIGNED_SHORT,
+      "index buffer widened back to 32 bits"
+    );
+    const positionCount = gltf.accessors[primitive.attributes.POSITION].count;
+    assert.ok(
+      positionCount <= 65_536,
+      `a primitive holds ${positionCount} vertices, which no longer fits a 16-bit index`
+    );
+  }
+
+  assert.ok(
+    statSync(assetBinUrl).size <= DEFENDER_BIN_BYTE_BUDGET,
+    `scene.bin is ${statSync(assetBinUrl).size} bytes, over the LOT 04 budget of ${DEFENDER_BIN_BYTE_BUDGET}`
+  );
 });

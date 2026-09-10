@@ -13,7 +13,11 @@ import { usePathname } from "next/navigation";
 import type { Track } from "@/lib/tracks";
 import { tracks } from "@/lib/tracks";
 import { withBasePath } from "@/lib/basePath";
-import { shouldSuppressIdleAmbientOnDrift } from "@/lib/audioPlaybackPolicy";
+import {
+  planAudioSourceAttachment,
+  resolveDeferredAudioAttachment,
+  shouldSuppressIdleAmbientOnDrift,
+} from "@/lib/audioPlaybackPolicy";
 import {
   createDrift3DAudioClockSnapshot,
   updateDrift3DAudioClock,
@@ -173,6 +177,11 @@ export function AudioPlayerProvider({
   );
   const pendingDiscontinuityRef = useRef<PendingDiscontinuity>(null);
 
+  // Source deliberately not attached to the element yet: the suppressed idle
+  // ambient on /drift cannot start without a click, and an attached `src` makes
+  // the browser fetch about a megabyte in the seconds the world is still
+  // downloading. `playCurrent` attaches it the moment it is actually wanted.
+  const deferredSrcRef = useRef<string | null>(null);
   const [current, setCurrent] = useState<CurrentAudio>(AMBIENT_AUDIO);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLooping, setIsLooping] = useState(false);
@@ -232,6 +241,17 @@ export function AudioPlayerProvider({
     const audio = audioRef.current;
     if (!audio) return;
 
+    const attachment = resolveDeferredAudioAttachment({
+      deferredSrc: deferredSrcRef.current,
+      attachedSrc: audio.getAttribute("src"),
+    });
+    deferredSrcRef.current = null;
+    if (attachment.attach) {
+      audio.preload = "auto";
+      audio.src = attachment.src;
+      audio.load();
+    }
+
     try {
       await audio.play();
       interactionRetryRef.current = false;
@@ -253,31 +273,43 @@ export function AudioPlayerProvider({
       if (!audio) return;
 
       const nextSrc = withBasePath(audioItem.audioSrc);
-      const currentSrc = audio.getAttribute("src") ?? "";
-      const sourceChanged = currentSrc !== nextSrc;
 
-      if (sourceChanged) {
-        audio.src = nextSrc;
-      }
-
-      audio.loop = false;
-      audio.volume = audioItem.kind === "ambient" ? 0.34 : 0.92;
-      audio.preload = "metadata";
-
-      // `load()` resets playback even when the URL is unchanged. Keeping the
-      // source synchronization idempotent preserves the current track across
-      // client-side route transitions and React effect replays.
-      if (sourceChanged) {
-        audio.load();
-      }
-
-      if (shouldSuppressIdleAmbientOnDrift({
+      const suppressIdleAmbient = shouldSuppressIdleAmbientOnDrift({
         isDriftRoute: isDriftLabRouteRef.current,
         audioKind: audioItem.kind,
         isActuallyPlaying: !audio.paused,
-      })) {
+      });
+      const plan = planAudioSourceAttachment({
+        suppressIdleAmbient,
+        attachedSrc: audio.getAttribute("src"),
+        nextSrc,
+      });
+
+      audio.loop = false;
+      audio.volume = audioItem.kind === "ambient" ? 0.34 : 0.92;
+
+      if (plan.action === "defer") {
+        // Chrome does not honour `preload="none"` here: with a `src` attached it
+        // opens the stream and pulls megabytes anyway. Not attaching the source
+        // is the only thing that reliably costs nothing. `playCurrent` attaches
+        // it on the click that asks for the sound. Anything already attached is
+        // left where it is -- deferring must never tear a source off.
+        deferredSrcRef.current = plan.src;
         interactionRetryRef.current = false;
         shouldResumeRef.current = false;
+        return;
+      }
+
+      deferredSrcRef.current = null;
+      audio.preload = "metadata";
+
+      // `plan.action === "keep"` is the audio that is already on the element --
+      // possibly playing. Re-assigning `src` or calling `load()` there resets
+      // playback, so the source synchronization stays idempotent across
+      // client-side route transitions and React effect replays.
+      if (plan.action === "attach") {
+        audio.src = plan.src;
+        audio.load();
       }
 
       if (shouldResumeRef.current) {
