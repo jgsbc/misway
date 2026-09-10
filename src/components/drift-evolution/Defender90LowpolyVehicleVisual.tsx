@@ -412,15 +412,29 @@ export default function Defender90LowpolyVehicleVisual() {
   const headlightRef = useRef<THREE.SpotLight | null>(null);
   const headlightTargetRef = useRef<THREE.Object3D | null>(null);
   const [model, setModel] = useState<THREE.Group | null>(null);
+  const legacyRestoreVisibleRef = useRef(true);
 
   useLayoutEffect(() => {
     const legacy = findLegacyVehiclePoseGroup(scene);
     legacyPoseRef.current = legacy;
-    if (legacy) legacy.visible = false;
+    legacyRestoreVisibleRef.current = legacy ? legacy.visible : true;
 
+    /*
+     * FIRST DRIVABLE INTEGRITY -- the inherited procedural vehicle is
+     * deliberately NOT hidden here.
+     *
+     * The Defender is fetched, parsed and merged asynchronously, and
+     * `DriftSceneReadySignal` does not wait for it: on a throttled mobile
+     * connection the veil lifted 10 to 14 seconds before `scene.bin` had even
+     * finished downloading. Hiding at mount therefore handed the player a
+     * drivable world with no vehicle in it for as long as that took.
+     *
+     * The hand-off now happens in the frame rig below, in the same frame the
+     * Defender is placed on the procedural vehicle's pose.
+     */
     return () => {
       const previous = legacyPoseRef.current;
-      if (previous) previous.visible = true;
+      if (previous) previous.visible = legacyRestoreVisibleRef.current;
       legacyPoseRef.current = null;
     };
   }, [scene]);
@@ -473,7 +487,7 @@ export default function Defender90LowpolyVehicleVisual() {
     if (!legacy) {
       legacy = findLegacyVehiclePoseGroup(scene);
       if (legacy) {
-        legacy.visible = false;
+        legacyRestoreVisibleRef.current = legacy.visible;
         legacyPoseRef.current = legacy;
       }
     }
@@ -482,6 +496,15 @@ export default function Defender90LowpolyVehicleVisual() {
     if (legacy && poseGroup) {
       poseGroup.position.copy(legacy.position);
       poseGroup.quaternion.copy(legacy.quaternion);
+
+      /*
+       * The Defender now stands exactly where the procedural vehicle stands,
+       * so the procedural one can go -- in this frame, before it is drawn.
+       * The renderer runs at priority 1 and this rig at 0.62, and React commits
+       * the model outside the frame loop, so no drawn frame ever shows two
+       * vehicles, and none shows zero.
+       */
+      if (legacy.visible) legacy.visible = false;
     }
   }, 0.62);
 

@@ -139,12 +139,74 @@ test("Defender source exposes exactly four three-part rubber road-wheel assembli
   assert.equal(wheelAssemblies.length, 4);
 });
 
-test("Defender hides the inherited visual during load but restores it on failure", () => {
+/*
+ * FIRST DRIVABLE INTEGRITY.
+ *
+ * This test used to assert the opposite: that the inherited procedural vehicle
+ * was hidden in the mount effect. That was the defect. The Defender is fetched,
+ * parsed and merged asynchronously and `DriftSceneReadySignal` does not wait for
+ * it, so hiding at mount left the player driving a world with no vehicle in it
+ * for as long as the download took -- measured at 6.0 s on a throttled mobile
+ * profile, and 18.1 s before LOT 04 shrank the payload.
+ *
+ * The invariant the old assertion was reaching for is the hand-off, so that is
+ * what is asserted now: the inherited vehicle survives until the Defender is
+ * standing on its pose, and the swap happens in one frame.
+ */
+const mountEffectSource = (() => {
+  const match = evolutionVehicleSource.match(
+    /useLayoutEffect\(\(\) => \{\n\s*const legacy = findLegacyVehiclePoseGroup\(scene\);[\s\S]*?\}, \[scene\]\);/
+  );
+  assert.ok(match, "could not find the mount layout effect");
+  return match[0];
+})();
+
+const frameRigSource = (() => {
+  const match = evolutionVehicleSource.match(/useFrame\(\(\) => \{[\s\S]*?\}, 0\.62\);/);
+  assert.ok(match, "could not find the 0.62 frame rig");
+  return match[0];
+})();
+
+test("Defender keeps the inherited vehicle visible while it loads", () => {
+  assert.doesNotMatch(
+    mountEffectSource,
+    /legacy\.visible = false/,
+    "the mount effect hides the inherited vehicle again; nothing would be on screen until the Defender arrives"
+  );
+  assert.match(
+    mountEffectSource,
+    /legacyRestoreVisibleRef\.current = legacy \? legacy\.visible : true;/,
+    "the mount effect no longer records the visibility it must restore on unmount"
+  );
+  assert.match(
+    mountEffectSource,
+    /previous\.visible = legacyRestoreVisibleRef\.current/,
+    "unmount no longer restores the visibility the component found"
+  );
+});
+
+test("Defender hides the inherited vehicle only once it stands on its pose", () => {
+  assert.match(
+    frameRigSource,
+    /poseGroup\.position\.copy\(legacy\.position\);[\s\S]*poseGroup\.quaternion\.copy\(legacy\.quaternion\);[\s\S]*if \(legacy\.visible\) legacy\.visible = false;/,
+    "the hand-off must come after the pose copy, in the same frame, or the Defender is drawn at the wrong place"
+  );
+  // The renderer draws at priority 1; this rig runs at 0.62, so the swap lands
+  // before the frame is drawn. Both halves must stay in the same callback.
+  assert.match(evolutionVehicleSource, /\}, 0\.62\);/);
+  assert.equal(
+    (frameRigSource.match(/legacy\.visible = false/g) ?? []).length,
+    1,
+    "the inherited vehicle is hidden in more than one place; the hand-off must have exactly one site"
+  );
+});
+
+test("Defender leaves the inherited vehicle in place when loading fails", () => {
   assert.match(
     evolutionVehicleSource,
-    /useLayoutEffect\(\(\) => \{[\s\S]*legacy\.visible = false;[\s\S]*\}, \[scene\]\);/
+    /legacy\.visible = true/,
+    "the failure path must still guarantee a visible vehicle"
   );
-  assert.match(evolutionVehicleSource, /legacy\.visible = true/);
 });
 
 test("Defender source asset is complete and attribution-ready", () => {
